@@ -26,8 +26,8 @@
       "version": "0.0.1",
       "identity": "@aops/pg-bootstrap@0.0.1",
       "tarballPath": "vendor/npm/aops-pg-bootstrap-0.0.1.tgz",
-      "sha256": "sha256:772807444b0276af53c7c8be1ac7f8de831ef1d41b8c0fd6984596494b2a383a",
-      "byteLength": 20859,
+      "sha256": "sha256:b3bac1085a366990afd7a224ff3a658a8bf76caa39930907b84b94e177ed686c",
+      "byteLength": 20902,
       "fileCount": 16
     },
     {
@@ -71,8 +71,8 @@
       "version": "0.1.0",
       "identity": "@aopslab/domain-dm-agentspace@0.1.0",
       "tarballPath": "vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz",
-      "sha256": "sha256:5c3206ba7a07f57307fb11935571af5cbc458e53b863365a91d3c16f584d1b50",
-      "byteLength": 197094,
+      "sha256": "sha256:a9c53a93f65d03f8493c5a3b13324d7c4806f2d41cbf6389e1490b3029001ad3",
+      "byteLength": 197173,
       "fileCount": 1497
     },
     {
@@ -89,8 +89,8 @@
       "version": "0.1.2",
       "identity": "@aopslab/domain-dm-docman@0.1.2",
       "tarballPath": "vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz",
-      "sha256": "sha256:0284159b821d67ff88d9d9cb565d32a9006c0fd3660488acb3862cc9b8dac1f0",
-      "byteLength": 93710,
+      "sha256": "sha256:d34342849917b0db18157d2f36db77bdd1db80ff03dc57eb8272a97f58bd443e",
+      "byteLength": 93817,
       "fileCount": 525
     },
     {
@@ -98,8 +98,8 @@
       "version": "0.1.4",
       "identity": "@aopslab/domain-dm-projectman@0.1.4",
       "tarballPath": "vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz",
-      "sha256": "sha256:d8ea5a2e7582614db01fef2e2e926c6d68cc3e81d7b5f08b33f037bff72be2a2",
-      "byteLength": 87997,
+      "sha256": "sha256:c17d259aac33530062a4267181e33c21b287c72615d2f8596222c36688e7808c",
+      "byteLength": 87940,
       "fileCount": 663
     },
     {
@@ -107,8 +107,8 @@
       "version": "0.1.86",
       "identity": "@aopslab/domain-dm-sys@0.1.86",
       "tarballPath": "vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz",
-      "sha256": "sha256:e32524486d6e36602b2924d94de61d406d007465e3ab9264dc258635a9714852",
-      "byteLength": 49247,
+      "sha256": "sha256:2bf0a4500df980c49c3cd929acb827f99a9e1639f5d9f27aa2abfa637ca41044",
+      "byteLength": 49239,
       "fileCount": 207
     },
     {
@@ -206,8 +206,8 @@
       "version": "0.1.0",
       "identity": "@aopslab/domain-pg-bootstrap-chatv3@0.1.0",
       "tarballPath": "vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz",
-      "sha256": "sha256:207873cbde5212221f2b514c7cdef8de8c7ded8feab35892cb455ec38f2cdf9c",
-      "byteLength": 18604,
+      "sha256": "sha256:c434f751e5b9ce03f507d6ae5a6a0105d2bc11e94b2c45436f7e5628c7b3b03c",
+      "byteLength": 18697,
       "fileCount": 17
     },
     {
@@ -368,8 +368,8 @@
       "version": "0.1.68",
       "identity": "@aopslab/xf-core@0.1.68",
       "tarballPath": "vendor/npm/aopslab-xf-core-0.1.68.tgz",
-      "sha256": "sha256:883948e7cbeaaf4727c18e6ebeea695a439c6176683d13f96efc42a6cd872877",
-      "byteLength": 9718,
+      "sha256": "sha256:c2b5ac2e8e4a6cc93795b709699f1a2d316306b5ac5a2f4661caf39f4388ca8a",
+      "byteLength": 9703,
       "fileCount": 27
     },
     {
@@ -377,8 +377,8 @@
       "version": "0.1.74",
       "identity": "@aopslab/xf-db@0.1.74",
       "tarballPath": "vendor/npm/aopslab-xf-db-0.1.74.tgz",
-      "sha256": "sha256:4dcb2d10d23d52cd1eca782d1a2be0262e68abbdcd235730aeb5208bd0177ddf",
-      "byteLength": 11637,
+      "sha256": "sha256:baacb8a5c32fcf9ca9b10b31ae78d9af495bee8ca05d59ea815aeafb81462305",
+      "byteLength": 11669,
       "fileCount": 49
     },
     {
@@ -404,8 +404,8 @@
       "version": "0.1.75",
       "identity": "@aopslab/xf-db-redis@0.1.75",
       "tarballPath": "vendor/npm/aopslab-xf-db-redis-0.1.75.tgz",
-      "sha256": "sha256:2fa64d2672b54397b21016bdd8dbdc0b41c52ae8a203b3991073c9ec691935a0",
-      "byteLength": 15903,
+      "sha256": "sha256:b5a119df225a9c652dff2e08856d23b0bb0beac6a07349f85992a2084069b02a",
+      "byteLength": 15814,
       "fileCount": 31
     },
     {
@@ -422,8 +422,8 @@
       "version": "0.1.13",
       "identity": "@aopslab/xf-dm-kits@0.1.13",
       "tarballPath": "vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz",
-      "sha256": "sha256:7436e16cf8cb85ab2db2766b1b221e36f8363355394321435196852c777da84b",
-      "byteLength": 12796,
+      "sha256": "sha256:8824ed44f170f75061d076ae4996b684c304ba7dd86af1223014bd059ec8edbe",
+      "byteLength": 12866,
       "fileCount": 53
     },
     {
@@ -431,8 +431,8 @@
       "version": "0.1.73",
       "identity": "@aopslab/xf-i18n@0.1.73",
       "tarballPath": "vendor/npm/aopslab-xf-i18n-0.1.73.tgz",
-      "sha256": "sha256:99bfc1109ca6caa5808270b710748a63accadcbdd2bee7759394bf332cb05634",
-      "byteLength": 28078,
+      "sha256": "sha256:bd62990ff67a581144638c8db29fdcb6babab4a11b03615a795199fd2ed7f089",
+      "byteLength": 27991,
       "fileCount": 31
     },
     {
@@ -494,8 +494,8 @@
       "version": "0.1.79",
       "identity": "@aopslab/xf-validation@0.1.79",
       "tarballPath": "vendor/npm/aopslab-xf-validation-0.1.79.tgz",
-      "sha256": "sha256:16d1838b30c3397323346be6352e6a2bbb8e730dd6969066390dc250d80defd5",
-      "byteLength": 10527,
+      "sha256": "sha256:0f05726e1a6a24071ad82e341035178c2cddc31dec1764287507dcc2cb81b97c",
+      "byteLength": 10542,
       "fileCount": 23
     }
   ]

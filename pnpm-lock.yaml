@@ -312,7 +312,7 @@ packages:
     version: 0.0.1
 
   '@aops/pg-bootstrap@file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz':
-    resolution: {integrity: sha512-TUu22LdBvd+9nBdGgijn27bZzLRb9Utdrwz185BRO2o/p6UTJOz24pI/USb+BqC+kiZDfRK4ZRoYThzUrDjMSQ==, tarball: file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz}
+    resolution: {integrity: sha512-I/SNlV66SBk62sB/fJuT1iZWpefqcVm7W7/VwzgLI0K+l6605MR2uTEKTS1npIRwGZ8ixzj/xBL/GTDgnVH6tg==, tarball: file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz}
     version: 0.0.1
     hasBin: true
 
@@ -333,7 +333,7 @@ packages:
     version: 0.0.15
 
   '@aopslab/domain-dm-agentspace@file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz':
-    resolution: {integrity: sha512-z7uluTt7xT03qLz3jdDVzCISyaEhMWTdqtGxiaBz9WM4zKUZnPmrWcJUh+DpcjLcfuSnJFy6G5C7CB8t5HygEQ==, tarball: file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz}
+    resolution: {integrity: sha512-e6wN/R1uVssHEkIbOt4fcklRMcPcnPtmXxlk8Ss6W28enCvhbZ8DNJcQjXrM7dpilbkzzCekV8zz0FC02KPa6A==, tarball: file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz}
     version: 0.1.0
     peerDependencies:
       zod: 4.4.3
@@ -343,19 +343,19 @@ packages:
     version: 0.1.0
 
   '@aopslab/domain-dm-docman@file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz':
-    resolution: {integrity: sha512-VAGwlsonvxnhaP+Mcl7snD1AjZezCUl2hTJS4RLzwy8rCu5XSQHsQ3XkApGAiUq13al+EbyahPH2qQybTkohew==, tarball: file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz}
+    resolution: {integrity: sha512-rtBwRYPxPfF9KyJTvNexGpbW6MJ2BivpgXwS9u2dygOadUgwy6dkpsqgR2vNOSLo5AzcJYAF8x1GehXPy1TOYw==, tarball: file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz}
     version: 0.1.2
     peerDependencies:
       zod: 4.4.3
 
   '@aopslab/domain-dm-projectman@file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz':
-    resolution: {integrity: sha512-2+lfUeOFeuYIv9mrJGiimmRVJhsoFj1+VWqi6AFWpwtsVaxcHR4TadLMP+ROQLU8CevucSvlXs+N5Mrq4YwoIQ==, tarball: file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz}
+    resolution: {integrity: sha512-7tiXWnrHz0+1bZ6Ebn+doKG2XMM0+XIF3Sky/eHpt7Z/asPTKTA+CTlzczvbUo3ptnrHgCVTKsEaDMmJ/lU8jA==, tarball: file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz}
     version: 0.1.4
     peerDependencies:
       zod: 4.4.3
 
   '@aopslab/domain-dm-sys@file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz':
-    resolution: {integrity: sha512-44qCRRkO3OkDDy3YVD7n/46mJQAaoR5sHMu4glzU4AuUSlgU6UPTmI+37Pyb1WTYBYYbTm93f8H2zVJzvSOnAw==, tarball: file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz}
+    resolution: {integrity: sha512-lcF2s1nFL6ca6eJoklpKKeno6KW/ynZBq+CGmfEjhVPoEIH8YKb66OBXwuywd+Cw+yfB+H2OZikIfu9AyU+KCw==, tarball: file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz}
     version: 0.1.86
     peerDependencies:
       zod: 4.4.3
@@ -401,7 +401,7 @@ packages:
     version: 0.0.5
 
   '@aopslab/domain-pg-bootstrap-chatv3@file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz':
-    resolution: {integrity: sha512-c9aBWVPOQ0O91yvrxF+iXxeryMg/asd/Os2FYqIbqJIK4K2Nn+i0OWU5IkXyDtHhnwDOfsTQIXYbawZXz5kghg==, tarball: file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz}
+    resolution: {integrity: sha512-QuVBWhOYVy7VMUJG+ZSPGjskn7qV31XEdAE9ZoK8ERcboqpMs/OWpPF3NGhRTLgsoeSryYv8g60YLIFsGZ64JQ==, tarball: file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz}
     version: 0.1.0
 
   '@aopslab/domain-pg-bootstrap-docman@file:vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz':
@@ -482,7 +482,7 @@ packages:
     version: 0.1.13
 
   '@aopslab/xf-core@file:vendor/npm/aopslab-xf-core-0.1.68.tgz':
-    resolution: {integrity: sha512-2ue05aB1mgvZEbzJB4tKz854/lJgmQuN9dmMdQoC4v9LnjtkjHbhqUDDr59B794xmv1pXZRKUQNj4fJY53NUDg==, tarball: file:vendor/npm/aopslab-xf-core-0.1.68.tgz}
+    resolution: {integrity: sha512-SPRxCwVpLo587THWsEOMlUrTCz19Zuk5057n+aOj1muXEAoAl88jITj+hDDy8iwjXCGJkz5Qf3MALC9K1vCoEQ==, tarball: file:vendor/npm/aopslab-xf-core-0.1.68.tgz}
     version: 0.1.68
 
   '@aopslab/xf-db-drizzle@file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz':
@@ -498,15 +498,15 @@ packages:
       mongoose: 8.23.1
 
   '@aopslab/xf-db-redis@file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz':
-    resolution: {integrity: sha512-IiNFNiG/4n7SaidcamWAT7VujLjL4pNxYL7y9ZhpQCqfquW0OcL/OQ+K1JSeQWmWTfXGQSDwSxjeqml4H1ZhkA==, tarball: file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz}
+    resolution: {integrity: sha512-00JCjQ+1vDFOpGJa7JlfU54oneNdu5lzuX4cwmPG7HZdPwLmb8Vif5gb7u+3/az+1/dxTgwOkUM59Gk5k/8LaA==, tarball: file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz}
     version: 0.1.75
 
   '@aopslab/xf-db@file:vendor/npm/aopslab-xf-db-0.1.74.tgz':
-    resolution: {integrity: sha512-ZdKjntLboLel6qGG/rbvZjE4XnNNQNn6qlA6KCDIdbP3aVeTXcZWqoadJYkJ2uoGuMhAymSVMfM58RS7MCnYgw==, tarball: file:vendor/npm/aopslab-xf-db-0.1.74.tgz}
+    resolution: {integrity: sha512-Ice8i1hDOBGgXExG3Qp18mpmBr2U0Ex8yKRU8BSoy+y+CbXYi5F7wSzkjhN5Qq6uqIZ9upJInL8c6d9Du+uZuQ==, tarball: file:vendor/npm/aopslab-xf-db-0.1.74.tgz}
     version: 0.1.74
 
   '@aopslab/xf-dm-kits@file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz':
-    resolution: {integrity: sha512-iL67yLrn4574+YwIX3q6gurVGSGJ7YjZp5G5fIsccBPhqZ2yGsWNZAJlN5sNStpgVvjdfT/ql1NiG03MQfISHw==, tarball: file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz}
+    resolution: {integrity: sha512-dQthhDUHpp3fhcZXwUNY3fuC+/48ZtpA3NRfLEcXy1MGmX/67zWQQiqXuz2wq8tL+4QWhIPVgBJaPBXwmIY3rQ==, tarball: file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz}
     version: 0.1.13
 
   '@aopslab/xf-dm@file:vendor/npm/aopslab-xf-dm-0.1.83.tgz':
@@ -514,7 +514,7 @@ packages:
     version: 0.1.83
 
   '@aopslab/xf-i18n@file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz':
-    resolution: {integrity: sha512-si+UNOV3u8qn/+7w/u6ZdruLLHJxB4wXnvpxpi9aVNZIpATwNjlvD/BjE2YZIqZvJwGVuIKR9IOZSmHyCoWVOA==, tarball: file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz}
+    resolution: {integrity: sha512-Fc4piAV9OqRHDhZuR5edTt6i9lgpDPaj+gOJe7QDbVlbu62vLekfqITPknhG0TdBDtgzTD7aj59UxsMbvqD7Vw==, tarball: file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz}
     version: 0.1.73
 
   '@aopslab/xf-logger@file:vendor/npm/aopslab-xf-logger-0.1.61.tgz':
@@ -542,7 +542,7 @@ packages:
     version: 0.1.1
 
   '@aopslab/xf-validation@file:vendor/npm/aopslab-xf-validation-0.1.79.tgz':
-    resolution: {integrity: sha512-Pe8y96+eoWDIFXkGoHAf1F3IKQsFyXLXGzvX3WDmVYQhbWSTtnUAj2nEAZUSEdhDSzF5u8uzgOp6dtUSmW0eVg==, tarball: file:vendor/npm/aopslab-xf-validation-0.1.79.tgz}
+    resolution: {integrity: sha512-9RV9mhpXi23LE++4lwFZgaFtbbn1qdy5t1Hz7ee5NB0Xe3WvkrON8eZH8blZxwtZDIYdrtw2n/W3mS8n488Gqw==, tarball: file:vendor/npm/aopslab-xf-validation-0.1.79.tgz}
     version: 0.1.79
     peerDependencies:
       zod: 4.4.3
