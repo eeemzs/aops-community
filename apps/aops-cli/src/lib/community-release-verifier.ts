@@ -7,12 +7,13 @@ import { parseCommunityRelease, type CommunityReleaseIdentity } from './communit
 
 const SHA256 = /^sha256:[a-f0-9]{64}$/
 export const COMMUNITY_GITHUB_OIDC_ISSUER = 'https://token.actions.githubusercontent.com'
+export const COMMUNITY_PUBLIC_SOURCE_REPOSITORY = 'git+https://github.com/eeemzs/aops-community'
 
 type ArtifactRef = { ref: string; sha256: string; kind: string }
 type ReleaseManifest = {
   schemaVersion: 1
   releaseVersion: string
-  source: { treeRef: string; treeDigest: string }
+  source: { repository: string; treeRef: string; treeDigest: string }
   image: { repository: string; tag: string; indexDigest: string }
   cli: { artifactRef: string; artifactSha256: string }
   compose: { ref: string; sha256: string }
@@ -90,6 +91,9 @@ function parseManifest(content: string): ReleaseManifest {
   }
   if (!manifest.source || !manifest.cli || !manifest.compose || !manifest.migrations || !manifest.evidence) {
     fail('community_release_manifest_incomplete')
+  }
+  if (manifest.source.repository !== COMMUNITY_PUBLIC_SOURCE_REPOSITORY) {
+    fail('community_release_source_repository_invalid')
   }
   if (
     manifest.image?.repository !== 'ghcr.io/aopslab/aops-community' ||
