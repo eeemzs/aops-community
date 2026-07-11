@@ -184,7 +184,8 @@ const ALLOWED_OPERATION_SET = new Set(COMMUNITY_AGENTSPACE_ALLOWED_OPERATION_IDS
 const COMMUNITY_DOMAIN_DESCRIPTION = "Community context services for projects, prompts, skills, memory, rooms, discussions, missions, playbooks, experiences, resources, artifacts, profiles, tags, and activity items.";
 const COMMUNITY_DOMAIN_DOCS = Object.freeze({"summary":"Manage the reviewed Community Agentspace surface for projects, reusable context, coordination rooms, discussions, missions, and activity records.","notes":["This Community projection is an exact operation and schema allowlist.","Filesystem skill package import, export, and materialization are not exposed.","Project cascade deletion and private runtime/session records are not exposed."]});
 const normalizeId = (value) => String(value ?? '').trim().toLowerCase();
-const sorted = (values) => [...values].sort((left, right) => left.localeCompare(right));
+const codepointCompare = (left, right) => left < right ? -1 : left > right ? 1 : 0;
+const sorted = (values) => [...values].sort(codepointCompare);
 const toRecord = (value) => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 
 function exactSet(label, actual, expected) {

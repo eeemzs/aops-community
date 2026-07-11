@@ -61,7 +61,8 @@ const COMMUNITY_PLUGIN_MODULES = Object.freeze([
 ]);
 const COMMUNITY_RUNTIME_ENV_KEYS = Object.freeze(['AOPS_PG_URL']);
 
-const sorted = (values: string[]) => [...values].sort((left, right) => left.localeCompare(right));
+const codepointCompare = (left: string, right: string) => left < right ? -1 : left > right ? 1 : 0;
+const sorted = (values: string[]) => [...values].sort(codepointCompare);
 const normalize = (value: unknown) => String(value ?? '').trim().toLowerCase();
 
 function exactSet(label: string, actual: string[], expected: readonly string[]): void {

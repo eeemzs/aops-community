@@ -2,6 +2,7 @@ import { Pool, type PoolConfig } from 'pg'
 
 export const COMMUNITY_PG_ENV_KEY = 'AOPS_PG_URL' as const
 export const COMMUNITY_PG_SCHEMA_TABLES = ['projects', 'docman_documents', 'projectman_kanban_boards', 'chatv3-rooms', 'sys_event_stores'] as const
+const codepointCompare = (left: string, right: string) => left < right ? -1 : left > right ? 1 : 0
 
 type CommunityPgTarget = {
   host: string
@@ -160,7 +161,7 @@ async function runRuntimeConfigAdminTargetProbe(
         where has_table_privilege(c.oid, 'SELECT')`,
       [COMMUNITY_PG_SCHEMA_TABLES],
     )
-    const existingRelations = tables.rows.map((row) => row.name).sort((left, right) => left.localeCompare(right))
+    const existingRelations = tables.rows.map((row) => row.name).sort(codepointCompare)
     const missingRelations = COMMUNITY_PG_SCHEMA_TABLES.filter((name) => !existingRelations.includes(name))
     return {
       target: { repoDialect: 'pg' as const, redactedRepoUrl: redactPgTarget(target) },
