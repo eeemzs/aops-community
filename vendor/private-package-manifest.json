@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "planDigest": "sha256:0b7cfa7632dc44d95854550b84ce68be98dbbb4afc6c11847c8bc53c8c078357",
+  "packageCount": 55,
+  "packages": [
+    {
+      "name": "@aops/error-catalog",
+      "version": "0.0.1",
+      "identity": "@aops/error-catalog@0.0.1",
+      "tarballPath": "vendor/npm/aops-error-catalog-0.0.1.tgz",
+      "sha256": "sha256:95cdb26619355df9816035b17c92f54a2ff2eb593e819f280f4a80c1a7560b7e",
+      "byteLength": 2070,
+      "fileCount": 7
+    },
+    {
+      "name": "@aops/host-registration",
+      "version": "0.0.1",
+      "identity": "@aops/host-registration@0.0.1",
+      "tarballPath": "vendor/npm/aops-host-registration-0.0.1.tgz",
+      "sha256": "sha256:57ce5b4d94413707af9d764de114e43a421845b72c086717acc80dd6a051f64c",
+      "byteLength": 1520,
+      "fileCount": 5
+    },
+    {
+      "name": "@aops/pg-bootstrap",
+      "version": "0.0.1",
+      "identity": "@aops/pg-bootstrap@0.0.1",
+      "tarballPath": "vendor/npm/aops-pg-bootstrap-0.0.1.tgz",
+      "sha256": "sha256:772807444b0276af53c7c8be1ac7f8de831ef1d41b8c0fd6984596494b2a383a",
+      "byteLength": 20859,
+      "fileCount": 16
+    },
+    {
+      "name": "@aops/runtime-config",
+      "version": "0.0.1",
+      "identity": "@aops/runtime-config@0.0.1",
+      "tarballPath": "vendor/npm/aops-runtime-config-0.0.1.tgz",
+      "sha256": "sha256:34e01099d8b3d54dd38ef1b0645136f2dfe14c14a9e8bd8fe541c17c0223be27",
+      "byteLength": 3300,
+      "fileCount": 5
+    },
+    {
+      "name": "@aopslab/api-client",
+      "version": "0.0.15",
+      "identity": "@aopslab/api-client@0.0.15",
+      "tarballPath": "vendor/npm/aopslab-api-client-0.0.15.tgz",
+      "sha256": "sha256:1791886683b06bbdcb0362fdb0e64533763d31bfa5ae98fb33ba5aeb8fe4848f",
+      "byteLength": 2750,
+      "fileCount": 3
+    },
+    {
+      "name": "@aopslab/cli-kit",
+      "version": "0.0.1",
+      "identity": "@aopslab/cli-kit@0.0.1",
+      "tarballPath": "vendor/npm/aopslab-cli-kit-0.0.1.tgz",
+      "sha256": "sha256:157eb7f87fdd0a8fde8f666daf0d86ae989739a83f3b913554199470aef6e349",
+      "byteLength": 6406,
+      "fileCount": 9
+    },
+    {
+      "name": "@aopslab/domain-core-docman",
+      "version": "0.0.15",
+      "identity": "@aopslab/domain-core-docman@0.0.15",
+      "tarballPath": "vendor/npm/aopslab-domain-core-docman-0.0.15.tgz",
+      "sha256": "sha256:810a17a1113fed5db0248693e726494b5f805f8e55a45583f32ed4a9048eadff",
+      "byteLength": 2177,
+      "fileCount": 6
+    },
+    {
+      "name": "@aopslab/domain-dm-agentspace",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-dm-agentspace@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz",
+      "sha256": "sha256:5c3206ba7a07f57307fb11935571af5cbc458e53b863365a91d3c16f584d1b50",
+      "byteLength": 197094,
+      "fileCount": 1497
+    },
+    {
+      "name": "@aopslab/domain-dm-chatv3",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-dm-chatv3@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz",
+      "sha256": "sha256:70e0b4822eae7efd462d06cf9ebf25ee5b23e644da68f3a2d26232ee6c5a80b6",
+      "byteLength": 46253,
+      "fileCount": 175
+    },
+    {
+      "name": "@aopslab/domain-dm-docman",
+      "version": "0.1.2",
+      "identity": "@aopslab/domain-dm-docman@0.1.2",
+      "tarballPath": "vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz",
+      "sha256": "sha256:0284159b821d67ff88d9d9cb565d32a9006c0fd3660488acb3862cc9b8dac1f0",
+      "byteLength": 93710,
+      "fileCount": 525
+    },
+    {
+      "name": "@aopslab/domain-dm-projectman",
+      "version": "0.1.4",
+      "identity": "@aopslab/domain-dm-projectman@0.1.4",
+      "tarballPath": "vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz",
+      "sha256": "sha256:d8ea5a2e7582614db01fef2e2e926c6d68cc3e81d7b5f08b33f037bff72be2a2",
+      "byteLength": 87997,
+      "fileCount": 663
+    },
+    {
+      "name": "@aopslab/domain-dm-sys",
+      "version": "0.1.86",
+      "identity": "@aopslab/domain-dm-sys@0.1.86",
+      "tarballPath": "vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz",
+      "sha256": "sha256:e32524486d6e36602b2924d94de61d406d007465e3ab9264dc258635a9714852",
+      "byteLength": 49247,
+      "fileCount": 207
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-agentspace",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-host-plugin-agentspace@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz",
+      "sha256": "sha256:7ffb5e7dbfd02195cee348f426826d347747032e446ba219eeaa899a3dcb562f",
+      "byteLength": 8145,
+      "fileCount": 13
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-chatv3",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-host-plugin-chatv3@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz",
+      "sha256": "sha256:d46636b57e837a63282a7276b9b2935fba9fe4e1ef1a9e4af92fa2ffcaeb48fe",
+      "byteLength": 6908,
+      "fileCount": 13
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-docman",
+      "version": "0.1.4",
+      "identity": "@aopslab/domain-host-plugin-docman@0.1.4",
+      "tarballPath": "vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz",
+      "sha256": "sha256:2acd6afdf7cc059f446754d2ed905ff8ffac1b7cb287ed55fb7cbd55ebeb3fe0",
+      "byteLength": 3354,
+      "fileCount": 7
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-projectman",
+      "version": "0.0.4",
+      "identity": "@aopslab/domain-host-plugin-projectman@0.0.4",
+      "tarballPath": "vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz",
+      "sha256": "sha256:c20b33c272fd8ffc4c306cd31b5f7b824ba647ac1801ce7920bd8243edda5aa2",
+      "byteLength": 2753,
+      "fileCount": 7
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-sys",
+      "version": "0.0.6",
+      "identity": "@aopslab/domain-host-plugin-sys@0.0.6",
+      "tarballPath": "vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz",
+      "sha256": "sha256:da846fe54e87b27539bd576e096862461d75ec089277938d6cac5d7548721fbd",
+      "byteLength": 2955,
+      "fileCount": 7
+    },
+    {
+      "name": "@aopslab/domain-kit-agentspace",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-kit-agentspace@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz",
+      "sha256": "sha256:8226b0f24d15fdf6102717d3e3adc264081f912c70b9f301242f7143b4f70554",
+      "byteLength": 64275,
+      "fileCount": 73
+    },
+    {
+      "name": "@aopslab/domain-kit-chatv3",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-kit-chatv3@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz",
+      "sha256": "sha256:deb78c3ddb64d7fcc4005e11a2293fbcb5113027d02a2f4e219a6078dbcb3e49",
+      "byteLength": 16311,
+      "fileCount": 15
+    },
+    {
+      "name": "@aopslab/domain-kit-docman",
+      "version": "0.1.4",
+      "identity": "@aopslab/domain-kit-docman@0.1.4",
+      "tarballPath": "vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz",
+      "sha256": "sha256:93dec02cb7c5e51f07bc8329909f64df8ea5a7d74e101774eedd1e813743d8f5",
+      "byteLength": 39164,
+      "fileCount": 61
+    },
+    {
+      "name": "@aopslab/domain-kit-projectman",
+      "version": "0.1.5",
+      "identity": "@aopslab/domain-kit-projectman@0.1.5",
+      "tarballPath": "vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz",
+      "sha256": "sha256:f2ab84199bac35e36fa2d351be8185139cd3dfc7f934f5fa9d81f20928117540",
+      "byteLength": 47709,
+      "fileCount": 70
+    },
+    {
+      "name": "@aopslab/domain-kit-sys",
+      "version": "0.0.5",
+      "identity": "@aopslab/domain-kit-sys@0.0.5",
+      "tarballPath": "vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz",
+      "sha256": "sha256:cd2c03fd1b2329f075be0ffab2bb6881c7d9d236a234c8984280aa5c5afa79a8",
+      "byteLength": 26376,
+      "fileCount": 65
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-chatv3",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-pg-bootstrap-chatv3@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz",
+      "sha256": "sha256:207873cbde5212221f2b514c7cdef8de8c7ded8feab35892cb455ec38f2cdf9c",
+      "byteLength": 18604,
+      "fileCount": 17
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-docman",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-pg-bootstrap-docman@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz",
+      "sha256": "sha256:53e9dd8ea14fc1f62a9c9ba2cd3fd5034c141d28c0b12e2c2e1401673d3a1fb7",
+      "byteLength": 5776,
+      "fileCount": 13
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-projectman",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-pg-bootstrap-projectman@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz",
+      "sha256": "sha256:156ddde306b28ae5677eb1a08acc44d4ff0326eac794f0a34db7fa440ee0754f",
+      "byteLength": 6199,
+      "fileCount": 12
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-sys",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-pg-bootstrap-sys@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz",
+      "sha256": "sha256:2d968e072aad8c7328d4510ec4422e58708fa88d18649894fc2b1229538af0ba",
+      "byteLength": 4620,
+      "fileCount": 12
+    },
+    {
+      "name": "@aopslab/domain-product-client-chatv3",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-product-client-chatv3@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz",
+      "sha256": "sha256:04379103a59ad00a931d2f7bd38403c82ce006aeca298307cf04d325bc1aa322",
+      "byteLength": 10669,
+      "fileCount": 13
+    },
+    {
+      "name": "@aopslab/domain-product-docman",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-product-docman@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-product-docman-0.1.0.tgz",
+      "sha256": "sha256:48b8490beec1218b570b2b5da0bdbea5f92c7c9549e1377a385ea4b4c41fbf2b",
+      "byteLength": 10542,
+      "fileCount": 5
+    },
+    {
+      "name": "@aopslab/domain-product-projectman",
+      "version": "0.1.1",
+      "identity": "@aopslab/domain-product-projectman@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz",
+      "sha256": "sha256:14ffce10062113f7bd3a5ddce26e8ebc705e72511582f0add3bf81951e1e278f",
+      "byteLength": 10781,
+      "fileCount": 3
+    },
+    {
+      "name": "@aopslab/domain-runtime-config-docman",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-runtime-config-docman@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz",
+      "sha256": "sha256:d6be9be65c5ae8755cbc7005007ad1285fe54e439ae92f08979081fe9d1af77f",
+      "byteLength": 3200,
+      "fileCount": 3
+    },
+    {
+      "name": "@aopslab/domain-runtime-config-projectman",
+      "version": "0.1.0",
+      "identity": "@aopslab/domain-runtime-config-projectman@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz",
+      "sha256": "sha256:029af9d20fb403556533d3139a7a696ca5b263cedec21fdefc33dd14a1815c39",
+      "byteLength": 2463,
+      "fileCount": 3
+    },
+    {
+      "name": "@aopslab/host-adapter-sveltekit",
+      "version": "0.1.1",
+      "identity": "@aopslab/host-adapter-sveltekit@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz",
+      "sha256": "sha256:0a4f542d30b3bc4ccf399f878cb76a34e771b6230c280e24ade687553d501897",
+      "byteLength": 1590,
+      "fileCount": 5
+    },
+    {
+      "name": "@aopslab/host-core",
+      "version": "0.1.1",
+      "identity": "@aopslab/host-core@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-host-core-0.1.1.tgz",
+      "sha256": "sha256:bcef296eef4fe7005ce7026fb773c1e5fbe93675cea4f2aa0ec69420a03c07f4",
+      "byteLength": 9014,
+      "fileCount": 19
+    },
+    {
+      "name": "@aopslab/host-registration",
+      "version": "0.1.1",
+      "identity": "@aopslab/host-registration@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-host-registration-0.1.1.tgz",
+      "sha256": "sha256:084607a3355db0153ad3fb5eee6aa63edba6521e8351f01a67b76ffccf35f8ea",
+      "byteLength": 6198,
+      "fileCount": 5
+    },
+    {
+      "name": "@aopslab/light-client-core",
+      "version": "0.1.0",
+      "identity": "@aopslab/light-client-core@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-light-client-core-0.1.0.tgz",
+      "sha256": "sha256:854deae80defa1aecff5325f9298050473c5425574f9a204554562630126376a",
+      "byteLength": 6657,
+      "fileCount": 18
+    },
+    {
+      "name": "@aopslab/manifest",
+      "version": "0.1.3",
+      "identity": "@aopslab/manifest@0.1.3",
+      "tarballPath": "vendor/npm/aopslab-manifest-0.1.3.tgz",
+      "sha256": "sha256:e0e8c2ea45ee4dbf28469152461d5716318794b858fb8a93c1aae176d3b61a22",
+      "byteLength": 8438,
+      "fileCount": 15
+    },
+    {
+      "name": "@aopslab/projectman-cockpit-client",
+      "version": "0.1.0",
+      "identity": "@aopslab/projectman-cockpit-client@0.1.0",
+      "tarballPath": "vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz",
+      "sha256": "sha256:163611cf2687238cd20e3e31a0df7cc6ed330bfc8fef39a708605b7609ee543f",
+      "byteLength": 2674,
+      "fileCount": 7
+    },
+    {
+      "name": "@aopslab/xf-bm",
+      "version": "0.1.88",
+      "identity": "@aopslab/xf-bm@0.1.88",
+      "tarballPath": "vendor/npm/aopslab-xf-bm-0.1.88.tgz",
+      "sha256": "sha256:f20653163b1b052c43c361818c930407969ea6ceaaba13ff1df0495971e2b7a3",
+      "byteLength": 4751,
+      "fileCount": 15
+    },
+    {
+      "name": "@aopslab/xf-cli-operator",
+      "version": "0.0.2",
+      "identity": "@aopslab/xf-cli-operator@0.0.2",
+      "tarballPath": "vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz",
+      "sha256": "sha256:b8df59f423a61fc07bf529abc7c97cff86926bdce8ad76fe77865b6ad3ae89b1",
+      "byteLength": 3036,
+      "fileCount": 3
+    },
+    {
+      "name": "@aopslab/xf-cli-ui",
+      "version": "0.1.13",
+      "identity": "@aopslab/xf-cli-ui@0.1.13",
+      "tarballPath": "vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz",
+      "sha256": "sha256:eebb4a9bf614534437b54048ebe5b27e37c9da30dc7e0284c2c60c7583c7b711",
+      "byteLength": 1884,
+      "fileCount": 13
+    },
+    {
+      "name": "@aopslab/xf-core",
+      "version": "0.1.68",
+      "identity": "@aopslab/xf-core@0.1.68",
+      "tarballPath": "vendor/npm/aopslab-xf-core-0.1.68.tgz",
+      "sha256": "sha256:883948e7cbeaaf4727c18e6ebeea695a439c6176683d13f96efc42a6cd872877",
+      "byteLength": 9718,
+      "fileCount": 27
+    },
+    {
+      "name": "@aopslab/xf-db",
+      "version": "0.1.74",
+      "identity": "@aopslab/xf-db@0.1.74",
+      "tarballPath": "vendor/npm/aopslab-xf-db-0.1.74.tgz",
+      "sha256": "sha256:4dcb2d10d23d52cd1eca782d1a2be0262e68abbdcd235730aeb5208bd0177ddf",
+      "byteLength": 11637,
+      "fileCount": 49
+    },
+    {
+      "name": "@aopslab/xf-db-drizzle",
+      "version": "0.1.80",
+      "identity": "@aopslab/xf-db-drizzle@0.1.80",
+      "tarballPath": "vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz",
+      "sha256": "sha256:6772d63d0571ad44cc47cae2492a0d5bb30f6409299fdd09ae6dc0b4c120756f",
+      "byteLength": 20387,
+      "fileCount": 29
+    },
+    {
+      "name": "@aopslab/xf-db-mongoose",
+      "version": "0.1.78",
+      "identity": "@aopslab/xf-db-mongoose@0.1.78",
+      "tarballPath": "vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz",
+      "sha256": "sha256:b73ba2e3d91aa1e7fb72fbf84da5287adb64194efb4e4cbede34123fac73359e",
+      "byteLength": 17007,
+      "fileCount": 25
+    },
+    {
+      "name": "@aopslab/xf-db-redis",
+      "version": "0.1.75",
+      "identity": "@aopslab/xf-db-redis@0.1.75",
+      "tarballPath": "vendor/npm/aopslab-xf-db-redis-0.1.75.tgz",
+      "sha256": "sha256:2fa64d2672b54397b21016bdd8dbdc0b41c52ae8a203b3991073c9ec691935a0",
+      "byteLength": 15903,
+      "fileCount": 31
+    },
+    {
+      "name": "@aopslab/xf-dm",
+      "version": "0.1.83",
+      "identity": "@aopslab/xf-dm@0.1.83",
+      "tarballPath": "vendor/npm/aopslab-xf-dm-0.1.83.tgz",
+      "sha256": "sha256:8ec061f3d1b0dcbce153e1377431500748817ad34880200776cb3018adf69fe4",
+      "byteLength": 4927,
+      "fileCount": 17
+    },
+    {
+      "name": "@aopslab/xf-dm-kits",
+      "version": "0.1.13",
+      "identity": "@aopslab/xf-dm-kits@0.1.13",
+      "tarballPath": "vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz",
+      "sha256": "sha256:7436e16cf8cb85ab2db2766b1b221e36f8363355394321435196852c777da84b",
+      "byteLength": 12796,
+      "fileCount": 53
+    },
+    {
+      "name": "@aopslab/xf-i18n",
+      "version": "0.1.73",
+      "identity": "@aopslab/xf-i18n@0.1.73",
+      "tarballPath": "vendor/npm/aopslab-xf-i18n-0.1.73.tgz",
+      "sha256": "sha256:99bfc1109ca6caa5808270b710748a63accadcbdd2bee7759394bf332cb05634",
+      "byteLength": 28078,
+      "fileCount": 31
+    },
+    {
+      "name": "@aopslab/xf-logger",
+      "version": "0.1.61",
+      "identity": "@aopslab/xf-logger@0.1.61",
+      "tarballPath": "vendor/npm/aopslab-xf-logger-0.1.61.tgz",
+      "sha256": "sha256:b5c5cdf6335884bbecdac6d78c806529944364640bab98723e8dd75fb590dc27",
+      "byteLength": 5971,
+      "fileCount": 19
+    },
+    {
+      "name": "@aopslab/xf-secure-store",
+      "version": "0.1.27",
+      "identity": "@aopslab/xf-secure-store@0.1.27",
+      "tarballPath": "vendor/npm/aopslab-xf-secure-store-0.1.27.tgz",
+      "sha256": "sha256:c3b62a49d4501a3ad0dcf4d56a5a64fb10e29e0260e66d3ac8c2b4c7f8eca8f8",
+      "byteLength": 2887,
+      "fileCount": 4
+    },
+    {
+      "name": "@aopslab/xf-ui-composition-react",
+      "version": "0.1.1",
+      "identity": "@aopslab/xf-ui-composition-react@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz",
+      "sha256": "sha256:696593457077cca1d404b759b192b2b6a1e4ad10f1f48b3463e735c5c67d9e2a",
+      "byteLength": 43947,
+      "fileCount": 16
+    },
+    {
+      "name": "@aopslab/xf-ui-foundation",
+      "version": "0.1.1",
+      "identity": "@aopslab/xf-ui-foundation@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz",
+      "sha256": "sha256:5c920e0b780a390fcfadcc549245985fb5cd9c01553c81ea99e5b6a149785db3",
+      "byteLength": 53768,
+      "fileCount": 11
+    },
+    {
+      "name": "@aopslab/xf-ui-plugin",
+      "version": "0.1.1",
+      "identity": "@aopslab/xf-ui-plugin@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz",
+      "sha256": "sha256:633f35206f23a996aa84a304e7d17fc1b73e3fcbabc61c8f57bfd62649ee5488",
+      "byteLength": 1652,
+      "fileCount": 5
+    },
+    {
+      "name": "@aopslab/xf-ui-shell-react",
+      "version": "0.1.1",
+      "identity": "@aopslab/xf-ui-shell-react@0.1.1",
+      "tarballPath": "vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz",
+      "sha256": "sha256:7ee53ec94687eee90a987c0a980d6cd505a076c6c479b7f46441b6d1021c6266",
+      "byteLength": 39222,
+      "fileCount": 19
+    },
+    {
+      "name": "@aopslab/xf-validation",
+      "version": "0.1.79",
+      "identity": "@aopslab/xf-validation@0.1.79",
+      "tarballPath": "vendor/npm/aopslab-xf-validation-0.1.79.tgz",
+      "sha256": "sha256:16d1838b30c3397323346be6352e6a2bbb8e730dd6969066390dc250d80defd5",
+      "byteLength": 10527,
+      "fileCount": 23
+    }
+  ]
+}

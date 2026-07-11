@@ -1,0 +1,14 @@
+.git
+.gitignore
+.aops
+.env
+.env.*
+**/node_modules
+**/dist
+**/build
+.pnpm-store
+dist
+*.oci
+*.tar
+SBOM.spdx.json
+SHA256SUMS

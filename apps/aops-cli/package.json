@@ -1,0 +1,30 @@
+{
+  "name": "@aops/aops-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "AOPS Community operator CLI.",
+  "bin": {
+    "aops-cli": "dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --incremental false",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@aops/host-registration": "0.0.1",
+    "@aops/runtime-config": "0.0.1",
+    "@aopslab/cli-kit": "0.0.1",
+    "@aopslab/domain-product-client-chatv3": "0.1.0",
+    "@aopslab/xf-cli-operator": "0.0.2",
+    "@aopslab/xf-cli-ui": "0.1.13",
+    "@aopslab/xf-secure-store": "0.1.27",
+    "commander": "14.0.3",
+    "inquirer": "13.3.0",
+    "sigstore": "4.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "25.3.1",
+    "typescript": "5.9.3"
+  }
+}

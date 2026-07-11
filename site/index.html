@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" data-theme="warm">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AOPS Community is a local-first operations spine for AI-assisted teams: projects, plans, documents, reusable agent context, durable memory, and self-hosted coordination.">
+  <meta name="theme-color" content="#f2eadc">
+  <title>AOPS Community — Local-first agentic operations</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg:#f2eadc;--surface:#fffaf2;--surface-2:#ebe0cf;--ink:#2b231d;--muted:#74685d;
+      --line:#d9cbb6;--accent:#d96f4f;--accent-2:#5f8f76;--amber:#d99a43;--indigo:#566f9f;
+      --shadow:0 24px 70px rgba(69,49,32,.14);--radius:22px;--max:1180px;
+      --font:"DM Sans","Aptos","Segoe UI",system-ui,sans-serif;
+      --display:"Outfit","Aptos Display","Segoe UI",system-ui,sans-serif;
+      --mono:"JetBrains Mono","Cascadia Code",Consolas,monospace;
+    }
+    html[data-theme="night"]{color-scheme:dark;--bg:#17130f;--surface:#231d17;--surface-2:#30261d;--ink:#f1e5d3;--muted:#ae9b87;--line:#46382a;--accent:#ef9275;--accent-2:#88b49b;--amber:#e5ae5d;--indigo:#91a9d4;--shadow:0 24px 70px rgba(0,0,0,.48)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.58}
+    body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(100,75,50,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(100,75,50,.045) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,#000,transparent 78%)}
+    a{color:inherit}.wrap{width:min(calc(100% - 36px),var(--max));margin:auto}.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;z-index:20;background:var(--surface);padding:10px 14px;border-radius:10px}
+    header{position:sticky;top:0;z-index:10;border-bottom:1px solid color-mix(in srgb,var(--line) 76%,transparent);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(18px)}
+    nav{height:72px;display:flex;align-items:center;gap:22px}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:800;letter-spacing:-.025em}.brand-mark{display:grid;grid-template-columns:repeat(3,7px);gap:4px;padding:11px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}.brand-mark i{width:7px;height:7px;border-radius:50%;background:var(--accent-2)}.brand-mark i:nth-child(2){background:var(--accent)}.brand-mark i:nth-child(3){background:var(--amber)}
+    .nav-links{margin-left:auto;display:flex;gap:20px}.nav-links a{font-size:14px;text-decoration:none;color:var(--muted)}.nav-links a:hover{color:var(--ink)}button{font:inherit}.theme{width:42px;height:42px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);cursor:pointer}
+    .hero{padding:104px 0 64px}.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--surface) 70%,transparent);color:var(--muted);font:700 12px var(--mono);letter-spacing:.08em;text-transform:uppercase}.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-2) 18%,transparent)}
+    h1,h2,h3{font-family:var(--display);line-height:1.06;letter-spacing:-.035em}h1{max-width:900px;margin:24px 0 22px;font-size:clamp(50px,8vw,98px)}h1 em{font-style:normal;color:var(--accent)}.lede{max-width:730px;margin:0;color:var(--muted);font-size:clamp(18px,2vw,23px)}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}.btn{display:inline-flex;align-items:center;gap:9px;padding:13px 17px;border:1px solid var(--line);border-radius:13px;background:var(--surface);text-decoration:none;font-weight:750}.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+    .proof-strip{display:grid;grid-template-columns:repeat(4,1fr);margin-top:64px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}.metric{padding:24px;border-right:1px solid var(--line)}.metric:last-child{border:0}.metric strong{display:block;font:800 30px var(--display)}.metric span{color:var(--muted);font-size:13px}
+    section{padding:84px 0}.section-head{display:grid;grid-template-columns:.75fr 1.25fr;gap:44px;margin-bottom:34px}.kicker{font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--accent)}h2{font-size:clamp(36px,5vw,62px);margin:8px 0}.section-head p{align-self:end;color:var(--muted);font-size:18px;margin:0 0 9px}
+    .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{position:relative;min-height:190px;padding:24px;border:1px solid var(--line);border-radius:18px;background:color-mix(in srgb,var(--surface) 86%,transparent)}.card .num{font:700 12px var(--mono);color:var(--accent)}.card h3{margin:30px 0 8px;font-size:25px}.card p{margin:0;color:var(--muted)}
+    .architecture{display:grid;grid-template-columns:1fr auto 1.35fr auto 1fr;align-items:stretch;gap:14px}.node{padding:22px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}.node small{display:block;margin-bottom:22px;color:var(--muted);font:700 11px var(--mono);text-transform:uppercase;letter-spacing:.08em}.node strong{font:800 22px var(--display)}.node ul{padding-left:18px;margin:12px 0 0;color:var(--muted)}.arrow{align-self:center;color:var(--accent);font:700 24px var(--mono)}.domains{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:16px}.domains span{padding:10px 7px;border-radius:10px;background:var(--surface-2);text-align:center;font:700 11px var(--mono)}
+    .quickstart{display:grid;grid-template-columns:1fr 1fr;gap:16px}.terminal{overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#171511;color:#f5e9d6;box-shadow:var(--shadow)}.terminal-head{display:flex;align-items:center;gap:6px;padding:13px 16px;border-bottom:1px solid #393127;color:#aa9a85;font:12px var(--mono)}.terminal-head i{width:8px;height:8px;border-radius:50%;background:#d96f4f}.terminal-head i:nth-child(2){background:#d99a43}.terminal-head i:nth-child(3){background:#5f8f76}.terminal pre{margin:0;padding:22px;white-space:pre-wrap;font:13px/1.75 var(--mono)}.terminal b{color:#8ec3a5}.steps{display:grid;gap:10px}.step{display:grid;grid-template-columns:38px 1fr;gap:14px;padding:18px;border:1px solid var(--line);border-radius:15px;background:var(--surface)}.step strong:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--surface-2);font:700 12px var(--mono)}.step p{margin:3px 0 0;color:var(--muted)}
+    .guardrails{display:grid;grid-template-columns:1fr 1fr;gap:16px}.guard{padding:26px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}.guard.ok{border-top:4px solid var(--accent-2)}.guard.no{border-top:4px solid var(--accent)}.guard h3{margin:0 0 15px;font-size:26px}.guard ul{margin:0;padding-left:20px;color:var(--muted)}
+    .signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.signal{padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}.signal b{display:block;margin-bottom:10px;color:var(--accent);font:700 11px var(--mono);text-transform:uppercase}.signal p{margin:0;color:var(--muted)}
+    .roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.road{padding:22px;border-left:3px solid var(--line);background:color-mix(in srgb,var(--surface) 64%,transparent)}.road.now{border-color:var(--accent-2)}.road.next{border-color:var(--amber)}.road.later{border-color:var(--indigo)}.road h3{font-size:24px}.road p{color:var(--muted)}
+    .notice{margin-top:36px;padding:18px 20px;border:1px dashed var(--accent);border-radius:14px;color:var(--muted);background:color-mix(in srgb,var(--accent) 7%,transparent)}.notice strong{color:var(--ink)}
+    footer{padding:34px 0 46px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.foot{display:flex;justify-content:space-between;gap:20px}.foot strong{color:var(--ink)}
+    @media(max-width:820px){.nav-links{display:none}.hero{padding-top:72px}.proof-strip{grid-template-columns:1fr 1fr}.metric:nth-child(2){border-right:0}.metric:nth-child(-n+2){border-bottom:1px solid var(--line)}.section-head{grid-template-columns:1fr}.flow,.signal-grid{grid-template-columns:1fr 1fr}.architecture{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}.domains{grid-template-columns:1fr 1fr}.quickstart,.guardrails,.roadmap{grid-template-columns:1fr}}
+    @media(max-width:520px){.wrap{width:min(calc(100% - 24px),var(--max))}h1{font-size:49px}.proof-strip,.flow,.signal-grid{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)!important}.metric:last-child{border-bottom:0!important}.foot{display:block}.theme{margin-left:auto}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <nav class="wrap" aria-label="Primary navigation">
+      <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>AOPS Community</a>
+      <div class="nav-links"><a href="#workflow">Workflow</a><a href="#architecture">Architecture</a><a href="#quickstart">Quickstart</a><a href="#responsibility">Boundaries</a></div>
+      <button class="theme" type="button" aria-label="Toggle color theme" title="Toggle color theme">◐</button>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap">
+        <span class="eyebrow">Self-hosted · local-trusted · working alpha</span>
+        <h1>Keep agent work <em>coherent</em>.</h1>
+        <p class="lede">AOPS Community gives AI-assisted teams one local operations spine for projects, plans, versioned documents, reusable agent context, durable memory, and self-hosted coordination.</p>
+        <div class="actions"><a class="btn primary" href="#quickstart">Start on loopback <span aria-hidden="true">→</span></a><a class="btn" href="#workflow">See the five-minute flow</a></div>
+        <div class="proof-strip" aria-label="Verified release facts">
+          <div class="metric"><strong>5</strong><span>allowlisted runtime domains</span></div>
+          <div class="metric"><strong>137/137</strong><span>Community export checks</span></div>
+          <div class="metric"><strong>1</strong><span>host edge, bound to loopback</span></div>
+          <div class="metric"><strong>274</strong><span>files in verified evidence tree</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow"><div class="wrap">
+      <div class="section-head"><div><span class="kicker">The product loop</span><h2>From intent to durable context.</h2></div><p>A compact walkthrough proves the parts work together. Every record stays inspectable in the Cockpit and addressable through the CLI and agent gateway.</p></div>
+      <div class="flow">
+        <article class="card"><span class="num">01 / PROJECT</span><h3>Anchor the work</h3><p>Create a local project that owns scope, identity, and the records that follow.</p></article>
+        <article class="card"><span class="num">02 / DOCMAN</span><h3>Capture the brief</h3><p>Turn source material into a versioned document graph with sections and pages.</p></article>
+        <article class="card"><span class="num">03 / PROJECTMAN</span><h3>Make a plan</h3><p>Bind a board, task, and implementation plan to concrete done-when evidence.</p></article>
+        <article class="card"><span class="num">04 / AGENTSPACE</span><h3>Reuse the method</h3><p>Publish a prompt and a skill so the successful operating pattern is repeatable.</p></article>
+        <article class="card"><span class="num">05 / MEMORY</span><h3>Retain the decision</h3><p>Write the boundary and next action into durable, project-scoped memory.</p></article>
+        <article class="card"><span class="num">06 / CHATV3</span><h3>Coordinate locally</h3><p>Create a channel and room, join by private invite, exchange a message, and report presence.</p></article>
+      </div>
+    </div></section>
+
+    <section id="architecture"><div class="wrap">
+      <div class="section-head"><div><span class="kicker">Owner boundaries</span><h2>One host. Clear owners.</h2></div><p>Domain contracts stay with their domain packages. The host composes reviewed capabilities; the Cockpit presents them; PostgreSQL remains private to the Compose network.</p></div>
+      <div class="architecture" aria-label="AOPS Community architecture">
+        <div class="node"><small>Operator surfaces</small><strong>Cockpit + CLI</strong><ul><li>same-origin browser</li><li>agent-readable tooling</li><li>trusted local operator</li></ul></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><small>Loopback host gateway</small><strong>Exact capability projection</strong><div class="domains"><span>sys</span><span>agentspace</span><span>docman</span><span>projectman</span><span>chatv3</span></div></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><small>Private backing service</small><strong>PostgreSQL 17</strong><ul><li>named volume</li><li>idempotent migrations</li><li>no published DB port</li></ul></div>
+      </div>
+    </div></section>
+
+    <section id="quickstart"><div class="wrap">
+      <div class="section-head"><div><span class="kicker">Compose-first quickstart</span><h2>Run it without a cloud account.</h2></div><p>The generated candidate pins its base images and pnpm version. The initializer writes independent create-once PostgreSQL and ChatV3 secrets to a local, ignored file.</p></div>
+      <div class="quickstart">
+        <div class="terminal" aria-label="Quickstart commands"><div class="terminal-head"><i></i><i></i><i></i><span>trusted local shell</span></div><pre><b>$</b> node deploy/community/init-env.mjs
+<b>$</b> docker compose up --build -d --wait
+<b>$</b> docker compose exec app \
+    node deploy/community/demo.mjs seed
+
+Open  http://127.0.0.1:5900
+
+<b>$</b> docker compose exec app \
+    node deploy/community/chatv3-smoke.mjs
+<b>$</b> docker compose exec app \
+    node deploy/community/demo.mjs reset</pre></div>
+        <div class="steps"><div class="step"><strong>1</strong><div><b>Initialize once</b><p>No token or hosted account is required for the supported local boundary.</p></div></div><div class="step"><strong>2</strong><div><b>Inspect the real product</b><p>Follow the seeded project through planning, documents, reusable assets, and memory.</p></div></div><div class="step"><strong>3</strong><div><b>Prove coordination</b><p>The disposable ChatV3 smoke checks invite, two members, message, presence, and cleanup.</p></div></div><div class="step"><strong>4</strong><div><b>Reset safely</b><p>Only demo-owned record IDs are removed, followed by an absence postcondition.</p></div></div></div>
+      </div>
+    </div></section>
+
+    <section id="responsibility"><div class="wrap">
+      <div class="section-head"><div><span class="kicker">Responsible by construction</span><h2>Honest boundaries are product features.</h2></div><p>The Community profile is an allowlist. Excluded domains are absent from routes, tools, CLI commands, navigation, source closure, and runtime packages—not merely hidden with CSS.</p></div>
+      <div class="guardrails">
+        <article class="guard ok"><h3>What this candidate proves</h3><ul><li>single-operator, self-hosted workflow on a trusted machine</li><li>loopback-only host edge and private PostgreSQL</li><li>project-scoped Docman, Projectman, and Agentspace records</li><li>server-encrypted local ChatV3 flow with secret-safe invite handling</li><li>deterministic source and evidence trees</li></ul></article>
+        <article class="guard no"><h3>What it does not claim</h3><ul><li>Internet-facing or multi-tenant security</li><li>interactive AuthV2/RBAC, billing, or project sharing</li><li>Fileman or Tasker/Runner product surfaces</li><li>end-to-end encryption for every chat mode</li><li>hosted cloud recovery, abuse controls, or public-release readiness</li></ul></article>
+      </div>
+      <div class="notice"><strong>Publication is intentionally blocked.</strong> The technical candidate is operationally ready, but LICENSE and NOTICE policy remain an explicit operator decision tracked outside this artifact. No public publish is authorized.</div>
+    </div></section>
+
+    <section><div class="wrap">
+      <div class="section-head"><div><span class="kicker">Build Week fit</span><h2>A working product, not a slide.</h2></div><p>The submission package maps the implementation evidence directly to practical value, a clear user workflow, responsible implementation, and a credible continuation plan.</p></div>
+      <div class="signal-grid"><article class="signal"><b>Practical product</b><p>A repeatable local operating loop for real agent-assisted work.</p></article><article class="signal"><b>Clear users</b><p>Developers and small technical teams already working with coding agents.</p></article><article class="signal"><b>Testable demo</b><p>Seed, inspect, coordinate, restart, and reset on a clean Compose stack.</p></article><article class="signal"><b>Responsible build</b><p>Fail-closed capability projection and explicit security non-claims.</p></article></div>
+    </div></section>
+
+    <section><div class="wrap">
+      <div class="section-head"><div><span class="kicker">Continuation</span><h2>Earn the next boundary.</h2></div><p>The roadmap expands only after the current boundary remains measurable and reviewable.</p></div>
+      <div class="roadmap"><article class="road now"><span class="kicker">Now</span><h3>Community local alpha</h3><p>Polish onboarding, backups, error recovery, and operator documentation without widening the domain allowlist.</p></article><article class="road next"><span class="kicker">Next</span><h3>Public-release decision</h3><p>Resolve licensing and NOTICE inventory, rerun the legal gate, and publish only with explicit operator authorization.</p></article><article class="road later"><span class="kicker">Later / separate product</span><h3>Hosted collaboration</h3><p>Design cloud identity, recovery, abuse controls, and stronger chat guarantees as new gates—not inherited claims.</p></article></div>
+    </div></section>
+  </main>
+  <footer><div class="wrap foot"><span><strong>AOPS Community</strong> · AI Operations for a trusted local machine.</span><span>Operational candidate · legal/public release deferred · no publish</span></div></footer>
+  <script>
+    const root = document.documentElement;
+    const button = document.querySelector('.theme');
+    let stored = null;
+    try { stored = localStorage.getItem('aops-community-site-theme'); } catch {}
+    if (stored === 'night' || stored === 'warm') root.dataset.theme = stored;
+    button.addEventListener('click', () => {
+      root.dataset.theme = root.dataset.theme === 'night' ? 'warm' : 'night';
+      try { localStorage.setItem('aops-community-site-theme', root.dataset.theme); } catch {}
+    });
+  </script>
+</body>
+</html>

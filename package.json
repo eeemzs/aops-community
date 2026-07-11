@@ -1,0 +1,23 @@
+{
+  "name": "aops-community-distribution",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local AOPS Community three-application distribution.",
+  "scripts": {
+    "prepare": "pnpm --filter @aops/aops-cli run build",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "aops-cli": "node ./apps/aops-cli/dist/main.js",
+    "server": "node ./apps/aops-cli/dist/main.js console",
+    "server:start": "node ./apps/aops-cli/dist/main.js server start",
+    "server:stop": "node ./apps/aops-cli/dist/main.js server stop",
+    "server:status": "node ./apps/aops-cli/dist/main.js server status",
+    "console": "node ./apps/aops-cli/dist/main.js console",
+    "doctor": "node ./apps/aops-cli/dist/main.js doctor"
+  },
+  "engines": {
+    "node": ">=22.9.0",
+    "pnpm": ">=11.0.0 <12.0.0"
+  },
+  "packageManager": "pnpm@11.9.0"
+}

@@ -1,0 +1,50 @@
+name: aops-community
+
+services:
+  postgres:
+    image: ghcr.io/aopslab/aops-community-base-postgres:17-bookworm@sha256:5530681ea5d3e2ed4ce396f9b5cb443efbac6baf2a8a19c0c0635e40ae7eadce
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${AOPS_POSTGRES_DB:-aops}
+      POSTGRES_USER: ${AOPS_POSTGRES_USER:-aops}
+      POSTGRES_PASSWORD: ${AOPS_POSTGRES_PASSWORD:?run node deploy/community/init-env.mjs first}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    volumes:
+      - aops-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${AOPS_PORT:-5900}:5900"
+
+  app:
+    image: ${AOPS_IMAGE_REF:-ghcr.io/aopslab/aops-community:latest}
+    pull_policy: always
+    restart: unless-stopped
+    network_mode: service:postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    environment:
+      NODE_ENV: production
+      HOST: 127.0.0.1
+      PORT: 5901
+      ORIGIN: http://127.0.0.1:5901
+      COMMUNITY_HOST: 0.0.0.0
+      COMMUNITY_PORT: 5900
+      AOPS_PG_URL: postgresql://${AOPS_POSTGRES_USER:-aops}:${AOPS_POSTGRES_PASSWORD}@127.0.0.1:5432/${AOPS_POSTGRES_DB:-aops}
+      CHATV3_SERVER_KEY_ID: k1
+      CHATV3_SERVER_KEY_SECRET: ${CHATV3_SERVER_KEY_SECRET:?run node deploy/community/init-env.mjs first}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5900/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  aops-postgres-data:
+    name: ${AOPS_POSTGRES_VOLUME_NAME:-aops-community-postgres-data}

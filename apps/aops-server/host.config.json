@@ -1,0 +1,136 @@
+{
+  "host": {
+    "name": "aops-community-server",
+    "apiBasePath": "/api"
+  },
+  "runtime": {
+    "env": {
+      "AOPS_PG_URL": {
+        "fromEnv": "AOPS_PG_URL",
+        "required": true
+      }
+    }
+  },
+  "pluginLoader": {
+    "strictAllowlist": true,
+    "tolerantBootstrap": false,
+    "allowlist": [
+      "@aopslab/domain-host-plugin-sys",
+      "./runtime/agentspace-host-adapter.mjs",
+      "./runtime/docman-host-adapter.mjs",
+      "./runtime/projectman-host-adapter.mjs",
+      "@aopslab/domain-host-plugin-chatv3"
+    ]
+  },
+  "diagnostics": {
+    "exposePluginBootstrap": true
+  },
+  "agentGateway": {
+    "enabled": true,
+    "includeLocal": true,
+    "catalog": {
+      "enabled": true,
+      "manifestProviders": [
+        {
+          "id": "sys-dcm",
+          "domain": "sys",
+          "enabled": true,
+          "module": "@aopslab/domain-kit-sys",
+          "exportName": "buildSysDomainCapabilityManifest",
+          "options": {
+            "domainVersion": "0.0.1",
+            "includeDocs": true
+          }
+        },
+        {
+          "id": "agentspace-dcm",
+          "domain": "agentspace",
+          "enabled": true,
+          "module": "./runtime/agentspace-tooling.mjs",
+          "exportName": "buildCommunityAgentspaceDomainCapabilityManifest",
+          "options": {
+            "domainVersion": "0.0.4",
+            "includeDocs": true
+          }
+        },
+        {
+          "id": "docman-dcm",
+          "domain": "docman",
+          "enabled": true,
+          "module": "./runtime/docman-tooling.mjs",
+          "exportName": "buildAopsDocmanDomainCapabilityManifest",
+          "options": {
+            "domainVersion": "0.1.3",
+            "includeDocs": true
+          }
+        },
+        {
+          "id": "projectman-dcm",
+          "domain": "projectman",
+          "enabled": true,
+          "module": "@aopslab/domain-kit-projectman",
+          "exportName": "buildProjectmanDomainCapabilityManifest",
+          "options": {
+            "domainVersion": "0.1.2",
+            "includeDocs": true
+          }
+        },
+        {
+          "id": "chatv3-dcm",
+          "domain": "chatv3",
+          "enabled": true,
+          "module": "@aopslab/domain-kit-chatv3",
+          "exportName": "buildChatv3DomainCapabilityManifest",
+          "options": {
+            "domainVersion": "0.1.0",
+            "includeDocs": true
+          }
+        }
+      ]
+    },
+    "sources": []
+  },
+  "plugins": [
+    {
+      "domain": "sys",
+      "enabled": true,
+      "module": "@aopslab/domain-host-plugin-sys",
+      "factory": "createSysPlugin"
+    },
+    {
+      "domain": "agentspace",
+      "enabled": true,
+      "module": "./runtime/agentspace-host-adapter.mjs",
+      "factory": "createCommunityAgentspacePlugin",
+      "options": {
+        "defaultTenantId": "123e4567-e89b-41d4-a000-000000000001"
+      }
+    },
+    {
+      "domain": "docman",
+      "enabled": true,
+      "module": "./runtime/docman-host-adapter.mjs",
+      "factory": "createDocmanPlugin",
+      "options": {
+        "defaultScopeId": "00000000-0000-4000-8000-000000000000"
+      }
+    },
+    {
+      "domain": "projectman",
+      "enabled": true,
+      "module": "./runtime/projectman-host-adapter.mjs",
+      "factory": "createProjectmanPlugin",
+      "options": {
+        "defaultProjectId": "123e4567-e89b-41d4-a000-000000000000",
+        "enableAopsWriteback": true,
+        "failOnWritebackError": false
+      }
+    },
+    {
+      "domain": "chatv3",
+      "enabled": true,
+      "module": "@aopslab/domain-host-plugin-chatv3",
+      "factory": "createChatv3Plugin"
+    }
+  ]
+}
