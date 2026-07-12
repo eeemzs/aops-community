@@ -13,7 +13,9 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm typecheck
 RUN pnpm build
 RUN pnpm --filter @aops/aops-server deploy --prod /runtime/apps/aops-server
-RUN rm -rf   /runtime/apps/aops-server/src   /runtime/apps/aops-server/.svelte-kit   /runtime/apps/aops-server/svelte.config.js   /runtime/apps/aops-server/tsconfig.json   /runtime/apps/aops-server/vite.config.ts
+RUN pnpm --ignore-scripts --filter @aops/aops-cli deploy --prod /runtime/apps/aops-cli
+RUN rm -rf   /runtime/apps/aops-server/src   /runtime/apps/aops-server/.svelte-kit   /runtime/apps/aops-server/svelte.config.js   /runtime/apps/aops-server/tsconfig.json   /runtime/apps/aops-server/vite.config.ts   /runtime/apps/aops-cli/src   /runtime/apps/aops-cli/tsconfig.json
+RUN test -f /runtime/apps/aops-cli/dist/main.js &&   node /runtime/apps/aops-cli/dist/main.js --help | grep -Eq '^Usage: aops-cli'
 RUN mkdir -p /runtime/apps/aops-cockpit-v2 /runtime/deploy &&   cp -a apps/aops-cockpit-v2/dist /runtime/apps/aops-cockpit-v2/dist &&   cp -a deploy/community /runtime/deploy/community
 RUN find /runtime -type f -name '*.map' -delete
 
