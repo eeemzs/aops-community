@@ -29,7 +29,7 @@
   "dependencies": {
     "@aopslab/domain-kit-sys": "workspace:*",
     "@aopslab/domain-pg-bootstrap-sys": "workspace:*",
-    "@aopslab/xf-validation": "workspace:*",
+    "@aopslab/xf-validation": "catalog:",
     "zod": "catalog:"
   },
   "license": "Apache-2.0",

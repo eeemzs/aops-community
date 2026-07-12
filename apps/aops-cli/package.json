@@ -1,6 +1,7 @@
 {
   "name": "@aops/aops-cli",
   "version": "0.1.0",
+  "private": true,
   "type": "module",
   "description": "AOPS Community operator CLI.",
   "bin": {
@@ -12,10 +13,10 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
-    "@aops/host-registration": "0.0.1",
-    "@aops/runtime-config": "0.0.1",
-    "@aopslab/cli-kit": "0.0.1",
-    "@aopslab/domain-product-client-chatv3": "0.1.0",
+    "@aops/host-registration": "workspace:*",
+    "@aops/runtime-config": "workspace:*",
+    "@aopslab/cli-kit": "workspace:*",
+    "@aopslab/domain-product-client-chatv3": "workspace:*",
     "@aopslab/xf-cli-operator": "0.0.2",
     "@aopslab/xf-cli-ui": "0.1.13",
     "@aopslab/xf-secure-store": "0.1.27",

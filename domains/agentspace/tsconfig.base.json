@@ -6,7 +6,9 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["es2022"],
+    "lib": [
+      "es2022"
+    ],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmitOnError": true,
@@ -17,19 +19,34 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["development"],
+    "customConditions": [
+      "development"
+    ],
     "paths": {
-      "@aopslab/domain-tooling-agentspace": ["agentspace-tooling/src/index.ts"],
-      "@aopslab/domain-tooling-agentspace/*": ["agentspace-tooling/src/*"],
-      "@aopslab/domain-cli-agentspace": ["agentspace-cli/src/main.ts"],
-      "@aopslab/domain-kit-agentspace": ["agentspace-kit/src/index.ts"],
-      "@aopslab/domain-kit-agentspace/*": ["agentspace-kit/src/*"],
-      "@aopslab/domain-dm-agentspace": ["agentspace-dm/src/index.ts"],
-      "@aopslab/domain-dm-agentspace/models": ["agentspace-dm/src/public/models/index.ts"],
-      "@aopslab/domain-dm-agentspace/ports": ["agentspace-dm/src/public/ports/index.ts"],
-      "@aopslab/domain-dm-agentspace/repository-ports": ["agentspace-dm/src/public/repository-ports/index.ts"],
-      "@aopslab/domain-dm-agentspace/services": ["agentspace-dm/src/public/services/index.ts"],
-      "@aopslab/domain-dm-agentspace/factories": ["agentspace-dm/src/public/factories/index.ts"]
+      "@aopslab/domain-kit-agentspace": [
+        "agentspace-kit/src/index.ts"
+      ],
+      "@aopslab/domain-kit-agentspace/*": [
+        "agentspace-kit/src/*"
+      ],
+      "@aopslab/domain-dm-agentspace": [
+        "agentspace-dm/src/index.ts"
+      ],
+      "@aopslab/domain-dm-agentspace/models": [
+        "agentspace-dm/src/public/models/index.ts"
+      ],
+      "@aopslab/domain-dm-agentspace/ports": [
+        "agentspace-dm/src/public/ports/index.ts"
+      ],
+      "@aopslab/domain-dm-agentspace/repository-ports": [
+        "agentspace-dm/src/public/repository-ports/index.ts"
+      ],
+      "@aopslab/domain-dm-agentspace/services": [
+        "agentspace-dm/src/public/services/index.ts"
+      ],
+      "@aopslab/domain-dm-agentspace/factories": [
+        "agentspace-dm/src/public/factories/index.ts"
+      ]
     }
   }
 }

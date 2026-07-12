@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1771695753690,
+      "tag": "0000_loose_praxagora",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771699083985,
+      "tag": "0001_awesome_ronan",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771706294810,
+      "tag": "0002_steady_maximus",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780925199170,
+      "tag": "0003_escalating_rate_limiter",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1780926140000,
+      "tag": "0004_rate_limiter_timestamptz",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781433600000,
+      "tag": "0005_sys_counters",
+      "breakpoints": true
+    }
+  ]
+}

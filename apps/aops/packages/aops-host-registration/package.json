@@ -10,7 +10,7 @@
     "build": "tsc -b tsconfig.lib.json"
   },
   "dependencies": {
-    "@aopslab/host-registration": "workspace:^0.1.0"
+    "@aopslab/host-registration": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",

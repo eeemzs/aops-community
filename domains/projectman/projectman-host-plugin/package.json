@@ -26,7 +26,7 @@
   ],
   "dependencies": {
     "@aopslab/domain-kit-projectman": "workspace:*",
-    "@aopslab/xf-validation": "workspace:*"
+    "@aopslab/xf-validation": "catalog:"
   },
   "license": "Apache-2.0",
   "repository": {

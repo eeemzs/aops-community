@@ -42,9 +42,12 @@
     "@aopslab/domain-dm-sys": "workspace:*",
     "@aopslab/xf-core": "catalog:",
     "@aopslab/xf-db": "catalog:",
+    "@aopslab/xf-db-redis": "catalog:",
     "@aopslab/xf-dm-kits": "catalog:",
     "@aopslab/xf-i18n": "catalog:",
-    "@aopslab/xf-validation": "workspace:*",
+    "@aopslab/xf-logger": "catalog:",
+    "@aopslab/xf-validation": "catalog:",
+    "dotenv": "catalog:",
     "tslib": "catalog:",
     "effect": "catalog:",
     "zod": "catalog:"

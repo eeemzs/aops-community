@@ -6,7 +6,9 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["es2022"],
+    "lib": [
+      "es2022"
+    ],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmitOnError": true,
@@ -17,21 +19,40 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["development"],
+    "customConditions": [
+      "development"
+    ],
     "paths": {
-      "@aopslab/domain-tooling-sys": ["sys-tooling/src/index.ts"],
-      "@aopslab/domain-tooling-sys/*": ["sys-tooling/src/*"],
-      "@aopslab/domain-cli-sys": ["sys-cli/src/main.ts"],
-      "@aopslab/domain-host-plugin-sys": ["sys-host-plugin/src/index.ts"],
-      "@aopslab/domain-host-plugin-sys/*": ["sys-host-plugin/src/*"],
-      "@aopslab/domain-kit-sys": ["sys-kit/src/index.ts"],
-      "@aopslab/domain-kit-sys/*": ["sys-kit/src/*"],
-      "@aopslab/domain-dm-sys": ["sys-dm/src/index.ts"],
-      "@aopslab/domain-dm-sys/models": ["sys-dm/src/public/models/index.ts"],
-      "@aopslab/domain-dm-sys/ports": ["sys-dm/src/public/ports/index.ts"],
-      "@aopslab/domain-dm-sys/repository-ports": ["sys-dm/src/public/repository-ports/index.ts"],
-      "@aopslab/domain-dm-sys/services": ["sys-dm/src/public/services/index.ts"],
-      "@aopslab/domain-dm-sys/factories": ["sys-dm/src/public/factories/index.ts"]
+      "@aopslab/domain-host-plugin-sys": [
+        "sys-host-plugin/src/index.ts"
+      ],
+      "@aopslab/domain-host-plugin-sys/*": [
+        "sys-host-plugin/src/*"
+      ],
+      "@aopslab/domain-kit-sys": [
+        "sys-kit/src/index.ts"
+      ],
+      "@aopslab/domain-kit-sys/*": [
+        "sys-kit/src/*"
+      ],
+      "@aopslab/domain-dm-sys": [
+        "sys-dm/src/index.ts"
+      ],
+      "@aopslab/domain-dm-sys/models": [
+        "sys-dm/src/public/models/index.ts"
+      ],
+      "@aopslab/domain-dm-sys/ports": [
+        "sys-dm/src/public/ports/index.ts"
+      ],
+      "@aopslab/domain-dm-sys/repository-ports": [
+        "sys-dm/src/public/repository-ports/index.ts"
+      ],
+      "@aopslab/domain-dm-sys/services": [
+        "sys-dm/src/public/services/index.ts"
+      ],
+      "@aopslab/domain-dm-sys/factories": [
+        "sys-dm/src/public/factories/index.ts"
+      ]
     }
   }
 }

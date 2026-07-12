@@ -4,7 +4,7 @@
   "private": true,
   "description": "Local AOPS Community three-application distribution.",
   "scripts": {
-    "prepare": "pnpm --filter @aops/aops-cli run build",
+    "prepare": "pnpm --filter @aops/aops-cli... run build",
     "build": "pnpm -r --if-present build",
     "typecheck": "pnpm -r --if-present typecheck",
     "aops-cli": "node ./apps/aops-cli/dist/main.js",
@@ -14,6 +14,10 @@
     "server:status": "node ./apps/aops-cli/dist/main.js server status",
     "console": "node ./apps/aops-cli/dist/main.js console",
     "doctor": "node ./apps/aops-cli/dist/main.js doctor"
+  },
+  "devDependencies": {
+    "@types/node": "25.3.1",
+    "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=22.9.0",

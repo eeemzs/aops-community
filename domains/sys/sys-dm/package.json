@@ -61,8 +61,11 @@
     "@aopslab/xf-db-mongoose": "catalog:",
     "@aopslab/xf-db-redis": "catalog:",
     "@aopslab/xf-dm": "catalog:",
+    "@aopslab/xf-i18n": "catalog:",
     "@aopslab/xf-logger": "catalog:",
     "@aopslab/xf-validation": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
     "mongoose": "catalog:",
     "tslib": "catalog:"
   },

@@ -26,7 +26,7 @@
   ],
   "dependencies": {
     "@aopslab/domain-kit-docman": "workspace:*",
-    "@aopslab/xf-validation": "workspace:*",
+    "@aopslab/xf-validation": "catalog:",
     "zod": "catalog:"
   },
   "license": "Apache-2.0",
