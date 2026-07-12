@@ -1,0 +1,59 @@
+{
+  "name": "@aopslab/domain-dm-chatv3",
+  "version": "0.1.0",
+  "description": "ChatV3 standalone chat domain model: schema, repositories, services, crypto-opaque contracts. No AOPS domain dependencies.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./models": {
+      "types": "./dist/domain/models/index.d.ts",
+      "default": "./dist/domain/models/index.js"
+    },
+    "./services": {
+      "types": "./dist/application/services/index.d.ts",
+      "default": "./dist/application/services/index.js"
+    },
+    "./db": {
+      "types": "./dist/infrastructure/db/drizzle.schema.index.d.ts",
+      "default": "./dist/infrastructure/db/drizzle.schema.index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:",
+    "uuid": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@aopslab/domain-pg-bootstrap-chatv3": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "drizzle-kit": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "domains/chatv3/chatv3-dm"
+  }
+}

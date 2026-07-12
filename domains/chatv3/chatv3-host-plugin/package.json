@@ -1,0 +1,42 @@
+{
+  "name": "@aopslab/domain-host-plugin-chatv3",
+  "version": "0.1.0",
+  "description": "ChatV3 host plugin: DomainPlugin registration, REST execute bridge, SSE runtime. Hostable in aops-server or any structural-compatible host.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aopslab/domain-dm-chatv3": "workspace:*",
+    "@aopslab/domain-kit-chatv3": "workspace:*",
+    "@aopslab/domain-pg-bootstrap-chatv3": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "domains/chatv3/chatv3-host-plugin"
+  }
+}
