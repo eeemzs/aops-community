@@ -1,0 +1,38 @@
+{
+  "name": "@aopslab/cli-kit",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json",
+    "test": "node --import tsx --test src/__tests__/*.test.ts",
+    "smoke:keytar": "node ./scripts/keytar-smoke.mjs"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "dependencies": {
+    "@aopslab/api-client": "workspace:*",
+    "@aopslab/xf-secure-store": "catalog:"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "apps/aops/packages/aops-cli-kit"
+  }
+}

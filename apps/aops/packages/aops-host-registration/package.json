@@ -1,0 +1,35 @@
+{
+  "name": "@aops/host-registration",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json"
+  },
+  "dependencies": {
+    "@aopslab/host-registration": "workspace:^0.1.0"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "apps/aops/packages/aops-host-registration"
+  }
+}

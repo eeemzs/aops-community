@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "planId": "aops-community-public-aops-source-v1",
+  "planDigest": "sha256:32f5cd5fab019f4db7a7b0b9e9ed5215585fa7c1c3dc1f06258a570223bddbb1",
+  "packageCount": 6,
+  "families": [
+    "foundation"
+  ],
+  "packages": [
+    {
+      "name": "@aops/error-catalog",
+      "version": "0.0.1",
+      "family": "foundation",
+      "directory": "apps/aops/packages/aops-error-catalog"
+    },
+    {
+      "name": "@aops/host-registration",
+      "version": "0.0.1",
+      "family": "foundation",
+      "directory": "apps/aops/packages/aops-host-registration"
+    },
+    {
+      "name": "@aops/pg-bootstrap",
+      "version": "0.0.1",
+      "family": "foundation",
+      "directory": "apps/aops/packages/aops-pg-bootstrap"
+    },
+    {
+      "name": "@aops/runtime-config",
+      "version": "0.0.1",
+      "family": "foundation",
+      "directory": "apps/aops/packages/aops-runtime-config"
+    },
+    {
+      "name": "@aopslab/api-client",
+      "version": "0.0.15",
+      "family": "foundation",
+      "directory": "apps/aops/packages/aops-api-client"
+    },
+    {
+      "name": "@aopslab/cli-kit",
+      "version": "0.0.1",
+      "family": "foundation",
+      "directory": "apps/aops/packages/aops-cli-kit"
+    }
+  ],
+  "supportFiles": [
+    "apps/aops/tsconfig.base.json"
+  ],
+  "files": [
+    "LICENSE",
+    "NOTICE",
+    "apps/aops/packages/aops-api-client/LICENSE",
+    "apps/aops/packages/aops-api-client/NOTICE",
+    "apps/aops/packages/aops-api-client/README.md",
+    "apps/aops/packages/aops-api-client/package.json",
+    "apps/aops/packages/aops-api-client/src/__tests__/index.test.ts",
+    "apps/aops/packages/aops-api-client/src/index.ts",
+    "apps/aops/packages/aops-api-client/tsconfig.json",
+    "apps/aops/packages/aops-api-client/tsconfig.lib.json",
+    "apps/aops/packages/aops-cli-kit/LICENSE",
+    "apps/aops/packages/aops-cli-kit/NOTICE",
+    "apps/aops/packages/aops-cli-kit/README.md",
+    "apps/aops/packages/aops-cli-kit/package.json",
+    "apps/aops/packages/aops-cli-kit/scripts/keytar-smoke.mjs",
+    "apps/aops/packages/aops-cli-kit/src/__tests__/refresh-race.test.ts",
+    "apps/aops/packages/aops-cli-kit/src/api.ts",
+    "apps/aops/packages/aops-cli-kit/src/config.ts",
+    "apps/aops/packages/aops-cli-kit/src/index.ts",
+    "apps/aops/packages/aops-cli-kit/src/refresh-race.ts",
+    "apps/aops/packages/aops-cli-kit/tsconfig.json",
+    "apps/aops/packages/aops-cli-kit/tsconfig.lib.json",
+    "apps/aops/packages/aops-error-catalog/LICENSE",
+    "apps/aops/packages/aops-error-catalog/NOTICE",
+    "apps/aops/packages/aops-error-catalog/package.json",
+    "apps/aops/packages/aops-error-catalog/src/classification.d.ts",
+    "apps/aops/packages/aops-error-catalog/src/classification.js",
+    "apps/aops/packages/aops-error-catalog/src/display.d.ts",
+    "apps/aops/packages/aops-error-catalog/src/display.js",
+    "apps/aops/packages/aops-error-catalog/src/index.d.ts",
+    "apps/aops/packages/aops-error-catalog/src/index.js",
+    "apps/aops/packages/aops-host-registration/LICENSE",
+    "apps/aops/packages/aops-host-registration/NOTICE",
+    "apps/aops/packages/aops-host-registration/package.json",
+    "apps/aops/packages/aops-host-registration/src/index.ts",
+    "apps/aops/packages/aops-host-registration/src/registration.test.ts",
+    "apps/aops/packages/aops-host-registration/src/registration.ts",
+    "apps/aops/packages/aops-host-registration/tsconfig.json",
+    "apps/aops/packages/aops-host-registration/tsconfig.lib.json",
+    "apps/aops/packages/aops-pg-bootstrap/LICENSE",
+    "apps/aops/packages/aops-pg-bootstrap/NOTICE",
+    "apps/aops/packages/aops-pg-bootstrap/drizzle-out/agentspace-community/0000_thin_carlie_cooper.sql",
+    "apps/aops/packages/aops-pg-bootstrap/drizzle-out/agentspace-community/meta/0000_snapshot.json",
+    "apps/aops/packages/aops-pg-bootstrap/drizzle-out/agentspace-community/meta/_journal.json",
+    "apps/aops/packages/aops-pg-bootstrap/drizzle.agentspace-community.config.ts",
+    "apps/aops/packages/aops-pg-bootstrap/package.json",
+    "apps/aops/packages/aops-pg-bootstrap/src/bin.ts",
+    "apps/aops/packages/aops-pg-bootstrap/src/cli.ts",
+    "apps/aops/packages/aops-pg-bootstrap/src/community-migrate.ts",
+    "apps/aops/packages/aops-pg-bootstrap/src/index.ts",
+    "apps/aops/packages/aops-pg-bootstrap/src/manifest.ts",
+    "apps/aops/packages/aops-pg-bootstrap/src/pg-bootstrap.ts",
+    "apps/aops/packages/aops-pg-bootstrap/src/types/pg.d.ts",
+    "apps/aops/packages/aops-pg-bootstrap/tests/pg-bootstrap-manifest.test.mjs",
+    "apps/aops/packages/aops-pg-bootstrap/tsconfig.json",
+    "apps/aops/packages/aops-pg-bootstrap/tsconfig.lib.json",
+    "apps/aops/packages/aops-runtime-config/LICENSE",
+    "apps/aops/packages/aops-runtime-config/NOTICE",
+    "apps/aops/packages/aops-runtime-config/package.json",
+    "apps/aops/packages/aops-runtime-config/src/index.ts",
+    "apps/aops/packages/aops-runtime-config/src/runtime-config.ts",
+    "apps/aops/packages/aops-runtime-config/test/index.test.ts",
+    "apps/aops/packages/aops-runtime-config/tsconfig.json",
+    "apps/aops/packages/aops-runtime-config/tsconfig.lib.json",
+    "apps/aops/tsconfig.base.json"
+  ]
+}

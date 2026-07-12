@@ -1,0 +1,50 @@
+{
+  "name": "@aops/pg-bootstrap",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json",
+    "typecheck": "tsc -p tsconfig.lib.json --noEmit",
+    "generate:community": "drizzle-kit generate --config ./drizzle.agentspace-community.config.ts",
+    "test:unit": "node --test ./tests/*.test.mjs",
+    "test": "pnpm run build && pnpm run test:unit",
+    "prepack": "pnpm run build && pnpm run test:unit"
+  },
+  "bin": {
+    "aops-pg-bootstrap": "./dist/bin.js"
+  },
+  "dependencies": {
+    "dotenv": "catalog:",
+    "drizzle-kit": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/pg": "catalog:"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "drizzle-out",
+    "!drizzle-out/**/meta/*_snapshot.json",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "apps/aops/packages/aops-pg-bootstrap"
+  }
+}

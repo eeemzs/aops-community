@@ -1,0 +1,33 @@
+{
+  "name": "@aops/error-catalog",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    },
+    "./classification": {
+      "types": "./src/classification.d.ts",
+      "import": "./src/classification.js",
+      "default": "./src/classification.js"
+    },
+    "./display": {
+      "types": "./src/display.d.ts",
+      "import": "./src/display.js",
+      "default": "./src/display.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "apps/aops/packages/aops-error-catalog"
+  }
+}
