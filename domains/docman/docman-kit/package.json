@@ -1,0 +1,69 @@
+{
+  "name": "@aopslab/domain-kit-docman",
+  "version": "0.1.4",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "node ../scripts/clean-build-artifacts.mjs dist tsconfig.lib.tsbuildinfo && tsc -b tsconfig.lib.json",
+    "typecheck": "tsc -p tsconfig.lib.json --noEmit",
+    "dcm:print": "tsx scripts/dcm-cli.ts print",
+    "dcm:emit": "tsx scripts/dcm-cli.ts emit --out dist/dcm.json",
+    "dcm:check": "tsx scripts/dcm-cli.ts check --out dist/dcm.json"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./operations": {
+      "types": "./dist/operations/index.d.ts",
+      "import": "./dist/operations/index.js",
+      "default": "./dist/operations/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js",
+      "default": "./dist/errors/index.js"
+    },
+    "./errors/i18n": {
+      "types": "./dist/errors/i18n.d.ts",
+      "import": "./dist/errors/i18n.js",
+      "default": "./dist/errors/i18n.js"
+    },
+    "./resources": {
+      "types": "./dist/resources/index.d.ts",
+      "import": "./dist/resources/index.js",
+      "default": "./dist/resources/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "dependencies": {
+    "@aopslab/domain-dm-docman": "workspace:*",
+    "@aopslab/xf-core": "catalog:",
+    "@aopslab/xf-db": "catalog:",
+    "@aopslab/xf-db-drizzle": "catalog:",
+    "@aopslab/xf-dm-kits": "catalog:",
+    "@aopslab/xf-i18n": "catalog:",
+    "@aopslab/xf-logger": "catalog:",
+    "@aopslab/xf-validation": "workspace:*",
+    "dotenv": "catalog:",
+    "effect": "catalog:",
+    "zod": "catalog:"
+  },
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "domains/docman/docman-kit"
+  }
+}

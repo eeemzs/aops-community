@@ -1,0 +1,13 @@
+{
+  "bootstrap": [
+    "docman://docs/intro",
+    "docman://docs/tooling-cli"
+  ],
+  "plan": [
+    "docman://docs/intro"
+  ],
+  "free": [
+    "docman://docs/intro",
+    "docman://docs/tooling-cli"
+  ]
+}

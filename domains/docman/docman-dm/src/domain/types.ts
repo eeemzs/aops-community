@@ -1,0 +1,3 @@
+// Domain-specific types
+export {};
+
