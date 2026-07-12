@@ -2,7 +2,7 @@
 
 Local, three-application AOPS distribution: Cockpit, CLI, and the AOPS server on PostgreSQL 17.
 
-> Release status: operational candidate. The license decision and LICENSE/NOTICE files are intentionally deferred, so this tree is not approved for public or commercial redistribution.
+> Release status: Apache-2.0 source candidate. Public release remains gated on reviewed attribution, SBOM/provenance, migration safety, and independent release validation.
 
 ## Requirements
 

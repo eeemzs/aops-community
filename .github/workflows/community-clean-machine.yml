@@ -1,0 +1,223 @@
+name: Community clean-machine release verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Signed public release tag, for example v1.2.3
+        required: true
+        type: string
+      previous_release_ref:
+        description: Optional earlier signed tag for update and rollback proof
+        required: false
+        type: string
+      run_macos_self_hosted:
+        description: Run Docker lifecycle on a clean, operator-controlled macOS runner
+        required: true
+        default: false
+        type: boolean
+      confirm:
+        description: Type verify-vX.Y.Z for release_ref vX.Y.Z
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: community-clean-machine-${{ inputs.release_ref }}
+  cancel-in-progress: false
+
+jobs:
+  tag-contract:
+    name: Signed tag and additive packaging contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate operator inputs
+        shell: bash
+        env:
+          RELEASE_REF: ${{ inputs.release_ref }}
+          PREVIOUS_RELEASE_REF: ${{ inputs.previous_release_ref }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]
+          [[ -z "$PREVIOUS_RELEASE_REF" || "$PREVIOUS_RELEASE_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]
+          [[ "$CONFIRM" == "verify-${RELEASE_REF}" ]]
+
+      - name: Clone the public release tag without credentials
+        uses: actions/checkout@v6
+        with:
+          repository: eeemzs/aops-community
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 2
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Verify GitHub's signed-tag result
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REF: ${{ inputs.release_ref }}
+        run: |
+          set -euo pipefail
+          TAG_OBJECT_SHA="$(git rev-parse "refs/tags/${RELEASE_REF}^{tag}")"
+          [[ "$(gh api "repos/eeemzs/aops-community/git/tags/${TAG_OBJECT_SHA}" --jq '.verification.verified')" == "true" ]]
+
+      - name: Verify the packaging commit and signed release graph
+        shell: bash
+        env:
+          RELEASE_REF: ${{ inputs.release_ref }}
+        run: |
+          set -euo pipefail
+          node scripts/community-export/community-release-packaging.mjs verify-commit \
+            --checkout-root "$GITHUB_WORKSPACE" \
+            --expected-tag "$RELEASE_REF" \
+            --json
+
+  linux-lifecycle:
+    name: Linux anonymous pull and full lifecycle
+    needs: tag-contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the target public release tag without credentials
+        uses: actions/checkout@v6
+        with:
+          repository: eeemzs/aops-community
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 2
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Clone the optional previous release tag without credentials
+        if: ${{ inputs.previous_release_ref != '' }}
+        uses: actions/checkout@v6
+        with:
+          repository: eeemzs/aops-community
+          ref: ${{ inputs.previous_release_ref }}
+          path: previous
+          fetch-depth: 2
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Pin Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Prove setup, persistence, backup, stop, start, update and rollback
+        shell: bash
+        env:
+          DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
+          PREVIOUS_RELEASE_REF: ${{ inputs.previous_release_ref }}
+        run: |
+          set -euo pipefail
+          TARGET_CLI_REF="$(jq -r '.cli.artifactRef' release/release.json)"
+          target_cli() { npx --yes "./release/${TARGET_CLI_REF}" "$@"; }
+
+          if [[ -n "$PREVIOUS_RELEASE_REF" ]]; then
+            node previous/scripts/community-export/community-release-packaging.mjs verify-commit \
+              --checkout-root "$GITHUB_WORKSPACE/previous" \
+              --expected-tag "$PREVIOUS_RELEASE_REF" \
+              --json
+            PREVIOUS_CLI_REF="$(jq -r '.cli.artifactRef' previous/release/release.json)"
+            (cd previous && npx --yes "./release/${PREVIOUS_CLI_REF}" server setup \
+              --release-dir ./release --data-root "$DATA_ROOT" --json)
+          else
+            target_cli server setup --release-dir ./release --data-root "$DATA_ROOT" --json
+          fi
+
+          STATE="$DATA_ROOT/instances/default/install-state.json"
+          ENV_FILE="$DATA_ROOT/instances/default/runtime.env"
+          COMPOSE_FILE="$DATA_ROOT/instances/default/runtime/compose.yaml"
+          PROJECT="$(jq -r '.composeProjectName' "$STATE")"
+          compose() { docker compose --project-name "$PROJECT" --env-file "$ENV_FILE" --file "$COMPOSE_FILE" "$@"; }
+          compose exec -T postgres psql -U aops -d aops --set ON_ERROR_STOP=1 --command \
+            "CREATE TABLE IF NOT EXISTS public.aops_release_qa (id integer PRIMARY KEY, marker text NOT NULL); INSERT INTO public.aops_release_qa VALUES (1, 'persists') ON CONFLICT (id) DO UPDATE SET marker = EXCLUDED.marker;"
+
+          if [[ -n "$PREVIOUS_RELEASE_REF" ]]; then
+            target_cli server update --release-dir ./release --data-root "$DATA_ROOT" --json
+            target_cli server status --data-root "$DATA_ROOT" --json
+            [[ "$(compose exec -T postgres psql -U aops -d aops --tuples-only --no-align --command 'SELECT marker FROM public.aops_release_qa WHERE id = 1')" == "persists" ]]
+            target_cli server rollback --data-root "$DATA_ROOT" --confirm-data-rewind --json
+          fi
+
+          target_cli server backup --data-root "$DATA_ROOT" --json
+          target_cli server stop --data-root "$DATA_ROOT" --json
+          target_cli server start --data-root "$DATA_ROOT" --json
+          target_cli server status --data-root "$DATA_ROOT" --json
+          [[ "$(compose exec -T postgres psql -U aops -d aops --tuples-only --no-align --command 'SELECT marker FROM public.aops_release_qa WHERE id = 1')" == "persists" ]]
+
+  windows-cli-contract:
+    name: Windows clone and local CLI contract
+    needs: tag-contract
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: eeemzs/aops-community
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 2
+          fetch-tags: true
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Run the bundled CLI without a workspace install
+        shell: pwsh
+        run: |
+          $cliRef = (Get-Content release/release.json | ConvertFrom-Json).cli.artifactRef
+          npx --yes "./release/$cliRef" server --help
+
+  macos-cli-contract:
+    name: macOS hosted clone and local CLI contract (no Docker claim)
+    needs: tag-contract
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: eeemzs/aops-community
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 2
+          fetch-tags: true
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Run the bundled CLI without a workspace install
+        shell: bash
+        run: |
+          set -euo pipefail
+          CLI_REF="$(jq -r '.cli.artifactRef' release/release.json)"
+          npx --yes "./release/${CLI_REF}" server --help
+
+  macos-docker-lifecycle:
+    name: macOS real-machine Docker lifecycle
+    if: ${{ inputs.run_macos_self_hosted }}
+    needs: tag-contract
+    runs-on: [self-hosted, macOS, aops-community-clean]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: eeemzs/aops-community
+          ref: ${{ inputs.release_ref }}
+          fetch-depth: 2
+          fetch-tags: true
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Prove anonymous pull and lifecycle on Docker Desktop
+        shell: bash
+        env:
+          DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          docker version
+          CLI_REF="$(jq -r '.cli.artifactRef' release/release.json)"
+          cli() { npx --yes "./release/${CLI_REF}" "$@"; }
+          cli server setup --release-dir ./release --data-root "$DATA_ROOT" --json
+          cli server backup --data-root "$DATA_ROOT" --json
+          cli server stop --data-root "$DATA_ROOT" --json
+          cli server start --data-root "$DATA_ROOT" --json
+          cli server status --data-root "$DATA_ROOT" --json

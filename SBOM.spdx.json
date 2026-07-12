@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "AOPS Community deterministic source distribution",
-  "documentNamespace": "https://aops.local/spdx/community/24bc3eda36d3e43b0d5db35f665e4a31a87601e3fa424c1e26499a5eabf1466a",
+  "documentNamespace": "https://aops.local/spdx/community/45851fe9a6e3d3a4ef9b741c29c90c083478e4e4e205c3f34790d5b6692bc3be",
   "creationInfo": {
     "created": "1970-01-01T00:00:00Z",
     "creators": [
@@ -14,62 +14,40 @@
   "documentDescribes": [
     "SPDXRef-Package-2a3e558ecddee7f4fc4c",
     "SPDXRef-Package-360f410300408f04c05b",
-    "SPDXRef-Package-3a9d8a7cb806250e0c2b",
-    "SPDXRef-Package-e466f0d3394c7340f686",
-    "SPDXRef-Package-baec476903d3494cef81",
-    "SPDXRef-Package-8ab8771875e3b8ab7449",
+    "SPDXRef-Package-f4585bd4d9df15393769",
+    "SPDXRef-Package-bdfd139b5fc224a374a5",
+    "SPDXRef-Package-d1ea98253eda2c588ba8",
+    "SPDXRef-Package-9483670118a0218a3921",
     "SPDXRef-Package-257b002db0c7fea6d185",
-    "SPDXRef-Package-a0e1f9220f1633054dde",
-    "SPDXRef-Package-a5155ce834a105c11184",
-    "SPDXRef-Package-95529e6c81c83c1986ec",
-    "SPDXRef-Package-da4cdd21f93107300f1f",
-    "SPDXRef-Package-217dc76eb471af9bd147",
-    "SPDXRef-Package-3f42acf24fe31c0ce223",
-    "SPDXRef-Package-882ee5a1aed956006a13",
-    "SPDXRef-Package-86704d49561884af6832",
-    "SPDXRef-Package-15973bd3718305fcd4de",
-    "SPDXRef-Package-877419d9498913a8a61b",
-    "SPDXRef-Package-b2f6e9ddc358a3d16eff",
-    "SPDXRef-Package-2c7b342497ac2e857868",
-    "SPDXRef-Package-01d81e99c25b12f368ff",
-    "SPDXRef-Package-709948e1b3ab9933c48e",
-    "SPDXRef-Package-dcf1256320d79beca05f",
-    "SPDXRef-Package-7ae347e484613f68ea70",
-    "SPDXRef-Package-95ab150a0fdc144a8d6a",
-    "SPDXRef-Package-4dc9de369d664cb41e46",
-    "SPDXRef-Package-7f3545d22e286e77cdae",
-    "SPDXRef-Package-61818a846d3a7bd37750",
-    "SPDXRef-Package-04c2ce93e83ecb2a3837",
-    "SPDXRef-Package-4d1811b76dfdc00b281b",
-    "SPDXRef-Package-b4bb9af3e37f1b13376f",
-    "SPDXRef-Package-078d98a0a4c101112a4e",
-    "SPDXRef-Package-2ab8fd525f004a3d04da",
-    "SPDXRef-Package-6a3714331fe90de99f03",
-    "SPDXRef-Package-fe64797e1774c15d0d02",
-    "SPDXRef-Package-7c771c781d7ef523df96",
-    "SPDXRef-Package-dedd1ee7c8e62718a9da",
-    "SPDXRef-Package-83b423e106bc1f805729",
-    "SPDXRef-Package-5b86d983101c8e13bc48",
-    "SPDXRef-Package-d9263a1aeb165e548d4a",
-    "SPDXRef-Package-268766fd1aea3ad4385c",
-    "SPDXRef-Package-fb781d7f429ce9915a0a",
-    "SPDXRef-Package-220472521cd05f7d94bb",
-    "SPDXRef-Package-b9ee01d0e4d17c179522",
-    "SPDXRef-Package-cf5de88ad729b16fada9",
-    "SPDXRef-Package-6f5caf9d51c573f788bd",
-    "SPDXRef-Package-cdc9852d6457444586f4",
-    "SPDXRef-Package-d29b91fd65d7b98602df",
-    "SPDXRef-Package-d6ad198e86d7b8ba1bfc",
-    "SPDXRef-Package-21b3538ad1f43643117e",
-    "SPDXRef-Package-36c5e2f7a162af72d460",
-    "SPDXRef-Package-48b0458f131b761aa694",
-    "SPDXRef-Package-2fb6314c780ffd780017",
-    "SPDXRef-Package-f089c059df8de35f43c4",
-    "SPDXRef-Package-3157358cd54f8f084470",
-    "SPDXRef-Package-cd9e99aa162f8225396f",
-    "SPDXRef-Package-237b32c4e1799cc01611",
-    "SPDXRef-Package-bcfd8ff2bcce9cae9bde",
-    "SPDXRef-Package-b553787cf10d6415d9ac",
+    "SPDXRef-Package-d405165c09db1ab55613",
+    "SPDXRef-Package-9bb729cb6eda940933a0",
+    "SPDXRef-Package-3822c31e1a20d1712ceb",
+    "SPDXRef-Package-5a3e6985ab7174570fdc",
+    "SPDXRef-Package-365036b450ca3da9a22e",
+    "SPDXRef-Package-1f871159c0668c7d803d",
+    "SPDXRef-Package-8b68b6ffb2379dbc8f75",
+    "SPDXRef-Package-e6afe9868e395b8e95c2",
+    "SPDXRef-Package-48016539cf7f82107f77",
+    "SPDXRef-Package-cf3578bf041f780312ae",
+    "SPDXRef-Package-f4a4d5ca01445d358aa8",
+    "SPDXRef-Package-3638f1dd8a8c364266e7",
+    "SPDXRef-Package-d1d8a0be350358a80392",
+    "SPDXRef-Package-f6b28a7e250154fdae27",
+    "SPDXRef-Package-84043e622b9548aecea8",
+    "SPDXRef-Package-1c190f00ce34c26271fd",
+    "SPDXRef-Package-1fa9f6afa84dda933468",
+    "SPDXRef-Package-4395f7c89d4b9eec0066",
+    "SPDXRef-Package-3d083421a936e27e78c3",
+    "SPDXRef-Package-2d20ce934dc1db47f9b3",
+    "SPDXRef-Package-b2b2d1661ce921ac6141",
+    "SPDXRef-Package-d69c1afb01d04a64b340",
+    "SPDXRef-Package-d5c03d8f3d7089a60e62",
+    "SPDXRef-Package-0d80fbc199f955c43cf0",
+    "SPDXRef-Package-7212354eb6d3323e8e95",
+    "SPDXRef-Package-7e6cea63b4e5d6412069",
+    "SPDXRef-Package-41410cc6d78dba28125b",
+    "SPDXRef-Package-4a526954bed626507b64",
+    "SPDXRef-Package-862527b424072af4038c",
     "SPDXRef-Package-732e1cec6398e0002138"
   ],
   "packages": [
@@ -108,7 +86,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-3a9d8a7cb806250e0c2b",
+      "SPDXID": "SPDXRef-Package-f4585bd4d9df15393769",
       "name": "@aops/error-catalog",
       "versionInfo": "0.0.1",
       "downloadLocation": "NOASSERTION",
@@ -120,12 +98,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aops-error-catalog-0.0.1.tgz"
+          "referenceLocator": "apps/aops/packages/aops-error-catalog/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-e466f0d3394c7340f686",
+      "SPDXID": "SPDXRef-Package-bdfd139b5fc224a374a5",
       "name": "@aops/host-registration",
       "versionInfo": "0.0.1",
       "downloadLocation": "NOASSERTION",
@@ -137,12 +115,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aops-host-registration-0.0.1.tgz"
+          "referenceLocator": "apps/aops/packages/aops-host-registration/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-baec476903d3494cef81",
+      "SPDXID": "SPDXRef-Package-d1ea98253eda2c588ba8",
       "name": "@aops/pg-bootstrap",
       "versionInfo": "0.0.1",
       "downloadLocation": "NOASSERTION",
@@ -154,12 +132,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aops-pg-bootstrap-0.0.1.tgz"
+          "referenceLocator": "apps/aops/packages/aops-pg-bootstrap/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-8ab8771875e3b8ab7449",
+      "SPDXID": "SPDXRef-Package-9483670118a0218a3921",
       "name": "@aops/runtime-config",
       "versionInfo": "0.0.1",
       "downloadLocation": "NOASSERTION",
@@ -171,7 +149,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aops-runtime-config-0.0.1.tgz"
+          "referenceLocator": "apps/aops/packages/aops-runtime-config/package.json"
         }
       ]
     },
@@ -193,7 +171,7 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-a0e1f9220f1633054dde",
+      "SPDXID": "SPDXRef-Package-d405165c09db1ab55613",
       "name": "@aopslab/api-client",
       "versionInfo": "0.0.15",
       "downloadLocation": "NOASSERTION",
@@ -205,12 +183,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-api-client-0.0.15.tgz"
+          "referenceLocator": "apps/aops/packages/aops-api-client/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-a5155ce834a105c11184",
+      "SPDXID": "SPDXRef-Package-9bb729cb6eda940933a0",
       "name": "@aopslab/cli-kit",
       "versionInfo": "0.0.1",
       "downloadLocation": "NOASSERTION",
@@ -222,12 +200,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-cli-kit-0.0.1.tgz"
+          "referenceLocator": "apps/aops/packages/aops-cli-kit/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-95529e6c81c83c1986ec",
+      "SPDXID": "SPDXRef-Package-3822c31e1a20d1712ceb",
       "name": "@aopslab/domain-core-docman",
       "versionInfo": "0.0.15",
       "downloadLocation": "NOASSERTION",
@@ -239,12 +217,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-core-docman-0.0.15.tgz"
+          "referenceLocator": "domains/docman/docman-core/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-da4cdd21f93107300f1f",
+      "SPDXID": "SPDXRef-Package-5a3e6985ab7174570fdc",
       "name": "@aopslab/domain-dm-agentspace",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -256,12 +234,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz"
+          "referenceLocator": "domains/agentspace/agentspace-dm/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-217dc76eb471af9bd147",
+      "SPDXID": "SPDXRef-Package-365036b450ca3da9a22e",
       "name": "@aopslab/domain-dm-chatv3",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -273,12 +251,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz"
+          "referenceLocator": "domains/chatv3/chatv3-dm/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-3f42acf24fe31c0ce223",
+      "SPDXID": "SPDXRef-Package-1f871159c0668c7d803d",
       "name": "@aopslab/domain-dm-docman",
       "versionInfo": "0.1.2",
       "downloadLocation": "NOASSERTION",
@@ -290,12 +268,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz"
+          "referenceLocator": "domains/docman/docman-dm/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-882ee5a1aed956006a13",
+      "SPDXID": "SPDXRef-Package-8b68b6ffb2379dbc8f75",
       "name": "@aopslab/domain-dm-projectman",
       "versionInfo": "0.1.4",
       "downloadLocation": "NOASSERTION",
@@ -307,12 +285,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz"
+          "referenceLocator": "domains/projectman/projectman-dm/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-86704d49561884af6832",
+      "SPDXID": "SPDXRef-Package-e6afe9868e395b8e95c2",
       "name": "@aopslab/domain-dm-sys",
       "versionInfo": "0.1.86",
       "downloadLocation": "NOASSERTION",
@@ -324,12 +302,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz"
+          "referenceLocator": "domains/sys/sys-dm/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-15973bd3718305fcd4de",
+      "SPDXID": "SPDXRef-Package-48016539cf7f82107f77",
       "name": "@aopslab/domain-host-plugin-agentspace",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -341,12 +319,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz"
+          "referenceLocator": "domains/agentspace/agentspace-host-plugin/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-877419d9498913a8a61b",
+      "SPDXID": "SPDXRef-Package-cf3578bf041f780312ae",
       "name": "@aopslab/domain-host-plugin-chatv3",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -358,12 +336,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz"
+          "referenceLocator": "domains/chatv3/chatv3-host-plugin/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-b2f6e9ddc358a3d16eff",
+      "SPDXID": "SPDXRef-Package-f4a4d5ca01445d358aa8",
       "name": "@aopslab/domain-host-plugin-docman",
       "versionInfo": "0.1.4",
       "downloadLocation": "NOASSERTION",
@@ -375,12 +353,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz"
+          "referenceLocator": "domains/docman/docman-host-plugin/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-2c7b342497ac2e857868",
+      "SPDXID": "SPDXRef-Package-3638f1dd8a8c364266e7",
       "name": "@aopslab/domain-host-plugin-projectman",
       "versionInfo": "0.0.4",
       "downloadLocation": "NOASSERTION",
@@ -392,12 +370,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz"
+          "referenceLocator": "domains/projectman/projectman-host-plugin/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-01d81e99c25b12f368ff",
+      "SPDXID": "SPDXRef-Package-d1d8a0be350358a80392",
       "name": "@aopslab/domain-host-plugin-sys",
       "versionInfo": "0.0.6",
       "downloadLocation": "NOASSERTION",
@@ -409,12 +387,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz"
+          "referenceLocator": "domains/sys/sys-host-plugin/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-709948e1b3ab9933c48e",
+      "SPDXID": "SPDXRef-Package-f6b28a7e250154fdae27",
       "name": "@aopslab/domain-kit-agentspace",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -426,12 +404,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz"
+          "referenceLocator": "domains/agentspace/agentspace-kit/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-dcf1256320d79beca05f",
+      "SPDXID": "SPDXRef-Package-84043e622b9548aecea8",
       "name": "@aopslab/domain-kit-chatv3",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -443,12 +421,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz"
+          "referenceLocator": "domains/chatv3/chatv3-kit/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-7ae347e484613f68ea70",
+      "SPDXID": "SPDXRef-Package-1c190f00ce34c26271fd",
       "name": "@aopslab/domain-kit-docman",
       "versionInfo": "0.1.4",
       "downloadLocation": "NOASSERTION",
@@ -460,12 +438,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz"
+          "referenceLocator": "domains/docman/docman-kit/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-95ab150a0fdc144a8d6a",
+      "SPDXID": "SPDXRef-Package-1fa9f6afa84dda933468",
       "name": "@aopslab/domain-kit-projectman",
       "versionInfo": "0.1.5",
       "downloadLocation": "NOASSERTION",
@@ -477,12 +455,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz"
+          "referenceLocator": "domains/projectman/projectman-kit/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-4dc9de369d664cb41e46",
+      "SPDXID": "SPDXRef-Package-4395f7c89d4b9eec0066",
       "name": "@aopslab/domain-kit-sys",
       "versionInfo": "0.0.5",
       "downloadLocation": "NOASSERTION",
@@ -494,12 +472,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz"
+          "referenceLocator": "domains/sys/sys-kit/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-7f3545d22e286e77cdae",
+      "SPDXID": "SPDXRef-Package-3d083421a936e27e78c3",
       "name": "@aopslab/domain-pg-bootstrap-chatv3",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -511,12 +489,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz"
+          "referenceLocator": "domains/chatv3/chatv3-pg-bootstrap/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-61818a846d3a7bd37750",
+      "SPDXID": "SPDXRef-Package-2d20ce934dc1db47f9b3",
       "name": "@aopslab/domain-pg-bootstrap-docman",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -528,12 +506,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz"
+          "referenceLocator": "domains/docman/docman-pg-bootstrap/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-04c2ce93e83ecb2a3837",
+      "SPDXID": "SPDXRef-Package-b2b2d1661ce921ac6141",
       "name": "@aopslab/domain-pg-bootstrap-projectman",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -545,12 +523,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz"
+          "referenceLocator": "domains/projectman/projectman-pg-bootstrap/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-4d1811b76dfdc00b281b",
+      "SPDXID": "SPDXRef-Package-d69c1afb01d04a64b340",
       "name": "@aopslab/domain-pg-bootstrap-sys",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -562,12 +540,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz"
+          "referenceLocator": "domains/sys/sys-pg-bootstrap/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-b4bb9af3e37f1b13376f",
+      "SPDXID": "SPDXRef-Package-d5c03d8f3d7089a60e62",
       "name": "@aopslab/domain-product-client-chatv3",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -579,12 +557,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz"
+          "referenceLocator": "domains/chatv3/chatv3-product-client/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-078d98a0a4c101112a4e",
+      "SPDXID": "SPDXRef-Package-0d80fbc199f955c43cf0",
       "name": "@aopslab/domain-product-docman",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -596,12 +574,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-product-docman-0.1.0.tgz"
+          "referenceLocator": "domains/docman/docman-product/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-2ab8fd525f004a3d04da",
+      "SPDXID": "SPDXRef-Package-7212354eb6d3323e8e95",
       "name": "@aopslab/domain-product-projectman",
       "versionInfo": "0.1.1",
       "downloadLocation": "NOASSERTION",
@@ -613,12 +591,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz"
+          "referenceLocator": "domains/projectman/projectman-product/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-6a3714331fe90de99f03",
+      "SPDXID": "SPDXRef-Package-7e6cea63b4e5d6412069",
       "name": "@aopslab/domain-runtime-config-docman",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -630,12 +608,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz"
+          "referenceLocator": "domains/docman/docman-runtime-config/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-fe64797e1774c15d0d02",
+      "SPDXID": "SPDXRef-Package-41410cc6d78dba28125b",
       "name": "@aopslab/domain-runtime-config-projectman",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -647,63 +625,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz"
+          "referenceLocator": "domains/projectman/projectman-runtime-config/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-7c771c781d7ef523df96",
-      "name": "@aopslab/host-adapter-sveltekit",
-      "versionInfo": "0.1.1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-dedd1ee7c8e62718a9da",
-      "name": "@aopslab/host-core",
-      "versionInfo": "0.1.1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-host-core-0.1.1.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-83b423e106bc1f805729",
-      "name": "@aopslab/host-registration",
-      "versionInfo": "0.1.1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-host-registration-0.1.1.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-5b86d983101c8e13bc48",
+      "SPDXID": "SPDXRef-Package-4a526954bed626507b64",
       "name": "@aopslab/light-client-core",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -715,29 +642,12 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-light-client-core-0.1.0.tgz"
+          "referenceLocator": "domains/chatv3/light-client-core/package.json"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-d9263a1aeb165e548d4a",
-      "name": "@aopslab/manifest",
-      "versionInfo": "0.1.3",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-manifest-0.1.3.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-268766fd1aea3ad4385c",
+      "SPDXID": "SPDXRef-Package-862527b424072af4038c",
       "name": "@aopslab/projectman-cockpit-client",
       "versionInfo": "0.1.0",
       "downloadLocation": "NOASSERTION",
@@ -749,313 +659,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-fb781d7f429ce9915a0a",
-      "name": "@aopslab/xf-bm",
-      "versionInfo": "0.1.88",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-bm-0.1.88.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-220472521cd05f7d94bb",
-      "name": "@aopslab/xf-cli-operator",
-      "versionInfo": "0.0.2",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-b9ee01d0e4d17c179522",
-      "name": "@aopslab/xf-cli-ui",
-      "versionInfo": "0.1.13",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-cf5de88ad729b16fada9",
-      "name": "@aopslab/xf-core",
-      "versionInfo": "0.1.68",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-core-0.1.68.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-6f5caf9d51c573f788bd",
-      "name": "@aopslab/xf-db",
-      "versionInfo": "0.1.74",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-db-0.1.74.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-cdc9852d6457444586f4",
-      "name": "@aopslab/xf-db-drizzle",
-      "versionInfo": "0.1.80",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-d29b91fd65d7b98602df",
-      "name": "@aopslab/xf-db-mongoose",
-      "versionInfo": "0.1.78",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-d6ad198e86d7b8ba1bfc",
-      "name": "@aopslab/xf-db-redis",
-      "versionInfo": "0.1.75",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-db-redis-0.1.75.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-21b3538ad1f43643117e",
-      "name": "@aopslab/xf-dm",
-      "versionInfo": "0.1.83",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-dm-0.1.83.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-36c5e2f7a162af72d460",
-      "name": "@aopslab/xf-dm-kits",
-      "versionInfo": "0.1.13",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-48b0458f131b761aa694",
-      "name": "@aopslab/xf-i18n",
-      "versionInfo": "0.1.73",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-i18n-0.1.73.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-2fb6314c780ffd780017",
-      "name": "@aopslab/xf-logger",
-      "versionInfo": "0.1.61",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-logger-0.1.61.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-f089c059df8de35f43c4",
-      "name": "@aopslab/xf-secure-store",
-      "versionInfo": "0.1.27",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-secure-store-0.1.27.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-3157358cd54f8f084470",
-      "name": "@aopslab/xf-ui-composition-react",
-      "versionInfo": "0.1.1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-cd9e99aa162f8225396f",
-      "name": "@aopslab/xf-ui-foundation",
-      "versionInfo": "0.1.1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-237b32c4e1799cc01611",
-      "name": "@aopslab/xf-ui-plugin",
-      "versionInfo": "0.1.1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-bcfd8ff2bcce9cae9bde",
-      "name": "@aopslab/xf-ui-shell-react",
-      "versionInfo": "0.1.1",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-b553787cf10d6415d9ac",
-      "name": "@aopslab/xf-validation",
-      "versionInfo": "0.1.79",
-      "downloadLocation": "NOASSERTION",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceType": "aops-community-source-path",
-          "referenceLocator": "vendor/npm/aopslab-xf-validation-0.1.79.tgz"
+          "referenceLocator": "domains/projectman/projectman-cockpit-client/package.json"
         }
       ]
     },
