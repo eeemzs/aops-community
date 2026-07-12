@@ -1,0 +1,36 @@
+{
+  "name": "@aopslab/domain-product-projectman",
+  "version": "0.1.1",
+  "type": "module",
+  "private": true,
+  "description": "Reusable host-side product controllers for Projectman UI flows.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b tsconfig.lib.json"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "dependencies": {
+    "@aopslab/domain-kit-projectman": "workspace:*"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "domains/projectman/projectman-product"
+  }
+}
