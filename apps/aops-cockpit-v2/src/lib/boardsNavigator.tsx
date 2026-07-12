@@ -43,6 +43,12 @@ export function useBoardsNavigator(model: BoardsNavigatorModel, t: NavT): Boards
       dockClassName: "aops-v2-boards-navdock",
       // Cards mode: the boards page renders the aops-desktop-style card register.
       enableCardsMode: true,
+      showDropdownSettings: false,
+      showDropdownMeta: false,
+      showModeShortcuts: false,
+      showNavigatorSetting: false,
+      leftMenuModeLabel: "pmRecordViewSidePanel",
+      settingsModeOrder: ["left-menu", "cards", "dropdown"],
       onCardsModeChange: model.onCardsModeChange,
       labels: {
         panelTitle: "pmNavBoardsPanelTitle",

@@ -73,7 +73,8 @@ export function RecordMasterDetail({
   items,
   labels,
   toolbar,
-  detailExtra
+  detailExtra,
+  layout = "side-panel"
 }: {
   items: RecordListItem[];
   labels: RecordMasterDetailLabels;
@@ -81,12 +82,16 @@ export function RecordMasterDetail({
   toolbar?: ReactNode;
   /** Optional extra detail content under the field grid (e.g. version body). */
   detailExtra?: (item: RecordListItem) => ReactNode;
+  /** Swap the master list for a compact selector while preserving the detail pane. */
+  layout?: "side-panel" | "dropdown";
 }): ReactNode {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const isMobile = useCockpitViewport().viewport === "mobile";
   const detailRef = useRef<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const query = search.trim().toLowerCase();
   const filtered = useMemo(
     () => (query ? items.filter((item) => item.searchText.toLowerCase().includes(query)) : items),
@@ -110,6 +115,22 @@ export function RecordMasterDetail({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [closeDetail, detailOpen]);
 
+  useEffect(() => {
+    if (!dropdownOpen) return undefined;
+    const closeDropdown = (event: MouseEvent) => {
+      if (!dropdownRef.current?.contains(event.target as Node)) setDropdownOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", closeDropdown);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeDropdown);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [dropdownOpen]);
+
   // With a toolbar (filter pills) an empty item set must keep the pane visible
   // so the operator can widen the filter again.
   if (items.length === 0 && !toolbar) {
@@ -117,7 +138,76 @@ export function RecordMasterDetail({
   }
 
   return (
-    <div className="aops-pm-recordlist" data-detail-open={detailOpen ? "true" : "false"}>
+    <div
+      className={`aops-pm-recordlist${layout === "dropdown" ? " is-dropdown" : ""}`}
+      data-detail-open={detailOpen ? "true" : "false"}
+    >
+      {layout === "dropdown" ? (
+        <div className="aops-pm-boardnav-dropdown aops-pm-recordlist-dropdown" ref={dropdownRef}>
+          <button
+            type="button"
+            className="aops-pm-boardnav-trigger"
+            aria-haspopup="listbox"
+            aria-expanded={dropdownOpen}
+            onClick={() => setDropdownOpen((open) => !open)}
+          >
+            <span className="aops-pm-boardnav-trigger-k">{labels.title}</span>
+            <span className="aops-pm-boardnav-trigger-name">
+              {selected?.title ?? labels.emptyLabel}
+            </span>
+            <span className="aops-pm-boardnav-caret" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 9l6 6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </button>
+          {dropdownOpen ? (
+            <div className="aops-pm-boardnav-menu">
+              <input
+                className="aops-pm-boardnav-search"
+                type="search"
+                value={search}
+                placeholder={labels.searchPlaceholder}
+                aria-label={labels.searchPlaceholder}
+                autoFocus
+                onChange={(event) => setSearch(event.target.value)}
+              />
+              <div className="aops-pm-boardnav-list" role="listbox" aria-label={labels.title}>
+                {filtered.map((item) => {
+                  const active = selected?.id === item.id;
+                  return (
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      className={`aops-pm-boardnav-item${active ? " is-active" : ""}`}
+                      key={item.id}
+                      onClick={() => {
+                        setSelectedId(item.id);
+                        setDropdownOpen(false);
+                        setSearch("");
+                      }}
+                    >
+                      <span className="aops-pm-boardnav-item-name">{item.title}</span>
+                      <span className="aops-pm-boardnav-item-slug">{shortId(item.id)}</span>
+                      {active ? <span className="aops-pm-boardnav-item-check" aria-hidden>✓</span> : null}
+                    </button>
+                  );
+                })}
+                {filtered.length === 0 ? (
+                  <span className="aops-pm-boardnav-empty">{labels.noMatchLabel}</span>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : (
       <aside className="aops-pm-recordlist-list" aria-label={labels.title}>
         {toolbar ? <div className="aops-pm-recordlist-toolbar">{toolbar}</div> : null}
         <input
@@ -158,6 +248,7 @@ export function RecordMasterDetail({
           {filtered.length === 0 ? <li className="aops-pm-recordlist-empty">{labels.noMatchLabel}</li> : null}
         </ul>
       </aside>
+      )}
       <section
         className="aops-pm-recordlist-detail"
         aria-label={labels.detailAriaLabel}

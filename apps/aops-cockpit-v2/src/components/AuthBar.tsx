@@ -1,3 +1,4 @@
+import { DESKTOP_SHELL_ICONS } from "@aopslab/xf-ui-shell-react";
 import type { AopsCockpitTranslationKey } from "../lib/i18n";
 
 export interface AuthBarPrincipal {
@@ -15,12 +16,12 @@ export function AuthBar({
 }) {
   const label = principal.fullName || principal.email || principal.userId || t("unknownValue");
   return (
-    <div className="cockpit-authbar" title={label}>
-      <span className="cockpit-authbar__id">
-        <span className="cockpit-authbar__dot" />
-        {label}
+    <div className="cockpit-authbar" title={label} aria-label={label} role="status">
+      <span className="cockpit-authbar__icon" aria-hidden="true">
+        {DESKTOP_SHELL_ICONS.user}
+        <span className="cockpit-authbar__dot is-active" />
       </span>
-      <span className="aops-session-provider">{t("authProviderTrusted")}</span>
+      <span className="cockpit-authbar__status">{t("authProviderTrusted")}</span>
     </div>
   );
 }

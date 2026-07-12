@@ -25,8 +25,6 @@ import { DEFAULT_PAGE_SIZE } from "./board-cards/shared";
 import {
   CloseIcon,
   FunnelIcon,
-  LeftMenuModeIcon,
-  NavigatorModeIcon,
   SearchIcon,
   usePopover
 } from "./board-cards/icons";
@@ -38,7 +36,7 @@ import { SprintDeleteModal } from "./sprint-cards/SprintDeleteModal";
 // Sprints & Plans cards mode (boards cards parity + aops-desktop sprint
 // grammar): paged register of content-wide sprint/plan cards with a list
 // toolbar (record filter · sort · search · expand/collapse all · mode
-// shortcuts · gear), lazily loaded per-record detail bodies, a sticky right
+// controls), lazily loaded per-record detail bodies, a sticky right
 // snapshot pane and sprint lifecycle (archive/delete) via the kebab.
 // This file is the orchestrator; card / pane / modal live in ./sprint-cards/.
 
@@ -390,28 +388,6 @@ export function ProjectmanSprintCards({
           <button type="button" className="aops-pm-cards-mini" onClick={() => setAllExpanded(false)}>
             {t("pmCardsCollapseAll")}
           </button>
-          <span className="aops-pm-cards-toolbar-sep" aria-hidden />
-          <button
-            type="button"
-            className="aops-pm-cards-tool-btn"
-            aria-label={t("navModeNavigator")}
-            title={t("navModeNavigator")}
-            onClick={() => navigator.switchMode("navigator")}
-            data-testid="aops-v2-sprints-cards-shortcut-navigator"
-          >
-            {NavigatorModeIcon}
-          </button>
-          <button
-            type="button"
-            className="aops-pm-cards-tool-btn"
-            aria-label={t("navModeLeftMenu")}
-            title={t("navModeLeftMenu")}
-            onClick={() => navigator.switchMode("left-menu")}
-            data-testid="aops-v2-sprints-cards-shortcut-leftmenu"
-          >
-            {LeftMenuModeIcon}
-          </button>
-          {navigator.gearNode}
         </div>
       </div>
       {actionError ? (

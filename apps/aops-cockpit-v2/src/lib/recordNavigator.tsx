@@ -98,6 +98,18 @@ export interface RecordNavigatorConfig<T> {
   dockClassName: string;
   /** Offer the 4th "cards" view mode in the gear (card-register consumers). */
   enableCardsMode?: boolean;
+  /** Keep the legacy mode gear beside the dropdown selector. Defaults to true. */
+  showDropdownSettings?: boolean;
+  /** Show itemMeta as a secondary dropdown column. Defaults to true. */
+  showDropdownMeta?: boolean;
+  /** Show mode shortcut icons in the tree toolbar. Defaults to true. */
+  showModeShortcuts?: boolean;
+  /** Offer the shell Navigator mode in settings. Defaults to true. */
+  showNavigatorSetting?: boolean;
+  /** Override the settings label for the inline left-menu mode. */
+  leftMenuModeLabel?: AopsCockpitTranslationKey;
+  /** Align settings mode order with a page-level view switch. */
+  settingsModeOrder?: ReadonlyArray<RecordNavigator["viewMode"]>;
   /** Cards-mode change mirror (consumers defer heavy queries while in cards). */
   onCardsModeChange?: (cards: boolean) => void;
   labels: RecordNavigatorLabels;
@@ -123,7 +135,7 @@ export interface RecordNavigator {
   treePanel: ReactNode;
   /** Shell-attached far-left dock (navigator mode). */
   dockNode: ReactNode;
-  /** Searchable dropdown + gear for the content top-left (dropdown mode). */
+  /** Searchable dropdown for the content top-left (optional legacy mode gear). */
   dropdownNode: ReactNode;
   /** Re-open launcher for the shell dock when unpinned/closed (navigator mode). */
   launcherNode: ReactNode;
@@ -317,9 +329,11 @@ export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT)
       title={t("navSettings")}
       modeLabel={t("navMode")}
       navigatorLabel={t("navModeNavigator")}
-      leftMenuLabel={t("navModeLeftMenu")}
+      showNavigatorOption={config.showNavigatorSetting !== false}
+      leftMenuLabel={t(config.leftMenuModeLabel ?? "navModeLeftMenu")}
       dropdownLabel={t("navModeDropdown")}
       cardsLabel={config.enableCardsMode ? t("navModeCards") : undefined}
+      modeOrder={config.settingsModeOrder}
       testIdPrefix={config.testIdPrefix}
     />
   );
@@ -339,7 +353,7 @@ export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT)
       {icon}
     </button>
   );
-  const modeShortcuts = (
+  const modeShortcuts = config.showModeShortcuts === false ? null : (
     <>
       {modeShortcut("navigator", NavigatorModeIcon, t("navModeNavigator"))}
       {modeShortcut("left-menu", LeftMenuModeShortcutIcon, t("navModeLeftMenu"))}
@@ -433,7 +447,13 @@ export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT)
       </button>
     ) : null;
 
-  const dropdownNode = <RecordDropdown config={config} gear={gear} t={t} />;
+  const dropdownNode = (
+    <RecordDropdown
+      config={config}
+      gear={config.showDropdownSettings === false ? null : gear}
+      t={t}
+    />
+  );
 
   const leftDockMode: RecordNavigator["leftDockMode"] =
     cardsMode || dropdownMode || nav.isLeftMenuMode
@@ -513,9 +533,11 @@ function RecordDropdown<T>({
         <b className="aops-pm-boardnav-trigger-name">
           {selected ? config.itemLabel(selected) : t(config.labels.dropdownSelect)}
         </b>
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" aria-hidden="true" className="aops-pm-boardnav-caret">
-          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <span className="aops-pm-boardnav-caret" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </button>
       {open ? (
         <div className="aops-pm-boardnav-menu" role="listbox">
@@ -550,7 +572,7 @@ function RecordDropdown<T>({
                     }}
                   >
                     <span className="aops-pm-boardnav-item-name">{config.itemLabel(item)}</span>
-                    {meta && meta.length ? (
+                    {config.showDropdownMeta !== false && meta && meta.length ? (
                       <span className="aops-pm-boardnav-item-slug">{meta[0]}</span>
                     ) : null}
                     {active ? <span className="aops-pm-boardnav-item-check">✓</span> : null}
@@ -561,7 +583,7 @@ function RecordDropdown<T>({
           </div>
         </div>
       ) : null}
-      <div className="aops-pm-boardnav-gear">{gear}</div>
+      {gear ? <div className="aops-pm-boardnav-gear">{gear}</div> : null}
     </div>
   );
 }

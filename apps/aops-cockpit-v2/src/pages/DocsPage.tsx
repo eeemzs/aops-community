@@ -16,6 +16,8 @@ import { RecordCardsRegister } from "./projectman/record-cards/RecordCardsRegist
 import { MarkdownLite, markdownAnchorSlug } from "../components/MarkdownLite";
 import { toneForStatus } from "../lib/projectman";
 import { formatPmDate } from "./projectman/helpers";
+import { SegmentedControl } from "./projectman/components";
+import { CopyContentButton } from "../components/CopyContentButton";
 import type { AopsCockpitLocale, AopsCockpitTranslationKey } from "../lib/i18n";
 
 type TFn = (key: AopsCockpitTranslationKey) => string;
@@ -38,6 +40,10 @@ export function DocsPage({
   locale: AopsCockpitLocale;
   t: TFn;
 }): ReactNode {
+  useEffect(() => {
+    if (navigator.viewMode === "navigator") navigator.switchMode("left-menu");
+  }, [navigator]);
+
   if (model.status === "select-project") {
     return (
       <WorkbenchSectionShell className="aops-v2-section aops-pm-section" mainClassName="aops-v2-section-main">
@@ -82,6 +88,24 @@ export function DocsPage({
   ) : (
     <WorkbenchStatePanel variant="empty" title={t("docsTitle")} message={t("docsNavEmpty")} />
   );
+  const viewMode = navigator.isCardsMode ? "cards" : navigator.isDropdownMode ? "dropdown" : "side-panel";
+  const viewSwitch = (
+    <div className="aops-pm-section-view-switch aops-docs-view-switch">
+      <SegmentedControl
+        compact
+        ariaLabel={`${t("pmRecordViewLabel")}: ${t("docsTitle")}`}
+        value={viewMode}
+        items={[
+          { value: "side-panel", label: t("pmRecordViewSidePanel") },
+          { value: "cards", label: t("navModeCards") },
+          { value: "dropdown", label: t("navModeDropdown") }
+        ]}
+        onChange={(next) =>
+          navigator.switchMode(next === "cards" ? "cards" : next === "dropdown" ? "dropdown" : "left-menu")
+        }
+      />
+    </div>
+  );
 
   // Cards mode: the whole document set as a paged register (record-cards
   // registry); "Open document" jumps back to the reading surface (left-menu)
@@ -110,7 +134,10 @@ export function DocsPage({
     }));
     return (
       <WorkbenchSectionShell className="aops-v2-section aops-pm-section" mainClassName="aops-v2-section-main">
-        <div className="aops-pm-board-view is-cards">
+        <div className="aops-pm-dispatch has-view-switch aops-docs-dispatch">
+          {viewSwitch}
+          <div className="aops-pm-dispatch-body">
+            <div className="aops-pm-board-view is-cards">
           <RecordCardsRegister
             projectKey={model.selectedProject?.key ?? "__global__"}
             section="docs"
@@ -133,15 +160,11 @@ export function DocsPage({
                 </button>
               </div>
             )}
-            toolbarTrailing={
-              <>
-                <span className="aops-pm-cards-toolbar-sep" aria-hidden />
-                {navigator.gearNode}
-              </>
-            }
             locale={locale}
             t={t}
           />
+            </div>
+          </div>
         </div>
       </WorkbenchSectionShell>
     );
@@ -150,24 +173,34 @@ export function DocsPage({
   if (navigator.isDropdownMode) {
     return (
       <WorkbenchSectionShell className="aops-v2-section aops-pm-section" mainClassName="aops-v2-section-main">
-        <div className="aops-pm-board-view is-dropdown">
-          <div className="aops-pm-board-navrow">{navigator.dropdownNode}</div>
-          {detail}
+        <div className="aops-pm-dispatch has-view-switch aops-docs-dispatch">
+          {viewSwitch}
+          <div className="aops-pm-dispatch-body">
+            <div className="aops-pm-board-view is-dropdown">
+              <div className="aops-pm-board-navrow">{navigator.dropdownNode}</div>
+              {detail}
+            </div>
+          </div>
         </div>
       </WorkbenchSectionShell>
     );
   }
   return (
     <WorkbenchSectionShell className="aops-v2-section aops-pm-section" mainClassName="aops-v2-section-main">
-      <div className="aops-pm-board-view">
-        <WorkbenchRecordDetailLayout
-          controller={navigator.controller}
-          navigator={navigator.treePanel}
-          navigatorLabel={t("docsNavPanelTitle")}
-          className="aops-pm-board-recordlayout"
-          contentClassName="aops-pm-board-recordcontent"
-          content={detail}
-        />
+      <div className="aops-pm-dispatch has-view-switch aops-docs-dispatch">
+        {viewSwitch}
+        <div className="aops-pm-dispatch-body">
+          <div className="aops-pm-board-view">
+            <WorkbenchRecordDetailLayout
+              controller={navigator.controller}
+              navigator={navigator.treePanel}
+              navigatorLabel={t("docsNavPanelTitle")}
+              className="aops-pm-board-recordlayout"
+              contentClassName="aops-pm-board-recordcontent"
+              content={detail}
+            />
+          </div>
+        </div>
       </div>
     </WorkbenchSectionShell>
   );
@@ -258,6 +291,12 @@ function DocDetail({
           </details>
           {document.summary ? <p className="aops-pm-sprint-goal">{document.summary}</p> : null}
         </div>
+        <CopyContentButton
+          text={markdown}
+          copyLabel={t("contentCopy")}
+          copiedLabel={t("contentCopied")}
+          failedLabel={t("contentCopyFailed")}
+        />
       </header>
       {outline.length > 1 ? (
         <details className="aops-docs-outline">

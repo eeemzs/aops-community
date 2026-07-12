@@ -23,7 +23,7 @@ import {
   type BoardsSortDirection,
   type BoardsSortKey
 } from "./board-cards/shared";
-import { CloseIcon, LeftMenuModeIcon, NavigatorModeIcon, SearchIcon } from "./board-cards/icons";
+import { CloseIcon, SearchIcon } from "./board-cards/icons";
 import { BoardsPager, CardsFilterControl, CardsSortControl } from "./board-cards/CardsToolbarControls";
 import { BoardRegisterCard } from "./board-cards/BoardRegisterCard";
 import { BoardDetailPane } from "./board-cards/BoardDetailPane";
@@ -322,28 +322,6 @@ export function ProjectmanBoardCards({ model, navigator, selectedBoardId, locale
           <button type="button" className="aops-pm-cards-mini" onClick={() => setAllExpanded(false)}>
             {t("pmCardsCollapseAll")}
           </button>
-          <span className="aops-pm-cards-toolbar-sep" aria-hidden />
-          <button
-            type="button"
-            className="aops-pm-cards-tool-btn"
-            aria-label={t("navModeNavigator")}
-            title={t("navModeNavigator")}
-            onClick={() => navigator.switchMode("navigator")}
-            data-testid="aops-v2-boards-cards-shortcut-navigator"
-          >
-            {NavigatorModeIcon}
-          </button>
-          <button
-            type="button"
-            className="aops-pm-cards-tool-btn"
-            aria-label={t("navModeLeftMenu")}
-            title={t("navModeLeftMenu")}
-            onClick={() => navigator.switchMode("left-menu")}
-            data-testid="aops-v2-boards-cards-shortcut-leftmenu"
-          >
-            {LeftMenuModeIcon}
-          </button>
-          {navigator.gearNode}
         </div>
       </div>
       {actionError ? (

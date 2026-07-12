@@ -93,24 +93,6 @@ export function ProjectmanBoards({ model, navigator, selectedBoardId, locale, t 
           ]}
           onChange={(value) => setMode(value as BoardMode)}
         />
-        {mode === "table" ? (
-          <label className="aops-pm-groupby">
-            <span className="aops-pm-groupby-label">{t("pmGroupBy")}</span>
-            <SegmentedControl
-              ariaLabel={t("pmGroupBy")}
-              value={groupBy}
-              items={[
-                { value: "column", label: t("pmGroupColumn") },
-                { value: "sprint", label: t("pmGroupSprint") },
-                { value: "none", label: t("pmGroupNone") }
-              ]}
-              onChange={(value) => setGroupBy(value as BoardGroupBy)}
-            />
-          </label>
-        ) : null}
-        <span className="aops-pm-count">
-          {t("pmCountVisible")}: {selectedTasks.length}
-        </span>
       </div>
       <div className="aops-pm-board-summary" role="list" aria-label={t("pmBoardSummary")}>
         <Metric label={t("pmFieldColumn")} value={selectedColumns.length} />
@@ -128,17 +110,34 @@ export function ProjectmanBoards({ model, navigator, selectedBoardId, locale, t 
           t={t}
         />
       ) : (
-        <GroupedBoardTable
-          tasks={selectedTasks}
-          groupBy={groupBy}
-          columns={columnById}
-          orderedColumns={selectedColumns}
-          sprintById={sprintById}
-          collapsed={collapsedGroups}
-          onToggleGroup={toggleGroup}
-          locale={locale}
-          t={t}
-        />
+        <div className="aops-pm-table-stage">
+          <div className="aops-pm-table-tools">
+            <label className="aops-pm-groupby">
+              <span className="aops-pm-groupby-label">{t("pmGroupBy")}</span>
+              <SegmentedControl
+                ariaLabel={t("pmGroupBy")}
+                value={groupBy}
+                items={[
+                  { value: "column", label: t("pmGroupColumn") },
+                  { value: "sprint", label: t("pmGroupSprint") },
+                  { value: "none", label: t("pmGroupNone") }
+                ]}
+                onChange={(value) => setGroupBy(value as BoardGroupBy)}
+              />
+            </label>
+          </div>
+          <GroupedBoardTable
+            tasks={selectedTasks}
+            groupBy={groupBy}
+            columns={columnById}
+            orderedColumns={selectedColumns}
+            sprintById={sprintById}
+            collapsed={collapsedGroups}
+            onToggleGroup={toggleGroup}
+            locale={locale}
+            t={t}
+          />
+        </div>
       )}
       {selectedTask ? (
         <>
@@ -220,10 +219,8 @@ export function ProjectmanBoards({ model, navigator, selectedBoardId, locale, t 
       </div>
     );
   }
-  // Dropdown mode: a searchable board dropdown + mode gear at the content
-  // top-left, detail full-width below. Left-menu / navigator modes both flow
-  // through the shared record-detail layout (the tree is inline for left-menu,
-  // or handed to the shell dock by App for navigator mode).
+  // Dropdown mode stays a compact content-local board selector. The PM shell
+  // independently keeps the Projects navigator.
   if (navigator.isDropdownMode) {
     return (
       <div className="aops-pm-board-view is-dropdown">

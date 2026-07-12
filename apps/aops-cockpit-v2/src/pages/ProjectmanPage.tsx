@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { WorkbenchSectionShell, WorkbenchStatePanel } from "@aopslab/xf-ui-shell-react";
 import { apiErrorMessage } from "../lib/aopsApi";
 import { PROJECTMAN_SECTIONS, projectmanPageIdForSection, type ProjectmanSectionId } from "../lib/sections";
@@ -11,7 +11,15 @@ import {
   buildReviewItems
 } from "./projectman/ProjectmanRecordList";
 import { ProjectmanRecordSection } from "./projectman/ProjectmanRecordSection";
+import { SegmentedControl } from "./projectman/components";
+import {
+  readRecordCardsUiState,
+  writeRecordCardsUiState,
+  type RecordCardsUiState
+} from "./projectman/record-cards/shared";
 import type { ProjectmanDispatcherProps, TFn } from "./projectman/types";
+
+type ProjectmanSectionViewMode = "side-panel" | "cards" | "dropdown" | "list";
 
 // A2 multi-tab dispatcher. The project-dropdown band lives in the shell thin-bar
 // slot (a full-width strip below the header, aops-cockpit style); this page owns
@@ -42,10 +50,66 @@ export function ProjectmanPage({
     label: t(entry.labelKey),
     count: sectionCounts[entry.section] || null
   }));
+  const [recordCardsUi, setRecordCardsUi] = useState<RecordCardsUiState>(readRecordCardsUiState);
+  useEffect(() => {
+    if (section === "boards" && boardsNavigator.viewMode === "navigator") {
+      boardsNavigator.switchMode("left-menu");
+      return;
+    }
+    if (section === "sprints" && sprintsNavigator.viewMode === "navigator") {
+      sprintsNavigator.switchMode("left-menu");
+    }
+  }, [
+    boardsNavigator.switchMode,
+    boardsNavigator.viewMode,
+    section,
+    sprintsNavigator.switchMode,
+    sprintsNavigator.viewMode
+  ]);
+  const projectKey = model.selectedProject?.key ?? "__global__";
+  const viewKey = `${projectKey}:${section}`;
+  const recordSectionView = recordCardsUi.viewBySection[viewKey] ?? recordCardsUi.viewBySection[section] ?? "cards";
+  const viewMode: ProjectmanSectionViewMode =
+    section === "boards"
+      ? boardsNavigator.viewMode === "cards"
+        ? "cards"
+        : boardsNavigator.viewMode === "left-menu"
+          ? "side-panel"
+          : "dropdown"
+      : section === "sprints"
+        ? sprintsNavigator.viewMode === "cards"
+          ? "cards"
+          : sprintsNavigator.viewMode === "left-menu"
+            ? "side-panel"
+            : "dropdown"
+        : recordSectionView === "dropdown"
+          ? "dropdown"
+          : recordSectionView === "side-panel" || recordSectionView === "list"
+            ? "side-panel"
+            : "cards";
+  const setViewMode = (next: ProjectmanSectionViewMode) => {
+    if (section === "boards") {
+      boardsNavigator.switchMode(
+        next === "cards" ? "cards" : next === "dropdown" ? "dropdown" : "left-menu"
+      );
+      return;
+    }
+    if (section === "sprints") {
+      sprintsNavigator.switchMode(
+        next === "cards" ? "cards" : next === "dropdown" ? "dropdown" : "left-menu"
+      );
+      return;
+    }
+    setRecordCardsUi((previous) => {
+      const nextState = { ...previous, viewBySection: { ...previous.viewBySection, [viewKey]: next } };
+      writeRecordCardsUiState(nextState);
+      return nextState;
+    });
+  };
 
   return (
     <WorkbenchSectionShell className="aops-v2-section aops-pm-section" mainClassName="aops-v2-section-main">
-      <div className="aops-pm-dispatch">
+      <div className="aops-pm-dispatch has-view-switch">
         <label className="aops-pm-mobile-section-picker">
           <span>{t("pmTitle")}</span>
           <select
@@ -62,20 +126,23 @@ export function ProjectmanPage({
             ))}
           </select>
         </label>
-        <div className="aops-pm-sectiontabs" role="tablist" aria-label={t("pmTitle")}>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={section === tab.id}
-              className={`aops-pm-sectiontab${section === tab.id ? " is-active" : ""}`}
-              onClick={() => onNavigate(projectmanPageIdForSection(tab.id))}
-            >
-              <span className="aops-pm-sectiontab-label">{tab.label}</span>
-              {tab.count != null ? <span className="aops-pm-sectiontab-count">{tab.count}</span> : null}
-            </button>
-          ))}
+        <div className="aops-pm-section-controls">
+          <div className="aops-pm-sectiontabs" role="tablist" aria-label={t("pmTitle")}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={section === tab.id}
+                className={`aops-pm-sectiontab${section === tab.id ? " is-active" : ""}`}
+                onClick={() => onNavigate(projectmanPageIdForSection(tab.id))}
+              >
+                <span className="aops-pm-sectiontab-label">{tab.label}</span>
+                {tab.count != null ? <span className="aops-pm-sectiontab-count">{tab.count}</span> : null}
+              </button>
+            ))}
+          </div>
+          <ProjectmanViewSwitch section={section} value={viewMode} onChange={setViewMode} t={t} />
         </div>
         <div className="aops-pm-dispatch-body">
           <ProjectmanSectionBody
@@ -85,12 +152,42 @@ export function ProjectmanPage({
             selectedBoardId={selectedBoardId}
             sprintsNavigator={sprintsNavigator}
             selectedSprintKey={selectedSprintKey}
+            viewMode={viewMode}
             locale={locale}
             t={t}
           />
         </div>
       </div>
     </WorkbenchSectionShell>
+  );
+}
+
+function ProjectmanViewSwitch({
+  section,
+  value,
+  onChange,
+  t
+}: {
+  section: ProjectmanSectionId;
+  value: ProjectmanSectionViewMode;
+  onChange: (value: ProjectmanSectionViewMode) => void;
+  t: TFn;
+}): ReactNode {
+  const sectionDef = PROJECTMAN_SECTIONS.find((entry) => entry.section === section) ?? PROJECTMAN_SECTIONS[0];
+  return (
+    <div className="aops-pm-section-view-switch">
+      <SegmentedControl
+        compact
+        ariaLabel={`${t("pmRecordViewLabel")}: ${t(sectionDef.labelKey)}`}
+        value={value}
+        items={[
+          { value: "side-panel", label: t("pmRecordViewSidePanel") },
+          { value: "cards", label: t("navModeCards") },
+          { value: "dropdown", label: t("navModeDropdown") }
+        ]}
+        onChange={(next) => onChange(next as ProjectmanSectionViewMode)}
+      />
+    </div>
   );
 }
 
@@ -101,6 +198,7 @@ function ProjectmanSectionBody({
   selectedBoardId,
   sprintsNavigator,
   selectedSprintKey,
+  viewMode,
   locale,
   t
 }: {
@@ -110,6 +208,7 @@ function ProjectmanSectionBody({
   selectedBoardId: string | null;
   sprintsNavigator: ProjectmanDispatcherProps["sprintsNavigator"];
   selectedSprintKey: string | null;
+  viewMode: ProjectmanSectionViewMode;
   locale: ProjectmanDispatcherProps["locale"];
   t: TFn;
 }): ReactNode {
@@ -173,6 +272,7 @@ function ProjectmanSectionBody({
         title={t("pmSectionIssues")}
         searchPlaceholder={t("pmSearchIssues")}
         emptyLabel={t("pmNoIssues")}
+        view={viewMode}
         locale={locale}
         t={t}
       />
@@ -188,6 +288,7 @@ function ProjectmanSectionBody({
         title={t("pmSectionFeedback")}
         searchPlaceholder={t("pmSearchFeedback")}
         emptyLabel={t("pmNoFeedback")}
+        view={viewMode}
         locale={locale}
         t={t}
       />
@@ -202,6 +303,7 @@ function ProjectmanSectionBody({
       title={t("pmSectionReviews")}
       searchPlaceholder={t("pmSearchReviews")}
       emptyLabel={t("pmNoReviews")}
+      view={viewMode}
       locale={locale}
       t={t}
     />

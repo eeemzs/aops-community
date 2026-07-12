@@ -15,10 +15,10 @@ export interface RecordCardsUiState {
   sortDirectionByScope: Record<string, RecordsSortDirection>;
   filterModeByScope: Record<string, RecordsFilterMode>;
   pageSizeByScope: Record<string, number>;
-  /** Section view (cards register vs the legacy master-detail list), keyed
+  /** Section view (cards register, master-detail side panel, or dropdown), keyed
    *  `${projectKey}:${section}` like the other maps (plain legacy `section`
    *  keys are still read as a fallback). */
-  viewBySection: Record<string, "cards" | "list">;
+  viewBySection: Record<string, "side-panel" | "cards" | "dropdown" | "list">;
 }
 
 export const RECORD_CARDS_UI_STORAGE_KEY = "aops-cockpit-v2.pm-records.cardsUi";

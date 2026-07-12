@@ -55,6 +55,11 @@ export function useDocsNavigator(model: DocsNavigatorModel, t: NavT): DocsNaviga
       dockClassName: "aops-v2-docs-navdock",
       // Cards mode: the Docs page renders the document cards register.
       enableCardsMode: true,
+      showDropdownSettings: false,
+      showModeShortcuts: false,
+      showNavigatorSetting: false,
+      leftMenuModeLabel: "pmRecordViewSidePanel",
+      settingsModeOrder: ["left-menu", "cards", "dropdown"],
       labels: {
         panelTitle: "docsNavPanelTitle",
         paneAria: "docsNavPane",

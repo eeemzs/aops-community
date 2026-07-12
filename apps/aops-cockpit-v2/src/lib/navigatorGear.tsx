@@ -30,6 +30,7 @@ export interface NavigatorSettingsGearProps {
   title?: string;
   modeLabel?: string;
   navigatorLabel?: string;
+  showNavigatorOption?: boolean;
   leftMenuLabel?: string;
   showLeftMenuOption?: boolean;
   /** When set, a 3rd Mode option ("Dropdown") is offered. onModeChange receives
@@ -38,6 +39,7 @@ export interface NavigatorSettingsGearProps {
   /** When set, a 4th Mode option ("Cards") is offered. onModeChange receives
    *  "cards"; the consumer renders a content-wide card register instead. */
   cardsLabel?: string;
+  modeOrder?: ReadonlyArray<"navigator" | "left-menu" | "dropdown" | "cards">;
   /** Distinguish the consumers' test ids (projects / chat / boards). */
   testIdPrefix?: string;
 }
@@ -48,10 +50,12 @@ export function NavigatorSettingsGear({
   title = "View settings",
   modeLabel = "Mode",
   navigatorLabel = "Navigator",
+  showNavigatorOption = true,
   leftMenuLabel = "Left menu",
   showLeftMenuOption = true,
   dropdownLabel,
   cardsLabel,
+  modeOrder,
   testIdPrefix = "aops-v2"
 }: NavigatorSettingsGearProps) {
   const [open, setOpen] = useState(false);
@@ -98,8 +102,10 @@ export function NavigatorSettingsGear({
     setOpen(false);
     onModeChange(next);
   };
-  const modeOptions = [
-    { value: "navigator", label: navigatorLabel, active: mode === "navigator", onSelect: () => selectMode("navigator"), testId: `${testIdPrefix}-mode-navigator` },
+  const availableModeOptions = [
+    ...(showNavigatorOption
+      ? [{ value: "navigator", label: navigatorLabel, active: mode === "navigator", onSelect: () => selectMode("navigator"), testId: `${testIdPrefix}-mode-navigator` }]
+      : []),
     ...(showLeftMenuOption
       ? [{ value: "left-menu", label: leftMenuLabel, active: mode === "left-menu", onSelect: () => selectMode("left-menu"), testId: `${testIdPrefix}-mode-leftmenu` }]
       : []),
@@ -110,6 +116,11 @@ export function NavigatorSettingsGear({
       ? [{ value: "cards", label: cardsLabel, active: mode === "cards", onSelect: () => selectMode("cards"), testId: `${testIdPrefix}-mode-cards` }]
       : [])
   ];
+  const modeOptions = modeOrder
+    ? modeOrder.flatMap((orderedMode) =>
+        availableModeOptions.filter((option) => option.value === orderedMode)
+      )
+    : availableModeOptions;
   return (
     <div className="inv-iv3-cattree-settings">
       <button

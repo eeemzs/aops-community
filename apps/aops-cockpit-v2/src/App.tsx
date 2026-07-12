@@ -3,7 +3,6 @@ import { useIsFetching } from "@tanstack/react-query";
 import {
   DESKTOP_SHELL_ICONS,
   DesktopStatusBar,
-  WorkbenchPageHeader,
   type SidebarItem
 } from "@aopslab/xf-ui-shell-react";
 import { AuthGate } from "./components/AuthGate";
@@ -23,7 +22,7 @@ import { useChatSession } from "./lib/chat";
 import { useChatNavigator } from "./lib/chatNavigator";
 import { useCockpitTranslator, type AopsCockpitTranslationKey } from "./lib/i18n";
 import { useProjectmanData } from "./lib/projectman";
-import { useProjectsQuery, type ProjectOption } from "./lib/projects";
+import { useProjectsQuery } from "./lib/projects";
 import { useProjectsNavigator } from "./lib/projectsNavigator";
 import {
   allCockpitNavItems,
@@ -35,7 +34,7 @@ import {
 import { useAgentspaceData } from "./lib/agentspace";
 import { useDocmanData } from "./lib/docman";
 import { useDocsNavigator } from "./lib/docsNavigator";
-import { ProjectmanBand, PROJECTMAN_SECTION_TITLES } from "./pages/projectman/ProjectmanBand";
+import { ProjectmanBand } from "./pages/projectman/ProjectmanBand";
 import { ChatSpacesBand } from "./pages/chat/ChatSpacesBand";
 import { useBoardsNavigator } from "./lib/boardsNavigator";
 import { useSprintsNavigator } from "./lib/sprintsNavigator";
@@ -126,7 +125,6 @@ export function App() {
   const viewport = useCockpitViewport();
   const runtimeConfig = useMemo(() => resolveAopsCockpitRuntimeConfig(), []);
   const locale = useShellStore((state) => state.locale);
-  const setLocale = useShellStore((state) => state.setLocale);
   const toggleLocale = useShellStore((state) => state.toggleLocale);
   const t = useCockpitTranslator(locale);
   const client = useMemo(
@@ -153,7 +151,7 @@ export function App() {
   const updateCustomTheme = useShellStore((state) => state.updateCustomTheme);
   const deleteCustomTheme = useShellStore((state) => state.deleteCustomTheme);
   const [themeStudioOpen, setThemeStudioOpen] = useState(false);
-  const wasAgentspaceActiveRef = useRef(false);
+  const wasProjectWorkspaceActiveRef = useRef(false);
   // Two-level nav: which parent branches the operator has collapsed (all expanded
   // by default so PM ▸ Boards/Sprints/… is visible).
   const [collapsedBranches, setCollapsedBranches] = useState<Set<string>>(() => new Set());
@@ -176,6 +174,9 @@ export function App() {
   );
   const isProjectsPage = resolvedPageId === "projects";
   const isAgentspaceActive = isAgentspacePage(resolvedPageId);
+  const isProjectmanActive = isProjectmanPage(resolvedPageId);
+  const isDocsPage = resolvedPageId === "docs";
+  const isProjectWorkspaceActive = isAgentspaceActive || isProjectmanActive || isDocsPage;
   const isChatPage = resolvedPageId === "chat";
   const projects = projectsQuery.data ?? [];
   const selectedProject =
@@ -189,7 +190,7 @@ export function App() {
       projects,
       selectedProjectKey,
       onSelectProject: setSelectedProjectKey,
-      allowLeftMenuMode: !isAgentspaceActive
+      allowLeftMenuMode: !isProjectWorkspaceActive
     },
     t
   );
@@ -278,19 +279,6 @@ export function App() {
     },
     t
   );
-  const pmSection = isProjectmanPage(resolvedPageId)
-    ? projectmanSectionForPage(resolvedPageId)
-    : null;
-  const isBoardsPage = pmSection === "boards";
-  const isSprintsPage = pmSection === "sprints";
-  // The active PM section navigator (boards or sprints) for shell-dock wiring.
-  const pmNav = isBoardsPage ? boardsNavigator : isSprintsPage ? sprintsNavigator : null;
-  const mobilePmDock =
-    viewport.viewport === "mobile" &&
-    pmNav !== null &&
-    !pmNav.isCardsMode &&
-    !pmNav.isDropdownMode;
-
   // Hosted ChatV3 keeps its channel-member credential protocol while
   // space administration is bound to the validated trusted principal.
   const chatPrincipal = trustedPrincipal;
@@ -314,7 +302,6 @@ export function App() {
   });
 
   // Hosted Docman reads (Docs A1 page) — same gating pattern.
-  const isDocsPage = resolvedPageId === "docs";
   const docman = useDocmanData({
     client: projectmanClient,
     sessionKey,
@@ -349,21 +336,25 @@ export function App() {
   }, [appearance.snapshot.theme, appearance.snapshot.accent, locale]);
 
   useEffect(() => {
-    const enteringAgentspace = isAgentspaceActive && !wasAgentspaceActiveRef.current;
-    wasAgentspaceActiveRef.current = isAgentspaceActive;
-    if (!enteringAgentspace) return;
+    const enteringProjectWorkspace =
+      isProjectWorkspaceActive && !wasProjectWorkspaceActiveRef.current;
+    wasProjectWorkspaceActiveRef.current = isProjectWorkspaceActive;
+    if (!enteringProjectWorkspace) return;
     if (projectsNavigator.isLeftMenuMode) {
       projectsNavigator.controller.switchToNavigator();
     }
-    if (!projectsNavigator.isNavigatorOpen) {
-      projectsNavigator.openNavigator();
+    if (viewport.viewport === "mobile") {
+      // Mobile visibility is owned by CockpitShell's drawer state. Keep the
+      // navigator content mounted so the shell trigger can open that drawer.
+      projectsNavigator.controller.openNavigator();
+    } else {
+      projectsNavigator.controller.close();
     }
   }, [
-    isAgentspaceActive,
+    isProjectWorkspaceActive,
     projectsNavigator.controller,
     projectsNavigator.isLeftMenuMode,
-    projectsNavigator.isNavigatorOpen,
-    projectsNavigator.openNavigator
+    viewport.viewport
   ]);
 
 
@@ -527,8 +518,6 @@ export function App() {
     ]
   );
   const renderedPage = renderCockpitPage(resolvedPageId, context) as ReactNode;
-  const pageHeader = pageHeaderFor(resolvedPageId, t, selectedProject);
-
   if (authQuery.isPending || authQuery.isError || !trustedPrincipal) {
     return (
       <AuthGate
@@ -566,12 +555,7 @@ export function App() {
       debugStats={{ total: apiLogs.length }}
     />
   );
-  const usesProjectNavigatorDock = isProjectsPage || isAgentspaceActive;
-  const mobileDocsDock =
-    viewport.viewport === "mobile" &&
-    isDocsPage &&
-    !docsNavigator.isCardsMode &&
-    !docsNavigator.isDropdownMode;
+  const usesProjectNavigatorDock = isProjectsPage || isProjectWorkspaceActive;
   const mobileProjectsDock = viewport.viewport === "mobile" && usesProjectNavigatorDock;
 
   return (
@@ -594,55 +578,34 @@ export function App() {
       }}
       navReopenLabel={t("navReopen")}
       leftDock={
-        mobilePmDock
-          ? pmNav.dockNode
-          : mobileDocsDock
-            ? docsNavigator.dockNode
-            : mobileProjectsDock
-              ? projectsNavigator.dockNode
-          : pmNav && pmNav.leftDockMode === "pinned"
-          ? pmNav.dockNode
-          : pmNav && pmNav.leftDockMode === "overlay"
-            ? OVERLAY_DOCK_ANCHOR
-            : isDocsPage && docsNavigator.leftDockMode === "pinned"
-              ? docsNavigator.dockNode
-            : isDocsPage && docsNavigator.leftDockMode === "overlay"
-                ? OVERLAY_DOCK_ANCHOR
-                  : usesProjectNavigatorDock && projectsNavigator.leftDockMode === "pinned"
-                    ? projectsNavigator.dockNode
-                    : usesProjectNavigatorDock && projectsNavigator.leftDockMode === "overlay"
-                      ? OVERLAY_DOCK_ANCHOR
-                      : null
+        mobileProjectsDock
+          ? projectsNavigator.dockNode
+          : usesProjectNavigatorDock && projectsNavigator.leftDockMode === "pinned"
+            ? projectsNavigator.dockNode
+            : usesProjectNavigatorDock && projectsNavigator.leftDockMode === "overlay"
+              ? OVERLAY_DOCK_ANCHOR
+              : null
       }
       leftDockMode={
-        mobilePmDock
+        mobileProjectsDock
           ? "pinned"
-          : mobileDocsDock || mobileProjectsDock
-            ? "pinned"
-          : pmNav
-          ? pmNav.leftDockMode
-          : isDocsPage
-            ? docsNavigator.leftDockMode
-              : usesProjectNavigatorDock
-                ? projectsNavigator.leftDockMode
-                : "hidden"
+          : usesProjectNavigatorDock
+            ? projectsNavigator.leftDockMode
+            : "hidden"
       }
       leftDockWidth={
-        pmNav
-          ? pmNav.leftDockWidth
-          : isDocsPage
-            ? docsNavigator.leftDockWidth
-            : isChatPage
-              ? chatNavigator.leftDockWidth
-              : projectsNavigator.leftDockWidth
+        isChatPage ? chatNavigator.leftDockWidth : projectsNavigator.leftDockWidth
       }
       thinBar={
         isProjectmanPage(resolvedPageId) ? (
-          <div className="aops-pm-thinbar-row">
-            {pmNav ? pmNav.launcherNode : null}
+          <div className="aops-pm-thinbar-row aops-pm-project-scope-row">
+            {projectsNavigator.recentsBar}
             <ProjectmanBand
               projects={context.projects}
-              crumb={t(PROJECTMAN_SECTION_TITLES[projectmanSectionForPage(resolvedPageId)])}
+              projectOptions={projectsNavigator.scopeProjectOptions}
+              favoriteProjectKeys={projectsNavigator.scopeFavoriteProjectKeys}
+              projectMenuTitle={t("projectsNavFavoritesRecentTitle")}
+              crumb=""
               isFetching={projectman.isFetching}
               onRefresh={projectman.refresh}
               onBack={() => setActivePageId("projects")}
@@ -665,11 +628,14 @@ export function App() {
             />
           </div>
         ) : isDocsPage ? (
-          <div className="aops-pm-thinbar-row">
-            {docsNavigator.launcherNode}
+          <div className="aops-pm-thinbar-row aops-docs-project-scope-row">
+            {projectsNavigator.recentsBar}
             <ProjectmanBand
               projects={context.projects}
-              crumb={t("docsTitle")}
+              projectOptions={projectsNavigator.scopeProjectOptions}
+              favoriteProjectKeys={projectsNavigator.scopeFavoriteProjectKeys}
+              projectMenuTitle={t("projectsNavFavoritesRecentTitle")}
+              crumb=""
               isFetching={docman.isFetching}
               onRefresh={docman.refresh}
               onBack={() => setActivePageId("projects")}
@@ -710,19 +676,10 @@ export function App() {
       onSetAccent={setAccentId}
       onToggleTheme={toggleTheme}
       onOpenThemeStudio={() => setThemeStudioOpen(true)}
-      locale={locale}
-      onSetLocale={setLocale}
       authBar={<AuthBar principal={trustedPrincipal} t={t} />}
       statusBar={statusBar}
       t={t}
     >
-      {!isProjectsPage && !isChatPage ? (
-        <WorkbenchPageHeader
-          eyebrow={pageHeader.eyebrow}
-          title={pageHeader.title}
-          note={pageHeader.note}
-        />
-      ) : null}
       {renderedPage}
     </CockpitShell>
     <ThemeStudio
@@ -745,55 +702,4 @@ export function App() {
       <DebugPanel open={debugOpen} logs={apiLogs} onClose={toggleDebug} onClear={clearApiLogs} t={t} />
     </>
   );
-}
-
-function pageHeaderFor(
-  pageId: string,
-  t: ReturnType<typeof useCockpitTranslator>,
-  selectedProject?: ProjectOption | null
-) {
-  if (isProjectmanPage(pageId)) {
-    // Compact PM header: no eyebrow; "PM Workbench / <slug>" + a Project Id
-    // line (with the project name when it differs from the slug).
-    const slug = selectedProject?.slug || selectedProject?.name || "";
-    const name = selectedProject?.name && selectedProject.name !== slug ? selectedProject.name : "";
-    const note = selectedProject?.projectId
-      ? `${t("pmHeaderProjectId")}: ${selectedProject.projectId}${name ? ` · ${name}` : ""}`
-      : t("pmHeaderNote");
-    return {
-      eyebrow: "",
-      title: slug ? `${t("pmTitle")} / ${slug}` : t("pmTitle"),
-      note
-    };
-  }
-
-  if (isAgentspacePage(pageId)) {
-    return {
-      eyebrow: "",
-      title: t("asTitle"),
-      note: t("asHeaderNote")
-    };
-  }
-
-  if (pageId === "docs") {
-    return {
-      eyebrow: t("docsEyebrow"),
-      title: t("docsTitle"),
-      note: t("docsHeaderNote")
-    };
-  }
-
-  if (pageId === "chat") {
-    return {
-      eyebrow: t("chatEyebrow"),
-      title: t("chatTitle"),
-      note: t("chatHeaderNote")
-    };
-  }
-
-  return {
-    eyebrow: t("projectsEyebrow"),
-    title: t("projectsTitle"),
-    note: t("projectsHeaderNote")
-  };
 }

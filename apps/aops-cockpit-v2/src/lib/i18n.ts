@@ -217,6 +217,7 @@ interface AopsCockpitTags {
   // Record cards (Issues/Feedback/Reviews register)
   docsCardsOpen: string;
   pmRecordViewList: string;
+  pmRecordViewSidePanel: string;
   pmRecordViewLabel: string;
   pmRecordDelete: string;
   pmRecordDeleteTitle: string;
@@ -477,6 +478,9 @@ interface AopsCockpitTags {
   pmFieldStatus: string;
   pmUnassigned: string;
   pmUnknownStatus: string;
+  contentCopy: string;
+  contentCopied: string;
+  contentCopyFailed: string;
   // M1 shell chrome (eops-desktop parity)
   themeLight: string;
   themeDark: string;
@@ -496,6 +500,7 @@ interface AopsCockpitTags {
   brandTitle: string;
   brandSubtitle: string;
   authChecking: string;
+  authStatusActive: string;
   statusApi: string;
   statusProject: string;
   statusNoProject: string;
@@ -980,6 +985,7 @@ const resources = {
     pmFieldGoal: { en: "Goal", tr: "Hedef" },
     docsCardsOpen: { en: "Open document", tr: "Dokümanı aç" },
     pmRecordViewList: { en: "List", tr: "Liste" },
+    pmRecordViewSidePanel: { en: "Side panel", tr: "Yan panel" },
     pmRecordViewLabel: { en: "View", tr: "Görünüm" },
     pmRecordDelete: { en: "Delete record", tr: "Kaydı sil" },
     pmRecordDeleteTitle: { en: "Delete Record", tr: "Kaydı Sil" },
@@ -1245,6 +1251,9 @@ const resources = {
     pmFieldStatus: { en: "Status", tr: "Durum" },
     pmUnassigned: { en: "Unassigned", tr: "Atanmamış" },
     pmUnknownStatus: { en: "Unknown", tr: "Bilinmiyor" },
+    contentCopy: { en: "Copy content", tr: "İçeriği kopyala" },
+    contentCopied: { en: "Content copied", tr: "İçerik kopyalandı" },
+    contentCopyFailed: { en: "Content could not be copied", tr: "İçerik kopyalanamadı" },
     themeLight: { en: "Light", tr: "Açık" },
     themeDark: { en: "Dark", tr: "Koyu" },
     a11ySectionSwitch: { en: "Section switch", tr: "Bölüm değiştirici" },
@@ -1262,6 +1271,7 @@ const resources = {
     brandTitle: { en: "aopslab", tr: "aopslab" },
     brandSubtitle: { en: "OPERATOR COCKPIT", tr: "OPERATÖR KOKPİT" },
     authChecking: { en: "Checking", tr: "Kontrol ediliyor" },
+    authStatusActive: { en: "Signed in", tr: "Oturum açık" },
     statusApi: { en: "API", tr: "API" },
     statusProject: { en: "Project", tr: "Proje" },
     statusNoProject: { en: "No project", tr: "Proje yok" },

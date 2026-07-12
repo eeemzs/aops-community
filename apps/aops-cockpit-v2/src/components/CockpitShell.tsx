@@ -14,8 +14,7 @@ import {
   type ShellAppearanceThemeOption,
   type SidebarItem
 } from "@aopslab/xf-ui-shell-react";
-import { LocaleSwitch } from "./LocaleSwitch";
-import type { AopsCockpitLocale, AopsCockpitTranslationKey } from "../lib/i18n";
+import type { AopsCockpitTranslationKey } from "../lib/i18n";
 import type { CockpitViewport } from "../lib/viewport";
 
 const ICONS = DESKTOP_SHELL_ICONS;
@@ -63,13 +62,24 @@ function sidebarBranchContainsPage(item: SidebarItem, pageId: string): boolean {
   );
 }
 
-/** Header-left product mark — aops·cockpit (v2). */
+function sidebarPathForPage(items: SidebarItem[], pageId: string): SidebarItem[] | null {
+  for (const item of items) {
+    if (item.id === pageId) return [item];
+    const childPath = item.children ? sidebarPathForPage(item.children, pageId) : null;
+    if (childPath) return [item, ...childPath];
+  }
+  return null;
+}
+
+/** Header-left product mark with a discreet beta status line. */
 function ProdMark() {
   return (
     <span className="cockpit-prodmark">
-      aops<span className="cockpit-prodmark__dot">·</span>
-      <span className="cockpit-prodmark__c2">cockpit</span>
-      <span className="cockpit-prodmark__v2">v2</span>
+      <span className="cockpit-prodmark__name">
+        aops<span className="cockpit-prodmark__dot">·</span>
+        <span className="cockpit-prodmark__c2">cockpit</span>
+      </span>
+      <span className="cockpit-prodmark__beta">Beta</span>
     </span>
   );
 }
@@ -192,8 +202,6 @@ export interface CockpitShellProps {
   onSetAccent: (accent: string) => void;
   onToggleTheme: () => void;
   onOpenThemeStudio?: () => void;
-  locale: AopsCockpitLocale;
-  onSetLocale: (locale: AopsCockpitLocale) => void;
   authBar: ReactNode;
   statusBar: ReactNode;
   children: ReactNode;
@@ -203,8 +211,8 @@ export interface CockpitShellProps {
 /**
  * AOPS Cockpit v2 app shell — composed on the real xf-ui-shell primitives
  * (typed; no @ts-nocheck / eops-local wrappers). AppShell frame + collapsible
- * left Sidebar navigator + 3-zone header (prodmark · section switch · locale /
- * auth / appearance) + main workbench + right inspector host + bottom status
+ * left Sidebar navigator + 3-zone header (prodmark · section switch · auth /
+ * appearance) + main workbench + right inspector host + bottom status
  * bar. Appearance is snapshot-driven (eops theme model): `appearanceStyle`
  * (resolveShellAppearanceSnapshot().style) carries the theme tokens onto the
  * AppShell root, and theme/accent option lists come from the same snapshot.
@@ -234,8 +242,6 @@ export function CockpitShell({
   onSetAccent,
   onToggleTheme,
   onOpenThemeStudio,
-  locale,
-  onSetLocale,
   authBar,
   statusBar,
   children,
@@ -253,6 +259,10 @@ export function CockpitShell({
     () => navItems.filter((item) => Boolean(item.children?.length) && item.expanded === true),
     [navItems]
   );
+  const activeNavigationPath = useMemo(() => sidebarPathForPage(navItems, activePage) ?? [], [activePage, navItems]);
+  const activeNavigationPrimary = activeNavigationPath[0]?.label ?? null;
+  const activeNavigationSecondary =
+    activeNavigationPath.length > 1 ? activeNavigationPath[activeNavigationPath.length - 1]?.label : null;
 
   useEffect(() => {
     if (expandedTopLevelBranches.length <= 1) {
@@ -359,7 +369,6 @@ export function CockpitShell({
 
   const appearanceControls = (
     <>
-      <LocaleSwitch value={locale} onChange={onSetLocale} t={t} />
       {authBar}
       <ShellAppearanceControls
         accent={accent}
@@ -464,6 +473,17 @@ export function CockpitShell({
               />
             )}
             <ProdMark />
+            {activeNavigationPrimary ? (
+              <span className="cockpit-topbar-context">
+                <span className="cockpit-topbar-context__primary">{activeNavigationPrimary}</span>
+                {activeNavigationSecondary ? (
+                  <>
+                    <span className="cockpit-topbar-context__separator" aria-hidden="true">/</span>
+                    <span className="cockpit-topbar-context__secondary">{activeNavigationSecondary}</span>
+                  </>
+                ) : null}
+              </span>
+            ) : null}
             {hasMobileDock ? (
               <button
                 ref={mobileDockTriggerRef}
@@ -478,7 +498,6 @@ export function CockpitShell({
                 {ICONS.layers ?? ICONS.panelLeft ?? null}
               </button>
             ) : null}
-            <span className="eops-chip eops-chip--amber cockpit-ready">{t("statusReady")}</span>
           </div>
           {isMobile ? (
             <details className="cockpit-mobile-actions">

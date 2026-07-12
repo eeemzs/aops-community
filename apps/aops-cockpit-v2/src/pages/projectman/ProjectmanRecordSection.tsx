@@ -3,12 +3,11 @@ import { deletePmRecord, type ProjectmanDataModel } from "../../lib/projectman";
 import type { RecordListItem } from "../../components/recordMasterDetail";
 import type { AopsCockpitLocale } from "../../lib/i18n";
 import { ProjectmanRecordList } from "./ProjectmanRecordList";
-import { RecordSectionHost } from "./record-cards/RecordSectionHost";
+import { RecordCardsRegister } from "./record-cards/RecordCardsRegister";
 import type { TFn } from "./types";
 
-// PM Issues / Feedback / Reviews adapter over the generic record-section host:
-// wires the section's hosted delete route (with the model refresh) and the
-// legacy master-detail list element.
+// Shared PM flat-record surface for Issues / Feedback / Reviews: cards use the
+// register while side-panel and dropdown modes preserve the same detail body.
 export function ProjectmanRecordSection({
   model,
   section,
@@ -17,6 +16,7 @@ export function ProjectmanRecordSection({
   title,
   searchPlaceholder,
   emptyLabel,
+  view,
   locale,
   t
 }: {
@@ -27,6 +27,7 @@ export function ProjectmanRecordSection({
   title: string;
   searchPlaceholder: string;
   emptyLabel: string;
+  view: "side-panel" | "cards" | "dropdown" | "list";
   locale: AopsCockpitLocale;
   t: TFn;
 }): ReactNode {
@@ -38,25 +39,29 @@ export function ProjectmanRecordSection({
     [deleteResource, model]
   );
   return (
-    <RecordSectionHost
-      section={section}
-      projectKey={model.selectedProject?.key ?? "__global__"}
-      items={items}
-      title={title}
-      searchPlaceholder={searchPlaceholder}
-      emptyLabel={emptyLabel}
-      onDeleteRecord={onDeleteRecord}
-      locale={locale}
-      t={t}
-      listNode={
+    <div className="aops-pm-recordsection" data-testid={`aops-v2-${section}-section`}>
+      {view === "cards" ? (
+        <RecordCardsRegister
+          projectKey={model.selectedProject?.key ?? "__global__"}
+          section={section}
+          items={items}
+          sectionTitle={title}
+          searchPlaceholder={searchPlaceholder}
+          emptyLabel={emptyLabel}
+          onDeleteRecord={onDeleteRecord}
+          locale={locale}
+          t={t}
+        />
+      ) : (
         <ProjectmanRecordList
           items={items}
           title={title}
           searchPlaceholder={searchPlaceholder}
           emptyLabel={emptyLabel}
+          layout={view === "dropdown" ? "dropdown" : "side-panel"}
           t={t}
         />
-      }
-    />
+      )}
+    </div>
   );
 }

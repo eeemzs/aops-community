@@ -119,17 +119,20 @@ export function ProjectmanRecordList({
   title,
   searchPlaceholder,
   emptyLabel,
+  layout,
   t
 }: {
   items: RecordListItem[];
   title: string;
   searchPlaceholder: string;
   emptyLabel: string;
+  layout?: "side-panel" | "dropdown";
   t: TFn;
 }): ReactNode {
   return (
     <RecordMasterDetail
       items={items}
+      layout={layout}
       labels={{
         title,
         searchPlaceholder,

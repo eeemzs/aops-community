@@ -23,16 +23,19 @@ import {
   type AgentspaceSkill
 } from "../lib/agentspace";
 import { RecordMasterDetail, type RecordListItem } from "../components/recordMasterDetail";
-import { RecordSectionHost } from "./projectman/record-cards/RecordSectionHost";
+import { RecordCardsRegister } from "./projectman/record-cards/RecordCardsRegister";
 import { CloseIcon } from "./projectman/board-cards/icons";
 import { SegmentedControl } from "./projectman/components";
 import { formatPmDate } from "./projectman/helpers";
 import type { AopsCockpitLocale, AopsCockpitTranslationKey } from "../lib/i18n";
 import type { ProjectmanRefKind, ProjectmanRefTarget } from "../lib/projectmanRefs";
 import { useCockpitViewport } from "../lib/viewport";
+import { CopyContentButton } from "../components/CopyContentButton";
 
 type TFn = (key: AopsCockpitTranslationKey) => string;
 type MemoryViewMode = "timeline" | "cards" | "read" | "digest";
+type AgentspaceViewMode = MemoryViewMode | "side-panel" | "dropdown" | "list";
+type AgentspaceRecordViewMode = Exclude<MemoryViewMode, "timeline">;
 type MemorySortKey = "updated" | "created" | "kind" | "importance" | "status" | "title";
 
 interface AgentspacePmRef extends ProjectmanRefTarget {
@@ -45,7 +48,7 @@ type AgentspaceRecordItem = RecordListItem & {
 };
 
 interface MemoryViewerUiState {
-  viewByScope: Record<string, MemoryViewMode>;
+  viewByScope: Record<string, AgentspaceViewMode>;
   expandedByScope: Record<string, string[]>;
   sortByScope: Record<string, MemorySortKey>;
 }
@@ -134,17 +137,24 @@ export function AgentspacePage({
   }));
   const projectKey = model.selectedProject?.key ?? "__global__";
   const recordScopeKey = `${projectKey}:as-${section}`;
-  const hasMultiView = section === "memory" || section === "missions" || section === "discussions";
-  const hasTimelineView = section === "memory";
+  const viewModes: AgentspaceViewMode[] =
+    section === "memory"
+      ? ["timeline", "cards", "read", "digest"]
+      : section === "missions" || section === "discussions"
+        ? ["cards", "read", "digest"]
+        : ["side-panel", "cards", "dropdown"];
+  const hasMultiView = viewModes.length > 1;
   const isMobile = useCockpitViewport().viewport === "mobile";
   const [memoryUi, setMemoryUi] = useState<MemoryViewerUiState>(readMemoryViewerUiState);
   const rawRecordViewMode = memoryUi.viewByScope[recordScopeKey];
-  const preferredRecordViewMode =
-    rawRecordViewMode === "timeline" && !hasTimelineView
-      ? "cards"
-      : rawRecordViewMode ?? (hasTimelineView ? "timeline" : "cards");
+  const normalizedRecordViewMode = rawRecordViewMode === "list" && viewModes.includes("side-panel")
+    ? "side-panel"
+    : rawRecordViewMode;
+  const preferredRecordViewMode = normalizedRecordViewMode && viewModes.includes(normalizedRecordViewMode)
+    ? normalizedRecordViewMode
+    : viewModes[0];
   const recordViewMode = isMobile ? "cards" : preferredRecordViewMode;
-  const setRecordViewMode = (mode: MemoryViewMode) =>
+  const setRecordViewMode = (mode: AgentspaceViewMode) =>
     patchMemoryViewerUiState(setMemoryUi, (prev) => ({
       ...prev,
       viewByScope: { ...prev.viewByScope, [recordScopeKey]: mode }
@@ -152,7 +162,7 @@ export function AgentspacePage({
 
   return (
     <WorkbenchSectionShell className="aops-v2-section aops-pm-section" mainClassName="aops-v2-section-main">
-      <div className="aops-pm-dispatch">
+      <div className={`aops-pm-dispatch${hasMultiView ? " has-view-switch" : ""}`}>
         <label className="aops-pm-mobile-section-picker">
           <span>{t("asTitle")}</span>
           <select
@@ -167,22 +177,24 @@ export function AgentspacePage({
             ))}
           </select>
         </label>
-        <div className="aops-pm-sectiontabs" role="tablist" aria-label={t("asTitle")}>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={section === tab.id}
-              className={`aops-pm-sectiontab${section === tab.id ? " is-active" : ""}`}
-              onClick={() => onNavigate(agentspacePageIdForSection(tab.id))}
-            >
-              <span className="aops-pm-sectiontab-label">{tab.label}</span>
-              {tab.count != null ? <span className="aops-pm-sectiontab-count">{tab.count}</span> : null}
-            </button>
-          ))}
+        <div className="aops-pm-section-controls">
+          <div className="aops-pm-sectiontabs" role="tablist" aria-label={t("asTitle")}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={section === tab.id}
+                className={`aops-pm-sectiontab${section === tab.id ? " is-active" : ""}`}
+                onClick={() => onNavigate(agentspacePageIdForSection(tab.id))}
+              >
+                <span className="aops-pm-sectiontab-label">{tab.label}</span>
+                {tab.count != null ? <span className="aops-pm-sectiontab-count">{tab.count}</span> : null}
+              </button>
+            ))}
+          </div>
           {hasMultiView ? (
-            <MemoryViewSwitch value={recordViewMode} includeTimeline={hasTimelineView} onChange={setRecordViewMode} t={t} />
+            <AgentspaceViewSwitch section={section} value={recordViewMode} onChange={setRecordViewMode} t={t} />
           ) : null}
         </div>
         <div className="aops-pm-dispatch-body">
@@ -228,7 +240,7 @@ function AgentspaceSectionBody({
   recordScopeKey: string;
   memoryUi: MemoryViewerUiState;
   setMemoryUi: (value: (prev: MemoryViewerUiState) => MemoryViewerUiState) => void;
-  recordViewMode: MemoryViewMode;
+  recordViewMode: AgentspaceViewMode;
 }): ReactNode {
   const sectionDef = AGENTSPACE_SECTIONS.find((entry) => entry.section === section) ?? AGENTSPACE_SECTIONS[0];
   const labels = (searchKey: AopsCockpitTranslationKey) => ({
@@ -240,15 +252,14 @@ function AgentspaceSectionBody({
     detailAriaLabel: t(sectionDef.labelKey),
     backLabel: t("pmCardPaneClose")
   });
-  // Cards | List host wrapper (record-cards registry): shared by every
-  // Agentspace section; the legacy master-detail element stays the List view.
+  // Flat Agentspace assets share the PM record grammar: a card register plus
+  // side-panel and compact dropdown variants over the same detail body.
   const host = (
     searchKey: AopsCockpitTranslationKey,
     items: AgentspaceRecordItem[],
     options?: {
       renderExtra?: (item: AgentspaceRecordItem) => ReactNode;
       toolbarExtra?: ReactNode;
-      listNode?: ReactNode;
     }
   ) => {
     const renderExtra = (item: RecordListItem) => (
@@ -258,27 +269,29 @@ function AgentspaceSectionBody({
       </>
     );
     return (
-    <RecordSectionHost
-      section={`as-${section}`}
-      projectKey={projectKey}
-      items={items}
-      title={t(sectionDef.labelKey)}
-      searchPlaceholder={t(searchKey)}
-      emptyLabel={t("asNoRecords")}
-      renderExtra={renderExtra}
-      toolbarExtra={options?.toolbarExtra}
-      locale={locale}
-      t={t}
-      listNode={
-        options?.listNode ?? (
+      <div className="aops-pm-recordsection" data-testid={`aops-v2-as-${section}-section`}>
+        {recordViewMode === "cards" ? (
+          <RecordCardsRegister
+            section={`as-${section}`}
+            projectKey={projectKey}
+            items={items}
+            sectionTitle={t(sectionDef.labelKey)}
+            searchPlaceholder={t(searchKey)}
+            emptyLabel={t("asNoRecords")}
+            renderExtra={renderExtra}
+            toolbarExtra={options?.toolbarExtra}
+            locale={locale}
+            t={t}
+          />
+        ) : (
           <RecordMasterDetail
             items={items}
             labels={labels(searchKey)}
             detailExtra={renderExtra}
+            layout={recordViewMode === "dropdown" ? "dropdown" : "side-panel"}
           />
-        )
-      }
-    />
+        )}
+      </div>
     );
   };
 
@@ -340,7 +353,7 @@ function AgentspaceSectionBody({
         scopeKey={recordScopeKey}
         ui={memoryUi}
         setUi={setMemoryUi}
-        viewMode={recordViewMode}
+        viewMode={recordViewMode as MemoryViewMode}
         onOpenProjectmanRef={onOpenProjectmanRef}
         locale={locale}
         t={t}
@@ -368,7 +381,7 @@ function AgentspaceSectionBody({
         scopeKey={recordScopeKey}
         ui={memoryUi}
         setUi={setMemoryUi}
-        viewMode={recordViewMode}
+        viewMode={recordViewMode as AgentspaceRecordViewMode}
         locale={locale}
         t={t}
         onOpenProjectmanRef={onOpenProjectmanRef}
@@ -387,7 +400,7 @@ function AgentspaceSectionBody({
         scopeKey={recordScopeKey}
         ui={memoryUi}
         setUi={setMemoryUi}
-        viewMode={recordViewMode}
+        viewMode={recordViewMode as AgentspaceRecordViewMode}
         locale={locale}
         t={t}
         onOpenProjectmanRef={onOpenProjectmanRef}
@@ -417,32 +430,44 @@ function AgentspaceSectionBody({
   return host("asSearchAgents", buildAgentItems(model.agentProfiles, t));
 }
 
-function MemoryViewSwitch({
+function AgentspaceViewSwitch({
+  section,
   value,
-  includeTimeline,
   onChange,
   t
 }: {
-  value: MemoryViewMode;
-  includeTimeline: boolean;
-  onChange: (value: MemoryViewMode) => void;
+  section: AgentspaceSectionId;
+  value: AgentspaceViewMode;
+  onChange: (value: AgentspaceViewMode) => void;
   t: TFn;
 }): ReactNode {
-  const items = [
-    ...(includeTimeline ? [{ value: "timeline", label: t("asMemoryViewTimeline") }] : []),
-    { value: "cards", label: t("asMemoryViewCards") },
-    { value: "read", label: t("asMemoryViewRead") },
-    { value: "digest", label: t("asMemoryViewDigest") }
-  ];
+  const items =
+    section === "memory"
+      ? [
+          { value: "timeline", label: t("asMemoryViewTimeline") },
+          { value: "cards", label: t("asMemoryViewCards") },
+          { value: "read", label: t("asMemoryViewRead") },
+          { value: "digest", label: t("asMemoryViewDigest") }
+        ]
+      : section === "missions" || section === "discussions"
+        ? [
+            { value: "cards", label: t("asMemoryViewCards") },
+            { value: "read", label: t("asMemoryViewRead") },
+            { value: "digest", label: t("asMemoryViewDigest") }
+          ]
+        : [
+            { value: "side-panel", label: t("pmRecordViewSidePanel") },
+            { value: "cards", label: t("navModeCards") },
+            { value: "dropdown", label: t("navModeDropdown") }
+          ];
   return (
-    <div className="aops-as-memory-view-switch">
-      <span className="aops-as-memory-eyebrow">{t("asMemoryViewLabel")}</span>
+    <div className="aops-as-memory-view-switch aops-pm-section-view-switch">
       <SegmentedControl
         compact
         ariaLabel={t("asMemoryViewLabel")}
         value={value}
         items={items}
-        onChange={(next) => onChange(next as MemoryViewMode)}
+        onChange={(next) => onChange(next as AgentspaceViewMode)}
       />
     </div>
   );
@@ -1950,7 +1975,7 @@ function AgentspaceRecordSection({
   scopeKey: string;
   ui: MemoryViewerUiState;
   setUi: (value: (prev: MemoryViewerUiState) => MemoryViewerUiState) => void;
-  viewMode: MemoryViewMode;
+  viewMode: AgentspaceRecordViewMode;
   locale: AopsCockpitLocale;
   t: TFn;
   onOpenProjectmanRef: (target: ProjectmanRefTarget) => void;
@@ -2612,11 +2637,19 @@ function AssetVersionBody({
   if (!content && !version?.entryFile) return null;
   return (
     <div className="aops-as-versionbody">
-      <h5 className="aops-as-thread-title">
-        {t("asVersionBody")}
-        {version?.version != null ? <span className="aops-pm-mono"> v{version.version}</span> : null}
-        {version?.entryFile ? <span className="aops-pm-muted"> · {version.entryFile}</span> : null}
-      </h5>
+      <div className="aops-as-versionbody-head">
+        <h5 className="aops-as-thread-title">
+          {t("asVersionBody")}
+          {version?.version != null ? <span className="aops-pm-mono"> v{version.version}</span> : null}
+          {version?.entryFile ? <span className="aops-pm-muted"> · {version.entryFile}</span> : null}
+        </h5>
+        <CopyContentButton
+          text={content}
+          copyLabel={t("contentCopy")}
+          copiedLabel={t("contentCopied")}
+          failedLabel={t("contentCopyFailed")}
+        />
+      </div>
       <pre className="aops-as-versionbody-content">{content}</pre>
     </div>
   );

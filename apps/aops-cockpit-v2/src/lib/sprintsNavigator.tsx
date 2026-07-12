@@ -43,6 +43,12 @@ export function useSprintsNavigator(model: SprintsNavigatorModel, t: NavT): Spri
       dockClassName: "aops-v2-sprints-navdock",
       // Cards mode: the sprints page renders the card register (boards parity).
       enableCardsMode: true,
+      showDropdownSettings: false,
+      showDropdownMeta: false,
+      showModeShortcuts: false,
+      showNavigatorSetting: false,
+      leftMenuModeLabel: "pmRecordViewSidePanel",
+      settingsModeOrder: ["left-menu", "cards", "dropdown"],
       labels: {
         panelTitle: "pmNavSprintsPanelTitle",
         paneAria: "pmNavSprintsPane",
