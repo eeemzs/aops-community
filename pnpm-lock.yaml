@@ -4,62 +4,68 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/node':
+      specifier: ^25.3.0
+      version: 25.3.1
+    '@types/pg':
+      specifier: 8.20.0
+      version: 8.20.0
+    '@types/react':
+      specifier: ^19.2.14
+      version: 19.2.14
+    ajv:
+      specifier: ^8.18.0
+      version: 8.18.0
+    dotenv:
+      specifier: ^17.3.1
+      version: 17.4.2
+    drizzle-kit:
+      specifier: ^0.31.9
+      version: 0.31.10
+    marked:
+      specifier: ^16.4.1
+      version: 16.4.2
+    react:
+      specifier: ^19.2.4
+      version: 19.2.4
+    tslib:
+      specifier: ^2.3.0
+      version: 2.8.1
+    typescript:
+      specifier: 5.9.3
+      version: 5.9.3
+    uuid:
+      specifier: ^11.1.0
+      version: 11.1.1
+    vitest:
+      specifier: ^4.0.18
+      version: 4.1.10
+
 overrides:
-  '@aops/error-catalog': file:vendor/npm/aops-error-catalog-0.0.1.tgz
-  '@aops/host-registration': file:vendor/npm/aops-host-registration-0.0.1.tgz
-  '@aops/pg-bootstrap': file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz
-  '@aops/runtime-config': file:vendor/npm/aops-runtime-config-0.0.1.tgz
-  '@aopslab/api-client': file:vendor/npm/aopslab-api-client-0.0.15.tgz
-  '@aopslab/cli-kit': file:vendor/npm/aopslab-cli-kit-0.0.1.tgz
-  '@aopslab/domain-core-docman': file:vendor/npm/aopslab-domain-core-docman-0.0.15.tgz
-  '@aopslab/domain-dm-agentspace': file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz
-  '@aopslab/domain-dm-chatv3': file:vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz
-  '@aopslab/domain-dm-docman': file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz
-  '@aopslab/domain-dm-projectman': file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz
-  '@aopslab/domain-dm-sys': file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz
-  '@aopslab/domain-host-plugin-agentspace': file:vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz
-  '@aopslab/domain-host-plugin-chatv3': file:vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz
-  '@aopslab/domain-host-plugin-docman': file:vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz
-  '@aopslab/domain-host-plugin-projectman': file:vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz
-  '@aopslab/domain-host-plugin-sys': file:vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz
-  '@aopslab/domain-kit-agentspace': file:vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz
-  '@aopslab/domain-kit-chatv3': file:vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz
-  '@aopslab/domain-kit-docman': file:vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz
-  '@aopslab/domain-kit-projectman': file:vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz
-  '@aopslab/domain-kit-sys': file:vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz
-  '@aopslab/domain-pg-bootstrap-chatv3': file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz
-  '@aopslab/domain-pg-bootstrap-docman': file:vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz
-  '@aopslab/domain-pg-bootstrap-projectman': file:vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz
-  '@aopslab/domain-pg-bootstrap-sys': file:vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz
-  '@aopslab/domain-product-client-chatv3': file:vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz
-  '@aopslab/domain-product-docman': file:vendor/npm/aopslab-domain-product-docman-0.1.0.tgz
-  '@aopslab/domain-product-projectman': file:vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz
-  '@aopslab/domain-runtime-config-docman': file:vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz
-  '@aopslab/domain-runtime-config-projectman': file:vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz
-  '@aopslab/host-adapter-sveltekit': file:vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz
-  '@aopslab/host-core': file:vendor/npm/aopslab-host-core-0.1.1.tgz
-  '@aopslab/host-registration': file:vendor/npm/aopslab-host-registration-0.1.1.tgz
-  '@aopslab/light-client-core': file:vendor/npm/aopslab-light-client-core-0.1.0.tgz
-  '@aopslab/manifest': file:vendor/npm/aopslab-manifest-0.1.3.tgz
-  '@aopslab/projectman-cockpit-client': file:vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz
-  '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz
-  '@aopslab/xf-cli-operator': file:vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz
-  '@aopslab/xf-cli-ui': file:vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz
-  '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-  '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz
-  '@aopslab/xf-db-drizzle': file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz
-  '@aopslab/xf-db-mongoose': file:vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz
-  '@aopslab/xf-db-redis': file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz
-  '@aopslab/xf-dm': file:vendor/npm/aopslab-xf-dm-0.1.83.tgz
-  '@aopslab/xf-dm-kits': file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz
-  '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-  '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-  '@aopslab/xf-secure-store': file:vendor/npm/aopslab-xf-secure-store-0.1.27.tgz
-  '@aopslab/xf-ui-composition-react': file:vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz
-  '@aopslab/xf-ui-foundation': file:vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz
-  '@aopslab/xf-ui-plugin': file:vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz
-  '@aopslab/xf-ui-shell-react': file:vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz
-  '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz
+  '@aopslab/host-adapter-sveltekit': 0.1.1
+  '@aopslab/host-core': 0.1.1
+  '@aopslab/host-registration': 0.1.1
+  '@aopslab/manifest': 0.1.3
+  '@aopslab/xf-bm': 0.1.88
+  '@aopslab/xf-cli-operator': 0.0.2
+  '@aopslab/xf-cli-ui': 0.1.13
+  '@aopslab/xf-core': 0.1.68
+  '@aopslab/xf-db': 0.1.74
+  '@aopslab/xf-db-drizzle': 0.1.80
+  '@aopslab/xf-db-mongoose': 0.1.78
+  '@aopslab/xf-db-redis': 0.1.75
+  '@aopslab/xf-dm': 0.1.83
+  '@aopslab/xf-dm-kits': 0.1.13
+  '@aopslab/xf-i18n': 0.1.73
+  '@aopslab/xf-logger': 0.1.61
+  '@aopslab/xf-secure-store': 0.1.27
+  '@aopslab/xf-ui-composition-react': 0.1.1
+  '@aopslab/xf-ui-foundation': 0.1.1
+  '@aopslab/xf-ui-plugin': 0.1.1
+  '@aopslab/xf-ui-shell-react': 0.1.1
+  '@aopslab/xf-validation': 0.1.79
   drizzle-orm: 0.45.1
   effect: 3.19.19
   mongoose: 8.23.1
@@ -68,31 +74,38 @@ overrides:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      '@types/node':
+        specifier: 25.3.1
+        version: 25.3.1
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   apps/aops-cli:
     dependencies:
       '@aops/host-registration':
-        specifier: file:../../vendor/npm/aops-host-registration-0.0.1.tgz
-        version: file:vendor/npm/aops-host-registration-0.0.1.tgz
+        specifier: workspace:*
+        version: link:../aops/packages/aops-host-registration
       '@aops/runtime-config':
-        specifier: file:../../vendor/npm/aops-runtime-config-0.0.1.tgz
-        version: file:vendor/npm/aops-runtime-config-0.0.1.tgz
+        specifier: workspace:*
+        version: link:../aops/packages/aops-runtime-config
       '@aopslab/cli-kit':
-        specifier: file:../../vendor/npm/aopslab-cli-kit-0.0.1.tgz
-        version: file:vendor/npm/aopslab-cli-kit-0.0.1.tgz
+        specifier: workspace:*
+        version: link:../aops/packages/aops-cli-kit
       '@aopslab/domain-product-client-chatv3':
-        specifier: file:../../vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../domains/chatv3/chatv3-product-client
       '@aopslab/xf-cli-operator':
-        specifier: file:../../vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz
-        version: file:vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz
+        specifier: 0.0.2
+        version: 0.0.2
       '@aopslab/xf-cli-ui':
-        specifier: file:../../vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz
-        version: file:vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz(@types/node@25.3.1)
+        specifier: 0.1.13
+        version: 0.1.13(@types/node@25.3.1)
       '@aopslab/xf-secure-store':
-        specifier: file:../../vendor/npm/aopslab-xf-secure-store-0.1.27.tgz
-        version: file:vendor/npm/aopslab-xf-secure-store-0.1.27.tgz
+        specifier: 0.1.27
+        version: 0.1.27
       commander:
         specifier: 14.0.3
         version: 14.0.3
@@ -113,29 +126,29 @@ importers:
   apps/aops-cockpit-v2:
     dependencies:
       '@aopslab/domain-product-client-chatv3':
-        specifier: file:../../vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../domains/chatv3/chatv3-product-client
       '@aopslab/light-client-core':
-        specifier: file:../../vendor/npm/aopslab-light-client-core-0.1.0.tgz
-        version: file:vendor/npm/aopslab-light-client-core-0.1.0.tgz(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../domains/chatv3/light-client-core
       '@aopslab/projectman-cockpit-client':
-        specifier: file:../../vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz
-        version: file:vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../domains/projectman/projectman-cockpit-client
       '@aopslab/xf-i18n':
-        specifier: file:../../vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-        version: file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
+        specifier: 0.1.73
+        version: 0.1.73
       '@aopslab/xf-ui-composition-react':
-        specifier: file:../../vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz
-        version: file:vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz
+        specifier: 0.1.1
+        version: 0.1.1
       '@aopslab/xf-ui-foundation':
-        specifier: file:../../vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz
-        version: file:vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz
+        specifier: 0.1.1
+        version: 0.1.1
       '@aopslab/xf-ui-plugin':
-        specifier: file:../../vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz
-        version: file:vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz
+        specifier: 0.1.1
+        version: 0.1.1
       '@aopslab/xf-ui-shell-react':
-        specifier: file:../../vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz
-        version: file:vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz
+        specifier: 0.1.1
+        version: 0.1.1
       '@fontsource/dm-sans':
         specifier: 5.2.8
         version: 5.2.8
@@ -183,83 +196,83 @@ importers:
   apps/aops-server:
     dependencies:
       '@aops/error-catalog':
-        specifier: file:../../vendor/npm/aops-error-catalog-0.0.1.tgz
-        version: file:vendor/npm/aops-error-catalog-0.0.1.tgz
+        specifier: workspace:*
+        version: link:../aops/packages/aops-error-catalog
       '@aops/host-registration':
-        specifier: file:../../vendor/npm/aops-host-registration-0.0.1.tgz
-        version: file:vendor/npm/aops-host-registration-0.0.1.tgz
+        specifier: workspace:*
+        version: link:../aops/packages/aops-host-registration
       '@aops/pg-bootstrap':
-        specifier: file:../../vendor/npm/aops-pg-bootstrap-0.0.1.tgz
-        version: file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz
+        specifier: workspace:*
+        version: link:../aops/packages/aops-pg-bootstrap
       '@aopslab/domain-host-plugin-agentspace':
-        specifier: file:../../vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)
+        specifier: workspace:*
+        version: link:../../domains/agentspace/agentspace-host-plugin
       '@aopslab/domain-host-plugin-chatv3':
-        specifier: file:../../vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)
+        specifier: workspace:*
+        version: link:../../domains/chatv3/chatv3-host-plugin
       '@aopslab/domain-host-plugin-docman':
-        specifier: file:../../vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz
-        version: file:vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
+        specifier: workspace:*
+        version: link:../../domains/docman/docman-host-plugin
       '@aopslab/domain-host-plugin-projectman':
-        specifier: file:../../vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz
-        version: file:vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)
+        specifier: workspace:*
+        version: link:../../domains/projectman/projectman-host-plugin
       '@aopslab/domain-host-plugin-sys':
-        specifier: file:../../vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz
-        version: file:vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(socks@2.8.9)
+        specifier: workspace:*
+        version: link:../../domains/sys/sys-host-plugin
       '@aopslab/domain-kit-agentspace':
-        specifier: file:../../vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
+        specifier: workspace:*
+        version: link:../../domains/agentspace/agentspace-kit
       '@aopslab/domain-kit-chatv3':
-        specifier: file:../../vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)
+        specifier: workspace:*
+        version: link:../../domains/chatv3/chatv3-kit
       '@aopslab/domain-kit-docman':
-        specifier: file:../../vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz
-        version: file:vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
+        specifier: workspace:*
+        version: link:../../domains/docman/docman-kit
       '@aopslab/domain-kit-projectman':
-        specifier: file:../../vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz
-        version: file:vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
+        specifier: workspace:*
+        version: link:../../domains/projectman/projectman-kit
       '@aopslab/domain-kit-sys':
-        specifier: file:../../vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz
-        version: file:vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(socks@2.8.9)
+        specifier: workspace:*
+        version: link:../../domains/sys/sys-kit
       '@aopslab/domain-pg-bootstrap-chatv3':
-        specifier: file:../../vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz
+        specifier: workspace:*
+        version: link:../../domains/chatv3/chatv3-pg-bootstrap
       '@aopslab/domain-pg-bootstrap-docman':
-        specifier: file:../../vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz
+        specifier: workspace:*
+        version: link:../../domains/docman/docman-pg-bootstrap
       '@aopslab/domain-pg-bootstrap-projectman':
-        specifier: file:../../vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz
+        specifier: workspace:*
+        version: link:../../domains/projectman/projectman-pg-bootstrap
       '@aopslab/domain-pg-bootstrap-sys':
-        specifier: file:../../vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz
+        specifier: workspace:*
+        version: link:../../domains/sys/sys-pg-bootstrap
       '@aopslab/domain-product-docman':
-        specifier: file:../../vendor/npm/aopslab-domain-product-docman-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-product-docman-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
+        specifier: workspace:*
+        version: link:../../domains/docman/docman-product
       '@aopslab/domain-product-projectman':
-        specifier: file:../../vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz
-        version: file:vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
+        specifier: workspace:*
+        version: link:../../domains/projectman/projectman-product
       '@aopslab/domain-runtime-config-docman':
-        specifier: file:../../vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz
+        specifier: workspace:*
+        version: link:../../domains/docman/docman-runtime-config
       '@aopslab/domain-runtime-config-projectman':
-        specifier: file:../../vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz
-        version: file:vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz
+        specifier: workspace:*
+        version: link:../../domains/projectman/projectman-runtime-config
       '@aopslab/host-adapter-sveltekit':
-        specifier: file:../../vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz
-        version: file:vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))
+        specifier: 0.1.1
+        version: 0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))
       '@aopslab/host-core':
-        specifier: file:../../vendor/npm/aopslab-host-core-0.1.1.tgz
-        version: file:vendor/npm/aopslab-host-core-0.1.1.tgz
+        specifier: 0.1.1
+        version: 0.1.1
       '@aopslab/manifest':
-        specifier: file:../../vendor/npm/aopslab-manifest-0.1.3.tgz
-        version: file:vendor/npm/aopslab-manifest-0.1.3.tgz
+        specifier: 0.1.3
+        version: 0.1.3
       '@aopslab/xf-dm-kits':
-        specifier: file:../../vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz
-        version: file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))
+        specifier: 0.1.13
+        version: 0.1.13(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))
       '@aopslab/xf-logger':
-        specifier: file:../../vendor/npm/aopslab-xf-logger-0.1.61.tgz
-        version: file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
+        specifier: 0.1.61
+        version: 0.1.61
       ajv:
         specifier: 8.18.0
         version: 8.18.0
@@ -301,249 +314,716 @@ importers:
         specifier: 7.3.1
         version: 7.3.1(@types/node@25.3.1)(tsx@4.23.0)
 
+  apps/aops/packages/aops-api-client: {}
+
+  apps/aops/packages/aops-cli-kit:
+    dependencies:
+      '@aopslab/api-client':
+        specifier: workspace:*
+        version: link:../aops-api-client
+      '@aopslab/xf-secure-store':
+        specifier: 0.1.27
+        version: 0.1.27
+
+  apps/aops/packages/aops-error-catalog: {}
+
+  apps/aops/packages/aops-host-registration:
+    dependencies:
+      '@aopslab/host-registration':
+        specifier: 0.1.1
+        version: 0.1.1
+
+  apps/aops/packages/aops-pg-bootstrap:
+    dependencies:
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+      drizzle-kit:
+        specifier: 'catalog:'
+        version: 0.31.10
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
+    devDependencies:
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.20.0
+
+  apps/aops/packages/aops-runtime-config:
+    dependencies:
+      '@aops/host-registration':
+        specifier: workspace:*
+        version: link:../aops-host-registration
+
+  domains/agentspace/agentspace-dm:
+    dependencies:
+      '@aopslab/xf-bm':
+        specifier: 0.1.88
+        version: 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-db-drizzle':
+        specifier: 0.1.80
+        version: 0.1.80(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
+      '@aopslab/xf-db-redis':
+        specifier: 0.1.75
+        version: 0.1.75(zod@4.4.3)
+      '@aopslab/xf-dm':
+        specifier: 0.1.83
+        version: 0.1.83(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
+      '@aopslab/xf-i18n':
+        specifier: 0.1.73
+        version: 0.1.73
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      drizzle-orm:
+        specifier: 0.45.1
+        version: 0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0)
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/agentspace/agentspace-host-plugin:
+    dependencies:
+      '@aopslab/domain-kit-agentspace':
+        specifier: workspace:*
+        version: link:../agentspace-kit
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      ajv:
+        specifier: 'catalog:'
+        version: 8.18.0
+
+  domains/agentspace/agentspace-kit:
+    dependencies:
+      '@aopslab/domain-dm-agentspace':
+        specifier: workspace:*
+        version: link:../agentspace-dm
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-dm-kits':
+        specifier: 0.1.13
+        version: 0.1.13(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))
+      '@aopslab/xf-i18n':
+        specifier: 0.1.73
+        version: 0.1.73
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      ajv:
+        specifier: 'catalog:'
+        version: 8.18.0
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/chatv3/chatv3-dm:
+    dependencies:
+      drizzle-orm:
+        specifier: 0.45.1
+        version: 0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0)
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
+      uuid:
+        specifier: 'catalog:'
+        version: 11.1.1
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@aopslab/domain-pg-bootstrap-chatv3':
+        specifier: workspace:*
+        version: link:../chatv3-pg-bootstrap
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.20.0
+      drizzle-kit:
+        specifier: 'catalog:'
+        version: 0.31.10
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@25.3.1)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
+
+  domains/chatv3/chatv3-host-plugin:
+    dependencies:
+      '@aopslab/domain-dm-chatv3':
+        specifier: workspace:*
+        version: link:../chatv3-dm
+      '@aopslab/domain-kit-chatv3':
+        specifier: workspace:*
+        version: link:../chatv3-kit
+      '@aopslab/domain-pg-bootstrap-chatv3':
+        specifier: workspace:*
+        version: link:../chatv3-pg-bootstrap
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@25.3.1)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
+
+  domains/chatv3/chatv3-kit:
+    dependencies:
+      '@aopslab/domain-dm-chatv3':
+        specifier: workspace:*
+        version: link:../chatv3-dm
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@25.3.1)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
+
+  domains/chatv3/chatv3-pg-bootstrap:
+    dependencies:
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.20.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  domains/chatv3/chatv3-product-client:
+    dependencies:
+      '@aopslab/light-client-core':
+        specifier: workspace:*
+        version: link:../light-client-core
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@25.3.1)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
+
+  domains/chatv3/light-client-core:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      react:
+        specifier: 'catalog:'
+        version: 19.2.4
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@25.3.1)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
+
+  domains/docman/docman-core: {}
+
+  domains/docman/docman-dm:
+    dependencies:
+      '@aopslab/domain-core-docman':
+        specifier: workspace:*
+        version: link:../docman-core
+      '@aopslab/xf-bm':
+        specifier: 0.1.88
+        version: 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-db-drizzle':
+        specifier: 0.1.80
+        version: 0.1.80(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
+      '@aopslab/xf-db-redis':
+        specifier: 0.1.75
+        version: 0.1.75(zod@4.4.3)
+      '@aopslab/xf-dm':
+        specifier: 0.1.83
+        version: 0.1.83(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      drizzle-orm:
+        specifier: 0.45.1
+        version: 0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0)
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      marked:
+        specifier: 'catalog:'
+        version: 16.4.2
+      tslib:
+        specifier: 'catalog:'
+        version: 2.8.1
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/docman/docman-host-plugin:
+    dependencies:
+      '@aopslab/domain-kit-docman':
+        specifier: workspace:*
+        version: link:../docman-kit
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/docman/docman-kit:
+    dependencies:
+      '@aopslab/domain-dm-docman':
+        specifier: workspace:*
+        version: link:../docman-dm
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-db-drizzle':
+        specifier: 0.1.80
+        version: 0.1.80(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
+      '@aopslab/xf-dm-kits':
+        specifier: 0.1.13
+        version: 0.1.13(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))
+      '@aopslab/xf-i18n':
+        specifier: 0.1.73
+        version: 0.1.73
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/docman/docman-pg-bootstrap:
+    dependencies:
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.20.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  domains/docman/docman-product:
+    dependencies:
+      '@aopslab/domain-core-docman':
+        specifier: workspace:*
+        version: link:../docman-core
+      '@aopslab/domain-kit-docman':
+        specifier: workspace:*
+        version: link:../docman-kit
+
+  domains/docman/docman-runtime-config:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  domains/projectman/projectman-cockpit-client:
+    dependencies:
+      '@aopslab/light-client-core':
+        specifier: workspace:*
+        version: link:../../chatv3/light-client-core
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@25.3.1)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
+
+  domains/projectman/projectman-dm:
+    dependencies:
+      '@aopslab/xf-bm':
+        specifier: 0.1.88
+        version: 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-db-drizzle':
+        specifier: 0.1.80
+        version: 0.1.80(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
+      '@aopslab/xf-db-redis':
+        specifier: 0.1.75
+        version: 0.1.75(zod@4.4.3)
+      '@aopslab/xf-dm':
+        specifier: 0.1.83
+        version: 0.1.83(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
+      '@aopslab/xf-i18n':
+        specifier: 0.1.73
+        version: 0.1.73
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      drizzle-orm:
+        specifier: 0.45.1
+        version: 0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0)
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      tslib:
+        specifier: 'catalog:'
+        version: 2.8.1
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+
+  domains/projectman/projectman-host-plugin:
+    dependencies:
+      '@aopslab/domain-kit-projectman':
+        specifier: workspace:*
+        version: link:../projectman-kit
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+
+  domains/projectman/projectman-kit:
+    dependencies:
+      '@aopslab/domain-dm-projectman':
+        specifier: workspace:*
+        version: link:../projectman-dm
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-dm-kits':
+        specifier: 0.1.13
+        version: 0.1.13(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))
+      '@aopslab/xf-i18n':
+        specifier: 0.1.73
+        version: 0.1.73
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/projectman/projectman-pg-bootstrap:
+    dependencies:
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.20.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  domains/projectman/projectman-product:
+    dependencies:
+      '@aopslab/domain-kit-projectman':
+        specifier: workspace:*
+        version: link:../projectman-kit
+
+  domains/projectman/projectman-runtime-config:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  domains/sys/sys-dm:
+    dependencies:
+      '@aopslab/xf-bm':
+        specifier: 0.1.88
+        version: 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-db-drizzle':
+        specifier: 0.1.80
+        version: 0.1.80(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
+      '@aopslab/xf-db-mongoose':
+        specifier: 0.1.78
+        version: 0.1.78(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
+      '@aopslab/xf-db-redis':
+        specifier: 0.1.75
+        version: 0.1.75(zod@4.4.3)
+      '@aopslab/xf-dm':
+        specifier: 0.1.83
+        version: 0.1.83(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
+      '@aopslab/xf-i18n':
+        specifier: 0.1.73
+        version: 0.1.73
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      drizzle-orm:
+        specifier: 0.45.1
+        version: 0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0)
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      mongoose:
+        specifier: 8.23.1
+        version: 8.23.1(socks@2.8.9)
+      tslib:
+        specifier: 'catalog:'
+        version: 2.8.1
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/sys/sys-host-plugin:
+    dependencies:
+      '@aopslab/domain-kit-sys':
+        specifier: workspace:*
+        version: link:../sys-kit
+      '@aopslab/domain-pg-bootstrap-sys':
+        specifier: workspace:*
+        version: link:../sys-pg-bootstrap
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/sys/sys-kit:
+    dependencies:
+      '@aopslab/domain-dm-sys':
+        specifier: workspace:*
+        version: link:../sys-dm
+      '@aopslab/xf-core':
+        specifier: 0.1.68
+        version: 0.1.68
+      '@aopslab/xf-db':
+        specifier: 0.1.74
+        version: 0.1.74(zod@4.4.3)
+      '@aopslab/xf-db-redis':
+        specifier: 0.1.75
+        version: 0.1.75(zod@4.4.3)
+      '@aopslab/xf-dm-kits':
+        specifier: 0.1.13
+        version: 0.1.13(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))
+      '@aopslab/xf-i18n':
+        specifier: 0.1.73
+        version: 0.1.73
+      '@aopslab/xf-logger':
+        specifier: 0.1.61
+        version: 0.1.61
+      '@aopslab/xf-validation':
+        specifier: 0.1.79
+        version: 0.1.79(zod@4.4.3)
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+      effect:
+        specifier: 3.19.19
+        version: 3.19.19
+      tslib:
+        specifier: 'catalog:'
+        version: 2.8.1
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
+  domains/sys/sys-pg-bootstrap:
+    dependencies:
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.1
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.20.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
 packages:
 
-  '@aops/error-catalog@file:vendor/npm/aops-error-catalog-0.0.1.tgz':
-    resolution: {integrity: sha512-k84QtmNPRh1K30tz+AR/8i68iIaCS9Y9i6BnKpaKFOrC4qToLQC78x56r/+96R32UYtBU0J6KaAVBXVlAWTYNQ==, tarball: file:vendor/npm/aops-error-catalog-0.0.1.tgz}
-    version: 0.0.1
-
-  '@aops/host-registration@file:vendor/npm/aops-host-registration-0.0.1.tgz':
-    resolution: {integrity: sha512-f7E893A6IE2Nklo7Fn9utB/cQxg/i6tpfQxpWlfrBRhGv+g0+EavoHRsXA6NOcwEEhor49uvyS9NcP0G1hmn3Q==, tarball: file:vendor/npm/aops-host-registration-0.0.1.tgz}
-    version: 0.0.1
-
-  '@aops/pg-bootstrap@file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz':
-    resolution: {integrity: sha512-I/SNlV66SBk62sB/fJuT1iZWpefqcVm7W7/VwzgLI0K+l6605MR2uTEKTS1npIRwGZ8ixzj/xBL/GTDgnVH6tg==, tarball: file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz}
-    version: 0.0.1
-    hasBin: true
-
-  '@aops/runtime-config@file:vendor/npm/aops-runtime-config-0.0.1.tgz':
-    resolution: {integrity: sha512-M+H6fSd67K6qVPl2hV3LJX/rMG1BVMnoL+PQyiYQ4QXkySOCYpcUKAGHLnb6sXQvsyaVklGlo+1QAX5MZq1CLw==, tarball: file:vendor/npm/aops-runtime-config-0.0.1.tgz}
-    version: 0.0.1
-
-  '@aopslab/api-client@file:vendor/npm/aopslab-api-client-0.0.15.tgz':
-    resolution: {integrity: sha512-YTJYSeJOEroZW+5OEHOp7tfuO8ioRwKZ+1s2NJhO1ZAFou0aXhrH9P2cjF6KC2BPr/Ocmk6nnQns6jB2Zc6xyw==, tarball: file:vendor/npm/aopslab-api-client-0.0.15.tgz}
-    version: 0.0.15
-
-  '@aopslab/cli-kit@file:vendor/npm/aopslab-cli-kit-0.0.1.tgz':
-    resolution: {integrity: sha512-h9as8NH9cEwn2wRydlwE2xmsE0YXguEvj+xYcI/6n4xAc9wa0pu0AsDQXnrvAJCpnQ5wOhXZaGO19wPLmStzMA==, tarball: file:vendor/npm/aopslab-cli-kit-0.0.1.tgz}
-    version: 0.0.1
-
-  '@aopslab/domain-core-docman@file:vendor/npm/aopslab-domain-core-docman-0.0.15.tgz':
-    resolution: {integrity: sha512-RACC2zWoZCraWBZXpqM4O4lDxZ1J25u9Ev3Qygmgw/AxSskaX1KPslGJ9VSAUnXfNXuzeib+0CYe6hk/A8nhnQ==, tarball: file:vendor/npm/aopslab-domain-core-docman-0.0.15.tgz}
-    version: 0.0.15
-
-  '@aopslab/domain-dm-agentspace@file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz':
-    resolution: {integrity: sha512-e6wN/R1uVssHEkIbOt4fcklRMcPcnPtmXxlk8Ss6W28enCvhbZ8DNJcQjXrM7dpilbkzzCekV8zz0FC02KPa6A==, tarball: file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz}
-    version: 0.1.0
-    peerDependencies:
-      zod: 4.4.3
-
-  '@aopslab/domain-dm-chatv3@file:vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz':
-    resolution: {integrity: sha512-1u1tV2sMhD5K2QNk5XNChDY4UBRClPyLiS1NjJru8xGReWozT1HdrchA+NVjeqdl5c9lfbiXJfZxJoj2uifaoQ==, tarball: file:vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-dm-docman@file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz':
-    resolution: {integrity: sha512-rtBwRYPxPfF9KyJTvNexGpbW6MJ2BivpgXwS9u2dygOadUgwy6dkpsqgR2vNOSLo5AzcJYAF8x1GehXPy1TOYw==, tarball: file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz}
-    version: 0.1.2
-    peerDependencies:
-      zod: 4.4.3
-
-  '@aopslab/domain-dm-projectman@file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz':
-    resolution: {integrity: sha512-7tiXWnrHz0+1bZ6Ebn+doKG2XMM0+XIF3Sky/eHpt7Z/asPTKTA+CTlzczvbUo3ptnrHgCVTKsEaDMmJ/lU8jA==, tarball: file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz}
-    version: 0.1.4
-    peerDependencies:
-      zod: 4.4.3
-
-  '@aopslab/domain-dm-sys@file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz':
-    resolution: {integrity: sha512-lcF2s1nFL6ca6eJoklpKKeno6KW/ynZBq+CGmfEjhVPoEIH8YKb66OBXwuywd+Cw+yfB+H2OZikIfu9AyU+KCw==, tarball: file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz}
-    version: 0.1.86
-    peerDependencies:
-      zod: 4.4.3
-
-  '@aopslab/domain-host-plugin-agentspace@file:vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz':
-    resolution: {integrity: sha512-CoLYjbenoQm2sbj1T6zYsXwGX3+9esz+aEtsFJdQd4Ldw7JDKHw+eIILd8BZUmg8gfNQg73O+uTLN7iJwofL3A==, tarball: file:vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-host-plugin-chatv3@file:vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz':
-    resolution: {integrity: sha512-gtHX1ITmkml14MrsqIGCmcnDMlrTuX25hv9mkycRJi4q7mf+H2tArB8IdpCcn6BTdkHyO7IweQDjX9wKg4F3YA==, tarball: file:vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-host-plugin-docman@file:vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz':
-    resolution: {integrity: sha512-SaqXhNz0oZxdXHMoBriSTUb+l72mB8SHKP+2h87bCnQxgv+15h3R1aZfCZjWA5xfyO1bhTKk2LCGJWO92jfyug==, tarball: file:vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz}
-    version: 0.1.4
-
-  '@aopslab/domain-host-plugin-projectman@file:vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz':
-    resolution: {integrity: sha512-WnLkeR9rsXJrShAd4tB8vNQluFFOJj7eT5rqiu9Cez+Og+xIbzmIt2yk2Y2urYzvAJ4PI6AMWOvT6xd0dYXawg==, tarball: file:vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz}
-    version: 0.0.4
-
-  '@aopslab/domain-host-plugin-sys@file:vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz':
-    resolution: {integrity: sha512-p1z/mkJZf5FhgxyW43wwjq7Q2EgAMLtH68uVHJN0bUiAOmXTGcsPvOL1P0af4EgT0Spho3ZYReDM5B48p4HotA==, tarball: file:vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz}
-    version: 0.0.6
-
-  '@aopslab/domain-kit-agentspace@file:vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz':
-    resolution: {integrity: sha512-ECTUCXOl0gyYJcKeC4p4kODzV3k1l4IS3hxSCvYzqKcB62aqrOygFKiqv26yqpziFZSEAYQt3WJ206GK0xQ8Pw==, tarball: file:vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-kit-chatv3@file:vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz':
-    resolution: {integrity: sha512-m6/muwV+att9eNuPU0hBDxieKDdQ2NCVVkLo4FOzySyqViXNmgaLU2y5zvZt7dhy4muDgLXxiYtDMTSKkonNgg==, tarball: file:vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-kit-docman@file:vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz':
-    resolution: {integrity: sha512-Bwon0jOeQ8TDlfuWh722m1mzxOYFxGBulgqsDNk0AVLwi3IA275GUyzEHPaz38V4XMoUuNRCzipPRf0i8OJa4A==, tarball: file:vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz}
-    version: 0.1.4
-
-  '@aopslab/domain-kit-projectman@file:vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz':
-    resolution: {integrity: sha512-zTRSSWsc4ojqAc72g/GdTJcwCgfKjqeTa8upvL3IsKTcK65YmSkhydoJclct4HrqAokUNr//rkcD8FyrV/au/w==, tarball: file:vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz}
-    version: 0.1.5
-
-  '@aopslab/domain-kit-sys@file:vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz':
-    resolution: {integrity: sha512-MneFv0YDj2FwcND2Qi5msOOEmt8DSFD2GPdd+aMUYxp+ZB2z7mcccFWcEcTNX06k6taCjFfLEZG4UytYB/aH0A==, tarball: file:vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz}
-    version: 0.0.5
-
-  '@aopslab/domain-pg-bootstrap-chatv3@file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz':
-    resolution: {integrity: sha512-QuVBWhOYVy7VMUJG+ZSPGjskn7qV31XEdAE9ZoK8ERcboqpMs/OWpPF3NGhRTLgsoeSryYv8g60YLIFsGZ64JQ==, tarball: file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-pg-bootstrap-docman@file:vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz':
-    resolution: {integrity: sha512-Q3JM2Vy5/AG4ivjlJd6/2gLqbADOZ/CHyd3FFeeJiAlyvzP9jNkaA0ws0qKq9Mgw3HqMG2QFOgb507fzIzcySw==, tarball: file:vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-pg-bootstrap-projectman@file:vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz':
-    resolution: {integrity: sha512-CRec5Dh2H5Fwbwg1Sqo5zEN8m6eAQmv2WuePMmmJEtEODg4v7m2jQdcY/9cUPYA2V85QDDi7q8CLMrlTdcm3Fg==, tarball: file:vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-pg-bootstrap-sys@file:vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz':
-    resolution: {integrity: sha512-V7WgORzw5thBstzHt0DIGeeiYDtKyrli9hTUgyr0EJSUvBRTihrFsaSZ464T2r3rckHCgaV4UtvGJR6wtvk+UQ==, tarball: file:vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-product-client-chatv3@file:vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz':
-    resolution: {integrity: sha512-ywmD5AH/sIWUeDbUvY2yql9lCpvra2FjdO6kTXBkJE1Py2ipRvEq4oDj+6vUrLOOIys9Zxi0H6KdK8wzxfZ0Nw==, tarball: file:vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-product-docman@file:vendor/npm/aopslab-domain-product-docman-0.1.0.tgz':
-    resolution: {integrity: sha512-xDU4mOjug7y5LD4qDXzWPoR9CyRHfOr85h92rQ+ozYQ58JPo6VlBxPaQhjGS79kUhC++mKNJWOw3IOXK3DzwSQ==, tarball: file:vendor/npm/aopslab-domain-product-docman-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-product-projectman@file:vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz':
-    resolution: {integrity: sha512-j+VJXGQaB8snZYDMm90QPliHtwDmaPWI+XxpdFEhX3D8+wmcgahMBIdiIw0CkPnkGGHd4tTcwLG1oCtxCBOFpA==, tarball: file:vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz}
-    version: 0.1.1
-
-  '@aopslab/domain-runtime-config-docman@file:vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz':
-    resolution: {integrity: sha512-EPfI7cMyHNz9DqZROFJn1MmXxlP/GsQIoUqLiu+wDbPdXA7ZwV7Vd53F1iQGJw3AUtLY1y5g4sjU/9n8enV53A==, tarball: file:vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/domain-runtime-config-projectman@file:vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz':
-    resolution: {integrity: sha512-dNnbKQ6JfwraJ8VvhaV4zzNEArR6ZUIbLqaZzAF6ebiR0Z9uu7OMl95C5PR+wmwW4PVt4QdnWtZ4dmisJaZVMA==, tarball: file:vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/host-adapter-sveltekit@file:vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz':
-    resolution: {integrity: sha512-IPsTwneFIocqvmWWRFMnlzmEcad6WKu7QYqK20xbhHEyqmIWeC+xsRUZ4KozMPzEAZjDqpumgqeV6xt8J33s2Q==, tarball: file:vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz}
-    version: 0.1.1
+  '@aopslab/host-adapter-sveltekit@0.1.1':
+    resolution: {integrity: sha512-h+OILsjXIX3+G9xtWDGwOeh6x533MlA3s7I49NGKY5zkMkB78HdgpUQiCHZNCZT6qLuPt6J+HfUdPmOovEDIOg==}
     peerDependencies:
       '@sveltejs/kit': '*'
 
-  '@aopslab/host-core@file:vendor/npm/aopslab-host-core-0.1.1.tgz':
-    resolution: {integrity: sha512-KP73rW2eR78SAHJv+rAXPteUfbKyuKkJXCceKCborNj4Sn2XZ88CESlWOCM75WXyBPhdB6p38951/IWMnlNZww==, tarball: file:vendor/npm/aopslab-host-core-0.1.1.tgz}
-    version: 0.1.1
+  '@aopslab/host-core@0.1.1':
+    resolution: {integrity: sha512-skAI9ZWrj3+Wvldh/d0CiSteH+10mOZKQ+4hdh47XtVLhi50ntINM5k8dr0NyXNq4fy1zrhcgTwhulsMO0gomA==}
 
-  '@aopslab/host-registration@file:vendor/npm/aopslab-host-registration-0.1.1.tgz':
-    resolution: {integrity: sha512-d+EnPKEPaasD7V+xIF1zmiGaAWiZJo7F3ZltJBk+g2Wqeh+DXAO/XHY9D3y73q/LP+IUrfPi5mwOUDbOAPeyOw==, tarball: file:vendor/npm/aopslab-host-registration-0.1.1.tgz}
-    version: 0.1.1
+  '@aopslab/host-registration@0.1.1':
+    resolution: {integrity: sha512-oF5XclsIo9qtX5o5710HgNmhgckfRzLxMptQ3E5zf7uWd+icHdv0xcdE3RCfslnIr2fj/iswWlN4yWaDD/f8hA==}
 
-  '@aopslab/light-client-core@file:vendor/npm/aopslab-light-client-core-0.1.0.tgz':
-    resolution: {integrity: sha512-oAHMWgJ0+wN5/lG/7IAJj9GQ0FmtjTI38cznTwmxMgddqkabOd9l776mpsx/dh8MDbU0dNQZsDUsE19dOngFlw==, tarball: file:vendor/npm/aopslab-light-client-core-0.1.0.tgz}
-    version: 0.1.0
-    peerDependencies:
-      react: '>=18'
-    peerDependenciesMeta:
-      react:
-        optional: true
+  '@aopslab/manifest@0.1.3':
+    resolution: {integrity: sha512-qop926fs/ihKPVZKhvmQU9D+nok1FeZK3BZASJTRjEUJ7Zzuo3LwX8oiUGMrPQ8L9ZjecVnC8DyZe6+lCg51gA==}
 
-  '@aopslab/manifest@file:vendor/npm/aopslab-manifest-0.1.3.tgz':
-    resolution: {integrity: sha512-B48Accc2kn/03x70cTWVxAdRVILWgthXHwSLEwl4KxtTC6aaDxeqqVAJP2gLAVjwNzSjxBr1wZW7wHbPJblabQ==, tarball: file:vendor/npm/aopslab-manifest-0.1.3.tgz}
-    version: 0.1.3
-
-  '@aopslab/projectman-cockpit-client@file:vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz':
-    resolution: {integrity: sha512-gQckBLNi8lhbVeoxSes/hU/DrmdTYGZFTESzgaYlxSHMsv1OJlnK/JaiAFf/M3P6KHTGjnyMJKR+vAfNtPdQ3A==, tarball: file:vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz}
-    version: 0.1.0
-
-  '@aopslab/xf-bm@file:vendor/npm/aopslab-xf-bm-0.1.88.tgz':
-    resolution: {integrity: sha512-GbwNOr0JxH6A4UYfbXqEya4+G9wXt4NAeVU+euV1EjtIstLEDblEhk9JDpYJiskNVXJhjBxggZ1MVoFjZOs1sg==, tarball: file:vendor/npm/aopslab-xf-bm-0.1.88.tgz}
-    version: 0.1.88
+  '@aopslab/xf-bm@0.1.88':
+    resolution: {integrity: sha512-nm9+SfTSEzl5ViIW6Drq5WcyOBDwBd3rzr0DmIo1i500CocU0QDDGKrg/SjmuPDH9QQOnivmW9BCCmenlzsjzQ==}
     peerDependencies:
       zod: 4.4.3
 
-  '@aopslab/xf-cli-operator@file:vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz':
-    resolution: {integrity: sha512-jjcZNsadtdPXA/wwY/wsLP1owaP5I65GPruRCxeigeveb6iWPc0LQGKPnVjYM98M+FIyaxL0XfHVibSFFqhujQ==, tarball: file:vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz}
-    version: 0.0.2
+  '@aopslab/xf-cli-operator@0.0.2':
+    resolution: {integrity: sha512-VPuQF7EpY7rTzMWp838nABnbdFJU5e38KPYgHaHEtWzOnRkaxoeBV8sdO/a35HbBS6qoQb6EWSerMf/I02ba8g==}
 
-  '@aopslab/xf-cli-ui@file:vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz':
-    resolution: {integrity: sha512-zjOgYvS4WPY1tS6bx6ivtAdDSYYw+XK8O9iPt0Ylb/KW9qswUZTabLJs2DyF7f3I27FxuuVlxUKywiGOc9hUcw==, tarball: file:vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz}
-    version: 0.1.13
+  '@aopslab/xf-cli-ui@0.1.13':
+    resolution: {integrity: sha512-QI5N04/ifKo3wSi2gbTJ+jaDyQWZyAP0BTiRkJ9e6aK2mtVI28BrL6KIouQRBqxBE0yBO28wXWZ3m3EOfVVy9g==}
 
-  '@aopslab/xf-core@file:vendor/npm/aopslab-xf-core-0.1.68.tgz':
-    resolution: {integrity: sha512-SPRxCwVpLo587THWsEOMlUrTCz19Zuk5057n+aOj1muXEAoAl88jITj+hDDy8iwjXCGJkz5Qf3MALC9K1vCoEQ==, tarball: file:vendor/npm/aopslab-xf-core-0.1.68.tgz}
-    version: 0.1.68
+  '@aopslab/xf-core@0.1.68':
+    resolution: {integrity: sha512-X6ZKoqrcdhq4dMc/BDc1zycrsxL6AuxBEt0DBpLQaXVKWSIkLOiayOp67bEha1ToM4fCbWWCJvnQLXY/YovThA==}
 
-  '@aopslab/xf-db-drizzle@file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz':
-    resolution: {integrity: sha512-4+ahSpzr9s7/2LIkO4ShIuXXTmAtyLQpeeIiexLTCRs1s63VS27Rd/DFU/e50aHM6/ENRzU2MS2xKh6ZlpdVkg==, tarball: file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz}
-    version: 0.1.80
+  '@aopslab/xf-db-drizzle@0.1.80':
+    resolution: {integrity: sha512-0AczRnkpbopyjoFT4X71WVACvpZaUOwSXT/a9d+dMAOEhFT2aSu8JOg5bz9Ty4J7RosT4Uq9CNAWVhLPhHvRsQ==}
     peerDependencies:
       drizzle-orm: 0.45.1
 
-  '@aopslab/xf-db-mongoose@file:vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz':
-    resolution: {integrity: sha512-Hu1O+oEOYttONOcOlNk/z60klUwr7FlFFMcUQxYytZJ5ZKwmMMTFGLHx+/a3OjZSQmcKGAvC0/b3cpthcGa+SA==, tarball: file:vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz}
-    version: 0.1.78
+  '@aopslab/xf-db-mongoose@0.1.78':
+    resolution: {integrity: sha512-2CkquaHQYjlxao9BQ1njfkChAycddMDarECN2IpN/4UrpfmFkTuy0w8SMwQdm30N9XzVKItDgwNho4gEFN8EoA==}
     peerDependencies:
       mongoose: 8.23.1
 
-  '@aopslab/xf-db-redis@file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz':
-    resolution: {integrity: sha512-00JCjQ+1vDFOpGJa7JlfU54oneNdu5lzuX4cwmPG7HZdPwLmb8Vif5gb7u+3/az+1/dxTgwOkUM59Gk5k/8LaA==, tarball: file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz}
-    version: 0.1.75
+  '@aopslab/xf-db-redis@0.1.75':
+    resolution: {integrity: sha512-tkmj3gNgJjkCuRxMI0P7kvtFW4jnD5NXBBBGUpEkWBPzvWT3cnt/l9qgcY7uTst+2QVRFClmr4n0ms++55lA7g==}
 
-  '@aopslab/xf-db@file:vendor/npm/aopslab-xf-db-0.1.74.tgz':
-    resolution: {integrity: sha512-Ice8i1hDOBGgXExG3Qp18mpmBr2U0Ex8yKRU8BSoy+y+CbXYi5F7wSzkjhN5Qq6uqIZ9upJInL8c6d9Du+uZuQ==, tarball: file:vendor/npm/aopslab-xf-db-0.1.74.tgz}
-    version: 0.1.74
+  '@aopslab/xf-db@0.1.74':
+    resolution: {integrity: sha512-1Nt3bavzaAVMfhBoHiwqV917IuJhlsPeCrgyziVGV/E9RKSK11s+P2GhJN4U+ebwsRuqeAzxROTS3CaDV0YzjQ==}
 
-  '@aopslab/xf-dm-kits@file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz':
-    resolution: {integrity: sha512-dQthhDUHpp3fhcZXwUNY3fuC+/48ZtpA3NRfLEcXy1MGmX/67zWQQiqXuz2wq8tL+4QWhIPVgBJaPBXwmIY3rQ==, tarball: file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz}
-    version: 0.1.13
+  '@aopslab/xf-dm-kits@0.1.13':
+    resolution: {integrity: sha512-9vA7ylOIuMddaXoHq9ipU7SK/SkLq/Bbl8mbzxr744A4MAJdD5Ot0GFqaQuh4Xb2SNfZaOghxkco7z+TONirHg==}
 
-  '@aopslab/xf-dm@file:vendor/npm/aopslab-xf-dm-0.1.83.tgz':
-    resolution: {integrity: sha512-nHGC0dXldH9rRKit6cT90oDckgjrS3PTrpDsz4oa1aFjy8mH5tb9O6l9qgwiREIKO307tg1Hd83dl1CzlVzPmw==, tarball: file:vendor/npm/aopslab-xf-dm-0.1.83.tgz}
-    version: 0.1.83
+  '@aopslab/xf-dm@0.1.83':
+    resolution: {integrity: sha512-5xZeM0Ic7pUBfFvPIQzGY88IJmHbwVuYclPm/7PTn72+wrHwLJ8XFLKisktyZdV6Dh4ekl0naUTMfL4VlAjdGA==}
 
-  '@aopslab/xf-i18n@file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz':
-    resolution: {integrity: sha512-Fc4piAV9OqRHDhZuR5edTt6i9lgpDPaj+gOJe7QDbVlbu62vLekfqITPknhG0TdBDtgzTD7aj59UxsMbvqD7Vw==, tarball: file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz}
-    version: 0.1.73
+  '@aopslab/xf-i18n@0.1.73':
+    resolution: {integrity: sha512-0tOZSxfr2ft2pHEA98zX2EpkZHzAvhBTbn7Z/E2d4cwE1R64NeLYrSK9GmTSiC+1F63aBqlgLZ7pGc31OaNjFQ==}
 
-  '@aopslab/xf-logger@file:vendor/npm/aopslab-xf-logger-0.1.61.tgz':
-    resolution: {integrity: sha512-q6+6kvhXPGtOIxi79u9hAMwPCx5qWkQ2vuMT5Is6XQcrN572dEzywqNW4RyaT3Gjiuq3W0cLqBzgQRXSFA66UA==, tarball: file:vendor/npm/aopslab-xf-logger-0.1.61.tgz}
-    version: 0.1.61
+  '@aopslab/xf-logger@0.1.61':
+    resolution: {integrity: sha512-LCEqKkUw5kIwUdvuxxwvZPu5CmaC60oE9kZycS8PUZlthVoD3Y6PsBfxKMHsywTptEWVEdhJXJ5VcGowmrDvXQ==}
 
-  '@aopslab/xf-secure-store@file:vendor/npm/aopslab-xf-secure-store-0.1.27.tgz':
-    resolution: {integrity: sha512-JiyNBQmNCHMTn23BtnLb6wKLvYAS1axYSSS1RRcCv/hAcyUUd96br9dIPz64uyaN34cczphrVkYPhuCOXWUzbA==, tarball: file:vendor/npm/aopslab-xf-secure-store-0.1.27.tgz}
-    version: 0.1.27
+  '@aopslab/xf-secure-store@0.1.27':
+    resolution: {integrity: sha512-urUfhNOTFowy3I+vDEK9EearPmsxZkx7saA9QgrFKGtwGFZ7EJneD318qt4PBcx2ey2UwpQONcxhuoXwjnPnpA==}
 
-  '@aopslab/xf-ui-composition-react@file:vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz':
-    resolution: {integrity: sha512-pjsokMwuLaEGYONk1Ucc/s/INtCR0Xc2vKerOcnlDi/h6azPI3zJr82iO4ubIXLeVx7vhMtycVAK0lcxlEkUpw==, tarball: file:vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz}
-    version: 0.1.1
+  '@aopslab/xf-ui-composition-react@0.1.1':
+    resolution: {integrity: sha512-VpM4YsajBjQO6KwM6PjxYqOcS0WNBzndCngov2y/5xZO1BE+HPL6kb1jmZDojw0Aw5jpnisCxM82/LwBX1uhxA==}
 
-  '@aopslab/xf-ui-foundation@file:vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz':
-    resolution: {integrity: sha512-ngp4OScl3bkg0FxZAxeAHqxWKXZF6fKNIVH9qQF2/T4BXcEHEXiz+79CIeVJrqGB0O/JUBHHhfONdOF0sByHrw==, tarball: file:vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz}
-    version: 0.1.1
+  '@aopslab/xf-ui-foundation@0.1.1':
+    resolution: {integrity: sha512-plgrAnSZvdhEAx3zTtDVum0IIz2FSZeaqMjLm/MlxK4D/0XERSas2WKszse+AtTIc/pBgB+KVsOx58NFDc9Eag==}
 
-  '@aopslab/xf-ui-plugin@file:vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz':
-    resolution: {integrity: sha512-jrt1it1v9dx5WAzxzUiqxZbHANucXx60hFdRZUlKRyr/D/HHtLFuzqUxrchaW6CggbUWFYjHrPHgyQTdw1iOkw==, tarball: file:vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz}
-    version: 0.1.1
+  '@aopslab/xf-ui-plugin@0.1.1':
+    resolution: {integrity: sha512-9X9R+ogk/NoLmtoEfwdG4B46RDwfWo8i81he+vdcyVegpNjt0R0YQj0ivvxHu/M/1XLuqWtb+HDQDj1rIIZfUQ==}
 
-  '@aopslab/xf-ui-shell-react@file:vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz':
-    resolution: {integrity: sha512-JOAvwnqoMo/phdvxEWtaVSQBkatj0nPaPuaksXlOfgCteEzZ9odMs9JC1G2mgzRYhPlBoLVWW7FBf++SIawB9A==, tarball: file:vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz}
-    version: 0.1.1
+  '@aopslab/xf-ui-shell-react@0.1.1':
+    resolution: {integrity: sha512-KSUktoT6DYZauUAWNgbOz/KiWteslt5W8F/L5wXM9FSCmBMmdL5HjGS9v4dXMDUXYFRyfNFyM/5z4vYDD9afbw==}
 
-  '@aopslab/xf-validation@file:vendor/npm/aopslab-xf-validation-0.1.79.tgz':
-    resolution: {integrity: sha512-9RV9mhpXi23LE++4lwFZgaFtbbn1qdy5t1Hz7ee5NB0Xe3WvkrON8eZH8blZxwtZDIYdrtw2n/W3mS8n488Gqw==, tarball: file:vendor/npm/aopslab-xf-validation-0.1.79.tgz}
-    version: 0.1.79
+  '@aopslab/xf-validation@0.1.79':
+    resolution: {integrity: sha512-17iBiOBWIEFUfIkZ+CarZtVLneDHraBCubkJsJpJkhXyOqcJiGYCe/9IPtFhp6JZSR1i2pYLCC9ejgMpX3J0oQ==}
     peerDependencies:
       zod: 4.4.3
 
@@ -635,11 +1115,11 @@ packages:
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
-    deprecated: 'Merged into tsx: https://tsx.is'
+    deprecated: 'Merged into tsx: https://tsx.hirok.io'
 
   '@esbuild-kit/esm-loader@2.6.5':
     resolution: {integrity: sha512-FxEMIkJKnodyA1OaCUoEvbYRkoZlLZ4d/eXFu9Fh8CbBBgP5EmZxrfTRyN0qpXZ4vOvqnE5YdRdcrmUUXuU+dA==}
-    deprecated: 'Merged into tsx: https://tsx.is'
+    deprecated: 'Merged into tsx: https://tsx.hirok.io'
 
   '@esbuild/aix-ppc64@0.25.12':
     resolution: {integrity: sha512-Hhmwd6CInZ3dwpuGTF8fJG6yoWmsToE+vYgD4nytZVxcu1ulHpUQRAB1UJ8+N1Am3Mz4+xOByoQoSZf4D+CpkA==}
@@ -1871,8 +2351,14 @@ packages:
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
 
+  '@types/chai@5.2.3':
+    resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
+
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
+
+  '@types/deep-eql@4.0.2':
+    resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
@@ -1882,6 +2368,9 @@ packages:
 
   '@types/pg@8.16.0':
     resolution: {integrity: sha512-RmhMd/wD+CF8Dfo+cVIy3RR5cl8CyfXQ0tGgW6XBL8L4LM/UTEbNXYRbLwU6w+CgrKBNbrQWt4FUtTfaU5jSYQ==}
+
+  '@types/pg@8.20.0':
+    resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -1912,6 +2401,35 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
+  '@vitest/expect@4.1.10':
+    resolution: {integrity: sha512-YsCn+qAk1GWjQOWFEsEcL2gNQ0zmVmQu3T03qP6UyjhtmdtwtbuI+DASn/7iQB3HGTXkdBwGddzxPlmiql5vlA==}
+
+  '@vitest/mocker@4.1.10':
+    resolution: {integrity: sha512-v0xaezt+DKEmKfaxg133ldzADrwLGd7Ze1MfQQTYfvs8OqZIwbxyxaYURivwV7sWy5fqn3rH5uOrSp07bp44Ow==}
+    peerDependencies:
+      msw: ^2.4.9
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
+    peerDependenciesMeta:
+      msw:
+        optional: true
+      vite:
+        optional: true
+
+  '@vitest/pretty-format@4.1.10':
+    resolution: {integrity: sha512-W1HsjSH4MXQ9YfmmhLAoIYf1HRfekQCGngeIgcei6MP5QQGWUe0gkopdZQaVCFO+JDJMrAJGwa5pRpNpvy4P8Q==}
+
+  '@vitest/runner@4.1.10':
+    resolution: {integrity: sha512-IKI6kpIH+LmpROplyLwBBaCfMgOZOMsygVa6BARD6ahA04VRuJSa6OaVG7kRvSEMD870Vd91rSSw0eegtWyLGg==}
+
+  '@vitest/snapshot@4.1.10':
+    resolution: {integrity: sha512-xRkfOT1qpTAi/Ti4Y1LtfRc3kEuqxGw59eN2jN9pRWMtS/XDevekhcFSqvQqjUNGksfjMJu3Y+oJ+4Ypn2OaJw==}
+
+  '@vitest/spy@4.1.10':
+    resolution: {integrity: sha512-PLf/Ugvoq5wO/b4rwYCR1h2PSIdXz7wnkQFMiUpLdtM7l6pqVFcQIBEHyT1+l+cj7mNwAfZHzqXqDyjvOuwbDw==}
+
+  '@vitest/utils@4.1.10':
+    resolution: {integrity: sha512-fy9am/HWxbaGt/Sawrp90vt6Y6jQwf1RX77cz3uwoJwJVMli/e1IEwRPnMNJ7vKfPTwo0diXifkpPvwH9v7nGA==}
+
   acorn@8.17.0:
     resolution: {integrity: sha512-xRQbDb9BnwDafYNn6Vwl839DYVjqXYb1XVGtWAZ1kcDc6iwAL4hg3B1dZlRiuENFeO2H53gFG3in621AdERVAg==}
     engines: {node: '>=0.4.0'}
@@ -1935,6 +2453,10 @@ packages:
   aria-query@5.3.1:
     resolution: {integrity: sha512-Z/ZeOgVl7bcSYZ/u/rh0fOpvEpq//LZmdbkXyc7syVzjPAhfOa9ebsdTSjEBDU4vs5nC98Kfduj1uFo0qyET3g==}
     engines: {node: '>= 0.4'}
+
+  assertion-error@2.0.1:
+    resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
+    engines: {node: '>=12'}
 
   atomic-sleep@1.0.0:
     resolution: {integrity: sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==}
@@ -1984,6 +2506,10 @@ packages:
 
   caniuse-lite@1.0.30001803:
     resolution: {integrity: sha512-g/uHREV2ZpK9qMalCsWaxmA6ol+DX8GYhuf3T40RKoP+oL7vhRJh8LNt73PCjpnR6l14FzfPrB5Yux4PKm2meg==}
+
+  chai@6.2.2:
+    resolution: {integrity: sha512-NUPRluOfOiTKBKvWPtSD4PhFvWCqOi0BGStNWs57X9js7XGTprSmFoz5F0tWhR4WPjNeR9jXqdC7/UpSJTnlRg==}
+    engines: {node: '>=18'}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -2204,6 +2730,9 @@ packages:
     resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
     engines: {node: '>= 0.4'}
 
+  es-module-lexer@2.3.0:
+    resolution: {integrity: sha512-KLdwQm2NvGLDkQDCGvmiQrhkd0JbMzXthwQAUgWjQuQdBLFa3eiBP5arXZyA+f8x+x7OXgud6bq2rxjGtHV2tw==}
+
   esbuild@0.18.20:
     resolution: {integrity: sha512-ceqxoedUrcayh7Y7ZX6NdbbDzGROiyVBgC4PriJThBKSVPWnnFHZAkfI1lJT8QFkOwH4qOS2SJkS4wvpGl8BpA==}
     engines: {node: '>=12'}
@@ -2242,9 +2771,16 @@ packages:
   estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
 
+  estree-walker@3.0.3:
+    resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
+
   expand-template@2.0.3:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
     engines: {node: '>=6'}
+
+  expect-type@1.4.0:
+    resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
+    engines: {node: '>=12.0.0'}
 
   fast-check@3.23.2:
     resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
@@ -2618,6 +3154,9 @@ packages:
     resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
     engines: {node: 18 || 20 || >=22}
 
+  pathe@2.0.3:
+    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
+
   pg-cloudflare@1.4.0:
     resolution: {integrity: sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A==}
 
@@ -2823,6 +3362,9 @@ packages:
   sift@17.1.3:
     resolution: {integrity: sha512-Rtlj66/b0ICeFzYTuNvX/EF1igRbbnGSvEyT79McoZa/DeGhMyC5pWKOEsZKnpkqtSeovd5FL/bjHWC3CIIvCQ==}
 
+  siginfo@2.0.0:
+    resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
+
   signal-exit@3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
 
@@ -2881,6 +3423,12 @@ packages:
     resolution: {integrity: sha512-QUiRf1+u9wPTL/76GTYlKttDEBWV1ga9ZXW8BG6kfdeyyM8LGPix9gROyg9V2+P0xNyF3X2Go526xKFdMZrHSQ==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
+  stackback@0.0.2:
+    resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
+
+  std-env@4.2.0:
+    resolution: {integrity: sha512-oCUKSupKTHX53EyjDtuZQ64pjLJ6yYCtpmEw0goYxtjG9KpbRe8KAsl2tBUGU9DyMcJ0RwJ8GqJAFzMXcXW1Rw==}
+
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
     engines: {node: '>=8'}
@@ -2931,9 +3479,20 @@ packages:
     resolution: {integrity: sha512-e2zZ96wSChazBsbENf/Pcm/4swHt2cEKQ92rhUjkL9GCKiTDJIaTBenjE/m9DXi0QBmTMDkFDdOomUy20A1tDQ==}
     engines: {node: '>=20'}
 
+  tinybench@2.9.0:
+    resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
+
+  tinyexec@1.2.4:
+    resolution: {integrity: sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg==}
+    engines: {node: '>=18'}
+
   tinyglobby@0.2.17:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
+
+  tinyrainbow@3.1.0:
+    resolution: {integrity: sha512-Bf+ILmBgretUrdJxzXM0SgXLZ3XfiaUuOj/IKQHuTXip+05Xn+uyEYdVg0kYDipTBcLrCVyUzAPz7QmArb0mmw==}
+    engines: {node: '>=14.0.0'}
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -3030,6 +3589,47 @@ packages:
       vite:
         optional: true
 
+  vitest@4.1.10:
+    resolution: {integrity: sha512-R9jUTe5S4Qb0HCd4TNqpC7oGcrMssMRGXLW80ubjWsW9VH5GF8y1Y0SFLY9AbqSk6nt0PnOx4H4WNJYZ13GUPw==}
+    engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@opentelemetry/api': ^1.9.0
+      '@types/node': ^20.0.0 || ^22.0.0 || >=24.0.0
+      '@vitest/browser-playwright': 4.1.10
+      '@vitest/browser-preview': 4.1.10
+      '@vitest/browser-webdriverio': 4.1.10
+      '@vitest/coverage-istanbul': 4.1.10
+      '@vitest/coverage-v8': 4.1.10
+      '@vitest/ui': 4.1.10
+      happy-dom: '*'
+      jsdom: '*'
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@opentelemetry/api':
+        optional: true
+      '@types/node':
+        optional: true
+      '@vitest/browser-playwright':
+        optional: true
+      '@vitest/browser-preview':
+        optional: true
+      '@vitest/browser-webdriverio':
+        optional: true
+      '@vitest/coverage-istanbul':
+        optional: true
+      '@vitest/coverage-v8':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
@@ -3040,6 +3640,11 @@ packages:
   whatwg-url@14.2.0:
     resolution: {integrity: sha512-De72GdQZzNTUBBChsXueQUnPKDkg/5A5zp7pFDuQAj5UFoENpiACU0wlCvzpAGnTkj++ihpKwKyYewn/XNUbKw==}
     engines: {node: '>=18'}
+
+  why-is-node-running@2.3.0:
+    resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
+    engines: {node: '>=8'}
+    hasBin: true
 
   wrap-ansi@6.2.0:
     resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}
@@ -3088,774 +3693,32 @@ packages:
 
 snapshots:
 
-  '@aops/error-catalog@file:vendor/npm/aops-error-catalog-0.0.1.tgz': {}
-
-  '@aops/host-registration@file:vendor/npm/aops-host-registration-0.0.1.tgz':
+  '@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))':
     dependencies:
-      '@aopslab/host-registration': file:vendor/npm/aopslab-host-registration-0.1.1.tgz
-
-  '@aops/pg-bootstrap@file:vendor/npm/aops-pg-bootstrap-0.0.1.tgz':
-    dependencies:
-      dotenv: 17.4.2
-      drizzle-kit: 0.31.10
-      pg: 8.20.0
-    transitivePeerDependencies:
-      - pg-native
-
-  '@aops/runtime-config@file:vendor/npm/aops-runtime-config-0.0.1.tgz':
-    dependencies:
-      '@aops/host-registration': file:vendor/npm/aops-host-registration-0.0.1.tgz
-
-  '@aopslab/api-client@file:vendor/npm/aopslab-api-client-0.0.15.tgz': {}
-
-  '@aopslab/cli-kit@file:vendor/npm/aopslab-cli-kit-0.0.1.tgz':
-    dependencies:
-      '@aopslab/api-client': file:vendor/npm/aopslab-api-client-0.0.15.tgz
-      '@aopslab/xf-secure-store': file:vendor/npm/aopslab-xf-secure-store-0.1.27.tgz
-
-  '@aopslab/domain-core-docman@file:vendor/npm/aopslab-domain-core-docman-0.0.15.tgz': {}
-
-  '@aopslab/domain-dm-agentspace@file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)':
-    dependencies:
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-db-drizzle': file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
-      '@aopslab/xf-db-redis': file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz(zod@4.4.3)
-      '@aopslab/xf-dm': file:vendor/npm/aopslab-xf-dm-0.1.83.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      drizzle-orm: 0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0)
-      effect: 3.19.19
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-dm-chatv3@file:vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)':
-    dependencies:
-      drizzle-orm: 0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0)
-      pg: 8.20.0
-      uuid: 11.1.1
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-dm-docman@file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)':
-    dependencies:
-      '@aopslab/domain-core-docman': file:vendor/npm/aopslab-domain-core-docman-0.0.15.tgz
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-db-drizzle': file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
-      '@aopslab/xf-db-redis': file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz(zod@4.4.3)
-      '@aopslab/xf-dm': file:vendor/npm/aopslab-xf-dm-0.1.83.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      drizzle-orm: 0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0)
-      effect: 3.19.19
-      marked: 16.4.2
-      tslib: 2.8.1
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-dm-projectman@file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)':
-    dependencies:
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-db-drizzle': file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
-      '@aopslab/xf-db-redis': file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz(zod@4.4.3)
-      '@aopslab/xf-dm': file:vendor/npm/aopslab-xf-dm-0.1.83.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      drizzle-orm: 0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0)
-      effect: 3.19.19
-      tslib: 2.8.1
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-dm-sys@file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(socks@2.8.9)(zod@4.4.3)':
-    dependencies:
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-db-drizzle': file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
-      '@aopslab/xf-db-mongoose': file:vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
-      '@aopslab/xf-db-redis': file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz(zod@4.4.3)
-      '@aopslab/xf-dm': file:vendor/npm/aopslab-xf-dm-0.1.83.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      mongoose: 8.23.1(socks@2.8.9)
-      tslib: 2.8.1
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/credential-providers'
-      - '@mongodb-js/zstd'
-      - '@node-rs/xxhash'
-      - '@opentelemetry/api'
-      - drizzle-orm
-      - gcp-metadata
-      - kerberos
-      - mongodb-client-encryption
-      - pg-native
-      - snappy
-      - socks
-      - supports-color
-
-  '@aopslab/domain-host-plugin-agentspace@file:vendor/npm/aopslab-domain-host-plugin-agentspace-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)':
-    dependencies:
-      '@aopslab/domain-kit-agentspace': file:vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      ajv: 8.18.0
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-      - zod
-
-  '@aopslab/domain-host-plugin-chatv3@file:vendor/npm/aopslab-domain-host-plugin-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)':
-    dependencies:
-      '@aopslab/domain-dm-chatv3': file:vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)
-      '@aopslab/domain-kit-chatv3': file:vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)
-      '@aopslab/domain-pg-bootstrap-chatv3': file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-host-plugin-docman@file:vendor/npm/aopslab-domain-host-plugin-docman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)':
-    dependencies:
-      '@aopslab/domain-kit-docman': file:vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-host-plugin-projectman@file:vendor/npm/aopslab-domain-host-plugin-projectman-0.0.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)':
-    dependencies:
-      '@aopslab/domain-kit-projectman': file:vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-      - zod
-
-  '@aopslab/domain-host-plugin-sys@file:vendor/npm/aopslab-domain-host-plugin-sys-0.0.6.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(socks@2.8.9)':
-    dependencies:
-      '@aopslab/domain-kit-sys': file:vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(socks@2.8.9)
-      '@aopslab/domain-pg-bootstrap-sys': file:vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/credential-providers'
-      - '@mongodb-js/zstd'
-      - '@node-rs/xxhash'
-      - '@opentelemetry/api'
-      - drizzle-orm
-      - gcp-metadata
-      - kerberos
-      - mongodb-client-encryption
-      - mongoose
-      - pg-native
-      - snappy
-      - socks
-      - supports-color
-
-  '@aopslab/domain-kit-agentspace@file:vendor/npm/aopslab-domain-kit-agentspace-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)':
-    dependencies:
-      '@aopslab/domain-dm-agentspace': file:vendor/npm/aopslab-domain-dm-agentspace-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-dm-kits': file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      ajv: 8.18.0
-      dotenv: 17.4.2
-      effect: 3.19.19
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-kit-chatv3@file:vendor/npm/aopslab-domain-kit-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)':
-    dependencies:
-      '@aopslab/domain-dm-chatv3': file:vendor/npm/aopslab-domain-dm-chatv3-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-kit-docman@file:vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)':
-    dependencies:
-      '@aopslab/domain-dm-docman': file:vendor/npm/aopslab-domain-dm-docman-0.1.2.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-db-drizzle': file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
-      '@aopslab/xf-dm-kits': file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      dotenv: 17.4.2
-      effect: 3.19.19
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-kit-projectman@file:vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)':
-    dependencies:
-      '@aopslab/domain-dm-projectman': file:vendor/npm/aopslab-domain-dm-projectman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-dm-kits': file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      dotenv: 17.4.2
-      effect: 3.19.19
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-kit-sys@file:vendor/npm/aopslab-domain-kit-sys-0.0.5.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(socks@2.8.9)':
-    dependencies:
-      '@aopslab/domain-dm-sys': file:vendor/npm/aopslab-domain-dm-sys-0.1.86.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(socks@2.8.9)(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-dm-kits': file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
-      effect: 3.19.19
-      tslib: 2.8.1
-      zod: 4.4.3
-    transitivePeerDependencies:
-      - '@aws-sdk/credential-providers'
-      - '@mongodb-js/zstd'
-      - '@node-rs/xxhash'
-      - '@opentelemetry/api'
-      - drizzle-orm
-      - gcp-metadata
-      - kerberos
-      - mongodb-client-encryption
-      - mongoose
-      - pg-native
-      - snappy
-      - socks
-      - supports-color
-
-  '@aopslab/domain-pg-bootstrap-chatv3@file:vendor/npm/aopslab-domain-pg-bootstrap-chatv3-0.1.0.tgz':
-    dependencies:
-      pg: 8.20.0
-    transitivePeerDependencies:
-      - pg-native
-
-  '@aopslab/domain-pg-bootstrap-docman@file:vendor/npm/aopslab-domain-pg-bootstrap-docman-0.1.0.tgz':
-    dependencies:
-      pg: 8.20.0
-    transitivePeerDependencies:
-      - pg-native
-
-  '@aopslab/domain-pg-bootstrap-projectman@file:vendor/npm/aopslab-domain-pg-bootstrap-projectman-0.1.0.tgz':
-    dependencies:
-      pg: 8.20.0
-    transitivePeerDependencies:
-      - pg-native
-
-  '@aopslab/domain-pg-bootstrap-sys@file:vendor/npm/aopslab-domain-pg-bootstrap-sys-0.1.0.tgz':
-    dependencies:
-      pg: 8.20.0
-    transitivePeerDependencies:
-      - pg-native
-
-  '@aopslab/domain-product-client-chatv3@file:vendor/npm/aopslab-domain-product-client-chatv3-0.1.0.tgz(react@19.2.4)':
-    dependencies:
-      '@aopslab/light-client-core': file:vendor/npm/aopslab-light-client-core-0.1.0.tgz(react@19.2.4)
-    transitivePeerDependencies:
-      - react
-
-  '@aopslab/domain-product-docman@file:vendor/npm/aopslab-domain-product-docman-0.1.0.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)':
-    dependencies:
-      '@aopslab/domain-core-docman': file:vendor/npm/aopslab-domain-core-docman-0.0.15.tgz
-      '@aopslab/domain-kit-docman': file:vendor/npm/aopslab-domain-kit-docman-0.1.4.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-product-projectman@file:vendor/npm/aopslab-domain-product-projectman-0.1.1.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)':
-    dependencies:
-      '@aopslab/domain-kit-projectman': file:vendor/npm/aopslab-domain-kit-projectman-0.1.5.tgz(@types/pg@8.16.0)(@upstash/redis@1.38.0)(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(pg@8.20.0)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@node-rs/xxhash'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - drizzle-orm
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mongoose
-      - mysql2
-      - pg
-      - pg-native
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-
-  '@aopslab/domain-runtime-config-docman@file:vendor/npm/aopslab-domain-runtime-config-docman-0.1.0.tgz': {}
-
-  '@aopslab/domain-runtime-config-projectman@file:vendor/npm/aopslab-domain-runtime-config-projectman-0.1.0.tgz': {}
-
-  '@aopslab/host-adapter-sveltekit@file:vendor/npm/aopslab-host-adapter-sveltekit-0.1.1.tgz(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))':
-    dependencies:
-      '@aopslab/host-core': file:vendor/npm/aopslab-host-core-0.1.1.tgz
+      '@aopslab/host-core': 0.1.1
       '@sveltejs/kit': 2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
 
-  '@aopslab/host-core@file:vendor/npm/aopslab-host-core-0.1.1.tgz': {}
+  '@aopslab/host-core@0.1.1': {}
 
-  '@aopslab/host-registration@file:vendor/npm/aopslab-host-registration-0.1.1.tgz': {}
+  '@aopslab/host-registration@0.1.1': {}
 
-  '@aopslab/light-client-core@file:vendor/npm/aopslab-light-client-core-0.1.0.tgz(react@19.2.4)':
-    optionalDependencies:
-      react: 19.2.4
-
-  '@aopslab/manifest@file:vendor/npm/aopslab-manifest-0.1.3.tgz':
+  '@aopslab/manifest@0.1.3':
     dependencies:
       zod: 4.4.3
 
-  '@aopslab/projectman-cockpit-client@file:vendor/npm/aopslab-projectman-cockpit-client-0.1.0.tgz(react@19.2.4)':
+  '@aopslab/xf-bm@0.1.88(zod@4.4.3)':
     dependencies:
-      '@aopslab/light-client-core': file:vendor/npm/aopslab-light-client-core-0.1.0.tgz(react@19.2.4)
-    transitivePeerDependencies:
-      - react
-
-  '@aopslab/xf-bm@file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)':
-    dependencies:
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      '@aopslab/xf-validation': file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-i18n': 0.1.73
+      '@aopslab/xf-logger': 0.1.61
+      '@aopslab/xf-validation': 0.1.79(zod@4.4.3)
       effect: 3.19.19
       tslib: 2.8.1
       zod: 4.4.3
 
-  '@aopslab/xf-cli-operator@file:vendor/npm/aopslab-xf-cli-operator-0.0.2.tgz': {}
+  '@aopslab/xf-cli-operator@0.0.2': {}
 
-  '@aopslab/xf-cli-ui@file:vendor/npm/aopslab-xf-cli-ui-0.1.13.tgz(@types/node@25.3.1)':
+  '@aopslab/xf-cli-ui@0.1.13(@types/node@25.3.1)':
     dependencies:
       '@inquirer/figures': 1.0.15
       chalk: 4.1.2
@@ -3864,19 +3727,19 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@aopslab/xf-core@file:vendor/npm/aopslab-xf-core-0.1.68.tgz':
+  '@aopslab/xf-core@0.1.68':
     dependencies:
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
+      '@aopslab/xf-logger': 0.1.61
       effect: 3.19.19
       tslib: 2.8.1
 
-  '@aopslab/xf-db-drizzle@file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)':
+  '@aopslab/xf-db-drizzle@0.1.80(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)':
     dependencies:
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
-      drizzle-orm: 0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0)
+      '@aopslab/xf-bm': 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-db': 0.1.74(zod@4.4.3)
+      '@aopslab/xf-logger': 0.1.61
+      drizzle-orm: 0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0)
       effect: 3.19.19
       pg: 8.20.0
       tslib: 2.8.1
@@ -3884,12 +3747,12 @@ snapshots:
       - pg-native
       - zod
 
-  '@aopslab/xf-db-mongoose@file:vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)':
+  '@aopslab/xf-db-mongoose@0.1.78(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)':
     dependencies:
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
+      '@aopslab/xf-bm': 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-db': 0.1.74(zod@4.4.3)
+      '@aopslab/xf-logger': 0.1.61
       dotenv: 16.6.1
       effect: 3.19.19
       mongoose: 8.23.1(socks@2.8.9)
@@ -3897,12 +3760,12 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  '@aopslab/xf-db-redis@file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz(zod@4.4.3)':
+  '@aopslab/xf-db-redis@0.1.75(zod@4.4.3)':
     dependencies:
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
+      '@aopslab/xf-bm': 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-db': 0.1.74(zod@4.4.3)
+      '@aopslab/xf-logger': 0.1.61
       '@upstash/redis': 1.38.0
       redis: 5.12.1
       tslib: 2.8.1
@@ -3911,23 +3774,23 @@ snapshots:
       - '@opentelemetry/api'
       - zod
 
-  '@aopslab/xf-db@file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)':
+  '@aopslab/xf-db@0.1.74(zod@4.4.3)':
     dependencies:
-      '@aopslab/xf-bm': file:vendor/npm/aopslab-xf-bm-0.1.88.tgz(zod@4.4.3)
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
+      '@aopslab/xf-bm': 0.1.88(zod@4.4.3)
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-logger': 0.1.61
       effect: 3.19.19
       tslib: 2.8.1
       uuid: 11.1.1
     transitivePeerDependencies:
       - zod
 
-  '@aopslab/xf-dm-kits@file:vendor/npm/aopslab-xf-dm-kits-0.1.13.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))':
+  '@aopslab/xf-dm-kits@0.1.13(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))':
     dependencies:
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-dm': file:vendor/npm/aopslab-xf-dm-0.1.83.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-db': 0.1.74(zod@4.4.3)
+      '@aopslab/xf-dm': 0.1.83(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
+      '@aopslab/xf-logger': 0.1.61
       effect: 3.19.19
       tslib: 2.8.1
       zod: 4.4.3
@@ -3938,14 +3801,14 @@ snapshots:
       - mongoose
       - pg-native
 
-  '@aopslab/xf-dm@file:vendor/npm/aopslab-xf-dm-0.1.83.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)':
+  '@aopslab/xf-dm@0.1.83(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)':
     dependencies:
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-db': file:vendor/npm/aopslab-xf-db-0.1.74.tgz(zod@4.4.3)
-      '@aopslab/xf-db-drizzle': file:vendor/npm/aopslab-xf-db-drizzle-0.1.80.tgz(drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
-      '@aopslab/xf-db-mongoose': file:vendor/npm/aopslab-xf-db-mongoose-0.1.78.tgz(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
-      '@aopslab/xf-db-redis': file:vendor/npm/aopslab-xf-db-redis-0.1.75.tgz(zod@4.4.3)
-      '@aopslab/xf-logger': file:vendor/npm/aopslab-xf-logger-0.1.61.tgz
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-db': 0.1.74(zod@4.4.3)
+      '@aopslab/xf-db-drizzle': 0.1.80(drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0))(zod@4.4.3)
+      '@aopslab/xf-db-mongoose': 0.1.78(mongoose@8.23.1(socks@2.8.9))(zod@4.4.3)
+      '@aopslab/xf-db-redis': 0.1.75(zod@4.4.3)
+      '@aopslab/xf-logger': 0.1.61
       effect: 3.19.19
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -3956,39 +3819,39 @@ snapshots:
       - pg-native
       - zod
 
-  '@aopslab/xf-i18n@file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz':
+  '@aopslab/xf-i18n@0.1.73':
     dependencies:
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
+      '@aopslab/xf-core': 0.1.68
       tslib: 2.8.1
 
-  '@aopslab/xf-logger@file:vendor/npm/aopslab-xf-logger-0.1.61.tgz':
+  '@aopslab/xf-logger@0.1.61':
     dependencies:
       pino: 10.3.1
       pino-loki: 3.0.0
       pino-pretty: 13.1.3
 
-  '@aopslab/xf-secure-store@file:vendor/npm/aopslab-xf-secure-store-0.1.27.tgz':
+  '@aopslab/xf-secure-store@0.1.27':
     optionalDependencies:
       keytar: 7.9.0
 
-  '@aopslab/xf-ui-composition-react@file:vendor/npm/aopslab-xf-ui-composition-react-0.1.1.tgz':
+  '@aopslab/xf-ui-composition-react@0.1.1':
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
-  '@aopslab/xf-ui-foundation@file:vendor/npm/aopslab-xf-ui-foundation-0.1.1.tgz': {}
+  '@aopslab/xf-ui-foundation@0.1.1': {}
 
-  '@aopslab/xf-ui-plugin@file:vendor/npm/aopslab-xf-ui-plugin-0.1.1.tgz': {}
+  '@aopslab/xf-ui-plugin@0.1.1': {}
 
-  '@aopslab/xf-ui-shell-react@file:vendor/npm/aopslab-xf-ui-shell-react-0.1.1.tgz':
+  '@aopslab/xf-ui-shell-react@0.1.1':
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
-  '@aopslab/xf-validation@file:vendor/npm/aopslab-xf-validation-0.1.79.tgz(zod@4.4.3)':
+  '@aopslab/xf-validation@0.1.79(zod@4.4.3)':
     dependencies:
-      '@aopslab/xf-core': file:vendor/npm/aopslab-xf-core-0.1.68.tgz
-      '@aopslab/xf-i18n': file:vendor/npm/aopslab-xf-i18n-0.1.73.tgz
+      '@aopslab/xf-core': 0.1.68
+      '@aopslab/xf-i18n': 0.1.73
       effect: 3.19.19
       tslib: 2.8.1
       zod: 4.4.3
@@ -4965,7 +4828,14 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.7
 
+  '@types/chai@5.2.3':
+    dependencies:
+      '@types/deep-eql': 4.0.2
+      assertion-error: 2.0.1
+
   '@types/cookie@0.6.0': {}
+
+  '@types/deep-eql@4.0.2': {}
 
   '@types/estree@1.0.9': {}
 
@@ -4974,6 +4844,12 @@ snapshots:
       undici-types: 7.18.2
 
   '@types/pg@8.16.0':
+    dependencies:
+      '@types/node': 25.3.1
+      pg-protocol: 1.15.0
+      pg-types: 2.2.0
+
+  '@types/pg@8.20.0':
     dependencies:
       '@types/node': 25.3.1
       pg-protocol: 1.15.0
@@ -5013,6 +4889,47 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@vitest/expect@4.1.10':
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      '@types/chai': 5.2.3
+      '@vitest/spy': 4.1.10
+      '@vitest/utils': 4.1.10
+      chai: 6.2.2
+      tinyrainbow: 3.1.0
+
+  '@vitest/mocker@4.1.10(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))':
+    dependencies:
+      '@vitest/spy': 4.1.10
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.3.1(@types/node@25.3.1)(tsx@4.23.0)
+
+  '@vitest/pretty-format@4.1.10':
+    dependencies:
+      tinyrainbow: 3.1.0
+
+  '@vitest/runner@4.1.10':
+    dependencies:
+      '@vitest/utils': 4.1.10
+      pathe: 2.0.3
+
+  '@vitest/snapshot@4.1.10':
+    dependencies:
+      '@vitest/pretty-format': 4.1.10
+      '@vitest/utils': 4.1.10
+      magic-string: 0.30.21
+      pathe: 2.0.3
+
+  '@vitest/spy@4.1.10': {}
+
+  '@vitest/utils@4.1.10':
+    dependencies:
+      '@vitest/pretty-format': 4.1.10
+      convert-source-map: 2.0.0
+      tinyrainbow: 3.1.0
+
   acorn@8.17.0: {}
 
   agent-base@7.1.4: {}
@@ -5031,6 +4948,8 @@ snapshots:
       color-convert: 2.0.1
 
   aria-query@5.3.1: {}
+
+  assertion-error@2.0.1: {}
 
   atomic-sleep@1.0.0: {}
 
@@ -5083,6 +5002,8 @@ snapshots:
       ssri: 13.0.1
 
   caniuse-lite@1.0.30001803: {}
+
+  chai@6.2.2: {}
 
   chalk@4.1.2:
     dependencies:
@@ -5166,9 +5087,9 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.23.0
 
-  drizzle-orm@0.45.1(@types/pg@8.16.0)(@upstash/redis@1.38.0)(pg@8.20.0):
+  drizzle-orm@0.45.1(@types/pg@8.20.0)(@upstash/redis@1.38.0)(pg@8.20.0):
     optionalDependencies:
-      '@types/pg': 8.16.0
+      '@types/pg': 8.20.0
       '@upstash/redis': 1.38.0
       pg: 8.20.0
 
@@ -5186,6 +5107,8 @@ snapshots:
       once: 1.4.0
 
   es-errors@1.3.0: {}
+
+  es-module-lexer@2.3.0: {}
 
   esbuild@0.18.20:
     optionalDependencies:
@@ -5309,8 +5232,14 @@ snapshots:
 
   estree-walker@2.0.2: {}
 
+  estree-walker@3.0.3:
+    dependencies:
+      '@types/estree': 1.0.9
+
   expand-template@2.0.3:
     optional: true
+
+  expect-type@1.4.0: {}
 
   fast-check@3.23.2:
     dependencies:
@@ -5654,6 +5583,8 @@ snapshots:
       lru-cache: 11.5.2
       minipass: 7.1.3
 
+  pathe@2.0.3: {}
+
   pg-cloudflare@1.4.0:
     optional: true
 
@@ -5896,6 +5827,8 @@ snapshots:
 
   sift@17.1.3: {}
 
+  siginfo@2.0.0: {}
+
   signal-exit@3.0.7: {}
 
   signal-exit@4.1.0: {}
@@ -5964,6 +5897,10 @@ snapshots:
   ssri@13.0.1:
     dependencies:
       minipass: 7.1.3
+
+  stackback@0.0.2: {}
+
+  std-env@4.2.0: {}
 
   string-width@4.2.3:
     dependencies:
@@ -6044,10 +5981,16 @@ snapshots:
     dependencies:
       real-require: 1.0.0
 
+  tinybench@2.9.0: {}
+
+  tinyexec@1.2.4: {}
+
   tinyglobby@0.2.17:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.5)
       picomatch: 4.0.5
+
+  tinyrainbow@3.1.0: {}
 
   totalist@3.0.1: {}
 
@@ -6109,6 +6052,33 @@ snapshots:
     optionalDependencies:
       vite: 7.3.1(@types/node@25.3.1)(tsx@4.23.0)
 
+  vitest@4.1.10(@types/node@25.3.1)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)):
+    dependencies:
+      '@vitest/expect': 4.1.10
+      '@vitest/mocker': 4.1.10(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))
+      '@vitest/pretty-format': 4.1.10
+      '@vitest/runner': 4.1.10
+      '@vitest/snapshot': 4.1.10
+      '@vitest/spy': 4.1.10
+      '@vitest/utils': 4.1.10
+      es-module-lexer: 2.3.0
+      expect-type: 1.4.0
+      magic-string: 0.30.21
+      obug: 2.1.3
+      pathe: 2.0.3
+      picomatch: 4.0.5
+      std-env: 4.2.0
+      tinybench: 2.9.0
+      tinyexec: 1.2.4
+      tinyglobby: 0.2.17
+      tinyrainbow: 3.1.0
+      vite: 7.3.1(@types/node@25.3.1)(tsx@4.23.0)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 25.3.1
+    transitivePeerDependencies:
+      - msw
+
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
@@ -6119,6 +6089,11 @@ snapshots:
     dependencies:
       tr46: 5.1.1
       webidl-conversions: 7.0.0
+
+  why-is-node-running@2.3.0:
+    dependencies:
+      siginfo: 2.0.0
+      stackback: 0.0.2
 
   wrap-ansi@6.2.0:
     dependencies:
