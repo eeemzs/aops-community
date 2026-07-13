@@ -131,6 +131,7 @@ const cockpitPages = [
           docman={context.docman}
           onNavigate={context.onNavigate}
           onOpenPlan={context.onOpenPlan}
+          locale={context.locale}
           t={context.t}
         />
       )

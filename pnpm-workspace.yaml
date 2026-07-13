@@ -14,7 +14,6 @@ forceLegacyDeploy: true
 
 allowBuilds:
   esbuild: true
-  keytar: true
 
 overrides:
   "@aopslab/host-adapter-sveltekit": "0.1.1"
@@ -33,7 +32,6 @@ overrides:
   "@aopslab/xf-dm-kits": "0.1.13"
   "@aopslab/xf-i18n": "0.1.73"
   "@aopslab/xf-logger": "0.1.61"
-  "@aopslab/xf-secure-store": "0.1.27"
   "@aopslab/xf-ui-composition-react": "0.1.1"
   "@aopslab/xf-ui-foundation": "0.1.1"
   "@aopslab/xf-ui-plugin": "0.1.1"
@@ -62,7 +60,6 @@ catalog:
   "@aopslab/xf-dm-kits": "0.1.13"
   "@aopslab/xf-i18n": "0.1.73"
   "@aopslab/xf-logger": "0.1.61"
-  "@aopslab/xf-secure-store": "0.1.27"
   "@aopslab/xf-ui-composition-react": "0.1.1"
   "@aopslab/xf-ui-foundation": "0.1.1"
   "@aopslab/xf-ui-plugin": "0.1.1"
@@ -103,7 +100,6 @@ minimumReleaseAgeExclude:
   - "@aopslab/xf-dm-kits@0.1.13"
   - "@aopslab/xf-i18n@0.1.73"
   - "@aopslab/xf-logger@0.1.61"
-  - "@aopslab/xf-secure-store@0.1.27"
   - "@aopslab/xf-ui-composition-react@0.1.1"
   - "@aopslab/xf-ui-foundation@0.1.1"
   - "@aopslab/xf-ui-plugin@0.1.1"

@@ -11,6 +11,7 @@ export const COMMUNITY_RELEASE_SCHEMA_PATH = 'deploy/community/release.schema.js
 export const COMMUNITY_DOCKER_BAKE_PATH = 'docker-bake.hcl';
 
 const SHA256_PATTERN = '^sha256:[a-f0-9]{64}$';
+const NPM_INTEGRITY_SHA512_PATTERN = '^sha512-[A-Za-z0-9+/]{86}==$';
 const SEMVER_PATTERN = '^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$';
 const SAFE_ARTIFACT_REF_PATTERN = '^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$';
 const sha256 = (content) => `sha256:${createHash('sha256').update(content).digest('hex')}`;
@@ -33,7 +34,7 @@ export function createCommunityReleaseSchema() {
     title: 'AOPS Community release manifest',
     type: 'object',
     additionalProperties: false,
-    required: ['schemaVersion', 'releaseVersion', 'source', 'image', 'cli', 'compose', 'migrations', 'evidence'],
+    required: ['schemaVersion', 'releaseVersion', 'source', 'image', 'cli', 'compose', 'migrations', 'legal', 'evidence'],
     properties: {
       schemaVersion: { const: 1 },
       releaseVersion: { type: 'string', pattern: SEMVER_PATTERN },
@@ -75,12 +76,27 @@ export function createCommunityReleaseSchema() {
       cli: {
         type: 'object',
         additionalProperties: false,
-        required: ['packageName', 'version', 'artifactRef', 'artifactSha256'],
+        required: [
+          'packageName',
+          'version',
+          'commandSchemaVersion',
+          'bundleSha256',
+          'bundleByteLength',
+          'npmDistTag',
+          'artifactRef',
+          'artifactSha256',
+          'npmIntegrity',
+        ],
         properties: {
-          packageName: { const: '@aops/aops-cli' },
+          packageName: { const: '@aopslab/aops-cli' },
           version: { type: 'string', pattern: SEMVER_PATTERN },
+          commandSchemaVersion: { type: 'integer', minimum: 1, maximum: Number.MAX_SAFE_INTEGER },
+          bundleSha256: digest,
+          bundleByteLength: { type: 'integer', minimum: 1, maximum: Number.MAX_SAFE_INTEGER },
+          npmDistTag: { enum: ['latest', 'next'] },
           artifactRef: { type: 'string', pattern: SAFE_ARTIFACT_REF_PATTERN },
           artifactSha256: digest,
+          npmIntegrity: { type: 'string', pattern: NPM_INTEGRITY_SHA512_PATTERN },
         },
       },
       compose: {
@@ -110,6 +126,37 @@ export function createCommunityReleaseSchema() {
                 sha256: digest,
               },
             },
+          },
+        },
+      },
+      legal: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['license', 'notice', 'thirdPartyNotices', 'thirdPartyInventory'],
+        properties: {
+          license: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['ref', 'sha256'],
+            properties: { ref: { const: 'LICENSE' }, sha256: digest },
+          },
+          notice: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['ref', 'sha256'],
+            properties: { ref: { const: 'NOTICE' }, sha256: digest },
+          },
+          thirdPartyNotices: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['ref', 'sha256'],
+            properties: { ref: { const: 'THIRD_PARTY_NOTICES' }, sha256: digest },
+          },
+          thirdPartyInventory: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['ref', 'sha256'],
+            properties: { ref: { const: 'THIRD_PARTY_NOTICES.inventory.json' }, sha256: digest },
           },
         },
       },
@@ -231,7 +278,7 @@ export function createCommunityImageContractOverlay() {
     blockers: [
       'community-multiarch-double-build-digest-proof-pending',
       'community-registry-push-and-signature-pending',
-      'community-license-decision-deferred',
+      'community-runtime-legal-files-proof-pending',
     ],
   };
 }

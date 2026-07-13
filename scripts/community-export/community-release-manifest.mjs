@@ -8,6 +8,10 @@ import {
   COMMUNITY_IMAGE_REPOSITORY,
   COMMUNITY_PUBLIC_SOURCE_REPOSITORY,
 } from './community-image-contract.mjs';
+import {
+  createCommunityCliPackageIdentityFromArchive,
+  validateCommunityCliPackageIdentity,
+} from './community-cli-public-identity.mjs';
 
 export const COMMUNITY_RELEASE_MANIFEST_PATH = 'release.json';
 export const COMMUNITY_RELEASE_PROVENANCE_PATH = 'release.provenance.json';
@@ -22,6 +26,7 @@ const codepointCompare = (left, right) => (left < right ? -1 : left > right ? 1 
 
 const sha256 = (content) => `sha256:${createHash('sha256').update(content).digest('hex')}`;
 const hashFile = (filePath) => sha256(readFileSync(filePath));
+const npmIntegrityFile = (filePath) => `sha512-${createHash('sha512').update(readFileSync(filePath)).digest('base64')}`;
 const digestHex = (digest) => digest.slice('sha256:'.length);
 const toPosix = (value) => String(value).replace(/\\/g, '/');
 
@@ -139,6 +144,7 @@ export function createCommunityReleaseProvenance({
   cli,
   compose,
   migrations,
+  legal,
   sbom,
   builder,
 }) {
@@ -152,6 +158,10 @@ export function createCommunityReleaseProvenance({
       { name: cli.artifactRef, digest: { sha256: digestHex(cli.artifactSha256) } },
       { name: compose.ref, digest: { sha256: digestHex(compose.sha256) } },
       { name: source.treeRef, digest: { sha256: digestHex(source.treeDigest) } },
+      { name: legal.license.ref, digest: { sha256: digestHex(legal.license.sha256) } },
+      { name: legal.notice.ref, digest: { sha256: digestHex(legal.notice.sha256) } },
+      { name: legal.thirdPartyNotices.ref, digest: { sha256: digestHex(legal.thirdPartyNotices.sha256) } },
+      { name: legal.thirdPartyInventory.ref, digest: { sha256: digestHex(legal.thirdPartyInventory.sha256) } },
       { name: sbom.ref, digest: { sha256: digestHex(sbom.sha256) } },
     ],
     predicateType: 'https://slsa.dev/provenance/v1',
@@ -191,6 +201,10 @@ export function validateCommunityReleaseProvenance(manifest, provenance) {
     { name: manifest.cli.artifactRef, digest: { sha256: digestHex(manifest.cli.artifactSha256) } },
     { name: manifest.compose.ref, digest: { sha256: digestHex(manifest.compose.sha256) } },
     { name: manifest.source.treeRef, digest: { sha256: digestHex(manifest.source.treeDigest) } },
+    { name: manifest.legal.license.ref, digest: { sha256: digestHex(manifest.legal.license.sha256) } },
+    { name: manifest.legal.notice.ref, digest: { sha256: digestHex(manifest.legal.notice.sha256) } },
+    { name: manifest.legal.thirdPartyNotices.ref, digest: { sha256: digestHex(manifest.legal.thirdPartyNotices.sha256) } },
+    { name: manifest.legal.thirdPartyInventory.ref, digest: { sha256: digestHex(manifest.legal.thirdPartyInventory.sha256) } },
     { name: manifest.evidence.sbom.ref, digest: { sha256: digestHex(manifest.evidence.sbom.sha256) } },
   ];
   if (JSON.stringify(provenance.subject) !== JSON.stringify(expectedSubjects)) fail('community_release_provenance_subjects_mismatch');
@@ -222,7 +236,7 @@ export function validateCommunityReleaseProvenance(manifest, provenance) {
 }
 
 export function validateCommunityReleaseManifest(manifest) {
-  exactObject(manifest, ['schemaVersion', 'releaseVersion', 'source', 'image', 'cli', 'compose', 'migrations', 'evidence'], 'community_release_manifest_keys_invalid');
+  exactObject(manifest, ['schemaVersion', 'releaseVersion', 'source', 'image', 'cli', 'compose', 'migrations', 'legal', 'evidence'], 'community_release_manifest_keys_invalid');
   if (manifest.schemaVersion !== 1) fail('community_release_schema_version_invalid');
   requireString(manifest.releaseVersion, SEMVER, 'community_release_version_invalid');
 
@@ -244,11 +258,11 @@ export function validateCommunityReleaseManifest(manifest) {
   });
   if (JSON.stringify(platforms) !== JSON.stringify(COMMUNITY_IMAGE_PLATFORMS)) fail('community_release_platform_order_invalid');
 
-  exactObject(manifest.cli, ['packageName', 'version', 'artifactRef', 'artifactSha256'], 'community_release_cli_invalid');
-  if (manifest.cli.packageName !== '@aops/aops-cli') fail('community_release_cli_package_invalid');
-  requireString(manifest.cli.version, SEMVER, 'community_release_cli_version_invalid');
-  requireSafeRef(manifest.cli.artifactRef, 'community_release_cli_ref_invalid');
-  requireDigest(manifest.cli.artifactSha256, 'community_release_cli_digest_invalid');
+  validateCommunityCliPackageIdentity(manifest.cli);
+  if (manifest.cli.version !== manifest.releaseVersion) fail('community_release_cli_version_mismatch');
+  if (manifest.cli.npmDistTag !== (manifest.releaseVersion.includes('-') ? 'next' : 'latest')) {
+    fail('community_release_cli_npm_dist_tag_policy_mismatch');
+  }
 
   exactObject(manifest.compose, ['ref', 'sha256'], 'community_release_compose_invalid');
   requireSafeRef(manifest.compose.ref, 'community_release_compose_ref_invalid');
@@ -267,6 +281,19 @@ export function validateCommunityReleaseManifest(manifest) {
   if (JSON.stringify(migrationRefs) !== JSON.stringify([...new Set(migrationRefs)].sort())) fail('community_release_migration_file_order_invalid');
   requireDigest(manifest.migrations.setDigest, 'community_release_migration_set_digest_invalid');
   if (manifest.migrations.setDigest !== computeCommunityMigrationSetDigest(manifest.migrations)) fail('community_release_migration_set_digest_mismatch');
+
+  exactObject(manifest.legal, ['license', 'notice', 'thirdPartyNotices', 'thirdPartyInventory'], 'community_release_legal_invalid');
+  for (const [kind, expectedRef] of [
+    ['license', 'LICENSE'],
+    ['notice', 'NOTICE'],
+    ['thirdPartyNotices', 'THIRD_PARTY_NOTICES'],
+    ['thirdPartyInventory', 'THIRD_PARTY_NOTICES.inventory.json'],
+  ]) {
+    const entry = manifest.legal[kind];
+    exactObject(entry, ['ref', 'sha256'], `community_release_legal_${kind}_invalid`);
+    if (entry.ref !== expectedRef) fail(`community_release_legal_${kind}_ref_invalid`);
+    requireDigest(entry.sha256, `community_release_legal_${kind}_digest_invalid`);
+  }
 
   exactObject(manifest.evidence, ['sbom', 'provenance', 'signature'], 'community_release_evidence_invalid');
   for (const [kind, entry] of [['sbom', manifest.evidence.sbom], ['provenance', manifest.evidence.provenance]]) {
@@ -288,22 +315,33 @@ export function writeCommunityReleaseManifest({
   cli,
   composePath,
   migrations,
+  legalPaths,
   sbomPath,
   provenancePath = path.join(artifactsRoot, COMMUNITY_RELEASE_PROVENANCE_PATH),
   signatureBundlePath = path.join(artifactsRoot, COMMUNITY_RELEASE_SIGNATURE_PATH),
   builder,
 }) {
   assertArtifactsRoot(artifactsRoot);
+  exactObject(
+    cli,
+    ['version', 'commandSchemaVersion', 'npmDistTag', 'artifactPath'],
+    'community_release_cli_input_invalid',
+  );
   const outputRef = relativeArtifactRef(artifactsRoot, outputPath, 'community_release_manifest_outside_root');
   if (outputRef !== COMMUNITY_RELEASE_MANIFEST_PATH) fail('community_release_manifest_path_invalid');
   if (relativeArtifactRef(artifactsRoot, provenancePath, 'community_release_provenance_outside_root') !== COMMUNITY_RELEASE_PROVENANCE_PATH) fail('community_release_provenance_path_invalid');
   if (relativeArtifactRef(artifactsRoot, signatureBundlePath, 'community_release_signature_outside_root') !== COMMUNITY_RELEASE_SIGNATURE_PATH) fail('community_release_signature_path_invalid');
   if (!migrations || !Array.isArray(migrations.paths) || !Array.isArray(migrations.tags)) fail('community_release_migrations_input_invalid');
+  exactObject(legalPaths, ['license', 'notice', 'thirdPartyNotices', 'thirdPartyInventory'], 'community_release_legal_paths_invalid');
   for (const [filePath, code] of [
     [source.treeManifestPath, 'community_release_source_tree_missing'],
     [cli.artifactPath, 'community_release_cli_artifact_missing'],
     [composePath, 'community_release_compose_missing'],
     [sbomPath, 'community_release_sbom_missing'],
+    [legalPaths.license, 'community_release_legal_license_missing'],
+    [legalPaths.notice, 'community_release_legal_notice_missing'],
+    [legalPaths.thirdPartyNotices, 'community_release_legal_third_party_notices_missing'],
+    [legalPaths.thirdPartyInventory, 'community_release_legal_third_party_inventory_missing'],
     ...migrations.paths.map((filePath) => [filePath, 'community_release_migration_missing']),
   ]) requireConfinedFile(artifactsRoot, filePath, code);
   if (existsSync(outputPath)) fail('community_release_manifest_already_exists');
@@ -321,12 +359,14 @@ export function writeCommunityReleaseManifest({
     indexDigest: image.indexDigest,
     platforms: image.platforms.map((entry) => ({ platform: entry.platform, digest: entry.digest })),
   };
-  const cliRecord = {
-    packageName: '@aops/aops-cli',
+  const cliRecord = createCommunityCliPackageIdentityFromArchive({
     version: cli.version,
+    commandSchemaVersion: cli.commandSchemaVersion,
+    npmDistTag: cli.npmDistTag,
     artifactRef: relativeArtifactRef(artifactsRoot, cli.artifactPath, 'community_release_cli_outside_root'),
-    artifactSha256: hashFile(cli.artifactPath),
-  };
+    archiveBytes: readFileSync(cli.artifactPath),
+  });
+  if (cliRecord.version !== releaseVersion) fail('community_release_cli_version_mismatch');
   const composeRecord = {
     ref: relativeArtifactRef(artifactsRoot, composePath, 'community_release_compose_outside_root'),
     sha256: hashFile(composePath),
@@ -343,6 +383,24 @@ export function writeCommunityReleaseManifest({
     files: migrationFiles,
   };
   migrationRecord.setDigest = computeCommunityMigrationSetDigest(migrationRecord);
+  const legalRecord = {
+    license: {
+      ref: relativeArtifactRef(artifactsRoot, legalPaths.license, 'community_release_legal_license_outside_root'),
+      sha256: hashFile(legalPaths.license),
+    },
+    notice: {
+      ref: relativeArtifactRef(artifactsRoot, legalPaths.notice, 'community_release_legal_notice_outside_root'),
+      sha256: hashFile(legalPaths.notice),
+    },
+    thirdPartyNotices: {
+      ref: relativeArtifactRef(artifactsRoot, legalPaths.thirdPartyNotices, 'community_release_legal_third_party_notices_outside_root'),
+      sha256: hashFile(legalPaths.thirdPartyNotices),
+    },
+    thirdPartyInventory: {
+      ref: relativeArtifactRef(artifactsRoot, legalPaths.thirdPartyInventory, 'community_release_legal_third_party_inventory_outside_root'),
+      sha256: hashFile(legalPaths.thirdPartyInventory),
+    },
+  };
   const sbomRecord = {
     ref: relativeArtifactRef(artifactsRoot, sbomPath, 'community_release_sbom_outside_root'),
     sha256: hashFile(sbomPath),
@@ -354,6 +412,7 @@ export function writeCommunityReleaseManifest({
     cli: cliRecord,
     compose: composeRecord,
     migrations: migrationRecord,
+    legal: legalRecord,
     sbom: sbomRecord,
     builder,
   });
@@ -366,6 +425,7 @@ export function writeCommunityReleaseManifest({
     cli: cliRecord,
     compose: composeRecord,
     migrations: migrationRecord,
+    legal: legalRecord,
     evidence: {
       sbom: sbomRecord,
       provenance: {
@@ -396,6 +456,10 @@ export function verifyCommunityReleaseArtifacts({ manifestPath, artifactsRoot = 
     [manifest.cli.artifactRef, manifest.cli.artifactSha256, 'cli'],
     [manifest.compose.ref, manifest.compose.sha256, 'compose'],
     ...manifest.migrations.files.map((entry) => [entry.ref, entry.sha256, 'migration']),
+    [manifest.legal.license.ref, manifest.legal.license.sha256, 'legal-license'],
+    [manifest.legal.notice.ref, manifest.legal.notice.sha256, 'legal-notice'],
+    [manifest.legal.thirdPartyNotices.ref, manifest.legal.thirdPartyNotices.sha256, 'legal-third-party-notices'],
+    [manifest.legal.thirdPartyInventory.ref, manifest.legal.thirdPartyInventory.sha256, 'legal-third-party-inventory'],
     [manifest.evidence.sbom.ref, manifest.evidence.sbom.sha256, 'sbom'],
     [manifest.evidence.provenance.ref, manifest.evidence.provenance.sha256, 'provenance'],
   ];
@@ -403,6 +467,9 @@ export function verifyCommunityReleaseArtifacts({ manifestPath, artifactsRoot = 
     const artifactPath = resolveArtifactRef(artifactsRoot, ref, `community_release_${kind}_ref_invalid`);
     requireConfinedFile(artifactsRoot, artifactPath, `community_release_${kind}`);
     if (hashFile(artifactPath) !== expected) fail(`community_release_${kind}_digest_mismatch`, ref);
+    if (kind === 'cli' && npmIntegrityFile(artifactPath) !== manifest.cli.npmIntegrity) {
+      fail('community_release_cli_npm_integrity_mismatch', ref);
+    }
   }
   const provenancePath = resolveArtifactRef(artifactsRoot, manifest.evidence.provenance.ref, 'community_release_provenance_ref_invalid');
   let provenance;

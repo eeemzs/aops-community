@@ -2,8 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createCommunityViteModuleInventoryPlugin } from "./community-vite-module-inventory-plugin.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, "../..");
 const appNodeModules = path.resolve(__dirname, "node_modules");
 const DEFAULT_API_PROXY_TARGET = "http://127.0.0.1:5900";
 
@@ -64,7 +66,10 @@ const createApiProxy = () => ({
 });
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    createCommunityViteModuleInventoryPlugin({ root: repoRoot })
+  ],
   publicDir: false,
   clearScreen: false,
   build: {

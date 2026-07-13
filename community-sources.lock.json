@@ -1,0 +1,1319 @@
+{
+  "schemaVersion": 1,
+  "id": "aops-community-sources-lock-v1",
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "license": "Apache-2.0",
+  "coverage": {
+    "status": "complete",
+    "targetPackageCount": 55,
+    "coveredPackageCount": 55,
+    "publicXfPackageCount": 22,
+    "communityPackageCount": 33,
+    "runtimeXfPackageCount": 21,
+    "publishedOnlyXfPackageCount": 1,
+    "sourceCoverageComplete": true
+  },
+  "sourceSets": {
+    "publicXf": {
+      "repository": "https://github.com/eeemzs/xf-packages",
+      "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+      "ref": "refs/heads/main",
+      "planId": "aops-community-public-xf-source-v1",
+      "planDigest": "sha256:565fcc8673c71bf3218a88065f7b333cf5933a6f4c51aadd143c5a637f14c094",
+      "workflow": ".github/workflows/bootstrap-npm-release.yml",
+      "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+    },
+    "community": {
+      "repository": "https://github.com/eeemzs/aops-community",
+      "commitBinding": "release.json#/source/commit",
+      "rawFileInventoryDigest": "sha256:525825c523b5d0c550ba559a200844778e70f727ada17692f0a78e1ef038be97"
+    }
+  },
+  "cleanBuildRequirement": {
+    "status": "must-pass-outside-this-lock",
+    "commands": [
+      "pnpm install --frozen-lockfile",
+      "pnpm -r --if-present run build",
+      "pnpm peers check"
+    ],
+    "evidenceOwner": "Projectman review result and operator-gated release workflow"
+  },
+  "packages": [
+    {
+      "name": "@aops/aops-cli",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "apps/aops-cli",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:005298f48a3f7d1c148af09263cd9d4746240ad9d001bd5e0c45df8a51832e51",
+          "fileCount": 71,
+          "byteLength": 2293198
+        }
+      }
+    },
+    {
+      "name": "@aops/error-catalog",
+      "version": "0.0.1",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "apps/aops/packages/aops-error-catalog",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:a90b33235414faf4e91922b2be3831c4ca341ed0f59d4b10e98a574d0ed6dcb1",
+          "fileCount": 9,
+          "byteLength": 19857
+        }
+      }
+    },
+    {
+      "name": "@aops/host-registration",
+      "version": "0.0.1",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "apps/aops/packages/aops-host-registration",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:ffde9b6f29cf0e3e1575a0446acdaa3fe76920650d4747aa4689be07458c9f8d",
+          "fileCount": 8,
+          "byteLength": 21259
+        }
+      }
+    },
+    {
+      "name": "@aops/pg-bootstrap",
+      "version": "0.0.1",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "apps/aops/packages/aops-pg-bootstrap",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:a7b058634ca077cbab7bb1f181a72f4119e22e821a16224e8707cd37ef1c0565",
+          "fileCount": 17,
+          "byteLength": 290018
+        }
+      }
+    },
+    {
+      "name": "@aops/runtime-config",
+      "version": "0.0.1",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "apps/aops/packages/aops-runtime-config",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:377146c39379f5235cb751768980f5142d790f7460744926f49efa0ee9c5c182",
+          "fileCount": 8,
+          "byteLength": 26391
+        }
+      }
+    },
+    {
+      "name": "@aopslab/api-client",
+      "version": "0.0.15",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "apps/aops/packages/aops-api-client",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:33f2a8fc90b295c153311b02db4fd52f2eee6a2fc235d93fba67495c36503c26",
+          "fileCount": 8,
+          "byteLength": 32653
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-core-docman",
+      "version": "0.0.15",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/docman/docman-core",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:129338b5081f3f951ff987b99813eb0d4965201f336c9765e3ac3e1059916092",
+          "fileCount": 10,
+          "byteLength": 19839
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-dm-agentspace",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/agentspace/agentspace-dm",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:3f66d01a587542f1ab1b6ed6f48ffd91ece56cfb22ef4ba866a5f3564c0007ef",
+          "fileCount": 773,
+          "byteLength": 1345861
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-dm-chatv3",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/chatv3/chatv3-dm",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:60519f5bb081ee63ce147e7e74fae18081730e33a45f9451583d9df9efe74d9d",
+          "fileCount": 96,
+          "byteLength": 207823
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-dm-docman",
+      "version": "0.1.2",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/docman/docman-dm",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:e49b7360a28857ca933512d4ebfaec5a65404eabcec28b9da4ef2d090a18b4c6",
+          "fileCount": 273,
+          "byteLength": 593443
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-dm-projectman",
+      "version": "0.1.4",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/projectman/projectman-dm",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:995edd65baaa23fe0d68e2daea7ba823ee8dd575c7e472e46555fd629d600e63",
+          "fileCount": 293,
+          "byteLength": 536857
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-dm-sys",
+      "version": "0.1.86",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/sys/sys-dm",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:a426bd3f1f06c79cfc9495c499f5800772e7dba7e83b90704206520554d7feba",
+          "fileCount": 119,
+          "byteLength": 322527
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-agentspace",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/agentspace/agentspace-host-plugin",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:ea00feba1061e0df2f7f603d289af3d06d9230967bb2a918d3871cffc512c1b6",
+          "fileCount": 13,
+          "byteLength": 72750
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-chatv3",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/chatv3/chatv3-host-plugin",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:30441cea29045ecb5ff3568a33c4da56777e97cb2ec0de99682c7202168731b5",
+          "fileCount": 11,
+          "byteLength": 35457
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-docman",
+      "version": "0.1.4",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/docman/docman-host-plugin",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:b27befc4f43788b5649ef938eb88725d84ef8bc02c2e9de7e17dff05118a69bb",
+          "fileCount": 11,
+          "byteLength": 32169
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-projectman",
+      "version": "0.0.4",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/projectman/projectman-host-plugin",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:f1605d4fbb9f93f997bee8b4218b864f2d721bb621b9c42071852c7c66c951dd",
+          "fileCount": 9,
+          "byteLength": 23236
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-host-plugin-sys",
+      "version": "0.0.6",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/sys/sys-host-plugin",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:8573ce55635726eb3cc4614b1024cc7d30ba41300c5529c0b4c3e67beedb648b",
+          "fileCount": 9,
+          "byteLength": 24498
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-kit-agentspace",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/agentspace/agentspace-kit",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:b4b5f699ded51814107aca09ca18d0982090888d5874b23c8a8f29d5ccad98ae",
+          "fileCount": 52,
+          "byteLength": 417868
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-kit-chatv3",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/chatv3/chatv3-kit",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:aae69b091ca7675dd96c83bc3e325f07adbd110f2e276545a80a50606e239a11",
+          "fileCount": 12,
+          "byteLength": 59271
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-kit-docman",
+      "version": "0.1.4",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/docman/docman-kit",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:fb45c05c163d7283a748cc5bc5fe41500a2039f5b9ae64e6171535b0800bbf08",
+          "fileCount": 39,
+          "byteLength": 242753
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-kit-projectman",
+      "version": "0.1.5",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/projectman/projectman-kit",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:be74d86a4b0f8bfee5323c2e66b4f5172198de91eae66b6ff5e5c15f221550a0",
+          "fileCount": 48,
+          "byteLength": 349714
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-kit-sys",
+      "version": "0.0.5",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/sys/sys-kit",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:b331a0c1452413999a20e210d8fc0afb4e6fa51a7b1ea314c50eab3f1de06c72",
+          "fileCount": 39,
+          "byteLength": 135017
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-chatv3",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/chatv3/chatv3-pg-bootstrap",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:62fcdf19db69430c67aed496b51e8abb4793dcab2a4683f0dd67c7706c6d2d6b",
+          "fileCount": 20,
+          "byteLength": 355883
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-docman",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/docman/docman-pg-bootstrap",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:ac30d5266309b712f2b5297e2c99dc028f4ec56660b480525dee63efae3838e2",
+          "fileCount": 16,
+          "byteLength": 47048
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-projectman",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/projectman/projectman-pg-bootstrap",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:79c89a06aaa6338fca0a2074c6da1d12e85e2e0e39730ec7439b7de6d21eb14a",
+          "fileCount": 15,
+          "byteLength": 55406
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-pg-bootstrap-sys",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/sys/sys-pg-bootstrap",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:77f4928e6876292bcc058ad746edc6527125b0964212e5a724c486e32f65d810",
+          "fileCount": 15,
+          "byteLength": 30541
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-product-client-chatv3",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/chatv3/chatv3-product-client",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:a03e9f1215de163a47aaea2ec84b1fcef1f7fdcc513f0abaa76f4953704e7551",
+          "fileCount": 13,
+          "byteLength": 77612
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-product-docman",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/docman/docman-product",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:44acda89933ccd75626ae13e8498c0966e1afd0d86e83932e949b10b41c216e1",
+          "fileCount": 8,
+          "byteLength": 149556
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-product-projectman",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/projectman/projectman-product",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:ea1acca4ffc8fced21089749626d229b8d475291e6111f29302edf375f9d46de",
+          "fileCount": 8,
+          "byteLength": 136092
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-runtime-config-docman",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/docman/docman-runtime-config",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:e399936ae1a7c1a867f1e9b2db3e11f63fd1df2b1f040fe6e3d495e1091a169d",
+          "fileCount": 7,
+          "byteLength": 26580
+        }
+      }
+    },
+    {
+      "name": "@aopslab/domain-runtime-config-projectman",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/projectman/projectman-runtime-config",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:4539f2a69de56f2dc0d9581204599c0ef1e9d37469a61292c7eb4b57ec1fc0eb",
+          "fileCount": 6,
+          "byteLength": 22408
+        }
+      }
+    },
+    {
+      "name": "@aopslab/host-adapter-sveltekit",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-host-adapter-sveltekit"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-h+OILsjXIX3+G9xtWDGwOeh6x533MlA3s7I49NGKY5zkMkB78HdgpUQiCHZNCZT6qLuPt6J+HfUdPmOovEDIOg==",
+        "tarball": "https://registry.npmjs.org/@aopslab/host-adapter-sveltekit/-/host-adapter-sveltekit-0.1.1.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fhost-adapter-sveltekit@0.1.1"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/host-core",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-host-core"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-skAI9ZWrj3+Wvldh/d0CiSteH+10mOZKQ+4hdh47XtVLhi50ntINM5k8dr0NyXNq4fy1zrhcgTwhulsMO0gomA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/host-core/-/host-core-0.1.1.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fhost-core@0.1.1"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/host-registration",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-host-registration"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-oF5XclsIo9qtX5o5710HgNmhgckfRzLxMptQ3E5zf7uWd+icHdv0xcdE3RCfslnIr2fj/iswWlN4yWaDD/f8hA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/host-registration/-/host-registration-0.1.1.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fhost-registration@0.1.1"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/light-client-core",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/chatv3/light-client-core",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:3926de53e09260d7a40fafff2319748b2f7893ea0a861626ba74f9183c04e90a",
+          "fileCount": 14,
+          "byteLength": 36791
+        }
+      }
+    },
+    {
+      "name": "@aopslab/manifest",
+      "version": "0.1.3",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-manifest"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-qop926fs/ihKPVZKhvmQU9D+nok1FeZK3BZASJTRjEUJ7Zzuo3LwX8oiUGMrPQ8L9ZjecVnC8DyZe6+lCg51gA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/manifest/-/manifest-0.1.3.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fmanifest@0.1.3"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/projectman-cockpit-client",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "distribution": "community-source",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/aops-community",
+        "commit": {
+          "algorithm": "git-sha1",
+          "state": "bound-at-release",
+          "ref": "release.json#/source/commit"
+        },
+        "path": "domains/projectman/projectman-cockpit-client",
+        "tree": {
+          "algorithm": "sha256",
+          "digest": "sha256:496c03e9edee4c0cb483e99e49319de6117098e14069b7995f094a6c8f8f68ca",
+          "fileCount": 8,
+          "byteLength": 24418
+        }
+      }
+    },
+    {
+      "name": "@aopslab/xf-bm",
+      "version": "0.1.88",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-bm"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-nm9+SfTSEzl5ViIW6Drq5WcyOBDwBd3rzr0DmIo1i500CocU0QDDGKrg/SjmuPDH9QQOnivmW9BCCmenlzsjzQ==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-bm/-/xf-bm-0.1.88.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-bm@0.1.88"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-cli-operator",
+      "version": "0.0.2",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-cli-operator"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-VPuQF7EpY7rTzMWp838nABnbdFJU5e38KPYgHaHEtWzOnRkaxoeBV8sdO/a35HbBS6qoQb6EWSerMf/I02ba8g==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-cli-operator/-/xf-cli-operator-0.0.2.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-cli-operator@0.0.2"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-cli-ui",
+      "version": "0.1.13",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-cli-ui"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-QI5N04/ifKo3wSi2gbTJ+jaDyQWZyAP0BTiRkJ9e6aK2mtVI28BrL6KIouQRBqxBE0yBO28wXWZ3m3EOfVVy9g==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-cli-ui/-/xf-cli-ui-0.1.13.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-cli-ui@0.1.13"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-core",
+      "version": "0.1.68",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-core"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-X6ZKoqrcdhq4dMc/BDc1zycrsxL6AuxBEt0DBpLQaXVKWSIkLOiayOp67bEha1ToM4fCbWWCJvnQLXY/YovThA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-core/-/xf-core-0.1.68.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-core@0.1.68"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-db",
+      "version": "0.1.74",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-db"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-1Nt3bavzaAVMfhBoHiwqV917IuJhlsPeCrgyziVGV/E9RKSK11s+P2GhJN4U+ebwsRuqeAzxROTS3CaDV0YzjQ==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-db/-/xf-db-0.1.74.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db@0.1.74"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-db-drizzle",
+      "version": "0.1.80",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-db-drizzle"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-0AczRnkpbopyjoFT4X71WVACvpZaUOwSXT/a9d+dMAOEhFT2aSu8JOg5bz9Ty4J7RosT4Uq9CNAWVhLPhHvRsQ==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-db-drizzle/-/xf-db-drizzle-0.1.80.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db-drizzle@0.1.80"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-db-mongoose",
+      "version": "0.1.78",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-db-mongoose"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-2CkquaHQYjlxao9BQ1njfkChAycddMDarECN2IpN/4UrpfmFkTuy0w8SMwQdm30N9XzVKItDgwNho4gEFN8EoA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-db-mongoose/-/xf-db-mongoose-0.1.78.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db-mongoose@0.1.78"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-db-redis",
+      "version": "0.1.75",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-db-redis"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-tkmj3gNgJjkCuRxMI0P7kvtFW4jnD5NXBBBGUpEkWBPzvWT3cnt/l9qgcY7uTst+2QVRFClmr4n0ms++55lA7g==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-db-redis/-/xf-db-redis-0.1.75.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db-redis@0.1.75"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-dm",
+      "version": "0.1.83",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-dm"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-5xZeM0Ic7pUBfFvPIQzGY88IJmHbwVuYclPm/7PTn72+wrHwLJ8XFLKisktyZdV6Dh4ekl0naUTMfL4VlAjdGA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-dm/-/xf-dm-0.1.83.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-dm@0.1.83"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-dm-kits",
+      "version": "0.1.13",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-dm-kits"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-9vA7ylOIuMddaXoHq9ipU7SK/SkLq/Bbl8mbzxr744A4MAJdD5Ot0GFqaQuh4Xb2SNfZaOghxkco7z+TONirHg==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-dm-kits/-/xf-dm-kits-0.1.13.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-dm-kits@0.1.13"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-i18n",
+      "version": "0.1.73",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-i18n"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-0tOZSxfr2ft2pHEA98zX2EpkZHzAvhBTbn7Z/E2d4cwE1R64NeLYrSK9GmTSiC+1F63aBqlgLZ7pGc31OaNjFQ==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-i18n/-/xf-i18n-0.1.73.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-i18n@0.1.73"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-logger",
+      "version": "0.1.61",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-logger"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-LCEqKkUw5kIwUdvuxxwvZPu5CmaC60oE9kZycS8PUZlthVoD3Y6PsBfxKMHsywTptEWVEdhJXJ5VcGowmrDvXQ==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-logger/-/xf-logger-0.1.61.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-logger@0.1.61"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-secure-store",
+      "version": "0.1.27",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": false,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-secure-store"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-urUfhNOTFowy3I+vDEK9EearPmsxZkx7saA9QgrFKGtwGFZ7EJneD318qt4PBcx2ey2UwpQONcxhuoXwjnPnpA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-secure-store/-/xf-secure-store-0.1.27.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-secure-store@0.1.27"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-ui-composition-react",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-ui-composition-react"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-VpM4YsajBjQO6KwM6PjxYqOcS0WNBzndCngov2y/5xZO1BE+HPL6kb1jmZDojw0Aw5jpnisCxM82/LwBX1uhxA==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-ui-composition-react/-/xf-ui-composition-react-0.1.1.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-composition-react@0.1.1"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-ui-foundation",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-ui-foundation"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-plgrAnSZvdhEAx3zTtDVum0IIz2FSZeaqMjLm/MlxK4D/0XERSas2WKszse+AtTIc/pBgB+KVsOx58NFDc9Eag==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-ui-foundation/-/xf-ui-foundation-0.1.1.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-foundation@0.1.1"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-ui-plugin",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-ui-plugin"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-9X9R+ogk/NoLmtoEfwdG4B46RDwfWo8i81he+vdcyVegpNjt0R0YQj0ivvxHu/M/1XLuqWtb+HDQDj1rIIZfUQ==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-ui-plugin/-/xf-ui-plugin-0.1.1.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-plugin@0.1.1"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-ui-shell-react",
+      "version": "0.1.1",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-ui-shell-react"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-KSUktoT6DYZauUAWNgbOz/KiWteslt5W8F/L5wXM9FSCmBMmdL5HjGS9v4dXMDUXYFRyfNFyM/5z4vYDD9afbw==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-ui-shell-react/-/xf-ui-shell-react-0.1.1.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-shell-react@0.1.1"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    },
+    {
+      "name": "@aopslab/xf-validation",
+      "version": "0.1.79",
+      "license": "Apache-2.0",
+      "distribution": "public-npm",
+      "includedInCommunityRuntimeClosure": true,
+      "source": {
+        "repository": "https://github.com/eeemzs/xf-packages",
+        "commit": "59fb78a0090bde99b108803b65dc8a7712f01188",
+        "ref": "refs/heads/main",
+        "path": "xf-validation"
+      },
+      "npm": {
+        "registry": "https://registry.npmjs.org",
+        "integrity": "sha512-17iBiOBWIEFUfIkZ+CarZtVLneDHraBCubkJsJpJkhXyOqcJiGYCe/9IPtFhp6JZSR1i2pYLCC9ejgMpX3J0oQ==",
+        "tarball": "https://registry.npmjs.org/@aopslab/xf-validation/-/xf-validation-0.1.79.tgz",
+        "attestations": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-validation@0.1.79"
+      },
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "buildType": "https://slsa-framework.github.io/github-actions-buildtypes/workflow/v1",
+        "workflow": ".github/workflows/bootstrap-npm-release.yml",
+        "invocation": "https://github.com/eeemzs/xf-packages/actions/runs/29192647803/attempts/1"
+      }
+    }
+  ]
+}

@@ -7,19 +7,19 @@ import { banner, logError, logInfo, logSuccess } from '@aopslab/xf-cli-ui'
 import {
   getHostRegistrationsDir,
   listInstalledHostRegistrations,
-  loadHostRegistrationFromCommand,
-  loadHostRegistrationFromSpecifier,
+  materializeHostRegistrationManifest,
   mergeHostRegistrationsIntoConfig,
+  normalizeHostRegistrationManifest,
   unregisterHostRegistration,
   writeHostRegistration,
-} from '@aops/host-registration'
+} from '../utils/community-host-runtime.js'
 import {
   getAopsServerEnvPath,
   inferAopsRepoDialect,
   readAopsServerEnvConfig,
   writeAopsServerEnvConfig,
   type AopsHostLogLevel,
-} from '@aops/runtime-config'
+} from '../utils/community-host-runtime.js'
 
 import { createCliApiClientFromOptions, fetchCliHealth } from '../utils/api.js'
 import { applyCommonOptions, compactPayload, type CommonOptions } from '../utils/command.js'
@@ -39,7 +39,6 @@ type HostRegistrationOptions = CommonOptions & {
 
 type HostRegisterOptions = HostRegistrationOptions & {
   from?: string
-  fromCommand?: string
 }
 
 type HostUnregisterOptions = HostRegistrationOptions & {
@@ -502,34 +501,55 @@ function printHostRegistrationResult(payload: unknown, options: HostRegistration
   console.log(JSON.stringify(payload, null, 2))
 }
 
-function requireSingleRegistrationSource(options: HostRegisterOptions): { kind: 'specifier' | 'command'; value: string } {
+function requireCommunityRegistrationJsonPath(options: HostRegisterOptions): string {
   const from = options.from?.trim()
-  const fromCommand = options.fromCommand?.trim()
-
-  if (from && fromCommand) {
-    throw new Error('Provide only one of --from or --from-command.')
+  if (!from) throw new Error('Missing registration source. Use --from /path/to/host-registration.json.')
+  const filePath = path.resolve(process.cwd(), from)
+  if (path.extname(filePath).toLowerCase() !== '.json') {
+    throw new Error('Community host registration accepts JSON files only.')
   }
-  if (from) return { kind: 'specifier', value: from }
-  if (fromCommand) return { kind: 'command', value: fromCommand }
-  throw new Error('Missing registration source. Use --from or --from-command.')
+  const stats = fs.lstatSync(filePath)
+  if (!stats.isFile() || stats.isSymbolicLink()) {
+    throw new Error(`Community host registration must be a regular JSON file: ${filePath}`)
+  }
+  return fs.realpathSync(filePath)
+}
+
+function loadCommunityHostRegistrationJson(filePath: string) {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+  } catch (error) {
+    throw new Error(`Host registration JSON parse failed: ${error instanceof Error ? error.message : String(error)}`)
+  }
+  const materialized = materializeHostRegistrationManifest(
+    normalizeHostRegistrationManifest(parsed),
+    path.dirname(filePath),
+  )
+  return normalizeHostRegistrationManifest({
+    ...materialized,
+    provenance: {
+      ...materialized.provenance,
+      source: filePath,
+      sourceType: 'file',
+      registeredAt: new Date().toISOString(),
+    },
+  })
 }
 
 export async function runHostRegister(options: HostRegisterOptions = {}): Promise<void> {
   const interactive = !options.yes && !options.json
-  const source = requireSingleRegistrationSource(options)
+  const source = requireCommunityRegistrationJsonPath(options)
   const registrationsDir = resolveHostRegistrationsDir(options)
 
   if (interactive) {
     banner('AOPS Host Register')
     logInfo(`Registry: ${registrationsDir}`)
-    logInfo(`Source: ${source.value}`)
+    logInfo(`Source: ${source}`)
   }
 
   try {
-    const manifest =
-      source.kind === 'command'
-        ? await loadHostRegistrationFromCommand(source.value, { cwd: process.cwd(), processEnv: process.env })
-        : await loadHostRegistrationFromSpecifier(source.value, { cwd: process.cwd(), processEnv: process.env })
+    const manifest = loadCommunityHostRegistrationJson(source)
     const filePath = writeHostRegistration(manifest, {
       registrationsDir,
       processEnv: process.env,
@@ -1244,9 +1264,8 @@ export function makeHostCommand(): Command {
     applyCommonOptions(
       cmd
         .command('register')
-        .description('Install a host registration manifest into the operator registry')
-        .option('--from <specifier>', 'Path or module specifier that exports a host registration manifest')
-        .option('--from-command <command>', 'Shell command that prints a host registration manifest JSON document')
+        .description('Install a JSON host registration manifest into the operator registry')
+        .requiredOption('--from <path>', 'Path to a host registration JSON document')
         .action(async (options: HostRegisterOptions) => {
           await runHostRegister(options)
         }),
@@ -1432,8 +1451,6 @@ Examples:
   aops-cli host database dump restore --input ./aops.dump --preview
   aops-cli host database dump restore --input ./aops.dump --clean --apply --confirm
   aops-cli host register --from /path/to/host-registration.json
-  aops-cli host register --from @scope/pkg/host-registration
-  aops-cli host register --from-command 'fileman manifest host-registration --json'
   aops-cli host registrations
   aops-cli host explain-registration --domain fileman
   aops-cli host unregister --domain fileman

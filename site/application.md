@@ -62,7 +62,7 @@ Build Week creates a useful forcing function: compress a broad internal platform
 ## Continuation plan
 
 1. Improve first-run onboarding, backup/restore guidance, and failure recovery inside the existing local boundary.
-2. Resolve the operator-owned license and NOTICE decision, rerun the legal gate, and publish only after explicit authorization.
+2. Complete the remaining SBOM/provenance, migration-safety, and final-review gates, and publish only after explicit authorization.
 3. Collect Community feedback without silently expanding the allowlist.
 4. Treat hosted collaboration as a separate product gate requiring cloud identity, recovery, abuse controls, and stronger chat guarantees.
 
@@ -76,4 +76,4 @@ Build Week creates a useful forcing function: compress a broad internal platform
 
 ## Submission state
 
-No public repository, deployed site, public video URL, or application submission is claimed by this draft. Those are external publication actions and require explicit operator authorization. LICENSE and NOTICE policy remains the open publication gate; technical work continues without guessing that decision.
+No deployed site, public video URL, release, or application submission is claimed by this draft. Those are external publication actions and require explicit operator authorization. Apache-2.0 LICENSE and NOTICE policy is selected; technical work continues on the remaining release evidence without claiming publication.

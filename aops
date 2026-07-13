@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+AOPS_CLONE_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+exec node "$AOPS_CLONE_ROOT/deploy/community/aops-launcher.mjs" "$@"

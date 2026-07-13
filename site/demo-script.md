@@ -9,7 +9,7 @@ Status: recording-ready script and shot list. The product site and runtime remai
 - Do not show `.env`, invites, member tokens, session-store paths, database URLs, or unrelated private project data.
 - Use only the disposable Community candidate and the deterministic demo slug `aops-community-five-minute-demo`.
 - Keep the host URL visibly on `http://127.0.0.1:5900` when the address bar is shown.
-- End with reset and an empty-state proof. Do not imply public availability or a decided license.
+- End with reset and an empty-state proof. Do not imply public availability or release authorization; Apache-2.0 is selected while publication gates remain open.
 
 ## Timeline and narration
 
@@ -91,7 +91,7 @@ docker compose exec app node deploy/community/demo.mjs reset
 docker compose exec app node deploy/community/demo.mjs status
 ```
 
-**Narration:** “Reset removes only IDs owned by the demo state and verifies the project is absent. The technical candidate works, but public release is deliberately not claimed: licensing and NOTICE policy remain an explicit operator decision.”
+**Narration:** “Reset removes only IDs owned by the demo state and verifies the project is absent. The technical candidate works and is licensed under Apache-2.0, but public release is deliberately not claimed while evidence and operator-authorization gates remain open.”
 
 ## Capture checklist
 

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "aops-community-public-aops-source-v1",
-  "planDigest": "sha256:35836f10c5269c211f4422a835d0bd84fa2428e30b886e169740dcd673d1618f",
-  "packageCount": 33,
+  "planDigest": "sha256:a7f4267ebda4e819075234bcb0f3f76460ecbc21df74606cdd13f3c802350864",
+  "packageCount": 32,
   "families": [
     "foundation",
     "agentspace",
@@ -41,12 +41,6 @@
       "version": "0.0.15",
       "family": "foundation",
       "directory": "apps/aops/packages/aops-api-client"
-    },
-    {
-      "name": "@aopslab/cli-kit",
-      "version": "0.0.1",
-      "family": "foundation",
-      "directory": "apps/aops/packages/aops-cli-kit"
     },
     {
       "name": "@aopslab/domain-core-docman",
@@ -269,18 +263,6 @@
     "apps/aops/packages/aops-api-client/src/index.ts",
     "apps/aops/packages/aops-api-client/tsconfig.json",
     "apps/aops/packages/aops-api-client/tsconfig.lib.json",
-    "apps/aops/packages/aops-cli-kit/LICENSE",
-    "apps/aops/packages/aops-cli-kit/NOTICE",
-    "apps/aops/packages/aops-cli-kit/README.md",
-    "apps/aops/packages/aops-cli-kit/package.json",
-    "apps/aops/packages/aops-cli-kit/scripts/keytar-smoke.mjs",
-    "apps/aops/packages/aops-cli-kit/src/__tests__/refresh-race.test.ts",
-    "apps/aops/packages/aops-cli-kit/src/api.ts",
-    "apps/aops/packages/aops-cli-kit/src/config.ts",
-    "apps/aops/packages/aops-cli-kit/src/index.ts",
-    "apps/aops/packages/aops-cli-kit/src/refresh-race.ts",
-    "apps/aops/packages/aops-cli-kit/tsconfig.json",
-    "apps/aops/packages/aops-cli-kit/tsconfig.lib.json",
     "apps/aops/packages/aops-error-catalog/LICENSE",
     "apps/aops/packages/aops-error-catalog/NOTICE",
     "apps/aops/packages/aops-error-catalog/package.json",

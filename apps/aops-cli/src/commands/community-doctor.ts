@@ -10,6 +10,7 @@ import {
   readCommunityRuntimePort,
 } from '../lib/community-lifecycle.js'
 import { communityProcessRuntime } from '../lib/community-docker-adapter.js'
+import { resolveCommunityInstanceLayout } from '../lib/community-instance-layout.js'
 
 export type CommunityDoctorCheck = {
   id: string
@@ -30,6 +31,12 @@ export type CommunityDoctorDependencies = {
   arch?: string
   statfs?: (candidate: string) => { bavail: bigint; bsize: bigint }
   portProbe?: (port: number) => Promise<boolean>
+}
+
+function installSelection(options: CommunityDoctorOptions): { instanceName?: string; dataRoot?: string } {
+  if (options.dataRoot) return { instanceName: options.instance, dataRoot: options.dataRoot }
+  const layout = resolveCommunityInstanceLayout({ instanceId: options.instance })
+  return { instanceName: layout.instanceId, dataRoot: layout.dataRoot }
 }
 
 function existingAncestor(candidate: string): string {
@@ -126,7 +133,7 @@ export async function inspectCommunityDoctor(
     detail: compose.status === 0 ? String(compose.stdout).trim() : String(compose.stderr || compose.error?.message || 'docker compose unavailable').trim(),
   })
 
-  const inspection = inspectCommunityInstall({ instanceName: options.instance, dataRoot: options.dataRoot })
+  const inspection = inspectCommunityInstall(installSelection(options))
   const filesystem = dependencies.statfs?.(existingAncestor(inspection.paths.dataRoot))
     ?? statfsSync(existingAncestor(inspection.paths.dataRoot), { bigint: true })
   const freeBytes = filesystem.bavail * filesystem.bsize

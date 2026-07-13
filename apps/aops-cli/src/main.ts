@@ -46,7 +46,7 @@ export function buildCommunityProgram(): Command {
   program
     .name('aops-cli')
     .description('AOPS Community operator CLI for local-trusted, self-hosted workflows')
-    .version('0.0.1', '-V, --cli-version', 'output the CLI version')
+    .version("0.0.1", '-V, --cli-version', 'output the CLI version')
 
   program.addCommand(makeInitCommand()) // community-family:init
   program.addCommand(makeStartCommand()) // community-family:start
@@ -75,9 +75,9 @@ export function buildCommunityProgram(): Command {
   program.addCommand(makeSkillCommand()) // community-family:skill
   program.addCommand(makeDocCommand()) // community-family:doc
   program.addCommand(makePmCommand()) // community-family:pm
-  program.addCommand(makeCommunityServerCommand()) // community-family:server
+  program.addCommand(makeCommunityServerCommand({ cliVersion: "0.0.1" })) // community-family:server
   program.addCommand(makeCommunityDoctorCommand()) // community-family:doctor
-  program.addCommand(makeCommunityConsoleCommand()) // community-family:console
+  program.addCommand(makeCommunityConsoleCommand({ cliVersion: "0.0.1" })) // community-family:console
   program.addHelpText('after', `
 AOPS Community is a single-user, self-hosted/local-trusted distribution.
 Canonical writes go to the local AOPS server; .aops/** remains a read-only cache.

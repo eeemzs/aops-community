@@ -70,6 +70,9 @@ jobs:
           RELEASE_REF: ${{ inputs.release_ref }}
         run: |
           set -euo pipefail
+          [[ "$(git ls-files --stage -- aops | awk '{print $1}')" == "100755" ]]
+          [[ "$(git ls-files --stage -- aops.ps1 | awk '{print $1}')" == "100644" ]]
+          [[ "$(git ls-files --stage -- deploy/community/aops-launcher.mjs | awk '{print $1}')" == "100644" ]]
           node scripts/community-export/community-release-packaging.mjs verify-commit \
             --checkout-root "$GITHUB_WORKSPACE" \
             --expected-tag "$RELEASE_REF" \
@@ -112,19 +115,16 @@ jobs:
           PREVIOUS_RELEASE_REF: ${{ inputs.previous_release_ref }}
         run: |
           set -euo pipefail
-          TARGET_CLI_REF="$(jq -r '.cli.artifactRef' release/release.json)"
-          target_cli() { npx --yes "./release/${TARGET_CLI_REF}" "$@"; }
+          target_cli() { ./aops "$@"; }
 
           if [[ -n "$PREVIOUS_RELEASE_REF" ]]; then
             node previous/scripts/community-export/community-release-packaging.mjs verify-commit \
               --checkout-root "$GITHUB_WORKSPACE/previous" \
               --expected-tag "$PREVIOUS_RELEASE_REF" \
               --json
-            PREVIOUS_CLI_REF="$(jq -r '.cli.artifactRef' previous/release/release.json)"
-            (cd previous && npx --yes "./release/${PREVIOUS_CLI_REF}" server setup \
-              --release-dir ./release --data-root "$DATA_ROOT" --json)
+            (cd previous && ./aops server setup --data-root "$DATA_ROOT" --json)
           else
-            target_cli server setup --release-dir ./release --data-root "$DATA_ROOT" --json
+            target_cli server setup --data-root "$DATA_ROOT" --json
           fi
 
           STATE="$DATA_ROOT/instances/default/install-state.json"
@@ -132,20 +132,35 @@ jobs:
           COMPOSE_FILE="$DATA_ROOT/instances/default/runtime/compose.yaml"
           PROJECT="$(jq -r '.composeProjectName' "$STATE")"
           compose() { docker compose --project-name "$PROJECT" --env-file "$ENV_FILE" --file "$COMPOSE_FILE" "$@"; }
+          assert_legal_matches() {
+            local release_root="$1"
+            for LEGAL_FILE in LICENSE NOTICE THIRD_PARTY_NOTICES THIRD_PARTY_NOTICES.inventory.json; do
+              HOST_DIGEST="$(node -e 'const fs=require("node:fs"); const crypto=require("node:crypto"); process.stdout.write(crypto.createHash("sha256").update(fs.readFileSync(process.argv[1])).digest("hex"))' "$release_root/$LEGAL_FILE")"
+              IMAGE_DIGEST="$(compose exec -T app node -e 'const fs=require("node:fs"); const crypto=require("node:crypto"); process.stdout.write(crypto.createHash("sha256").update(fs.readFileSync(process.argv[1])).digest("hex"))' "/workspace/$LEGAL_FILE")"
+              [[ "$IMAGE_DIGEST" == "$HOST_DIGEST" ]]
+            done
+          }
           compose exec -T postgres psql -U aops -d aops --set ON_ERROR_STOP=1 --command \
             "CREATE TABLE IF NOT EXISTS public.aops_release_qa (id integer PRIMARY KEY, marker text NOT NULL); INSERT INTO public.aops_release_qa VALUES (1, 'persists') ON CONFLICT (id) DO UPDATE SET marker = EXCLUDED.marker;"
 
           if [[ -n "$PREVIOUS_RELEASE_REF" ]]; then
-            target_cli server update --release-dir ./release --data-root "$DATA_ROOT" --json
+            assert_legal_matches previous/release
+            target_cli server update --data-root "$DATA_ROOT" --json
             target_cli server status --data-root "$DATA_ROOT" --json
             [[ "$(compose exec -T postgres psql -U aops -d aops --tuples-only --no-align --command 'SELECT marker FROM public.aops_release_qa WHERE id = 1')" == "persists" ]]
+            assert_legal_matches release
             target_cli server rollback --data-root "$DATA_ROOT" --confirm-data-rewind --json
+            assert_legal_matches previous/release
+            ACTIVE_RELEASE_ROOT="previous/release"
+          else
+            ACTIVE_RELEASE_ROOT="release"
           fi
 
           target_cli server backup --data-root "$DATA_ROOT" --json
           target_cli server stop --data-root "$DATA_ROOT" --json
           target_cli server start --data-root "$DATA_ROOT" --json
           target_cli server status --data-root "$DATA_ROOT" --json
+          assert_legal_matches "$ACTIVE_RELEASE_ROOT"
           [[ "$(compose exec -T postgres psql -U aops -d aops --tuples-only --no-align --command 'SELECT marker FROM public.aops_release_qa WHERE id = 1')" == "persists" ]]
 
   windows-cli-contract:
@@ -166,8 +181,7 @@ jobs:
       - name: Run the bundled CLI without a workspace install
         shell: pwsh
         run: |
-          $cliRef = (Get-Content release/release.json | ConvertFrom-Json).cli.artifactRef
-          npx --yes "./release/$cliRef" server --help
+          .\aops.ps1 server --help
 
   macos-cli-contract:
     name: macOS hosted clone and local CLI contract (no Docker claim)
@@ -188,14 +202,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          CLI_REF="$(jq -r '.cli.artifactRef' release/release.json)"
-          npx --yes "./release/${CLI_REF}" server --help
+          ./aops server --help
 
   macos-docker-lifecycle:
     name: macOS real-machine Docker lifecycle
     if: ${{ inputs.run_macos_self_hosted }}
     needs: tag-contract
     runs-on: [self-hosted, macOS, aops-community-clean]
+    env:
+      DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -209,15 +224,101 @@ jobs:
           node-version: '22'
       - name: Prove anonymous pull and lifecycle on Docker Desktop
         shell: bash
-        env:
-          DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
           docker version
-          CLI_REF="$(jq -r '.cli.artifactRef' release/release.json)"
-          cli() { npx --yes "./release/${CLI_REF}" "$@"; }
-          cli server setup --release-dir ./release --data-root "$DATA_ROOT" --json
+          cli() { ./aops "$@"; }
+          cli server setup --data-root "$DATA_ROOT" --json
           cli server backup --data-root "$DATA_ROOT" --json
           cli server stop --data-root "$DATA_ROOT" --json
           cli server start --data-root "$DATA_ROOT" --json
           cli server status --data-root "$DATA_ROOT" --json
+          STATE="$DATA_ROOT/instances/default/install-state.json"
+          ENV_FILE="$DATA_ROOT/instances/default/runtime.env"
+          COMPOSE_FILE="$DATA_ROOT/instances/default/runtime/compose.yaml"
+          PROJECT="$(jq -r '.composeProjectName' "$STATE")"
+          for LEGAL_FILE in LICENSE NOTICE THIRD_PARTY_NOTICES THIRD_PARTY_NOTICES.inventory.json; do
+            HOST_DIGEST="$(shasum -a 256 "release/$LEGAL_FILE" | awk '{print $1}')"
+            IMAGE_DIGEST="$(docker compose --project-name "$PROJECT" --env-file "$ENV_FILE" --file "$COMPOSE_FILE" exec -T app node -e 'const fs=require("node:fs"); const crypto=require("node:crypto"); process.stdout.write(crypto.createHash("sha256").update(fs.readFileSync(process.argv[1])).digest("hex"))' "/workspace/$LEGAL_FILE")"
+            [[ "$IMAGE_DIGEST" == "$HOST_DIGEST" ]]
+          done
+
+      - name: Always remove the self-hosted macOS lifecycle state and volume
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -u
+          EXPECTED_DATA_ROOT_NAME="aops-community-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          EXPECTED_DATA_ROOT="$RUNNER_TEMP/$EXPECTED_DATA_ROOT_NAME"
+          if [[ "$DATA_ROOT" != "$EXPECTED_DATA_ROOT" ]]; then
+            echo 'Refusing cleanup outside the exact run-scoped data root.' >&2
+            exit 1
+          fi
+          if [[ -L "$RUNNER_TEMP" || ! -d "$RUNNER_TEMP" ]]; then
+            echo 'Refusing cleanup through a linked or missing runner temp root.' >&2
+            exit 1
+          fi
+          RUNNER_TEMP_PHYSICAL="$(cd -- "$RUNNER_TEMP" && pwd -P)" || exit 1
+          if [[ "$RUNNER_TEMP_PHYSICAL" != "$RUNNER_TEMP" ]]; then
+            echo 'Refusing cleanup through a non-physical runner temp path.' >&2
+            exit 1
+          fi
+          if [[ -L "$DATA_ROOT" ]]; then
+            rm -- "$DATA_ROOT" || true
+            echo 'Removed only the unsafe data-root link; refusing external cleanup.' >&2
+            exit 1
+          fi
+          if [[ ! -e "$DATA_ROOT" ]]; then
+            exit 0
+          fi
+          if [[ ! -d "$DATA_ROOT" ]]; then
+            echo 'Refusing cleanup of a non-directory data-root entry.' >&2
+            exit 1
+          fi
+          DATA_ROOT_PHYSICAL="$(cd -- "$DATA_ROOT" && pwd -P)" || exit 1
+          if [[ "$DATA_ROOT_PHYSICAL" != "$RUNNER_TEMP_PHYSICAL/$EXPECTED_DATA_ROOT_NAME" \
+            || "${DATA_ROOT_PHYSICAL%/*}" != "$RUNNER_TEMP_PHYSICAL" ]]; then
+            echo 'Refusing cleanup outside the physical direct child of runner temp.' >&2
+            exit 1
+          fi
+          INSTANCES_ROOT="$DATA_ROOT/instances"
+          INSTANCE_ROOT="$INSTANCES_ROOT/default"
+          STATE="$INSTANCE_ROOT/install-state.json"
+          for UNSAFE_LINK in "$INSTANCES_ROOT" "$INSTANCE_ROOT" "$STATE"; do
+            if [[ -L "$UNSAFE_LINK" ]]; then
+              rm -- "$UNSAFE_LINK" || true
+              echo 'Removed only an unsafe managed-state link; refusing external cleanup.' >&2
+              exit 1
+            fi
+          done
+          CLEANUP_FAILED=0
+          PROJECT=''
+          VOLUME=''
+          if [[ -f "$STATE" ]]; then
+            IDENTITY="$(node -e 'const fs=require("node:fs");const s=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));process.stdout.write(String(s.composeProjectName||"")+"\t"+String(s.postgresVolumeName||""));' "$STATE")"
+            IFS=$'\t' read -r PROJECT VOLUME <<< "$IDENTITY"
+            [[ "$PROJECT" =~ ^aops-community-[a-f0-9]{12}$ ]] || PROJECT=''
+            [[ "$VOLUME" =~ ^aops-community-[a-f0-9]{12}-pg-[a-z0-9-]+$ ]] || VOLUME=''
+          fi
+          if [[ -x ./aops && -d "$DATA_ROOT/instances/default" ]]; then
+            ./aops server reset \
+              --data-root "$DATA_ROOT" \
+              --confirm-data-loss \
+              --confirm-instance default \
+              --json || CLEANUP_FAILED=1
+          fi
+          if [[ -n "$PROJECT" ]]; then
+            CONTAINERS="$(docker ps --all --quiet --filter "label=com.docker.compose.project=$PROJECT")" || CLEANUP_FAILED=1
+            while IFS= read -r CONTAINER_ID; do
+              [[ -z "$CONTAINER_ID" ]] || docker rm --force "$CONTAINER_ID" || CLEANUP_FAILED=1
+            done <<< "$CONTAINERS"
+          fi
+          if [[ -n "$VOLUME" ]] && docker volume inspect "$VOLUME" >/dev/null 2>&1; then
+            docker volume rm "$VOLUME" || CLEANUP_FAILED=1
+          fi
+          rm -rf -- "$DATA_ROOT" || CLEANUP_FAILED=1
+          [[ ! -e "$DATA_ROOT" ]] || CLEANUP_FAILED=1
+          if [[ -n "$VOLUME" ]] && docker volume inspect "$VOLUME" >/dev/null 2>&1; then
+            CLEANUP_FAILED=1
+          fi
+          exit "$CLEANUP_FAILED"

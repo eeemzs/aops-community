@@ -58,13 +58,21 @@ function expectedBundleFiles(manifest) {
     manifest.cli.artifactRef,
     manifest.compose.ref,
     ...manifest.migrations.files.map((entry) => entry.ref),
+    manifest.legal.license.ref,
+    manifest.legal.notice.ref,
+    manifest.legal.thirdPartyNotices.ref,
+    manifest.legal.thirdPartyInventory.ref,
     manifest.evidence.sbom.ref,
     manifest.evidence.provenance.ref,
     manifest.evidence.signature.bundleRef,
   ];
   if (manifest.source.treeRef !== 'source.SHA256SUMS') fail('community_release_packaging_source_manifest_ref_invalid');
-  if (manifest.cli.artifactRef !== `aops-aops-cli-${manifest.releaseVersion}.tgz`) fail('community_release_packaging_cli_ref_invalid');
+  if (manifest.cli.artifactRef !== `aopslab-aops-cli-${manifest.releaseVersion}.tgz`) fail('community_release_packaging_cli_ref_invalid');
   if (manifest.compose.ref !== 'compose.yaml') fail('community_release_packaging_compose_ref_invalid');
+  if (manifest.legal.license.ref !== 'LICENSE') fail('community_release_packaging_license_ref_invalid');
+  if (manifest.legal.notice.ref !== 'NOTICE') fail('community_release_packaging_notice_ref_invalid');
+  if (manifest.legal.thirdPartyNotices.ref !== 'THIRD_PARTY_NOTICES') fail('community_release_packaging_third_party_notices_ref_invalid');
+  if (manifest.legal.thirdPartyInventory.ref !== 'THIRD_PARTY_NOTICES.inventory.json') fail('community_release_packaging_third_party_inventory_ref_invalid');
   if (manifest.evidence.sbom.ref !== 'SBOM.spdx.json') fail('community_release_packaging_sbom_ref_invalid');
   if (manifest.evidence.provenance.ref !== 'release.provenance.json') fail('community_release_packaging_provenance_ref_invalid');
   if (manifest.evidence.signature.bundleRef !== 'release.sigstore.json') fail('community_release_packaging_signature_ref_invalid');

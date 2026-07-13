@@ -12,6 +12,7 @@
     "cli",
     "compose",
     "migrations",
+    "legal",
     "evidence"
   ],
   "properties": {
@@ -103,16 +104,41 @@
       "required": [
         "packageName",
         "version",
+        "commandSchemaVersion",
+        "bundleSha256",
+        "bundleByteLength",
+        "npmDistTag",
         "artifactRef",
-        "artifactSha256"
+        "artifactSha256",
+        "npmIntegrity"
       ],
       "properties": {
         "packageName": {
-          "const": "@aops/aops-cli"
+          "const": "@aopslab/aops-cli"
         },
         "version": {
           "type": "string",
           "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$"
+        },
+        "commandSchemaVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "bundleSha256": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "bundleByteLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "npmDistTag": {
+          "enum": [
+            "latest",
+            "next"
+          ]
         },
         "artifactRef": {
           "type": "string",
@@ -121,6 +147,10 @@
         "artifactSha256": {
           "type": "string",
           "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "npmIntegrity": {
+          "type": "string",
+          "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
         }
       }
     },
@@ -181,6 +211,86 @@
                 "type": "string",
                 "pattern": "^sha256:[a-f0-9]{64}$"
               }
+            }
+          }
+        }
+      }
+    },
+    "legal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "license",
+        "notice",
+        "thirdPartyNotices",
+        "thirdPartyInventory"
+      ],
+      "properties": {
+        "license": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref",
+            "sha256"
+          ],
+          "properties": {
+            "ref": {
+              "const": "LICENSE"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "notice": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref",
+            "sha256"
+          ],
+          "properties": {
+            "ref": {
+              "const": "NOTICE"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "thirdPartyNotices": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref",
+            "sha256"
+          ],
+          "properties": {
+            "ref": {
+              "const": "THIRD_PARTY_NOTICES"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          }
+        },
+        "thirdPartyInventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref",
+            "sha256"
+          ],
+          "properties": {
+            "ref": {
+              "const": "THIRD_PARTY_NOTICES.inventory.json"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
             }
           }
         }

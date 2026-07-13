@@ -224,7 +224,9 @@ export function App() {
     enabled: trustedReady && projectsQuery.isSuccess,
     // Tasks are a PM-section read: don't prefetch them from other pages, and
     // keep them deferred in boards cards mode (per-board lazy loads instead).
-    tasksEnabled: (isProjectmanPage(resolvedPageId) || pendingTaskLookup) && !(isBoardsSection && boardsCardsMode)
+    tasksEnabled:
+      (isProjectsPage || isProjectmanPage(resolvedPageId) || pendingTaskLookup) &&
+      !(isBoardsSection && boardsCardsMode)
   });
 
   // Board selection is owned at App level so the boards navigator can render

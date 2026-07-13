@@ -37,6 +37,8 @@ interface AopsCockpitTags {
   projectDetailTabsLabel: string;
   projectTabOverview: string;
   projectTabOverviewHint: string;
+  projectTabActivity: string;
+  projectTabActivityHint: string;
   projectTabPlanning: string;
   projectTabPlanningHint: string;
   projectTabMemory: string;
@@ -61,6 +63,40 @@ interface AopsCockpitTags {
   projectSummaryLoading: string;
   projectSummaryError: string;
   projectSummaryEmpty: string;
+  projectPulseTitle: string;
+  projectPulseMessage: string;
+  projectPulseOpenWork: string;
+  projectPulsePendingReviews: string;
+  projectPulseActiveMissions: string;
+  projectPulseRunningRuns: string;
+  projectDomainProjectman: string;
+  projectDomainAgentspace: string;
+  projectDomainDocman: string;
+  projectDomainRunner: string;
+  projectDomainReady: string;
+  projectDomainLoading: string;
+  projectDomainError: string;
+  projectDomainEmpty: string;
+  projectDomainLatest: string;
+  projectActivityTitle: string;
+  projectActivityMessage: string;
+  projectActivitySnapshotNote: string;
+  projectActivityRangeLabel: string;
+  projectActivityRangeDay: string;
+  projectActivityRangeWeek: string;
+  projectActivityRangeMonth: string;
+  projectActivityRangeAll: string;
+  projectActivityTotal: string;
+  projectActivityVisible: string;
+  projectActivityDomains: string;
+  projectActivityLatest: string;
+  projectActivityEmpty: string;
+  projectActivityOpen: string;
+  projectActivityChanges: string;
+  projectLatestDayTitle: string;
+  projectLatestDayMessage: string;
+  projectLatestDayOpenAll: string;
+  projectLatestDayEmpty: string;
   projectDocGroups: string;
   projectReferences: string;
   projectSlug: string;
@@ -761,6 +797,8 @@ const resources = {
     projectDetailTabsLabel: { en: "Project detail sections", tr: "Proje detay sekmeleri" },
     projectTabOverview: { en: "Overview", tr: "Özet" },
     projectTabOverviewHint: { en: "Identity and hosted scope", tr: "Kimlik ve hosted kapsam" },
+    projectTabActivity: { en: "Timeline", tr: "Akış" },
+    projectTabActivityHint: { en: "Cross-domain recent changes", tr: "Domainler arası son değişiklikler" },
     projectTabPlanning: { en: "Planning", tr: "Planlama" },
     projectTabPlanningHint: { en: "Boards, tasks, sprints", tr: "Panolar, görevler, sprintler" },
     projectTabMemory: { en: "Memory", tr: "Hafıza" },
@@ -797,6 +835,55 @@ const resources = {
     projectSummaryLoading: { en: "Summary is loading for this project.", tr: "Bu proje için özet yükleniyor." },
     projectSummaryError: { en: "Summary data is unavailable right now.", tr: "Özet verisi şu anda kullanılamıyor." },
     projectSummaryEmpty: { en: "No records yet for this project section.", tr: "Bu proje bölümü için henüz kayıt yok." },
+    projectPulseTitle: { en: "Project pulse", tr: "Proje nabzı" },
+    projectPulseMessage: {
+      en: "A live, project-scoped snapshot across the AOPS owner domains.",
+      tr: "AOPS owner domainlerinde proje kapsamlı canlı durum özeti."
+    },
+    projectPulseOpenWork: { en: "Open work", tr: "Açık işler" },
+    projectPulsePendingReviews: { en: "Pending reviews", tr: "Bekleyen incelemeler" },
+    projectPulseActiveMissions: { en: "Active missions", tr: "Aktif misyonlar" },
+    projectPulseRunningRuns: { en: "Running runs", tr: "Çalışan koşular" },
+    projectDomainProjectman: { en: "Projectman", tr: "Projectman" },
+    projectDomainAgentspace: { en: "Agentspace", tr: "Agentspace" },
+    projectDomainDocman: { en: "Docman", tr: "Docman" },
+    projectDomainRunner: { en: "Runner", tr: "Runner" },
+    projectDomainReady: { en: "Ready", tr: "Hazır" },
+    projectDomainLoading: { en: "Loading", tr: "Yükleniyor" },
+    projectDomainError: { en: "Unavailable", tr: "Kullanılamıyor" },
+    projectDomainEmpty: { en: "No records", tr: "Kayıt yok" },
+    projectDomainLatest: { en: "Latest change", tr: "Son değişiklik" },
+    projectActivityTitle: { en: "Cross-domain timeline", tr: "Domainler arası zaman akışı" },
+    projectActivityMessage: {
+      en: "Projectman, Agentspace, Docman, and Runner records ordered by their latest timestamps.",
+      tr: "Projectman, Agentspace, Docman ve Runner kayıtları son zaman damgalarına göre sıralanır."
+    },
+    projectActivitySnapshotNote: {
+      en: "This is a recent-change view composed from current read models, not an audit log.",
+      tr: "Bu görünüm güncel okuma modellerinden üretilen son değişiklik akışıdır; denetim günlüğü değildir."
+    },
+    projectActivityRangeLabel: { en: "Time range", tr: "Zaman aralığı" },
+    projectActivityRangeDay: { en: "24 hours", tr: "24 saat" },
+    projectActivityRangeWeek: { en: "7 days", tr: "7 gün" },
+    projectActivityRangeMonth: { en: "30 days", tr: "30 gün" },
+    projectActivityRangeAll: { en: "All time", tr: "Tümü" },
+    projectActivityTotal: { en: "Total changes", tr: "Toplam değişiklik" },
+    projectActivityVisible: { en: "In range", tr: "Aralıkta" },
+    projectActivityDomains: { en: "Active domains", tr: "Aktif domain" },
+    projectActivityLatest: { en: "Latest", tr: "En son" },
+    projectActivityEmpty: { en: "No changes in this time range.", tr: "Bu zaman aralığında değişiklik yok." },
+    projectActivityOpen: { en: "Open section", tr: "Bölümü aç" },
+    projectActivityChanges: { en: "changes", tr: "değişiklik" },
+    projectLatestDayTitle: { en: "Latest active day", tr: "Son aktif gün" },
+    projectLatestDayMessage: {
+      en: "Latest project records across owner domains.",
+      tr: "Owner domainlerdeki en son proje kayıtları."
+    },
+    projectLatestDayOpenAll: { en: "Open full timeline", tr: "Tüm akışı aç" },
+    projectLatestDayEmpty: {
+      en: "No project activity is available yet.",
+      tr: "Henüz proje hareketi bulunmuyor."
+    },
     projectDocGroups: { en: "Groups", tr: "Gruplar" },
     projectReferences: { en: "Project references", tr: "Proje referansları" },
     projectSlug: { en: "Slug", tr: "Slug" },

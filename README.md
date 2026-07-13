@@ -8,36 +8,46 @@ Local, three-application AOPS distribution: Cockpit, CLI, and the AOPS server on
 
 - Docker Engine or Docker Desktop with Docker Compose
 - At least 4 GB of free memory and 2 GB of free disk space
-- Node.js 22+ only for the one-time local environment initializer
+- Node.js 22.9 or newer
 
 ## Start
 
-From this directory:
+Clone the exact release tag, then run the release-local launcher from the clone.
+The launcher never clones or downloads source, and it does not use npm, npx, pnpm,
+or a package-manager cache. It verifies the exact bundled CLI before executing it.
+
+macOS or Linux:
 
 ```sh
-node deploy/community/init-env.mjs
-docker compose pull
-docker compose up --no-build -d --wait
+./aops server setup
+```
+
+Windows PowerShell:
+
+```powershell
+.\aops.ps1 server setup
 ```
 
 Open <http://127.0.0.1:5900>. The same origin serves the production Cockpit and proxies the AOPS HTTP API. The PostgreSQL port is not published. The only published port is explicitly bound to host loopback.
 
-The initializer creates a local `.env` once with independent random URL-safe PostgreSQL and ChatV3 server-encryption secrets. Re-running it preserves the existing file. The file is excluded from the image build context and must never be committed.
+Setup verifies the signed release graph, creates local secrets and managed state,
+anonymously pulls the digest-pinned images, starts PostgreSQL and AOPS, and runs
+health and data checks. Re-running setup preserves the existing installation.
 
 ## Verify and operate
 
 ```sh
 curl --fail http://127.0.0.1:5900/api/health
-docker compose ps
-docker compose logs --tail 100 app
+./aops server status
+./aops server logs --tail 100
 ```
 
 Every app start applies the five domain schemas in a fixed order. Migrations are idempotent, so normal restarts preserve data.
 
 ```sh
-docker compose restart app
-docker compose down
-docker compose up -d --wait
+./aops server restart
+./aops server stop
+./aops server start
 ```
 
 ## Five-minute product walkthrough
@@ -103,3 +113,11 @@ This secondary path verifies all three applications but does not replace the Com
 Node build/runtime and PostgreSQL base images are pinned by digest. Package installation uses pnpm 11.9.0 with the frozen lockfile. `SBOM.spdx.json` and `SHA256SUMS` cover the finalized release tree. Re-run the repository-owned Community finalizer to reproduce them; do not edit generated evidence by hand.
 
 The release factory uses `docker-bake.hcl` with a fixed `SOURCE_DATE_EPOCH`, multi-platform deterministic output, and OCI timestamp rewriting. SBOM and provenance are generated as detached evidence so invocation metadata cannot destabilize the runtime index digest. `deploy/community/release.schema.json` is the fail-closed contract for the signed `release.json` that binds the public tree, OCI index and platform digests, CLI artifact, Compose file, migrations, detached SBOM, provenance, and signature.
+
+## Project policies
+
+Before contributing, read `CONTRIBUTING.md`, the `DCO.md` sign-off contract,
+and `CODE_OF_CONDUCT.md`. Report suspected vulnerabilities through
+`SECURITY.md`; do not place vulnerability details in a public issue. Name and
+logo use is described in `TRADEMARKS.md` and does not change the Apache-2.0
+license granted for the source code.

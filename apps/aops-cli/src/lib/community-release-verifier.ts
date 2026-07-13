@@ -6,8 +6,10 @@ import { verify as verifySigstore, type Bundle } from 'sigstore'
 import { parseCommunityRelease, type CommunityReleaseIdentity } from './community-lifecycle.js'
 
 const SHA256 = /^sha256:[a-f0-9]{64}$/
+const NPM_INTEGRITY_SHA512 = /^sha512-[A-Za-z0-9+/]{86}==$/
 export const COMMUNITY_GITHUB_OIDC_ISSUER = 'https://token.actions.githubusercontent.com'
 export const COMMUNITY_PUBLIC_SOURCE_REPOSITORY = 'git+https://github.com/eeemzs/aops-community'
+export const COMMUNITY_PUBLIC_CLI_PACKAGE_NAME = '@aopslab/aops-cli'
 
 type ArtifactRef = { ref: string; sha256: string; kind: string }
 type ReleaseManifest = {
@@ -15,9 +17,25 @@ type ReleaseManifest = {
   releaseVersion: string
   source: { repository: string; treeRef: string; treeDigest: string }
   image: { repository: string; tag: string; indexDigest: string }
-  cli: { artifactRef: string; artifactSha256: string }
+  cli: {
+    packageName: string
+    version: string
+    commandSchemaVersion: number
+    bundleSha256: string
+    bundleByteLength: number
+    npmDistTag: string
+    artifactRef: string
+    artifactSha256: string
+    npmIntegrity: string
+  }
   compose: { ref: string; sha256: string }
   migrations: { setDigest: string; tags: string[]; files: Array<{ ref: string; sha256: string }> }
+  legal: {
+    license: { ref: 'LICENSE'; sha256: string }
+    notice: { ref: 'NOTICE'; sha256: string }
+    thirdPartyNotices: { ref: 'THIRD_PARTY_NOTICES'; sha256: string }
+    thirdPartyInventory: { ref: 'THIRD_PARTY_NOTICES.inventory.json'; sha256: string }
+  }
   evidence: {
     sbom: { ref: string; sha256: string }
     provenance: { ref: string; sha256: string }
@@ -49,6 +67,17 @@ function fail(code: string, detail?: string): never {
 
 function digestFile(filePath: string): string {
   return `sha256:${createHash('sha256').update(readFileSync(filePath)).digest('hex')}`
+}
+
+function npmIntegrityFile(filePath: string): string {
+  return `sha512-${createHash('sha512').update(readFileSync(filePath)).digest('base64')}`
+}
+
+function assertExactObject(value: unknown, keys: readonly string[], code: string): asserts value is Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) fail(code)
+  const actual = Object.keys(value).sort()
+  const expected = [...keys].sort()
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) fail(code)
 }
 
 function requireConfinedFile(root: string, ref: unknown, code: string): string {
@@ -89,7 +118,7 @@ function parseManifest(content: string): ReleaseManifest {
   if (manifest.schemaVersion !== 1 || typeof manifest.releaseVersion !== 'string' || !manifest.releaseVersion) {
     fail('community_release_manifest_invalid')
   }
-  if (!manifest.source || !manifest.cli || !manifest.compose || !manifest.migrations || !manifest.evidence) {
+  if (!manifest.source || !manifest.cli || !manifest.compose || !manifest.migrations || !manifest.legal || !manifest.evidence) {
     fail('community_release_manifest_incomplete')
   }
   if (manifest.source.repository !== COMMUNITY_PUBLIC_SOURCE_REPOSITORY) {
@@ -102,9 +131,45 @@ function parseManifest(content: string): ReleaseManifest {
     fail('community_release_image_identity_invalid')
   }
   assertDigest(manifest.source.treeDigest, 'community_release_source_digest_invalid')
+  assertExactObject(manifest.cli, [
+    'packageName',
+    'version',
+    'commandSchemaVersion',
+    'bundleSha256',
+    'bundleByteLength',
+    'npmDistTag',
+    'artifactRef',
+    'artifactSha256',
+    'npmIntegrity',
+  ], 'community_release_cli_identity_invalid')
+  if (
+    manifest.cli.packageName !== COMMUNITY_PUBLIC_CLI_PACKAGE_NAME ||
+    manifest.cli.version !== manifest.releaseVersion ||
+    manifest.cli.artifactRef !== `aopslab-aops-cli-${manifest.releaseVersion}.tgz` ||
+    manifest.cli.npmDistTag !== (manifest.releaseVersion.includes('-') ? 'next' : 'latest') ||
+    !Number.isSafeInteger(manifest.cli.commandSchemaVersion) ||
+    manifest.cli.commandSchemaVersion <= 0 ||
+    !Number.isSafeInteger(manifest.cli.bundleByteLength) ||
+    manifest.cli.bundleByteLength <= 0 ||
+    !NPM_INTEGRITY_SHA512.test(manifest.cli.npmIntegrity)
+  ) {
+    fail('community_release_cli_identity_invalid')
+  }
+  if (manifest.cli.commandSchemaVersion !== 1) fail('community_release_cli_command_schema_unsupported')
+  assertDigest(manifest.cli.bundleSha256, 'community_release_cli_bundle_digest_invalid')
   assertDigest(manifest.cli.artifactSha256, 'community_release_cli_digest_invalid')
   assertDigest(manifest.compose.sha256, 'community_release_compose_digest_invalid')
   assertDigest(manifest.migrations.setDigest, 'community_release_migration_digest_invalid')
+  for (const [kind, expectedRef] of [
+    ['license', 'LICENSE'],
+    ['notice', 'NOTICE'],
+    ['thirdPartyNotices', 'THIRD_PARTY_NOTICES'],
+    ['thirdPartyInventory', 'THIRD_PARTY_NOTICES.inventory.json'],
+  ] as const) {
+    const entry = manifest.legal[kind]
+    if (entry?.ref !== expectedRef) fail(`community_release_legal_${kind}_ref_invalid`)
+    assertDigest(entry.sha256, `community_release_legal_${kind}_digest_invalid`)
+  }
   assertDigest(manifest.evidence.sbom?.sha256, 'community_release_sbom_digest_invalid')
   assertDigest(manifest.evidence.provenance?.sha256, 'community_release_provenance_digest_invalid')
   if (!Array.isArray(manifest.migrations.files) || manifest.migrations.files.length === 0) {
@@ -140,6 +205,10 @@ export async function verifyCommunityReleaseBundle(options: {
     { ref: manifest.cli.artifactRef, sha256: manifest.cli.artifactSha256, kind: 'cli' },
     { ref: manifest.compose.ref, sha256: manifest.compose.sha256, kind: 'compose' },
     ...manifest.migrations.files.map((entry) => ({ ...entry, kind: 'migration' })),
+    { ref: manifest.legal.license.ref, sha256: manifest.legal.license.sha256, kind: 'legal_license' },
+    { ref: manifest.legal.notice.ref, sha256: manifest.legal.notice.sha256, kind: 'legal_notice' },
+    { ref: manifest.legal.thirdPartyNotices.ref, sha256: manifest.legal.thirdPartyNotices.sha256, kind: 'legal_third_party_notices' },
+    { ref: manifest.legal.thirdPartyInventory.ref, sha256: manifest.legal.thirdPartyInventory.sha256, kind: 'legal_third_party_inventory' },
     { ref: manifest.evidence.sbom.ref, sha256: manifest.evidence.sbom.sha256, kind: 'sbom' },
     { ref: manifest.evidence.provenance.ref, sha256: manifest.evidence.provenance.sha256, kind: 'provenance' },
   ]
@@ -147,6 +216,9 @@ export async function verifyCommunityReleaseBundle(options: {
   for (const artifact of artifacts) {
     const artifactPath = requireConfinedFile(releaseRoot, artifact.ref, `community_release_${artifact.kind}`)
     if (digestFile(artifactPath) !== artifact.sha256) fail(`community_release_${artifact.kind}_digest_mismatch`, artifact.ref)
+    if (artifact.kind === 'cli' && npmIntegrityFile(artifactPath) !== manifest.cli.npmIntegrity) {
+      fail('community_release_cli_npm_integrity_mismatch', artifact.ref)
+    }
     if (artifact.kind === 'compose') composePath = artifactPath
   }
   const signatureBundlePath = requireConfinedFile(

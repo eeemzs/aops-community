@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "description": "AOPS Community operator CLI.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eeemzs/aops-community.git",
+    "directory": "apps/aops-cli"
+  },
   "bin": {
     "aops-cli": "dist/main.js"
   },
@@ -15,11 +21,10 @@
   "dependencies": {
     "@aops/host-registration": "workspace:*",
     "@aops/runtime-config": "workspace:*",
-    "@aopslab/cli-kit": "workspace:*",
+    "@aopslab/api-client": "workspace:*",
     "@aopslab/domain-product-client-chatv3": "workspace:*",
     "@aopslab/xf-cli-operator": "0.0.2",
     "@aopslab/xf-cli-ui": "0.1.13",
-    "@aopslab/xf-secure-store": "0.1.27",
     "commander": "14.0.3",
     "inquirer": "13.3.0",
     "sigstore": "4.1.1"

@@ -516,7 +516,7 @@ button {
   display: grid;
   gap: 3px;
   min-width: 0;
-  max-width: 760px;
+  width: 100%;
 }
 
 .aops-project-record-eyebrow {
@@ -539,7 +539,7 @@ button {
   margin: 0;
   min-width: 0;
   color: var(--aops-v2-ink);
-  font-size: 1.28rem;
+  font-size: clamp(1.35rem, 1.8vw, 1.72rem);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: 0;
@@ -579,7 +579,7 @@ button {
   margin: 0;
   color: var(--aops-v2-muted);
   font-size: 0.98rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .aops-project-record-metrics {
@@ -597,8 +597,8 @@ button {
   display: grid;
   gap: 3px;
   min-width: 0;
-  padding-right: 34px;
-  margin-right: 34px;
+  padding-right: clamp(20px, 2.4vw, 32px);
+  margin-right: clamp(20px, 2.4vw, 32px);
   border-right: 1px solid var(--aops-project-rule);
 }
 
@@ -1158,7 +1158,7 @@ button {
   flex-direction: column;
   gap: 14px;
   min-width: 0;
-  min-height: min(52vh, 520px);
+  min-height: min(44vh, 430px);
   border: 1px solid var(--aops-project-rule);
   border-radius: 8px;
   padding: 22px 24px;
@@ -1182,9 +1182,398 @@ button {
   min-width: 0;
 }
 
+.aops-project-pulse {
+  gap: 16px;
+}
+
+.aops-project-pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.aops-project-pulse-card {
+  --aops-project-domain: var(--aops-v2-primary);
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  min-height: 112px;
+  border: 1px solid color-mix(in srgb, var(--aops-project-rule) 88%, transparent);
+  border-radius: 10px;
+  padding: 13px 14px;
+  background: color-mix(in srgb, var(--aops-v2-surface) 92%, var(--aops-project-domain) 8%);
+  color: var(--aops-v2-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.aops-project-pulse-card.is-memory {
+  --aops-project-domain: var(--aops-v2-secondary);
+}
+
+.aops-project-pulse-card.is-docs {
+  --aops-project-domain: var(--aops-v2-indigo);
+}
+
+.aops-project-pulse-card.is-runs {
+  --aops-project-domain: var(--aops-v2-sage);
+}
+
+.aops-project-pulse-card:hover,
+.aops-project-pulse-card:focus-visible {
+  border-color: color-mix(in srgb, var(--aops-project-domain) 46%, var(--aops-v2-border));
+  background: color-mix(in srgb, var(--aops-v2-surface) 86%, var(--aops-project-domain) 14%);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--aops-project-domain) 10%, transparent);
+  transform: translateY(-1px);
+}
+
+.aops-project-pulse-card:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--aops-project-domain) 42%, transparent);
+  outline-offset: 2px;
+}
+
+.aops-project-pulse-card[data-status="loading"] strong,
+.aops-project-pulse-card[data-status="error"] strong {
+  opacity: 0.48;
+}
+
+.aops-project-pulse-card-topline,
+.aops-project-pulse-domain {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.aops-project-pulse-card-topline {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.aops-project-pulse-domain {
+  gap: 7px;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--aops-v2-ink) 82%, var(--aops-project-domain));
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aops-project-pulse-domain i {
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--aops-project-domain);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--aops-project-domain) 13%, transparent);
+}
+
+.aops-project-pulse-state {
+  overflow: hidden;
+  color: var(--aops-v2-muted);
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aops-project-pulse-card > strong {
+  color: var(--aops-v2-ink);
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.aops-project-pulse-latest {
+  overflow: hidden;
+  color: var(--aops-v2-muted);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aops-project-attention-strip,
+.aops-project-activity-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--aops-project-rule);
+  border-bottom: 1px solid var(--aops-project-rule);
+  padding: 10px 0;
+}
+
+.aops-project-attention-strip > div,
+.aops-project-activity-metrics > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border-right: 1px solid var(--aops-project-rule);
+  padding: 0 14px;
+}
+
+.aops-project-attention-strip > div:first-child,
+.aops-project-activity-metrics > div:first-child {
+  padding-left: 0;
+}
+
+.aops-project-attention-strip > div:last-child,
+.aops-project-activity-metrics > div:last-child {
+  border-right: 0;
+}
+
+.aops-project-attention-strip dt,
+.aops-project-activity-metrics dt {
+  overflow: hidden;
+  color: var(--aops-v2-muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aops-project-attention-strip dd,
+.aops-project-activity-metrics dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--aops-v2-ink);
+  font-family: var(--font-mono-ref, ui-monospace, monospace);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .aops-project-card-divider {
   border-top: 1px solid var(--aops-project-rule);
   padding-top: 16px;
+}
+
+.aops-project-overview-lower {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.76fr) minmax(440px, 1.24fr);
+  align-items: start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.aops-project-identity-card {
+  align-content: start;
+}
+
+.aops-project-identity-card .aops-project-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px 18px;
+}
+
+.aops-project-latest-day {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--aops-project-rule);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--aops-project-panel) 91%, var(--aops-v2-surface) 9%);
+}
+
+.aops-project-latest-day-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 14px 12px;
+}
+
+.aops-project-latest-day-head .aops-project-detail-copy {
+  gap: 3px;
+}
+
+.aops-project-latest-day-head .aops-project-detail-copy p {
+  font-family: var(--font-mono-ref, ui-monospace, monospace);
+  font-size: 0.65rem;
+}
+
+.aops-project-latest-day-open {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  border: 1px solid color-mix(in srgb, var(--aops-v2-primary) 28%, var(--aops-project-rule));
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: color-mix(in srgb, var(--aops-project-panel) 88%, var(--aops-v2-primary) 12%);
+  color: color-mix(in srgb, var(--aops-v2-ink) 76%, var(--aops-v2-primary));
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.aops-project-latest-day-open:hover,
+.aops-project-latest-day-open:focus-visible {
+  border-color: color-mix(in srgb, var(--aops-v2-primary) 46%, var(--aops-project-rule));
+  background: color-mix(in srgb, var(--aops-project-panel) 80%, var(--aops-v2-primary) 20%);
+  color: var(--aops-v2-primary);
+}
+
+.aops-project-latest-day-open:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--aops-v2-primary) 38%, transparent);
+  outline-offset: 2px;
+}
+
+.aops-project-latest-day-list {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aops-project-latest-day-item {
+  --aops-project-domain: var(--aops-v2-primary);
+  position: relative;
+  min-width: 0;
+  border-top: 1px solid var(--aops-project-rule);
+}
+
+.aops-project-latest-day-item.is-memory {
+  --aops-project-domain: var(--aops-v2-secondary);
+}
+
+.aops-project-latest-day-item.is-docs {
+  --aops-project-domain: var(--aops-v2-indigo);
+}
+
+.aops-project-latest-day-item.is-runs {
+  --aops-project-domain: var(--aops-v2-sage);
+}
+
+.aops-project-latest-day-item:not(:last-child)::after {
+  position: absolute;
+  z-index: 0;
+  top: 43px;
+  bottom: -19px;
+  left: 82px;
+  width: 1px;
+  background: color-mix(in srgb, var(--aops-project-domain) 25%, var(--aops-project-rule));
+  content: "";
+  pointer-events: none;
+}
+
+.aops-project-latest-day-item > button {
+  display: grid;
+  grid-template-columns: 44px 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 62px;
+  border: 0;
+  padding: 9px 12px;
+  background: transparent;
+  color: var(--aops-v2-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+.aops-project-latest-day-item > button:hover,
+.aops-project-latest-day-item > button:focus-visible {
+  background: color-mix(in srgb, var(--aops-project-domain) 8%, transparent);
+}
+
+.aops-project-latest-day-item > button:focus-visible {
+  position: relative;
+  z-index: 2;
+  outline: 2px solid color-mix(in srgb, var(--aops-project-domain) 36%, transparent);
+  outline-offset: -2px;
+}
+
+.aops-project-latest-day-item time {
+  color: color-mix(in srgb, var(--aops-v2-muted) 72%, transparent);
+  font-family: var(--font-mono-ref, ui-monospace, monospace);
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.aops-project-latest-day-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid color-mix(in srgb, var(--aops-project-domain) 30%, var(--aops-project-rule));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--aops-project-panel) 88%, var(--aops-project-domain) 12%);
+  color: var(--aops-project-domain);
+}
+
+.aops-project-latest-day-icon svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.65;
+}
+
+.aops-project-latest-day-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.aops-project-latest-day-copy strong,
+.aops-project-latest-day-copy > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aops-project-latest-day-copy strong {
+  color: var(--aops-v2-ink);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.aops-project-latest-day-copy > span {
+  color: var(--aops-v2-muted);
+  font-size: 0.66rem;
+}
+
+.aops-project-latest-day-ref {
+  max-width: 132px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--aops-project-domain) 23%, var(--aops-project-rule));
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: color-mix(in srgb, var(--aops-project-panel) 92%, var(--aops-project-domain) 8%);
+  color: color-mix(in srgb, var(--aops-v2-muted) 82%, var(--aops-project-domain));
+  font-family: var(--font-mono-ref, ui-monospace, monospace);
+  font-size: 0.58rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aops-project-latest-day-empty {
+  border-top: 1px solid var(--aops-project-rule);
+  padding: 22px 14px;
+  text-align: center;
 }
 
 .aops-project-section-eyebrow {
@@ -1323,6 +1712,212 @@ button {
   font-weight: 800;
 }
 
+.aops-project-activity {
+  gap: 16px;
+}
+
+.aops-project-activity-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.aops-project-activity-head .aops-project-detail-copy {
+  max-width: 720px;
+}
+
+.aops-project-activity-range.eops-segmented {
+  flex: 0 0 auto;
+  min-width: max-content;
+}
+
+.aops-project-activity-range .eops-segmented-item {
+  min-height: 28px;
+  padding-inline: 10px;
+  font-size: 0.7rem;
+}
+
+.aops-project-activity-note {
+  margin: -4px 0 0;
+  border-left: 2px solid color-mix(in srgb, var(--aops-v2-primary) 36%, var(--aops-v2-border));
+  padding: 2px 0 2px 10px;
+  color: var(--aops-v2-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.aops-project-activity-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.aops-project-activity-day {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.aops-project-activity-day > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--aops-project-rule);
+  padding-bottom: 7px;
+}
+
+.aops-project-activity-day > header time {
+  color: var(--aops-v2-ink);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.aops-project-activity-day > header span {
+  color: var(--aops-v2-muted);
+  font-family: var(--font-mono-ref, ui-monospace, monospace);
+  font-size: 0.66rem;
+}
+
+.aops-project-activity-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aops-project-activity-item {
+  --aops-project-domain: var(--aops-v2-primary);
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 0;
+}
+
+.aops-project-activity-item.is-memory {
+  --aops-project-domain: var(--aops-v2-secondary);
+}
+
+.aops-project-activity-item.is-docs {
+  --aops-project-domain: var(--aops-v2-indigo);
+}
+
+.aops-project-activity-item.is-runs {
+  --aops-project-domain: var(--aops-v2-sage);
+}
+
+.aops-project-activity-rail {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  min-height: 46px;
+}
+
+.aops-project-activity-rail::after {
+  position: absolute;
+  top: 15px;
+  bottom: -19px;
+  width: 1px;
+  background: color-mix(in srgb, var(--aops-project-domain) 25%, var(--aops-project-rule));
+  content: "";
+}
+
+.aops-project-activity-item:last-child .aops-project-activity-rail::after {
+  display: none;
+}
+
+.aops-project-activity-rail i {
+  position: relative;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  border: 2px solid var(--aops-project-panel);
+  border-radius: 50%;
+  background: var(--aops-project-domain);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--aops-project-domain) 18%, transparent);
+}
+
+.aops-project-activity-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.aops-project-activity-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.aops-project-activity-domain {
+  color: var(--aops-project-domain);
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.aops-project-activity-meta-row time,
+.aops-project-activity-kind {
+  overflow: hidden;
+  color: var(--aops-v2-muted);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aops-project-activity-copy > strong {
+  overflow: hidden;
+  color: var(--aops-v2-ink);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aops-project-activity-open {
+  align-self: center;
+  min-height: 28px;
+  border: 0;
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: transparent;
+  color: var(--aops-v2-muted);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aops-project-activity-open:hover,
+.aops-project-activity-open:focus-visible {
+  background: color-mix(in srgb, var(--aops-project-domain) 10%, transparent);
+  color: var(--aops-project-domain);
+}
+
+.aops-project-activity-open:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--aops-project-domain) 40%, transparent);
+  outline-offset: 1px;
+}
+
+.aops-project-activity-open:disabled {
+  cursor: default;
+  opacity: 0.44;
+}
+
+.aops-project-activity-empty {
+  border: 1px dashed var(--aops-project-rule);
+  border-radius: 9px;
+  padding: 18px;
+  text-align: center;
+}
+
 @media (max-width: 1180px) {
   .aops-project-record-surface {
     padding-left: 8px;
@@ -1345,6 +1940,14 @@ button {
 
   .aops-project-record-leftmenu-panel .inv-iv3-cattree-pane {
     max-height: 360px;
+  }
+
+  .aops-project-pulse-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aops-project-overview-lower {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1376,6 +1979,55 @@ button {
 
   .aops-project-detail-body {
     padding: 18px;
+  }
+
+  .aops-project-activity-head {
+    display: grid;
+    gap: 12px;
+  }
+
+  .aops-project-activity-range.eops-segmented {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  .aops-project-attention-strip,
+  .aops-project-activity-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 10px;
+  }
+
+  .aops-project-attention-strip > div:nth-child(2),
+  .aops-project-activity-metrics > div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .aops-project-attention-strip > div:nth-child(3),
+  .aops-project-activity-metrics > div:nth-child(3) {
+    padding-left: 0;
+  }
+
+  .aops-project-latest-day-head {
+    display: grid;
+  }
+
+  .aops-project-latest-day-open {
+    justify-self: start;
+  }
+
+  .aops-project-latest-day-item > button {
+    grid-template-columns: 38px 32px minmax(0, 1fr);
+    gap: 8px;
+    padding-inline: 10px;
+  }
+
+  .aops-project-latest-day-item:not(:last-child)::after {
+    left: 74px;
+  }
+
+  .aops-project-latest-day-ref {
+    display: none;
   }
 }
 
@@ -11146,6 +11798,16 @@ button {
 
   .aops-project-detail-body {
     padding: 15px 18px;
+    min-height: 340px;
+  }
+
+  .aops-project-pulse-card {
+    min-height: 98px;
+    padding-block: 11px;
+  }
+
+  .aops-project-activity-item {
+    padding-block: 7px;
   }
 
   .aops-docs-record .aops-pm-rechead {
@@ -11263,6 +11925,33 @@ button {
 .app[data-viewport="mobile"] .aops-project-detail-body {
   padding: 12px;
   border-radius: 8px;
+}
+
+.app[data-viewport="mobile"] .aops-project-pulse-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app[data-viewport="mobile"] .aops-project-pulse-card {
+  min-height: 94px;
+  padding: 11px 12px;
+}
+
+.app[data-viewport="mobile"] .aops-project-activity-range .eops-segmented-item {
+  flex: 0 0 auto;
+  min-height: 34px;
+}
+
+.app[data-viewport="mobile"] .aops-project-activity-item {
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  padding-block: 10px;
+}
+
+.app[data-viewport="mobile"] .aops-project-activity-open {
+  grid-column: 2;
+  justify-self: start;
+  min-height: 34px;
+  padding-inline: 0;
 }
 
 .app[data-viewport="mobile"] .aops-project-detail-grid {
