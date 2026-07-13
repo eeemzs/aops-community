@@ -1,5 +1,7 @@
 # AOPS Community
 
+For AOPS introduction please visit [aopslab.com](https://www.aopslab.com)
+
 Local, three-application AOPS distribution: Cockpit, CLI, and the AOPS server on PostgreSQL 17.
 
 > Release status: Apache-2.0 source candidate. Public release remains gated on reviewed attribution, SBOM/provenance, migration safety, and independent release validation.
