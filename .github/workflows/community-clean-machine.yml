@@ -209,8 +209,6 @@ jobs:
     if: ${{ inputs.run_macos_self_hosted }}
     needs: tag-contract
     runs-on: [self-hosted, macOS, aops-community-clean]
-    env:
-      DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -224,6 +222,8 @@ jobs:
           node-version: '22'
       - name: Prove anonymous pull and lifecycle on Docker Desktop
         shell: bash
+        env:
+          DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
           docker version
@@ -246,6 +246,8 @@ jobs:
       - name: Always remove the self-hosted macOS lifecycle state and volume
         if: ${{ always() }}
         shell: bash
+        env:
+          DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -u
           EXPECTED_DATA_ROOT_NAME="aops-community-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
