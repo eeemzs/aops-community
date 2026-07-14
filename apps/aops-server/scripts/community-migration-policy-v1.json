@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "id": "aops-community-strict-migration-v1",
+  "inventorySha256": "3ca2e22e8af86db2be8e7eccb868d5d5858b75d67f53080ddf52496853de9c40",
+  "sourceArtifacts": {
+    "convergenceFileSha256": "0e4e54109ec57f03e278751e29850ebd17fa5e9cc9df6ce8de6c767769714979",
+    "lineagesFileSha256": "964d55a185f4cc02f43c9b4450059c3f9b7fbf915a65f5128b38bd7a3f57cc93"
+  },
+  "lock": {
+    "classId": 28015,
+    "objectId": 71
+  },
+  "roots": [
+    {
+      "id": "sys",
+      "ordinal": 0,
+      "migrationsDir": "domains/sys/drizzle-out/sys",
+      "migrationTable": "sys_schema_migrations",
+      "legacyHashColumn": false,
+      "journalSha256": "f877cb40c7cb7ef9fadaf9e441b4a1f14eb18138815a42962912e9cc55a0e160",
+      "journalSha256History": [
+        "f877cb40c7cb7ef9fadaf9e441b4a1f14eb18138815a42962912e9cc55a0e160"
+      ],
+      "migrations": [
+        {
+          "idx": 0,
+          "tag": "0000_loose_praxagora",
+          "sha256": "236ae6823a17b5d17d6ad4985b65574f9ac7eb7a395d7c602ac39035e4896f0c",
+          "risk": "additive"
+        },
+        {
+          "idx": 1,
+          "tag": "0001_awesome_ronan",
+          "sha256": "3f2b40c6dcac810676b5b25b22ecd311be96bdc118bee33b599d58e39a18bc8f",
+          "risk": "destructive-or-dynamic"
+        },
+        {
+          "idx": 2,
+          "tag": "0002_steady_maximus",
+          "sha256": "c6503a170644d3a8609366d71c661621e9cd0cfdf614bb93ea7113f393e85283",
+          "risk": "additive"
+        },
+        {
+          "idx": 3,
+          "tag": "0003_escalating_rate_limiter",
+          "sha256": "6118c273ca81b733033eea33fc4a1cf44cd2e1a06f013047c63781a01bab1f4e",
+          "risk": "additive"
+        },
+        {
+          "idx": 4,
+          "tag": "0004_rate_limiter_timestamptz",
+          "sha256": "651d6622c30cecfcaf9b24f17a933e42b1dcf6419c10a9f1c3543f251daa0344",
+          "risk": "destructive-or-dynamic"
+        },
+        {
+          "idx": 5,
+          "tag": "0005_sys_counters",
+          "sha256": "4c4defc14079ef131dff87d7cd467aa55eee0b5f01f0d22a509937e10a235404",
+          "risk": "additive"
+        }
+      ]
+    },
+    {
+      "id": "agentspace",
+      "ordinal": 1,
+      "migrationsDir": "apps/aops/packages/aops-pg-bootstrap/drizzle-out/agentspace-community",
+      "migrationTable": "aops_community_schema_migrations",
+      "legacyHashColumn": true,
+      "journalSha256": "910a0d10fbdf944edd507165fbacc84e2f05bbe4b622f5455dafc18a4e7b2800",
+      "journalSha256History": [
+        "910a0d10fbdf944edd507165fbacc84e2f05bbe4b622f5455dafc18a4e7b2800"
+      ],
+      "migrations": [
+        {
+          "idx": 0,
+          "tag": "0000_thin_carlie_cooper",
+          "sha256": "97afaa9b434960bd917565e9a7db05ab3b30bfc0c45aa26b9e5c04ce0c687a42",
+          "risk": "additive"
+        }
+      ]
+    },
+    {
+      "id": "docman",
+      "ordinal": 2,
+      "migrationsDir": "domains/docman/drizzle-out/docman",
+      "migrationTable": "docman_schema_migrations",
+      "legacyHashColumn": false,
+      "journalSha256": "6c9efe998ae606a4a31f0e4f5ba7726acd066e0dd10795fbda7c2768328ebfb4",
+      "journalSha256History": [
+        "6c9efe998ae606a4a31f0e4f5ba7726acd066e0dd10795fbda7c2768328ebfb4"
+      ],
+      "migrations": [
+        {
+          "idx": 0,
+          "tag": "0000_curvy_valeria_richards",
+          "sha256": "668cb288a6c26a262f62efff9ac6ab9e08f2606737706176d09ce3555af0fc28",
+          "risk": "additive"
+        },
+        {
+          "idx": 1,
+          "tag": "0001_massive_risque",
+          "sha256": "e7b2954bdb39c09afb473fd4c04e7b2000046fe84f610f8d1a590be4cfc946ca",
+          "risk": "destructive-or-dynamic"
+        },
+        {
+          "idx": 2,
+          "tag": "0002_simple_logan",
+          "sha256": "38461056f349799a019f8d0e476e1a3d45ff9022c829a5d69459fbe8ad134c5c",
+          "risk": "additive"
+        },
+        {
+          "idx": 3,
+          "tag": "0003_quick_index",
+          "sha256": "dbab216691c5de50696b3d421fe60ad09b7791103b42ff87c0b9c5879d5a5954",
+          "risk": "additive"
+        },
+        {
+          "idx": 4,
+          "tag": "0004_known_summary",
+          "sha256": "c0eafbc8cc8c4639b33447248e72ce952ea9882b4e362b5e8d050a04c5970d9f",
+          "risk": "additive"
+        },
+        {
+          "idx": 5,
+          "tag": "0005_vector_signal",
+          "sha256": "db2d14e928b2099a885ece63ff0d9cee37657ad33fbc273963fe715e005f8230",
+          "risk": "additive"
+        },
+        {
+          "idx": 6,
+          "tag": "0006_document_version_current_invariant",
+          "sha256": "96fcf7eed81e6f10a3986ed0881e98597747587b02ee8590f8bdcf2da0cd54a9",
+          "risk": "additive"
+        }
+      ]
+    },
+    {
+      "id": "projectman",
+      "ordinal": 3,
+      "migrationsDir": "domains/projectman/drizzle-out/projectman",
+      "migrationTable": "projectman_schema_migrations",
+      "legacyHashColumn": false,
+      "journalSha256": "2badcdd7d9c42c2de2330b69b3aeaa0c27d83d2863bfe004b7d960a2ec926803",
+      "journalSha256History": [
+        "2badcdd7d9c42c2de2330b69b3aeaa0c27d83d2863bfe004b7d960a2ec926803"
+      ],
+      "migrations": [
+        {
+          "idx": 0,
+          "tag": "0000_smooth_klaw",
+          "sha256": "ff3126eb10f8d00d2364b21b2cac0bef0c9e889537ab7c2aa8d7fe43099fafc4",
+          "risk": "additive"
+        },
+        {
+          "idx": 1,
+          "tag": "0001_worthless_zodiak",
+          "sha256": "a61950bec77858b34dfddf88aa1564250177c69917ddb02374f2792cfad9e3c4",
+          "risk": "destructive-or-dynamic"
+        },
+        {
+          "idx": 2,
+          "tag": "0002_board_rename",
+          "sha256": "c91e1d320a49757c85c8e14bb1db85d981dc921902f35f150fa151645d1a8c8c",
+          "risk": "destructive-or-dynamic"
+        },
+        {
+          "idx": 3,
+          "tag": "0003_review_request",
+          "sha256": "bd2b4f830d8df9624fd15695d341b4bf07debf83215b29b0e1f6d916501bc3c7",
+          "risk": "additive"
+        },
+        {
+          "idx": 4,
+          "tag": "0004_review_request_idempotency",
+          "sha256": "0cfcdbcafca1c68869cbf9a7b8971826346f9b37a5b96f7a32801b597a35f183",
+          "risk": "additive"
+        },
+        {
+          "idx": 5,
+          "tag": "0005_allow_multi_sprint_per_task",
+          "sha256": "27a05fc6951e885b93d3ea709a6476df262f185499e1722ed74234f838c7eeeb",
+          "risk": "destructive-or-dynamic"
+        }
+      ]
+    },
+    {
+      "id": "chatv3",
+      "ordinal": 4,
+      "migrationsDir": "domains/chatv3/drizzle-out/chatv3",
+      "migrationTable": "chatv3_schema_migrations",
+      "legacyHashColumn": false,
+      "journalSha256": "aa27d8238fb574620a745fb0a08d04afe6a13f7489a754edf8f16f7e8d1d6a3b",
+      "journalSha256History": [
+        "aa27d8238fb574620a745fb0a08d04afe6a13f7489a754edf8f16f7e8d1d6a3b"
+      ],
+      "migrations": [
+        {
+          "idx": 0,
+          "tag": "0000_dry_ego",
+          "sha256": "c34f2fbde02ce2d9d95dc4676d368ec8c8558f0971ae29ce1d5bd2165e67b1cb",
+          "risk": "additive"
+        },
+        {
+          "idx": 1,
+          "tag": "0001_nosy_obadiah_stane",
+          "sha256": "512e8868bf7ee87a99cf40a5075b4c635549a01c32849429671b1ab0f06a8f0f",
+          "risk": "additive"
+        },
+        {
+          "idx": 2,
+          "tag": "0002_narrow_darkhawk",
+          "sha256": "02f92158a9896f793769b45ae15dd45f3972d24192f5280c3e74793702da658c",
+          "risk": "additive"
+        },
+        {
+          "idx": 3,
+          "tag": "0003_damp_zarek",
+          "sha256": "94c7b8829b5f3be6f3ae0891caae5038c66eb108095c0698a50fc0b65588220e",
+          "risk": "additive"
+        },
+        {
+          "idx": 4,
+          "tag": "0004_nervous_martin_li",
+          "sha256": "b1128ffafb5ac67d095e41f82758aece5303870ff36b2c239fa4a993b14d933a",
+          "risk": "additive"
+        },
+        {
+          "idx": 5,
+          "tag": "0005_chatv3_server_encrypted_mode",
+          "sha256": "7f5324b7e9f9e9dbf00286865055412349456cdc7c8ccf0e146017dde31dcc01",
+          "risk": "additive"
+        }
+      ]
+    }
+  ],
+  "convergence": [
+    {
+      "id": "projectman-kanban-board-archived-at-v1",
+      "ownerRootId": "projectman",
+      "kind": "add-column-if-missing",
+      "table": "projectman_kanban_boards",
+      "column": "archivedAt",
+      "dataType": "timestamp with time zone",
+      "sha256": "e11389e42b4de4234f44daedac1efcc64a2197d2ce9ff399e552e03b0c8248e9",
+      "risk": "additive"
+    },
+    {
+      "id": "projectman-sprint-archived-at-v1",
+      "ownerRootId": "projectman",
+      "kind": "add-column-if-missing",
+      "table": "projectman_sprints",
+      "column": "archivedAt",
+      "dataType": "timestamp with time zone",
+      "sha256": "4866b72495cdd32399ccece4fc79662908f42c5918f75cb040e06450b0841ed5",
+      "risk": "additive"
+    }
+  ],
+  "convergenceSha256": "dcc49a31f8fecaba7d3f05c939a78f266ca7543d46da62ef9c3ac2176df024b2",
+  "lineages": [
+    {
+      "id": "legacy-full-v1",
+      "kind": "legacy",
+      "relationCount": 84,
+      "schemaFingerprintSha256": "57498db76cb1550b49dce0988c9b9f621eb8241d462f68fe91b3eebb7d03fdf8",
+      "appliedCounts": [
+        6,
+        1,
+        7,
+        6,
+        6
+      ],
+      "postgresMajor": 17,
+      "policyId": "aops-community-legacy-five-root-v1",
+      "inventorySha256": "3ca2e22e8af86db2be8e7eccb868d5d5858b75d67f53080ddf52496853de9c40",
+      "convergenceSha256": "dcc49a31f8fecaba7d3f05c939a78f266ca7543d46da62ef9c3ac2176df024b2"
+    },
+    {
+      "id": "strict-v1",
+      "kind": "strict",
+      "relationCount": 86,
+      "schemaFingerprintSha256": "983ebd5f18ef70614781c3c8b7f9e3ad2652f159b1e81c6ec65d4cb1b558cee8",
+      "appliedCounts": [
+        6,
+        1,
+        7,
+        6,
+        6
+      ],
+      "postgresMajor": 17,
+      "policyId": "aops-community-strict-migration-v1",
+      "inventorySha256": "3ca2e22e8af86db2be8e7eccb868d5d5858b75d67f53080ddf52496853de9c40",
+      "convergenceSha256": "dcc49a31f8fecaba7d3f05c939a78f266ca7543d46da62ef9c3ac2176df024b2"
+    }
+  ],
+  "targetLineageId": "strict-v1"
+}

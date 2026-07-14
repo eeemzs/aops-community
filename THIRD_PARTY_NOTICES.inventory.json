@@ -328,7 +328,7 @@
       ]
     }
   ],
-  "firstPartySourceCount": 33,
+  "firstPartySourceCount": 31,
   "firstPartySources": [
     {
       "identity": "@aops/aops-cli@0.1.0",
@@ -645,32 +645,6 @@
       ]
     },
     {
-      "identity": "@aopslab/domain-pg-bootstrap-docman@0.1.0",
-      "kind": "runtime-source",
-      "locator": "domains/docman/docman-pg-bootstrap",
-      "lockIntegrity": null,
-      "peerContext": "",
-      "ref": "runtime-source:@aopslab/domain-pg-bootstrap-docman@0.1.0:domains/docman/docman-pg-bootstrap:domains/docman/docman-pg-bootstrap",
-      "sourcePath": "domains/docman/docman-pg-bootstrap",
-      "surfaces": [
-        "server-prod-deploy:linux/amd64",
-        "server-prod-deploy:linux/arm64"
-      ]
-    },
-    {
-      "identity": "@aopslab/domain-pg-bootstrap-projectman@0.1.0",
-      "kind": "runtime-source",
-      "locator": "domains/projectman/projectman-pg-bootstrap",
-      "lockIntegrity": null,
-      "peerContext": "",
-      "ref": "runtime-source:@aopslab/domain-pg-bootstrap-projectman@0.1.0:domains/projectman/projectman-pg-bootstrap:domains/projectman/projectman-pg-bootstrap",
-      "sourcePath": "domains/projectman/projectman-pg-bootstrap",
-      "surfaces": [
-        "server-prod-deploy:linux/amd64",
-        "server-prod-deploy:linux/arm64"
-      ]
-    },
-    {
       "identity": "@aopslab/domain-pg-bootstrap-sys@0.1.0",
       "kind": "runtime-source",
       "locator": "domains/sys/sys-pg-bootstrap",
@@ -762,7 +736,7 @@
       ]
     }
   ],
-  "lockSha256": "sha256:c5f88320b3f7c8e9948fcb2f0dcab251967497888d484502d8a5002ce1a40065",
+  "lockSha256": "sha256:f1fbc3d1c1447d2f910714d144f56035f8a543d1e1b2e9b0795f508ed13a7b9f",
   "packages": [
     {
       "files": [
@@ -12087,9 +12061,9 @@
         "runtime-source:@aopslab/light-client-core@0.1.0:domains/chatv3/light-client-core:domains/chatv3/light-client-core"
       ],
       "importerKey": "apps/aops-cli",
-      "packageMapProjectionSha256": "sha256:68d0ab9b247c3743b35159bd649defecf23f6bcb145f42bc420ba8bfc1dea8cb",
+      "packageMapProjectionSha256": "sha256:02d9c41239448843de19dbe986b0d72b4cbad6c6c272ae38e71bfe9a6b48334f",
       "platform": "linux/amd64",
-      "runtimeInventorySha256": "sha256:f6a61477e21b2f31da83bd3de625b6ededa8a50737af2eb1dc05b2f722b5dc0f",
+      "runtimeInventorySha256": "sha256:1b6c17573545c954a69be04ba8e51a2b1de2029160e8b4ac914e8e85e414e3ca",
       "surface": "image-cli-prod-deploy",
       "thirdPartyLocators": [
         "@gar/promise-retry@1.0.3",
@@ -12239,9 +12213,9 @@
         "runtime-source:@aopslab/light-client-core@0.1.0:domains/chatv3/light-client-core:domains/chatv3/light-client-core"
       ],
       "importerKey": "apps/aops-cli",
-      "packageMapProjectionSha256": "sha256:f2db290d882d2414a96cfb6dbe0ce5280ccdfe6a4e769d47b7c9d96febf97a1b",
+      "packageMapProjectionSha256": "sha256:a27cb249fee236884f41d1e4f5e5c77ce1e14e4f346a36c50917f768a3c59c30",
       "platform": "linux/arm64",
-      "runtimeInventorySha256": "sha256:3bf656131a3cb044ffac6f9a1f196bb56c9b168ddec872ac31287aec46553c41",
+      "runtimeInventorySha256": "sha256:52560411bf46b8e9ec9832f20b59330d86b7ce4cf4e33661082e4bcda2ac1a43",
       "surface": "image-cli-prod-deploy",
       "thirdPartyLocators": [
         "@gar/promise-retry@1.0.3",
@@ -12416,8 +12390,6 @@
         "runtime-source:@aopslab/domain-kit-projectman@0.1.5:domains/projectman/projectman-kit:domains/projectman/projectman-kit",
         "runtime-source:@aopslab/domain-kit-sys@0.0.5:domains/sys/sys-kit:domains/sys/sys-kit",
         "runtime-source:@aopslab/domain-pg-bootstrap-chatv3@0.1.0:domains/chatv3/chatv3-pg-bootstrap:domains/chatv3/chatv3-pg-bootstrap",
-        "runtime-source:@aopslab/domain-pg-bootstrap-docman@0.1.0:domains/docman/docman-pg-bootstrap:domains/docman/docman-pg-bootstrap",
-        "runtime-source:@aopslab/domain-pg-bootstrap-projectman@0.1.0:domains/projectman/projectman-pg-bootstrap:domains/projectman/projectman-pg-bootstrap",
         "runtime-source:@aopslab/domain-pg-bootstrap-sys@0.1.0:domains/sys/sys-pg-bootstrap:domains/sys/sys-pg-bootstrap",
         "runtime-source:@aopslab/domain-product-docman@0.1.0:domains/docman/docman-product:domains/docman/docman-product",
         "runtime-source:@aopslab/domain-product-projectman@0.1.1:domains/projectman/projectman-product:domains/projectman/projectman-product",
@@ -12425,9 +12397,9 @@
         "runtime-source:@aopslab/domain-runtime-config-projectman@0.1.0:domains/projectman/projectman-runtime-config:domains/projectman/projectman-runtime-config"
       ],
       "importerKey": "apps/aops-server",
-      "packageMapProjectionSha256": "sha256:2e4be64f65392b0af8a5d74ab42c547aa8af780c0391365a81e651f9decd2c9b",
+      "packageMapProjectionSha256": "sha256:a8be4a0cf9baffd4c50d28cb449279a79600fdb34536d30d29411d749e002415",
       "platform": "linux/amd64",
-      "runtimeInventorySha256": "sha256:572b4e7c51e49ff8a532cbd039eb27c065bae434bc032ef37a1bfe7f77ce46a2",
+      "runtimeInventorySha256": "sha256:0c30f57b3a3a57d0f5ba9c320b21f7aadc9bd1f50703e17ff6ecb9d1277f4389",
       "surface": "server-prod-deploy",
       "thirdPartyLocators": [
         "@drizzle-team/brocli@0.10.2",
@@ -12625,8 +12597,6 @@
         "runtime-source:@aopslab/domain-kit-projectman@0.1.5:domains/projectman/projectman-kit:domains/projectman/projectman-kit",
         "runtime-source:@aopslab/domain-kit-sys@0.0.5:domains/sys/sys-kit:domains/sys/sys-kit",
         "runtime-source:@aopslab/domain-pg-bootstrap-chatv3@0.1.0:domains/chatv3/chatv3-pg-bootstrap:domains/chatv3/chatv3-pg-bootstrap",
-        "runtime-source:@aopslab/domain-pg-bootstrap-docman@0.1.0:domains/docman/docman-pg-bootstrap:domains/docman/docman-pg-bootstrap",
-        "runtime-source:@aopslab/domain-pg-bootstrap-projectman@0.1.0:domains/projectman/projectman-pg-bootstrap:domains/projectman/projectman-pg-bootstrap",
         "runtime-source:@aopslab/domain-pg-bootstrap-sys@0.1.0:domains/sys/sys-pg-bootstrap:domains/sys/sys-pg-bootstrap",
         "runtime-source:@aopslab/domain-product-docman@0.1.0:domains/docman/docman-product:domains/docman/docman-product",
         "runtime-source:@aopslab/domain-product-projectman@0.1.1:domains/projectman/projectman-product:domains/projectman/projectman-product",
@@ -12634,9 +12604,9 @@
         "runtime-source:@aopslab/domain-runtime-config-projectman@0.1.0:domains/projectman/projectman-runtime-config:domains/projectman/projectman-runtime-config"
       ],
       "importerKey": "apps/aops-server",
-      "packageMapProjectionSha256": "sha256:ca613e6a773703855ba633c6dabcc84cba827a2d33bfaf6737b511425bb3a939",
+      "packageMapProjectionSha256": "sha256:e7a3e1b2e3fb027d177bde58ab8042528a0c0c172bc935fb280ddfdee442e30e",
       "platform": "linux/arm64",
-      "runtimeInventorySha256": "sha256:05feb66024163a9c3a08320039a7eb80927cf78d8c898d45e88c9821ce442d7a",
+      "runtimeInventorySha256": "sha256:d3c7849a352610f57d295b0d903a4e0d589eca5cede41cfca445da5679f02a56",
       "surface": "server-prod-deploy",
       "thirdPartyLocators": [
         "@drizzle-team/brocli@0.10.2",

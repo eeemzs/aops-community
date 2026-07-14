@@ -230,18 +230,6 @@ importers:
       '@aopslab/domain-kit-sys':
         specifier: workspace:*
         version: link:../../domains/sys/sys-kit
-      '@aopslab/domain-pg-bootstrap-chatv3':
-        specifier: workspace:*
-        version: link:../../domains/chatv3/chatv3-pg-bootstrap
-      '@aopslab/domain-pg-bootstrap-docman':
-        specifier: workspace:*
-        version: link:../../domains/docman/docman-pg-bootstrap
-      '@aopslab/domain-pg-bootstrap-projectman':
-        specifier: workspace:*
-        version: link:../../domains/projectman/projectman-pg-bootstrap
-      '@aopslab/domain-pg-bootstrap-sys':
-        specifier: workspace:*
-        version: link:../../domains/sys/sys-pg-bootstrap
       '@aopslab/domain-product-docman':
         specifier: workspace:*
         version: link:../../domains/docman/docman-product

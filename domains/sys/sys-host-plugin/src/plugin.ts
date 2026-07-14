@@ -11,7 +11,6 @@ import {
   type SysOperationOutput,
   type SysTypedOperationId,
 } from '@aopslab/domain-kit-sys';
-import { applySysPgSchema } from '@aopslab/domain-pg-bootstrap-sys';
 
 type SysRunner = <TId extends SysTypedOperationId>(
   operationId: TId,
@@ -30,33 +29,6 @@ const SYS_OPERATION_IDS = new Set(
 function toRecord(input: unknown): Record<string, unknown> {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
   return input as Record<string, unknown>;
-}
-
-function normalizeNonEmpty(value: unknown): string | undefined {
-  if (typeof value !== 'string') return undefined;
-  const normalized = value.trim();
-  return normalized.length > 0 ? normalized : undefined;
-}
-
-function inferRepoDialectFromUrl(repoUrl: string): 'pg' | 'sqlite' {
-  const normalized = repoUrl.trim().toLowerCase();
-  if (!normalized) return 'pg';
-  if (normalized === ':memory:') return 'sqlite';
-  if (normalized.startsWith('sqlite:') || normalized.startsWith('file:')) return 'sqlite';
-  if (normalized.endsWith('.db') || normalized.endsWith('.sqlite') || normalized.endsWith('.sqlite3')) return 'sqlite';
-  return 'pg';
-}
-
-function resolveSysPgBootstrapRepoUrl(): string | undefined {
-  return (
-    normalizeNonEmpty(process.env.SYS_REPO_URL) ??
-    normalizeNonEmpty(process.env.SYS_PG_URL) ??
-    normalizeNonEmpty(process.env.POSTGRES_URL_LOCAL) ??
-    normalizeNonEmpty(process.env.POSTGRES_URL) ??
-    normalizeNonEmpty(process.env.DATABASE_URL) ??
-    normalizeNonEmpty(process.env.AOPS_PG_URL) ??
-    normalizeNonEmpty(process.env.DEV_PG_URL)
-  );
 }
 
 function toTypedOperationInput<TId extends SysTypedOperationId>(
@@ -177,9 +149,9 @@ export function createSysPlugin(options: SysPluginOptions = {}): DomainPlugin {
       },
     },
     setup: async () => {
-      const repoUrl = resolveSysPgBootstrapRepoUrl();
-      if (!repoUrl || inferRepoDialectFromUrl(repoUrl) !== 'pg') return;
-      await applySysPgSchema({ repoUrl });
+      if (process.env.AOPS_DB_BOOTSTRAP_MODE !== 'explicit') {
+        throw new Error('community_strict_bootstrap_mode_required');
+      }
     },
     health: async () => ({
       ok: true,

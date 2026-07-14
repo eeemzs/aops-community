@@ -56,6 +56,9 @@ export function resolveCommunityListenConfig(env = process.env) {
       throw new Error(`community_server_proxy_trust_env_forbidden:${key}`);
     }
   }
+  if (nonEmpty(env.AOPS_DB_BOOTSTRAP_MODE).toLowerCase() !== "explicit") {
+    throw new Error("community_strict_bootstrap_mode_required");
+  }
 
   const requestedHost = nonEmpty(env.HOST);
   if (requestedHost && !["127.0.0.1", "localhost", "::1", "[::1]"].includes(requestedHost.toLowerCase())) {

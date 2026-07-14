@@ -7,6 +7,7 @@
     "prepare": "pnpm --filter @aops/aops-cli... run build",
     "build": "pnpm -r --if-present build",
     "typecheck": "pnpm -r --if-present typecheck",
+    "verify": "pnpm build && pnpm typecheck",
     "aops-cli": "node ./apps/aops-cli/dist/main.js",
     "server": "node ./apps/aops-cli/dist/main.js console",
     "server:start": "node ./apps/aops-cli/dist/main.js server start",

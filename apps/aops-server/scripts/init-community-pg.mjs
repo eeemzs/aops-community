@@ -1,9 +1,9 @@
-import { applyCommunityAopsPgSchema } from "@aops/pg-bootstrap";
-import { applyChatv3PgSchema } from "@aopslab/domain-pg-bootstrap-chatv3";
-import { applyDocmanPgSchema } from "@aopslab/domain-pg-bootstrap-docman";
-import { applyProjectmanPgSchema } from "@aopslab/domain-pg-bootstrap-projectman";
-import { applySysPgSchema } from "@aopslab/domain-pg-bootstrap-sys";
+import { applyCommunityStrictPgSchema } from "@aops/pg-bootstrap";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { pathToFileURL } from "node:url";
+
+const policy = JSON.parse(readFileSync(new URL("./community-migration-policy-v1.json", import.meta.url), "utf8"));
 
 function requireRepoUrl(value) {
   const candidate = typeof value === "string" ? value.trim() : "";
@@ -22,17 +22,20 @@ function requireRepoUrl(value) {
 
 export async function initializeCommunityPg(repoUrl = process.env.AOPS_PG_URL) {
   const resolved = requireRepoUrl(repoUrl);
-  const logs = { sys: [], agentspace: [], docman: [], projectman: [] };
-  await applySysPgSchema({ repoUrl: resolved, logs: logs.sys });
-  await applyCommunityAopsPgSchema({ repoUrl: resolved, logs: logs.agentspace });
-  await applyDocmanPgSchema({ repoUrl: resolved, logs: logs.docman });
-  await applyProjectmanPgSchema({ repoUrl: resolved, logs: logs.projectman });
-  const chatv3 = await applyChatv3PgSchema({ repoUrl: resolved });
+  const logs = [];
+  const receipt = await applyCommunityStrictPgSchema({
+    repoUrl: resolved,
+    workspaceRoot: path.resolve(import.meta.dirname, "../../.."),
+    policy,
+    backupEvidencePath: process.env.AOPS_COMMUNITY_BACKUP_EVIDENCE,
+    logs,
+  });
   return {
-    status: "community-pg-initialized",
+    status: "community-pg-strict-verified",
     domains: ["sys", "agentspace", "docman", "projectman", "chatv3"],
-    chatv3Applied: chatv3.applied.length,
-    chatv3Skipped: chatv3.skipped.length,
+    lineageId: receipt.lineageId,
+    stateFingerprintSha256: receipt.stateFingerprintSha256,
+    migrationLogCount: logs.length,
   };
 }
 

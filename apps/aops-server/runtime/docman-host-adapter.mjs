@@ -14,7 +14,6 @@ import {
   applyDocmanRuntimeEnv,
   resolveDocmanRuntimeConfig,
 } from '@aopslab/domain-runtime-config-docman';
-import { applyDocmanPgSchema } from '@aopslab/domain-pg-bootstrap-docman';
 import {
   filterDocmanHostRouteProjection,
   isDocmanOperationAllowed,
@@ -88,14 +87,9 @@ function ensureDocmanHostedRuntimeEnv(options = {}) {
     process.env,
   );
 
-  void applyDocmanPgSchema({ repoUrl: runtime.repoUrl })
-    .catch((error) => {
-      console.error(
-        `[aops-server:docman] PostgreSQL schema bootstrap failed: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-      );
-    });
+  if (process.env.AOPS_DB_BOOTSTRAP_MODE !== 'explicit') {
+    throw new Error('community_strict_bootstrap_mode_required');
+  }
 
   clearDocmanKitEnvConfigCache();
   clearDocmanKitOperationCaches();

@@ -17,6 +17,12 @@
   "bin": {
     "aops-pg-bootstrap": "./dist/bin.js"
   },
+  "aopsCommunityMigrationAssetDependencies": [
+    "@aopslab/domain-pg-bootstrap-chatv3",
+    "@aopslab/domain-pg-bootstrap-docman",
+    "@aopslab/domain-pg-bootstrap-projectman",
+    "@aopslab/domain-pg-bootstrap-sys"
+  ],
   "dependencies": {
     "dotenv": "catalog:",
     "drizzle-kit": "catalog:",

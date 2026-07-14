@@ -295,12 +295,33 @@ test('Community migration bundle rejects orphan SQL and non-contiguous journal i
   }
 })
 
-test('core package has no AuthV2 runtime dependency or import', () => {
+test('core package declares the four Community migration asset owners without runtime imports or AuthV2', () => {
   const packageJson = JSON.parse(readFileSync(path.join(PACKAGE_ROOT, 'package.json'), 'utf8'))
+  assert.deepEqual(
+    packageJson.aopsCommunityMigrationAssetDependencies,
+    [
+      '@aopslab/domain-pg-bootstrap-chatv3',
+      '@aopslab/domain-pg-bootstrap-docman',
+      '@aopslab/domain-pg-bootstrap-projectman',
+      '@aopslab/domain-pg-bootstrap-sys',
+    ],
+  )
+  assert.deepEqual(
+    Object.keys(packageJson.dependencies ?? {})
+      .filter((name) => name.startsWith('@aopslab/domain-pg-bootstrap-')),
+    [],
+  )
   assert.equal(packageJson.dependencies?.['@aopslab/domain-pg-bootstrap-authv2'], undefined)
   assert.ok(packageJson.files.includes('drizzle-out'))
-  const shippedRuntime = ['index.js', 'manifest.js', 'community-migrate.js', 'pg-bootstrap.js', 'cli.js']
+  const shippedRuntime = [
+    'index.js',
+    'manifest.js',
+    'community-migrate.js',
+    'community-strict-migrate.js',
+    'pg-bootstrap.js',
+    'cli.js',
+  ]
     .map((file) => readFileSync(path.join(PACKAGE_ROOT, 'dist', file), 'utf8'))
     .join('\n')
-  assert.doesNotMatch(shippedRuntime, /domain-pg-bootstrap-authv2/)
+  assert.doesNotMatch(shippedRuntime, /domain-pg-bootstrap-/)
 })
