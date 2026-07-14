@@ -10,7 +10,6 @@ import {
   applyProjectmanRuntimeEnv,
   resolveProjectmanRuntimeConfig,
 } from '@aopslab/domain-runtime-config-projectman'
-import { applyProjectmanPgSchema } from '@aopslab/domain-pg-bootstrap-projectman'
 import { createAgentspaceScopeResolver, toNonEmptyString } from './scope-context.mjs'
 
 const DEFAULT_RESUME_MEMORY_LIMIT = 8
@@ -64,9 +63,10 @@ function ensureProjectmanHostedRuntimeEnv(options = {}) {
 
   clearProjectmanKitEnvConfigCache()
   clearProjectmanKitOperationCaches()
-  if (runtime.repoDialect === 'pg' && !projectmanHostedStorageReadyPromise) {
-    projectmanHostedStorageReadyPromise = applyProjectmanPgSchema({ repoUrl: runtime.repoUrl })
+  if (process.env.AOPS_DB_BOOTSTRAP_MODE !== 'explicit') {
+    throw new Error('community_strict_bootstrap_mode_required');
   }
+  projectmanHostedStorageReadyPromise = Promise.resolve();
   projectmanHostedRuntimeEnvReady = true
 }
 

@@ -2,7 +2,7 @@
 
 Local, three-application AOPS distribution: Cockpit, CLI, and the AOPS server on PostgreSQL 17.
 
-> Release status: Apache-2.0 source candidate. Public release remains gated on reviewed attribution, SBOM/provenance, migration safety, and independent release validation.
+> Release status: Apache-2.0 source candidate. Public release remains gated on final reviewed attribution/SBOM/provenance and independent release validation.
 
 ## Requirements
 
@@ -42,13 +42,40 @@ curl --fail http://127.0.0.1:5900/api/health
 ./aops server logs --tail 100
 ```
 
-Every app start applies the five domain schemas in a fixed order. Migrations are idempotent, so normal restarts preserve data.
+Every app start verifies the exact five-domain migration lineage and applies only
+the reviewed pending steps through one strict migration owner. Normal restarts
+are idempotent and preserve data. An unknown, partially changed, or unreviewed
+database shape is rejected instead of being guessed or silently rewritten.
 
 ```sh
 ./aops server restart
 ./aops server stop
 ./aops server start
 ```
+
+## Upgrade and rollback
+
+The normal upgrade entry point is the CLI; operators do not run raw database
+migration commands. `server update` verifies the signed release, creates and
+verifies a PostgreSQL backup, stops the current application, activates the new
+digest-pinned release, and lets startup converge the reviewed schema changes.
+
+```sh
+./aops server update
+./aops server status
+```
+
+If an upgrade must be reversed, the rollback flow is explicit because it also
+rewinds the database to the verified pre-upgrade backup:
+
+```sh
+./aops server rollback --confirm-data-rewind
+```
+
+The first Community baseline recognizes only its named legacy and strict-v1
+lineages. A later schema-changing release must publish a new reviewed migration
+policy and recovery proof; adding an unreviewed SQL file intentionally blocks
+the release factory.
 
 ## Five-minute product walkthrough
 

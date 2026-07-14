@@ -2,11 +2,11 @@ AOPS Community Product Third-Party Notices
 
 This file is generated deterministically from the exact production payload union.
 pnpm: 11.9.0
-pnpm lockfile: sha256:c5f88320b3f7c8e9948fcb2f0dcab251967497888d484502d8a5002ce1a40065
+pnpm lockfile: sha256:f1fbc3d1c1447d2f910714d144f56035f8a543d1e1b2e9b0795f508ed13a7b9f
 Platforms: linux/amd64, linux/arm64
 Payloads: server production deploy, image CLI production deploy, Cockpit emitted bundle
 Third-party packages: 295
-First-party source records excluded from the sections below: 33
+First-party source records excluded from the sections below: 31
 First-party registry packages excluded from the sections below: 22
 
 ================================================================================

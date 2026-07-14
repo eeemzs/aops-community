@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "AOPS Community deterministic source distribution",
-  "documentNamespace": "https://aops.local/spdx/community/fc0af56c2189f9b77610eaa07cf72b00b937d4579da34821cac8c67d7ddf346c",
+  "documentNamespace": "https://aops.local/spdx/community/5ebcff79bf9bb3832146bfb78fbd86c9992b53569e7a1a0d4a4e9be1734d14e9",
   "creationInfo": {
     "created": "1970-01-01T00:00:00Z",
     "creators": [
@@ -188,7 +188,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-tree",
-          "referenceLocator": "sha256:a7b058634ca077cbab7bb1f181a72f4119e22e821a16224e8707cd37ef1c0565"
+          "referenceLocator": "sha256:2dabe80ece3d619ac11a324534c14ee9dca6965eb6a1a4732057f27811cb8f58"
         },
         {
           "referenceCategory": "OTHER",
@@ -556,7 +556,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-tree",
-          "referenceLocator": "sha256:8573ce55635726eb3cc4614b1024cc7d30ba41300c5529c0b4c3e67beedb648b"
+          "referenceLocator": "sha256:f1ece367740514dea264fc47ab8c7390a8bd5f430ba4604457f1479fe1aef1e1"
         },
         {
           "referenceCategory": "OTHER",

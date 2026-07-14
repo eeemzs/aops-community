@@ -26,7 +26,7 @@
     "community": {
       "repository": "https://github.com/eeemzs/aops-community",
       "commitBinding": "release.json#/source/commit",
-      "rawFileInventoryDigest": "sha256:525825c523b5d0c550ba559a200844778e70f727ada17692f0a78e1ef038be97"
+      "rawFileInventoryDigest": "sha256:cf7338c23993390373747cea43d34271d9e1001d4341790ec220322c8517cb84"
     }
   },
   "cleanBuildRequirement": {
@@ -121,9 +121,9 @@
         "path": "apps/aops/packages/aops-pg-bootstrap",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:a7b058634ca077cbab7bb1f181a72f4119e22e821a16224e8707cd37ef1c0565",
-          "fileCount": 17,
-          "byteLength": 290018
+          "digest": "sha256:2dabe80ece3d619ac11a324534c14ee9dca6965eb6a1a4732057f27811cb8f58",
+          "fileCount": 19,
+          "byteLength": 394487
         }
       }
     },
@@ -407,9 +407,9 @@
         "path": "domains/sys/sys-host-plugin",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:8573ce55635726eb3cc4614b1024cc7d30ba41300c5529c0b4c3e67beedb648b",
+          "digest": "sha256:f1ece367740514dea264fc47ab8c7390a8bd5f430ba4604457f1479fe1aef1e1",
           "fileCount": 9,
-          "byteLength": 24498
+          "byteLength": 23321
         }
       }
     },

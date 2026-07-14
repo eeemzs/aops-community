@@ -35,6 +35,7 @@ services:
       ORIGIN: http://127.0.0.1:5901
       COMMUNITY_HOST: 0.0.0.0
       COMMUNITY_PORT: 5900
+      AOPS_DB_BOOTSTRAP_MODE: explicit
       AOPS_PG_URL: postgresql://${AOPS_POSTGRES_USER:-aops}:${AOPS_POSTGRES_PASSWORD}@127.0.0.1:5432/${AOPS_POSTGRES_DB:-aops}
       CHATV3_SERVER_KEY_ID: k1
       CHATV3_SERVER_KEY_SECRET: ${CHATV3_SERVER_KEY_SECRET:?run node deploy/community/init-env.mjs first}

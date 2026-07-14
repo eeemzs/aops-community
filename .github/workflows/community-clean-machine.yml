@@ -140,14 +140,16 @@ jobs:
               [[ "$IMAGE_DIGEST" == "$HOST_DIGEST" ]]
             done
           }
+          MARKER_SQL="SELECT \"metadataJson\"->>'marker' FROM public.sys_counters WHERE \"id\" = '70000000-0000-4000-8000-000000000001'"
+          marker() { compose exec -T postgres psql -U aops -d aops --tuples-only --no-align --command "$MARKER_SQL"; }
           compose exec -T postgres psql -U aops -d aops --set ON_ERROR_STOP=1 --command \
-            "CREATE TABLE IF NOT EXISTS public.aops_release_qa (id integer PRIMARY KEY, marker text NOT NULL); INSERT INTO public.aops_release_qa VALUES (1, 'persists') ON CONFLICT (id) DO UPDATE SET marker = EXCLUDED.marker;"
+            "INSERT INTO public.sys_counters (\"id\", \"tenantId\", \"scopeId\", \"counterKey\", \"nextValue\", \"metadataJson\") VALUES ('70000000-0000-4000-8000-000000000001', '70000000-0000-4000-8000-000000000002', 'release-qa', 'clean-machine-persistence', 42, '{\"marker\":\"persists\"}'::jsonb) ON CONFLICT (\"id\") DO UPDATE SET \"nextValue\" = EXCLUDED.\"nextValue\", \"metadataJson\" = EXCLUDED.\"metadataJson\", \"updatedAt\" = now();"
 
           if [[ -n "$PREVIOUS_RELEASE_REF" ]]; then
             assert_legal_matches previous/release
             target_cli server update --data-root "$DATA_ROOT" --json
             target_cli server status --data-root "$DATA_ROOT" --json
-            [[ "$(compose exec -T postgres psql -U aops -d aops --tuples-only --no-align --command 'SELECT marker FROM public.aops_release_qa WHERE id = 1')" == "persists" ]]
+            [[ "$(marker)" == "persists" ]]
             assert_legal_matches release
             target_cli server rollback --data-root "$DATA_ROOT" --confirm-data-rewind --json
             assert_legal_matches previous/release
@@ -161,7 +163,7 @@ jobs:
           target_cli server start --data-root "$DATA_ROOT" --json
           target_cli server status --data-root "$DATA_ROOT" --json
           assert_legal_matches "$ACTIVE_RELEASE_ROOT"
-          [[ "$(compose exec -T postgres psql -U aops -d aops --tuples-only --no-align --command 'SELECT marker FROM public.aops_release_qa WHERE id = 1')" == "persists" ]]
+          [[ "$(marker)" == "persists" ]]
 
   windows-cli-contract:
     name: Windows clone and local CLI contract
@@ -222,10 +224,9 @@ jobs:
           node-version: '22'
       - name: Prove anonymous pull and lifecycle on Docker Desktop
         shell: bash
-        env:
-          DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
+          DATA_ROOT="${RUNNER_TEMP}/aops-community-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           docker version
           cli() { ./aops "$@"; }
           cli server setup --data-root "$DATA_ROOT" --json
@@ -246,10 +247,9 @@ jobs:
       - name: Always remove the self-hosted macOS lifecycle state and volume
         if: ${{ always() }}
         shell: bash
-        env:
-          DATA_ROOT: ${{ runner.temp }}/aops-community-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -u
+          DATA_ROOT="${RUNNER_TEMP}/aops-community-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           EXPECTED_DATA_ROOT_NAME="aops-community-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           EXPECTED_DATA_ROOT="$RUNNER_TEMP/$EXPECTED_DATA_ROOT_NAME"
           if [[ "$DATA_ROOT" != "$EXPECTED_DATA_ROOT" ]]; then
