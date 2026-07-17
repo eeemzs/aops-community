@@ -19,4 +19,3 @@ export const AgentRunErrorTag = {
 export class AgentRunDomainError extends Data.TaggedError(AgentRunErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type AgentRunServiceError = AgentRunDomainError | XfError | RepositoryError | XfUpsertError
-

@@ -12,6 +12,9 @@ export default defineConfig({
   cacheDir: ".vite",
   clearScreen: false,
   customLogger: logger,
+  define: {
+    __AOPS_SERVER_PACKAGE_VERSION__: JSON.stringify("0.1.0")
+  },
   plugins: [sveltekit()],
   server: {
     host: "127.0.0.1",

@@ -16,4 +16,3 @@ export const ServiceFactorySnippet = {
     return ServiceBuilderSnippet.create()
   },
 }
-

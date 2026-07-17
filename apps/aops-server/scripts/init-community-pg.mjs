@@ -34,6 +34,12 @@ export async function initializeCommunityPg(repoUrl = process.env.AOPS_PG_URL) {
     status: "community-pg-strict-verified",
     domains: ["sys", "agentspace", "docman", "projectman", "chatv3"],
     lineageId: receipt.lineageId,
+    migrationAction: receipt.migrationPlan.action,
+    pendingMigrationCount: receipt.migrationPlan.pendingMigrations.length,
+    acceptedPlanSha256: receipt.acceptedPlanSha256,
+    sourceMigrationStateFingerprintSha256: receipt.sourceFingerprintSha256,
+    resultSchemaFingerprintSha256: receipt.schemaFingerprintSha256,
+    resultReceiptFingerprintSha256: receipt.receiptFingerprintSha256,
     stateFingerprintSha256: receipt.stateFingerprintSha256,
     migrationLogCount: logs.length,
   };

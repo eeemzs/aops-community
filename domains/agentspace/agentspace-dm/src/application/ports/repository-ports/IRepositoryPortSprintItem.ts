@@ -15,5 +15,3 @@ export interface IRepositoryPortSprintItem extends IRepositoryPortBaseCrud<IbmSp
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmSprintItem>): import('effect').Effect<IbmSprintItem | null, RepositoryError>
   //<==//
 }
-
-

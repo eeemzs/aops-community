@@ -19,4 +19,3 @@ export const SkillVersionErrorTag = {
 export class SkillVersionDomainError extends Data.TaggedError(SkillVersionErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type SkillVersionServiceError = SkillVersionDomainError | XfError | RepositoryError | XfUpsertError
-

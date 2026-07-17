@@ -21,4 +21,3 @@ export class KanbanBoardDrizzleRepo extends DraBase<IbmKanbanBoard, IdbKanbanBoa
   // }
   //<==//
 }
-

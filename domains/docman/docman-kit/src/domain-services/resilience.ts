@@ -19,4 +19,3 @@ export const defaultDocmanKitResilience: Pick<DocmanKitProviderOptions, 'resilie
     // ttlMs: 5 * 60 * 1000,
   },
 };
-

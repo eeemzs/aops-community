@@ -7,16 +7,21 @@ import test from 'node:test'
 
 import {
   applyCommunityStrictPgSchema,
+  buildCommunityStrictMigrationPlanV1,
   fingerprintCommunityStrictCatalog,
   fingerprintCommunityStrictConvergence,
   fingerprintCommunityStrictReceipts,
   inspectCommunityStrictMigrationBundle,
   inspectCommunityStrictPgSchema,
+  planCommunityStrictPgSchema,
   readCommunityStrictCatalogProjection,
   validateCommunityStrictMigrationPolicyV1,
 } from '../dist/index.js'
 
 const sha256 = (value) => createHash('sha256').update(value).digest('hex')
+const platformCaseVariant = (value) => process.platform === 'win32' && /^[A-Z]:/.test(value)
+  ? `${value[0].toLowerCase()}${value.slice(1)}`
+  : value
 const ROOT_IDS = ['sys', 'agentspace', 'docman', 'projectman', 'chatv3']
 const MIGRATION_TABLES = Object.freeze({
   sys: 'sys_schema_migrations',
@@ -148,15 +153,90 @@ function legacyRows(policy) {
   ]))
 }
 
-function createInspectClient({ projection, policy, rowsByTable = legacyRows(policy), strictReceipts, strictState, queries = [] }) {
+function strictTrackedState(policy, strictProjection) {
+  const rowsByTable = legacyRows(policy)
+  const rootStates = policy.roots.map((root) => ({
+    rootId: root.id,
+    migrationTablePresent: true,
+    rows: rowsByTable[root.migrationTable],
+  }))
+  const strictReceipts = policy.roots.flatMap((root, rootOrdinal) =>
+    root.migrations.map((migration, migrationIdx) => ({
+      rootId: root.id,
+      rootOrdinal,
+      migrationIdx,
+      tag: migration.tag,
+      sqlSha256: migration.sha256,
+      journalSha256: root.journalSha256,
+      appliedAt: rowsByTable[root.migrationTable][migrationIdx].appliedAt,
+      provenance: 'exact-lineage-adoption',
+    })),
+  )
+  const strictRowsSha256 = sha256(JSON.stringify(strictReceipts))
+  const strictState = {
+    policyId: policy.id,
+    inventorySha256: policy.inventorySha256,
+    convergenceSha256: policy.convergenceSha256,
+    lineageId: policy.targetLineageId,
+    schemaFingerprintSha256: fingerprintCommunityStrictCatalog(strictProjection),
+    receiptFingerprintSha256: fingerprintCommunityStrictReceipts(policy, rootStates),
+    strictReceiptRowsSha256: strictRowsSha256,
+  }
+  return { rowsByTable, rootStates, strictReceipts, strictRowsSha256, strictState }
+}
+
+function createInspectClient({
+  projection,
+  policy,
+  rowsByTable = legacyRows(policy),
+  strictReceipts,
+  strictState,
+  queries = [],
+  acceptances = new Map(),
+}) {
   return {
     async connect() {},
     async end() {},
-    async query(text) {
+    async query(text, params = []) {
       queries.push(text)
       if (text.startsWith('SET SESSION')) return { rows: [] }
       if (text.startsWith('BEGIN') || text === 'COMMIT' || text === 'ROLLBACK' ||
           text.includes('pg_advisory_xact_lock')) return { rows: [] }
+      if (text.startsWith('CREATE SCHEMA IF NOT EXISTS aops_community_meta') ||
+          text.startsWith('CREATE TABLE IF NOT EXISTS aops_community_meta.migration_plan_acceptances_v1')) {
+        return { rows: [] }
+      }
+      if (text.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1')) {
+        if (!acceptances.has(String(params[0]))) {
+          acceptances.set(String(params[0]), {
+            acceptedPlanSha256: params[0],
+            action: params[1],
+            sourceFingerprintSha256: params[2],
+            targetLineageId: params[3],
+            resultLineageId: params[4],
+            resultSchemaFingerprintSha256: params[5],
+            resultReceiptFingerprintSha256: params[6],
+            resultStateFingerprintSha256: params[7],
+            evidenceKind: params[8],
+            evidenceSha256: params[9],
+            planJson: JSON.parse(params[10]),
+            acceptedAt: params[11],
+          })
+        }
+        return { rows: [] }
+      }
+      if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+          text.includes('WHERE accepted_plan_sha256 = $1')) {
+        const row = acceptances.get(String(params[0]))
+        return { rows: row ? [row] : [] }
+      }
+      if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+          text.includes("WHERE action = 'migrate'")) {
+        const rows = [...acceptances.values()].filter((entry) => entry.action === 'migrate' &&
+          entry.resultLineageId === params[0] && entry.resultSchemaFingerprintSha256 === params[1] &&
+          entry.resultReceiptFingerprintSha256 === params[2])
+        return { rows: rows.length === 0 ? [] : [rows.at(-1)] }
+      }
       if (text.includes("current_setting('server_version_num')")) return { rows: [{ major: 17 }] }
       if (text.includes('FROM pg_catalog.pg_class c') && text.includes("c.relkind IN ('r', 'p', 'v'")) {
         return { rows: projection.relations }
@@ -185,6 +265,269 @@ function createInspectClient({ projection, policy, rowsByTable = legacyRows(poli
       throw new Error(`unexpected_test_query:${text}`)
     },
   }
+}
+
+function createRiskyFixture() {
+  const workspaceRoot = mkdtempSync(path.join(tmpdir(), 'aops-community-strict-risky-'))
+  const legacyProjection = projectionForTables(Object.values(MIGRATION_TABLES))
+  const strictProjection = projectionForTables([
+    ...Object.values(MIGRATION_TABLES),
+    'sys_product',
+    'aops_community_migration_receipts_v1',
+    'aops_community_migration_state_v1',
+  ])
+  strictProjection.columns.push(
+    { column: 'archivedAt', ordinal: 2, table: 'sys_product' },
+    { column: 'id', ordinal: 1, table: 'sys_product' },
+  )
+  const policy = createPolicy({ workspaceRoot, legacyProjection, strictProjection })
+  policy.roots[0].migrations[0].risk = 'destructive-or-dynamic'
+  policy.lineages[0].appliedCounts = [...policy.lineages[0].appliedCounts]
+  policy.lineages[0].appliedCounts[0] = 0
+  const rowsByTable = legacyRows(policy)
+  rowsByTable[MIGRATION_TABLES.sys] = []
+  return { workspaceRoot, legacyProjection, strictProjection, policy, rowsByTable }
+}
+
+async function planRiskyFixture(fixture) {
+  return planCommunityStrictPgSchema({
+    repoUrl: 'postgresql://user:pass@localhost:5432/community',
+    workspaceRoot: fixture.workspaceRoot,
+    policy: fixture.policy,
+    clientFactory: () => createInspectClient({
+      projection: fixture.legacyProjection,
+      policy: fixture.policy,
+      rowsByTable: fixture.rowsByTable,
+    }),
+  })
+}
+
+function externalSnapshotEvidence(plan, policy, overrides = {}) {
+  return {
+    schemaVersion: 1,
+    kind: 'external-snapshot-attestation',
+    evidencePolicy: 'external-recovery-owner-attested-v1',
+    createdAt: '2026-07-16T12:00:00.000Z',
+    acceptedPlanSha256: plan.acceptedPlanSha256,
+    sourceMigrationStateFingerprintSha256: plan.sourceFingerprintSha256,
+    sourceLineageId: plan.lineageId,
+    sourceSchemaFingerprintSha256: plan.schemaFingerprintSha256,
+    sourceReceiptFingerprintSha256: plan.receiptFingerprintSha256,
+    sourceDataFingerprintSha256: sha256(JSON.stringify(plan.dataSentinels)),
+    sourceStateFingerprintSha256: plan.stateFingerprintSha256,
+    targetInventorySha256: policy.inventorySha256,
+    recoveryOwner: 'external',
+    provider: 'operator-managed-postgresql',
+    snapshotRef: 'snapshot/community-before-risky-migration',
+    snapshotDigest: `sha256:${'a'.repeat(64)}`,
+    attestedBy: 'test-operator',
+    restoreInstructionsRef: 'runbook://community/external-postgresql-restore',
+    ...overrides,
+  }
+}
+
+function managedSnapshotEvidence(plan, policy, backupPath, backup) {
+  const backupSha256 = `sha256:${sha256(backup)}`
+  const dataSha256 = sha256(JSON.stringify(plan.dataSentinels))
+  return {
+    schemaVersion: 1,
+    kind: 'managed-verified-backup',
+    evidencePolicy: 'managed-restore-verified-v1',
+    createdAt: '2026-07-16T12:00:00.000Z',
+    acceptedPlanSha256: plan.acceptedPlanSha256,
+    sourceMigrationStateFingerprintSha256: plan.sourceFingerprintSha256,
+    sourceLineageId: plan.lineageId,
+    sourceSchemaFingerprintSha256: plan.schemaFingerprintSha256,
+    sourceReceiptFingerprintSha256: plan.receiptFingerprintSha256,
+    sourceDataFingerprintSha256: dataSha256,
+    sourceStateFingerprintSha256: plan.stateFingerprintSha256,
+    targetInventorySha256: policy.inventorySha256,
+    backupPath: platformCaseVariant(backupPath),
+    sha256: backupSha256,
+    byteLength: backup.byteLength,
+    restoreProof: {
+      method: 'pg-restore-disposable-v1',
+      backupSha256,
+      backupByteLength: backup.byteLength,
+      restoredSchemaFingerprintSha256: plan.schemaFingerprintSha256,
+      restoredReceiptFingerprintSha256: plan.receiptFingerprintSha256,
+      restoredDataFingerprintSha256: dataSha256,
+      restoredStateFingerprintSha256: plan.stateFingerprintSha256,
+    },
+  }
+}
+
+function createRiskyApplyHarness(fixture, { failAcceptanceRead = false, beforeCommit } = {}) {
+  const rowsByTable = structuredClone(fixture.rowsByTable)
+  const strictReceipts = []
+  const committedAcceptances = new Map()
+  let transactionAcceptances = null
+  let strictState = null
+  let metadataReady = false
+  let transactionOpen = false
+  let commitCount = 0
+  const queries = []
+
+  const activeAcceptances = () => transactionAcceptances ?? committedAcceptances
+  const client = {
+    async connect() {},
+    async end() {},
+    async query(text, params = []) {
+      queries.push(text)
+      if (text.includes('pg_try_advisory_lock')) return { rows: [{ acquired: true }] }
+      if (text.includes('pg_advisory_unlock')) return { rows: [{ unlocked: true }] }
+      if (text.startsWith('SET SESSION') || text.startsWith('LOCK TABLE')) return { rows: [] }
+      if (text.startsWith('BEGIN')) {
+        transactionOpen = true
+        transactionAcceptances = new Map(committedAcceptances)
+        return { rows: [] }
+      }
+      if (text === 'COMMIT') {
+        commitCount += 1
+        await beforeCommit?.(commitCount)
+        if (transactionOpen && transactionAcceptances) {
+          committedAcceptances.clear()
+          for (const [key, value] of transactionAcceptances) committedAcceptances.set(key, value)
+        }
+        transactionOpen = false
+        transactionAcceptances = null
+        return { rows: [] }
+      }
+      if (text === 'ROLLBACK') {
+        transactionOpen = false
+        transactionAcceptances = null
+        return { rows: [] }
+      }
+      if (text.includes("current_setting('server_version_num')")) return { rows: [{ major: 17 }] }
+
+      const projection = metadataReady ? fixture.strictProjection : fixture.legacyProjection
+      if (text.includes('FROM pg_catalog.pg_class c') &&
+          text.includes("c.relkind IN ('r', 'p', 'v', 'm', 'S', 'f', 'c')")) {
+        return { rows: projection.relations }
+      }
+      if (text.includes('FROM pg_catalog.pg_attribute')) return { rows: projection.columns }
+      if (text.includes('FROM pg_catalog.pg_constraint x')) return { rows: projection.constraints }
+      if (text.includes('FROM pg_catalog.pg_index')) return { rows: projection.indexes }
+      if (text.includes("c.relkind IN ('v', 'm')")) return { rows: projection.views }
+      if (text.includes('FROM pg_catalog.pg_sequence')) return { rows: projection.sequences }
+      if (text.includes('FROM pg_catalog.pg_inherits')) return { rows: projection.inheritance }
+      if (text.includes('FROM pg_catalog.pg_proc')) return { rows: projection.routines }
+      if (text.includes('FROM pg_catalog.pg_trigger')) return { rows: projection.triggers }
+      if (text.includes('FROM pg_catalog.pg_event_trigger')) return { rows: projection.eventTriggers }
+      if (text.includes('FROM pg_catalog.pg_rewrite')) return { rows: projection.rules }
+      if (text.includes('FROM pg_catalog.pg_policy')) return { rows: projection.policies }
+      if (text.includes('FROM pg_catalog.pg_type')) return { rows: projection.types }
+      if (text.includes('FROM pg_catalog.pg_extension')) return { rows: projection.extensions }
+
+      if (text === 'CREATE EXTENSION IF NOT EXISTS pgcrypto' ||
+          text.startsWith('CREATE TABLE IF NOT EXISTS public."') ||
+          text.startsWith('CREATE TABLE sys_product') ||
+          text.startsWith('ALTER TABLE public."sys_product"')) {
+        return { rows: [] }
+      }
+      const legacyInsert = /^INSERT INTO public\."([^"]+)" \(tag(?:, sha256)?\) VALUES/.exec(text)
+      if (legacyInsert) {
+        rowsByTable[legacyInsert[1]].push({
+          tag: String(params[0]),
+          sha256: params.length > 1 ? String(params[1]) : null,
+          appliedAt: '2026-07-16T12:00:00.000000Z',
+        })
+        return { rows: [] }
+      }
+      if (text.includes('CREATE TABLE IF NOT EXISTS public.aops_community_migration_receipts_v1')) {
+        return { rows: [] }
+      }
+      if (text.includes('CREATE TABLE IF NOT EXISTS public.aops_community_migration_state_v1')) {
+        metadataReady = true
+        return { rows: [] }
+      }
+      if (text.includes('SELECT COUNT(*)::text AS count FROM public.aops_community_migration_receipts_v1')) {
+        return { rows: [{ count: String(strictReceipts.length) }] }
+      }
+      if (text.includes('INSERT INTO public.aops_community_migration_receipts_v1')) {
+        strictReceipts.push({
+          rootId: params[0],
+          rootOrdinal: params[1],
+          migrationIdx: params[2],
+          tag: params[3],
+          sqlSha256: params[4],
+          journalSha256: params[5],
+          appliedAt: params[6],
+          provenance: params[7],
+        })
+        return { rows: [] }
+      }
+      if (text.includes('INSERT INTO public.aops_community_migration_state_v1')) {
+        strictState = {
+          policyId: params[0],
+          inventorySha256: params[1],
+          convergenceSha256: params[2],
+          lineageId: params[3],
+          schemaFingerprintSha256: params[4],
+          receiptFingerprintSha256: params[5],
+          strictReceiptRowsSha256: params[6],
+        }
+        return { rows: [] }
+      }
+      if (text.startsWith('CREATE SCHEMA IF NOT EXISTS aops_community_meta') ||
+          text.startsWith('CREATE TABLE IF NOT EXISTS aops_community_meta.migration_plan_acceptances_v1')) {
+        return { rows: [] }
+      }
+      if (text.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1')) {
+        activeAcceptances().set(String(params[0]), {
+          acceptedPlanSha256: params[0],
+          action: params[1],
+          sourceFingerprintSha256: params[2],
+          targetLineageId: params[3],
+          resultLineageId: params[4],
+          resultSchemaFingerprintSha256: params[5],
+          resultReceiptFingerprintSha256: params[6],
+          resultStateFingerprintSha256: params[7],
+          evidenceKind: params[8],
+          evidenceSha256: params[9],
+          planJson: JSON.parse(params[10]),
+          acceptedAt: params[11],
+        })
+        return { rows: [] }
+      }
+      if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+          text.includes('WHERE accepted_plan_sha256 = $1')) {
+        if (failAcceptanceRead) throw new Error('forced_acceptance_read_failure')
+        const row = activeAcceptances().get(String(params[0]))
+        return { rows: row ? [row] : [] }
+      }
+      if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+          text.includes("WHERE action = 'migrate'")) {
+        const rows = [...committedAcceptances.values()].filter((entry) => entry.action === 'migrate' &&
+          entry.resultLineageId === params[0] && entry.resultSchemaFingerprintSha256 === params[1] &&
+          entry.resultReceiptFingerprintSha256 === params[2])
+        return { rows: rows.length === 0 ? [] : [rows.at(-1)] }
+      }
+      if (text.includes('FROM public.aops_community_migration_receipts_v1')) {
+        return { rows: strictReceipts }
+      }
+      if (text.includes('FROM public.aops_community_migration_state_v1')) {
+        return { rows: strictState ? [strictState] : [] }
+      }
+      const tableMatch = /FROM public\."([^"]+)"/.exec(text)
+      if (tableMatch) return { rows: rowsByTable[tableMatch[1]] ?? [] }
+      throw new Error(`unexpected_test_query:${text}`)
+    },
+  }
+  return { client, committedAcceptances, queries }
+}
+
+function publicMutationQueries(queries) {
+  return queries.filter((query) =>
+    query === 'CREATE EXTENSION IF NOT EXISTS pgcrypto' ||
+    query.startsWith('CREATE TABLE IF NOT EXISTS public.') ||
+    query.startsWith('CREATE TABLE sys_product') ||
+    query.startsWith('ALTER TABLE public.') ||
+    query.startsWith('INSERT INTO public.') ||
+    query.startsWith('UPDATE public.') ||
+    query.startsWith('DELETE FROM public.') ||
+    query.startsWith('DROP '),
+  )
 }
 
 test('strict policy and bundle pin all five journals and exact SQL bytes', () => {
@@ -231,14 +574,6 @@ test('bundle rejects orphan SQL and policy rejects shape/order drift', () => {
     assert.throws(
       () => validateCommunityStrictMigrationPolicyV1(convergenceTamper),
       /community_strict_policy_convergence_hash_mismatch:0/,
-    )
-
-    const unsupportedRiskyUpgrade = structuredClone(fixture.policy)
-    unsupportedRiskyUpgrade.roots[0].migrations[0].risk = 'destructive-or-dynamic'
-    unsupportedRiskyUpgrade.lineages[0].appliedCounts[0] = 0
-    assert.throws(
-      () => validateCommunityStrictMigrationPolicyV1(unsupportedRiskyUpgrade),
-      /community_strict_policy_risky_nonempty_lineage_unsupported_v1:legacy-v1/,
     )
 
     const ambiguousClassifier = structuredClone(fixture.policy)
@@ -476,6 +811,395 @@ test('strict lineage binds exact receipt rows including provenance', async () =>
   }
 })
 
+test('strict migration plan is deterministic, path-free, and changes with structural source drift', () => {
+  const fixture = createFixture()
+  try {
+    const bundle = inspectCommunityStrictMigrationBundle({
+      policy: fixture.policy,
+      workspaceRoot: fixture.workspaceRoot,
+    })
+    const sourceRoots = fixture.policy.roots.map((root) => ({
+      rootId: root.id,
+      migrationTablePresent: false,
+      rows: [],
+    }))
+    const sourceSchemaFingerprintSha256 = fingerprintCommunityStrictCatalog(projectionForTables([]))
+    const input = {
+      policy: fixture.policy,
+      bundle,
+      postgresMajor: 17,
+      sourceLineageId: 'empty-v1',
+      sourceSchemaFingerprintSha256,
+      sourceStrictReceiptRowsSha256: null,
+      sourceRoots,
+    }
+    const first = buildCommunityStrictMigrationPlanV1(input)
+    const second = buildCommunityStrictMigrationPlanV1({
+      ...input,
+      policy: Object.fromEntries(Object.entries(fixture.policy).reverse()),
+    })
+    assert.deepEqual(second, first)
+    assert.match(first.planSha256, /^[a-f0-9]{64}$/)
+    assert.equal(first.plan.sourceFingerprintSha256, first.sourceFingerprintSha256)
+    assert.equal(first.plan.action, 'migrate')
+    assert.deepEqual(
+      first.plan.pendingMigrations.map(({ rootId, migrationIdx, tag, sqlSha256 }) => ({
+        rootId,
+        migrationIdx,
+        tag,
+        sqlSha256,
+      })),
+      fixture.policy.roots.flatMap((root) => root.migrations.map((migration) => ({
+        rootId: root.id,
+        migrationIdx: migration.idx,
+        tag: migration.tag,
+        sqlSha256: migration.sha256,
+      }))),
+    )
+    const serialized = JSON.stringify(first)
+    assert.equal(serialized.includes(fixture.workspaceRoot), false)
+    assert.equal(serialized.includes('postgresql://'), false)
+
+    const drifted = buildCommunityStrictMigrationPlanV1({ ...input, postgresMajor: 18 })
+    assert.notEqual(drifted.sourceFingerprintSha256, first.sourceFingerprintSha256)
+    assert.notEqual(drifted.planSha256, first.planSha256)
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('expected plan mismatch fails under the advisory lock before any DDL', async () => {
+  const fixture = createFixture()
+  const queries = []
+  try {
+    const base = createInspectClient({
+      projection: fixture.legacyProjection,
+      policy: fixture.policy,
+    })
+    const client = {
+      ...base,
+      async query(text, params) {
+        queries.push(text)
+        if (text.includes('pg_try_advisory_lock')) return { rows: [{ acquired: true }] }
+        if (text.includes('pg_advisory_unlock')) return { rows: [{ unlocked: true }] }
+        if (text.startsWith('LOCK TABLE')) return { rows: [] }
+        return base.query(text, params)
+      },
+    }
+    await assert.rejects(
+      applyCommunityStrictPgSchema({
+        repoUrl: 'postgresql://user:pass@localhost:5432/community',
+        workspaceRoot: fixture.workspaceRoot,
+        policy: fixture.policy,
+        expectedPlanSha256: '0'.repeat(64),
+        clientFactory: () => client,
+      }),
+      /community_strict_migration_plan_mismatch:expected=0{64}:actual=[a-f0-9]{64}/,
+    )
+    assert.match(queries[0], /pg_try_advisory_lock/)
+    assert.ok(queries.some((query) => query.startsWith('LOCK TABLE')))
+    assert.deepEqual(
+      queries.filter((query) => /^(CREATE|ALTER|DROP|INSERT|UPDATE|DELETE|TRUNCATE)\b/.test(query)),
+      [],
+    )
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('risky non-empty plan requires snapshot evidence before any public DDL', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const harness = createRiskyApplyHarness(fixture)
+    await assert.rejects(
+      applyCommunityStrictPgSchema({
+        repoUrl: 'postgresql://user:pass@localhost:5432/community',
+        workspaceRoot: fixture.workspaceRoot,
+        policy: fixture.policy,
+        clientFactory: () => harness.client,
+      }),
+      /community_strict_snapshot_evidence_required/,
+    )
+    assert.deepEqual(publicMutationQueries(harness.queries), [])
+    assert.ok(harness.queries.includes('ROLLBACK'))
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('external snapshot evidence rejects a wrong accepted plan or source fingerprint before public DDL', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const plan = await planRiskyFixture(fixture)
+    for (const [name, overrides] of [
+      ['plan', { acceptedPlanSha256: '0'.repeat(64) }],
+      ['source', { sourceMigrationStateFingerprintSha256: '1'.repeat(64) }],
+    ]) {
+      const evidencePath = path.join(fixture.workspaceRoot, `external-${name}.json`)
+      writeFileSync(evidencePath, JSON.stringify(externalSnapshotEvidence(plan, fixture.policy, overrides)))
+      const harness = createRiskyApplyHarness(fixture)
+      await assert.rejects(
+        applyCommunityStrictPgSchema({
+          repoUrl: 'postgresql://user:pass@localhost:5432/community',
+          workspaceRoot: fixture.workspaceRoot,
+          policy: fixture.policy,
+          expectedPlanSha256: plan.acceptedPlanSha256,
+          snapshotEvidencePath: evidencePath,
+          snapshotPolicy: 'managed-or-external-attested-v1',
+          clientFactory: () => harness.client,
+        }),
+        /community_strict_snapshot_evidence_mismatch/,
+      )
+      assert.deepEqual(publicMutationQueries(harness.queries), [], name)
+    }
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('external snapshot evidence rejects blank and credential-bearing recovery references before public DDL', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const plan = await planRiskyFixture(fixture)
+    for (const [name, overrides] of [
+      ['blank-provider', { provider: '   ' }],
+      ['userinfo', { snapshotRef: 'https://operator:secret@example.test/snapshot' }],
+      ['scheme-relative-userinfo', { snapshotRef: '//operator:secret@example.test/snapshot' }],
+      ['signed-query', { snapshotRef: 'https://example.test/snapshot?X-Amz-Signature=secret' }],
+      ['runbook-query', { restoreInstructionsRef: 'https://example.test/restore?token=secret' }],
+    ]) {
+      const evidencePath = path.join(fixture.workspaceRoot, `external-unsafe-${name}.json`)
+      writeFileSync(evidencePath, JSON.stringify(externalSnapshotEvidence(plan, fixture.policy, overrides)))
+      const harness = createRiskyApplyHarness(fixture)
+      await assert.rejects(
+        applyCommunityStrictPgSchema({
+          repoUrl: 'postgresql://user:pass@localhost:5432/community',
+          workspaceRoot: fixture.workspaceRoot,
+          policy: fixture.policy,
+          expectedPlanSha256: plan.acceptedPlanSha256,
+          snapshotEvidencePath: evidencePath,
+          snapshotPolicy: 'managed-or-external-attested-v1',
+          clientFactory: () => harness.client,
+        }),
+        /community_strict_external_snapshot_evidence_invalid/,
+      )
+      assert.deepEqual(publicMutationQueries(harness.queries), [], name)
+    }
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('managed-or-external policy accepts exact external attestation and commits its audit with public DDL', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const plan = await planRiskyFixture(fixture)
+    const evidence = externalSnapshotEvidence(plan, fixture.policy)
+    const evidencePath = path.join(fixture.workspaceRoot, 'external-exact.json')
+    writeFileSync(evidencePath, JSON.stringify(evidence))
+    const harness = createRiskyApplyHarness(fixture)
+
+    const result = await applyCommunityStrictPgSchema({
+      repoUrl: 'postgresql://user:pass@localhost:5432/community',
+      workspaceRoot: fixture.workspaceRoot,
+      policy: fixture.policy,
+      expectedPlanSha256: plan.acceptedPlanSha256,
+      snapshotEvidencePath: platformCaseVariant(evidencePath),
+      snapshotPolicy: 'managed-or-external-attested-v1',
+      now: () => new Date('2026-07-16T12:05:00.000Z'),
+      clientFactory: () => harness.client,
+    })
+
+    assert.equal(result.acceptedPlanSha256, plan.acceptedPlanSha256)
+    assert.equal(result.latestAppliedPlanSha256, plan.acceptedPlanSha256)
+    assert.equal(result.durableAcceptance.action, 'migrate')
+    assert.equal(result.durableAcceptance.evidenceKind, 'external-snapshot-attestation')
+    assert.equal(result.durableAcceptance.evidenceSha256, sha256(JSON.stringify(evidence)))
+    assert.equal(result.durableAcceptance.acceptedAt, '2026-07-16T12:05:00.000Z')
+    assert.equal(harness.committedAcceptances.size, 1)
+
+    const publicDdlIndex = harness.queries.findIndex((query) => query.startsWith('CREATE TABLE sys_product'))
+    const auditIndex = harness.queries.findIndex((query) =>
+      query.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1'))
+    const commitOffset = harness.queries.slice(auditIndex + 1).indexOf('COMMIT')
+    assert.ok(publicDdlIndex >= 0)
+    assert.ok(auditIndex > publicDdlIndex)
+    assert.ok(commitOffset >= 0)
+    assert.equal(harness.queries.slice(publicDdlIndex, auditIndex).includes('COMMIT'), false)
+    assert.equal(harness.queries.slice(auditIndex + 1, auditIndex + 1 + commitOffset).includes('BEGIN'), false)
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('managed backup mutation in onPlanAccepted is detected before public DDL', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const plan = await planRiskyFixture(fixture)
+    const backup = Buffer.from('verified managed backup bytes')
+    const replacement = Buffer.from('changed! managed backup bytes')
+    assert.equal(replacement.byteLength, backup.byteLength)
+    const backupPath = path.join(fixture.workspaceRoot, 'managed-backup.dump')
+    const evidencePath = path.join(fixture.workspaceRoot, 'managed-backup.json')
+    writeFileSync(backupPath, backup)
+    writeFileSync(evidencePath, JSON.stringify(
+      managedSnapshotEvidence(plan, fixture.policy, backupPath, backup),
+    ))
+    const harness = createRiskyApplyHarness(fixture)
+
+    await assert.rejects(
+      applyCommunityStrictPgSchema({
+        repoUrl: 'postgresql://user:pass@localhost:5432/community',
+        workspaceRoot: fixture.workspaceRoot,
+        policy: fixture.policy,
+        expectedPlanSha256: plan.acceptedPlanSha256,
+        snapshotEvidencePath: platformCaseVariant(evidencePath),
+        snapshotPolicy: 'managed-verified-only-v1',
+        onPlanAccepted: () => writeFileSync(backupPath, replacement),
+        clientFactory: () => harness.client,
+      }),
+      /community_strict_backup_guard_changed/,
+    )
+    assert.deepEqual(publicMutationQueries(harness.queries), [])
+    assert.ok(harness.queries.includes('ROLLBACK'))
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('managed backup removed during COMMIT is rematerialized from a durable rescue copy', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const plan = await planRiskyFixture(fixture)
+    const backup = Buffer.from('verified managed backup bytes')
+    const backupPath = path.join(fixture.workspaceRoot, 'managed-commit-backup.dump')
+    const evidencePath = path.join(fixture.workspaceRoot, 'managed-commit-backup.json')
+    writeFileSync(backupPath, backup)
+    writeFileSync(evidencePath, JSON.stringify(
+      managedSnapshotEvidence(plan, fixture.policy, backupPath, backup),
+    ))
+    const harness = createRiskyApplyHarness(fixture, {
+      beforeCommit: (count) => {
+        if (count === 2) rmSync(backupPath, { force: true })
+      },
+    })
+
+    await assert.rejects(
+      applyCommunityStrictPgSchema({
+        repoUrl: 'postgresql://user:pass@localhost:5432/community',
+        workspaceRoot: fixture.workspaceRoot,
+        policy: fixture.policy,
+        expectedPlanSha256: plan.acceptedPlanSha256,
+        snapshotEvidencePath: evidencePath,
+        snapshotPolicy: 'managed-verified-only-v1',
+        clientFactory: () => harness.client,
+      }),
+      /community_strict_backup_guard_changed_after_commit:backup_preserved=/,
+    )
+    assert.deepEqual(readFileSync(backupPath), backup)
+    assert.equal(harness.committedAcceptances.size, 1)
+    assert.ok(publicMutationQueries(harness.queries).length > 0)
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('audit acceptance rolls back when its readback fails before the migration transaction commits', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const plan = await planRiskyFixture(fixture)
+    const evidencePath = path.join(fixture.workspaceRoot, 'external-audit-rollback.json')
+    writeFileSync(evidencePath, JSON.stringify(externalSnapshotEvidence(plan, fixture.policy)))
+    const harness = createRiskyApplyHarness(fixture, { failAcceptanceRead: true })
+
+    await assert.rejects(
+      applyCommunityStrictPgSchema({
+        repoUrl: 'postgresql://user:pass@localhost:5432/community',
+        workspaceRoot: fixture.workspaceRoot,
+        policy: fixture.policy,
+        expectedPlanSha256: plan.acceptedPlanSha256,
+        snapshotEvidencePath: evidencePath,
+        snapshotPolicy: 'managed-or-external-attested-v1',
+        clientFactory: () => harness.client,
+      }),
+      /forced_acceptance_read_failure/,
+    )
+
+    const auditIndex = harness.queries.findIndex((query) =>
+      query.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1'))
+    const rollbackIndex = harness.queries.indexOf('ROLLBACK', auditIndex + 1)
+    assert.ok(publicMutationQueries(harness.queries).length > 0)
+    assert.ok(auditIndex >= 0)
+    assert.ok(rollbackIndex > auditIndex)
+    assert.equal(harness.queries.slice(auditIndex + 1, rollbackIndex).includes('COMMIT'), false)
+    assert.equal(harness.committedAcceptances.size, 0)
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('already exact target lineage persists a stable verify-only acceptance without public DDL', async () => {
+  const fixture = createFixture()
+  try {
+    const tracked = strictTrackedState(fixture.policy, fixture.strictProjection)
+    const createClient = (queries) => {
+      const base = createInspectClient({
+        projection: fixture.strictProjection,
+        policy: fixture.policy,
+        rowsByTable: tracked.rowsByTable,
+        strictReceipts: tracked.strictReceipts,
+        strictState: tracked.strictState,
+      })
+      return {
+        ...base,
+        async query(text, params) {
+          queries.push(text)
+          if (text.includes('pg_try_advisory_lock')) return { rows: [{ acquired: true }] }
+          if (text.includes('pg_advisory_unlock')) return { rows: [{ unlocked: true }] }
+          return base.query(text, params)
+        },
+      }
+    }
+    const firstQueries = []
+    const first = await applyCommunityStrictPgSchema({
+      repoUrl: 'postgresql://user:pass@localhost:5432/community',
+      workspaceRoot: fixture.workspaceRoot,
+      policy: fixture.policy,
+      clientFactory: () => createClient(firstQueries),
+    })
+    assert.equal(first.lineageId, fixture.policy.targetLineageId)
+    assert.equal(first.migrationPlan.action, 'verify-only')
+    assert.deepEqual(first.migrationPlan.pendingMigrations, [])
+    assert.equal(first.migrationPlan.source.strictReceiptRowsSha256, tracked.strictRowsSha256)
+    assert.equal(first.migrationPlan.sourceFingerprintSha256, first.sourceFingerprintSha256)
+    assert.match(first.acceptedPlanSha256, /^[a-f0-9]{64}$/)
+    assert.equal(first.durableAcceptance.action, 'verify-only')
+    assert.equal(first.durableAcceptance.evidenceKind, null)
+    assert.equal(first.latestAppliedPlanSha256, null)
+
+    const secondQueries = []
+    const second = await applyCommunityStrictPgSchema({
+      repoUrl: 'postgresql://user:pass@localhost:5432/community',
+      workspaceRoot: fixture.workspaceRoot,
+      policy: fixture.policy,
+      expectedPlanSha256: first.acceptedPlanSha256,
+      clientFactory: () => createClient(secondQueries),
+    })
+    assert.equal(second.acceptedPlanSha256, first.acceptedPlanSha256)
+    for (const queries of [firstQueries, secondQueries]) {
+      assert.ok(queries.some((query) =>
+        query.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1')))
+      assert.deepEqual(
+        queries.filter((query) => /^(CREATE|ALTER|DROP|INSERT|UPDATE|DELETE|TRUNCATE)\b/.test(query) &&
+          !query.includes('aops_community_meta')),
+        [],
+      )
+    }
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
 test('apply fails closed when the shared five-root advisory lock is busy', async () => {
   const fixture = createFixture()
   const queries = []
@@ -525,6 +1249,7 @@ test('additive convergence preserves seeded rows using the preflight column set'
     const strictReceipts = []
     let strictState = null
     let metadataReady = false
+    const planAcceptances = new Map()
     const cursorDelivered = new Map()
     const queries = []
 
@@ -611,6 +1336,41 @@ test('additive convergence preserves seeded rows using the preflight column set'
             strictReceiptRowsSha256: params[6],
           }
           return { rows: [] }
+        }
+        if (text.startsWith('CREATE SCHEMA IF NOT EXISTS aops_community_meta') ||
+            text.startsWith('CREATE TABLE IF NOT EXISTS aops_community_meta.migration_plan_acceptances_v1')) {
+          return { rows: [] }
+        }
+        if (text.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1')) {
+          if (!planAcceptances.has(String(params[0]))) {
+            planAcceptances.set(String(params[0]), {
+              acceptedPlanSha256: params[0],
+              action: params[1],
+              sourceFingerprintSha256: params[2],
+              targetLineageId: params[3],
+              resultLineageId: params[4],
+              resultSchemaFingerprintSha256: params[5],
+              resultReceiptFingerprintSha256: params[6],
+              resultStateFingerprintSha256: params[7],
+              evidenceKind: params[8],
+              evidenceSha256: params[9],
+              planJson: JSON.parse(params[10]),
+              acceptedAt: params[11],
+            })
+          }
+          return { rows: [] }
+        }
+        if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+            text.includes('WHERE accepted_plan_sha256 = $1')) {
+          const row = planAcceptances.get(String(params[0]))
+          return { rows: row ? [row] : [] }
+        }
+        if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+            text.includes("WHERE action = 'migrate'")) {
+          const row = [...planAcceptances.values()].find((entry) => entry.action === 'migrate' &&
+            entry.resultLineageId === params[0] && entry.resultSchemaFingerprintSha256 === params[1] &&
+            entry.resultReceiptFingerprintSha256 === params[2])
+          return { rows: row ? [row] : [] }
         }
         if (text.includes('FROM public.aops_community_migration_receipts_v1')) {
           return { rows: strictReceipts }

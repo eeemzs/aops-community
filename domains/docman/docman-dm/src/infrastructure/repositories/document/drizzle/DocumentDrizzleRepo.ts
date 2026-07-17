@@ -21,4 +21,3 @@ export class DocumentDrizzleRepo extends DraBase<IbmDocument, IdbDocumentDrizzle
   // }
   //<==//
 }
-

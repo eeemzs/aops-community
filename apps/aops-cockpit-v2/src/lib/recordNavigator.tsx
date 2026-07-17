@@ -52,6 +52,21 @@ const CardsModeIcon = (
   </ModeIcon>
 );
 
+const CloseTreePanelIcon = (
+  <svg
+    viewBox="0 0 24 24"
+    width="15"
+    height="15"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
+    <path d="M6 6l12 12M18 6 6 18" />
+  </svg>
+);
+
 // Generic record navigator (Projects-page parity) shared by the PM
 // Boards + Sprints navigators (and future Agentspace/Docman record lists):
 //   • left-menu : inline tree in the section (master-detail)
@@ -96,6 +111,14 @@ export interface RecordNavigatorConfig<T> {
   /** data-testid prefix, e.g. "aops-v2-boards" (Playwright contract). */
   testIdPrefix: string;
   dockClassName: string;
+  /** Optional scope class for record-specific tree styling. */
+  treeClassName?: string;
+  /** Omit the branch row when only one non-empty group is visible. */
+  flattenSingleGroup?: boolean;
+  /** Enable persistent, selectable favorite chips for record rows. */
+  enableFavorites?: boolean;
+  /** Optional control rendered at the far edge of the tree search field. */
+  searchTrailingSlot?: ReactNode;
   /** Offer the 4th "cards" view mode in the gear (card-register consumers). */
   enableCardsMode?: boolean;
   /** Keep the legacy mode gear beside the dropdown selector. Defaults to true. */
@@ -104,6 +127,12 @@ export interface RecordNavigatorConfig<T> {
   showDropdownMeta?: boolean;
   /** Show mode shortcut icons in the tree toolbar. Defaults to true. */
   showModeShortcuts?: boolean;
+  /** Keep the legacy settings gear in the tree toolbar. Defaults to true. */
+  showTreeSettings?: boolean;
+  /** Add a far-edge action that closes the inline tree panel. */
+  showTreeClose?: boolean;
+  /** Accessible label for the inline tree close action. */
+  treeCloseLabel?: AopsCockpitTranslationKey;
   /** Offer the shell Navigator mode in settings. Defaults to true. */
   showNavigatorSetting?: boolean;
   /** Override the settings label for the inline left-menu mode. */
@@ -163,28 +192,35 @@ function buildRows<T>(
   const query = search.trim().toLowerCase();
   const rows: RecordNavRow[] = [];
   const counts: Record<string, { total: number }> = {};
-  for (const group of config.groups) {
-    if (group.items.length === 0) continue;
+  const nonEmptyGroups = config.groups.filter((group) => group.items.length > 0);
+  const visibleGroups = nonEmptyGroups
+    .map((group) => ({
+      ...group,
+      matched: query
+        ? group.items.filter((item) => config.searchText(item).toLowerCase().includes(query))
+        : group.items
+    }))
+    .filter((group) => !query || group.matched.length > 0);
+  const flattenGroup = Boolean(config.flattenSingleGroup) && nonEmptyGroups.length === 1;
+  for (const group of visibleGroups) {
     const groupKey = `${GROUP_PREFIX}${group.key}`;
-    const matched = query
-      ? group.items.filter((item) => config.searchText(item).toLowerCase().includes(query))
-      : group.items;
-    if (query && matched.length === 0) continue;
     counts[groupKey] = { total: group.items.length };
     const isExpanded = query ? true : !collapsed.has(groupKey);
-    rows.push({
-      categoryUid: groupKey,
-      depth: 0,
-      hasChildren: true,
-      isExpanded,
-      label: group.label,
-      hideDefaultMeta: true
-    });
-    if (!isExpanded) continue;
-    for (const item of matched) {
+    if (!flattenGroup) {
+      rows.push({
+        categoryUid: groupKey,
+        depth: 0,
+        hasChildren: true,
+        isExpanded,
+        label: group.label,
+        hideDefaultMeta: true
+      });
+    }
+    if (!flattenGroup && !isExpanded) continue;
+    for (const item of group.matched) {
       rows.push({
         categoryUid: config.itemKey(item),
-        depth: 1,
+        depth: flattenGroup ? 0 : 1,
         hasChildren: false,
         label: config.itemLabel(item),
         hideDefaultMeta: true,
@@ -212,14 +248,36 @@ function writeStoredFlag(key: string, value: boolean): void {
   }
 }
 
+function readStoredStringSet(key: string): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(key) ?? "[]");
+    return new Set(Array.isArray(stored) ? stored.filter((value): value is string => typeof value === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writeStoredStringSet(key: string, values: ReadonlySet<string>): void {
+  try {
+    if (typeof window !== "undefined") window.localStorage.setItem(key, JSON.stringify([...values]));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT): RecordNavigator {
   const dropdownStorageKey = `${config.storagePrefix}.dropdownMode`;
   const cardsStorageKey = `${config.storagePrefix}.cardsMode`;
+  const favoritesStorageKey = `${config.storagePrefix}.favorites.v1`;
   const [search, setSearch] = useState("");
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
   const [dropdownMode, setDropdownMode] = useState<boolean>(() => readStoredFlag(dropdownStorageKey));
   const [cardsMode, setCardsMode] = useState<boolean>(
     () => Boolean(config.enableCardsMode) && readStoredFlag(cardsStorageKey)
+  );
+  const [favoriteKeys, setFavoriteKeys] = useState<Set<string>>(
+    () => config.enableFavorites ? readStoredStringSet(favoritesStorageKey) : new Set()
   );
   const nav = useWorkbenchNavigator({
     storageKeys: {
@@ -240,15 +298,37 @@ export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT)
 
   const { rows, counts } = useMemo(() => buildRows(config, collapsed, search), [config, collapsed, search]);
   const allGroups = useMemo(
-    () =>
-      new Set(
-        config.groups.filter((group) => group.items.length > 0).map((group) => `${GROUP_PREFIX}${group.key}`)
-      ),
-    [config.groups]
+    () => {
+      const groups = config.groups.filter((group) => group.items.length > 0);
+      if (config.flattenSingleGroup && groups.length === 1) return new Set<string>();
+      return new Set(groups.map((group) => `${GROUP_PREFIX}${group.key}`));
+    },
+    [config.flattenSingleGroup, config.groups]
   );
   const totalItemCount = useMemo(
     () => config.groups.reduce((count, group) => count + group.items.length, 0),
     [config.groups]
+  );
+  const itemByKey = useMemo(() => {
+    const items = new Map<string, T>();
+    for (const group of config.groups) {
+      for (const item of group.items) items.set(config.itemKey(item), item);
+    }
+    return items;
+  }, [config.groups, config.itemKey]);
+  const favoriteEntries = useMemo(
+    () => [...favoriteKeys]
+      .map((key) => {
+        const item = itemByKey.get(key);
+        if (!item) return null;
+        return {
+          categoryUid: key,
+          label: config.itemLabel(item),
+          pathText: config.itemMeta?.(item)?.join(" · ") || config.itemLabel(item)
+        };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null),
+    [config.itemLabel, config.itemMeta, favoriteKeys, itemByKey]
   );
 
   const persistDropdown = useCallback(
@@ -291,6 +371,19 @@ export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT)
   const handleToggleBranch = useCallback(
     (key: string) => key.startsWith(GROUP_PREFIX) && toggleGroup(key),
     [toggleGroup]
+  );
+  const handleToggleFavorite = useCallback(
+    (key: string) => {
+      if (!config.enableFavorites || !itemByKey.has(key)) return;
+      setFavoriteKeys((previous) => {
+        const next = new Set(previous);
+        if (next.has(key)) next.delete(key);
+        else next.add(key);
+        writeStoredStringSet(favoritesStorageKey, next);
+        return next;
+      });
+    },
+    [config.enableFavorites, favoritesStorageKey, itemByKey]
   );
   const handleModeChange = useCallback(
     (next: string) => {
@@ -360,9 +453,31 @@ export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT)
       {config.enableCardsMode ? modeShortcut("cards", CardsModeIcon, t("navModeCards")) : null}
     </>
   );
+  const treeClose = config.showTreeClose ? (
+    <button
+      type="button"
+      className="inv-iv3-cattree-tool-btn aops-v2-tree-close"
+      aria-label={t(config.treeCloseLabel ?? "navSidePanelClose")}
+      title={t(config.treeCloseLabel ?? "navSidePanelClose")}
+      onClick={() => nav.setOpen(false)}
+      data-testid={`${config.testIdPrefix}-tree-close`}
+    >
+      {CloseTreePanelIcon}
+    </button>
+  ) : null;
+  const treeSettingsSlot = config.showTreeSettings === false && !modeShortcuts && !treeClose ? null : (
+    <>
+      {config.showTreeSettings === false ? null : gear}
+      {modeShortcuts}
+      {treeClose}
+    </>
+  );
 
   const treePanel = (
-    <div className="aops-v2-tree-wrap" style={{ display: "contents" }}>
+    <div
+      className={`aops-v2-tree-wrap${config.treeClassName ? ` ${config.treeClassName}` : ""}`}
+      style={{ display: "contents" }}
+    >
       <NavigatorTreePanel
         rows={rows}
         hasCategories={totalItemCount > 0}
@@ -371,17 +486,17 @@ export function useRecordNavigator<T>(config: RecordNavigatorConfig<T>, t: NavT)
         countsByCategoryUid={counts}
         searchValue={search}
         onSearchChange={setSearch}
+        searchTrailingSlot={config.searchTrailingSlot}
         onSelectCategory={handleSelect}
         onToggleBranch={handleToggleBranch}
+        onToggleFavorite={config.enableFavorites ? handleToggleFavorite : undefined}
+        favoriteCategoryUids={config.enableFavorites ? favoriteKeys : undefined}
+        favoriteEntries={config.enableFavorites ? favoriteEntries : undefined}
+        showRowFavorite={Boolean(config.enableFavorites)}
         showAllCategoriesRow={false}
         iconBar={
           <NavigatorCategoryIconBar
-            settingsSlot={
-              <>
-                {gear}
-                {modeShortcuts}
-              </>
-            }
+            settingsSlot={treeSettingsSlot}
             onExpandAll={handleExpandAll}
             onCollapseAll={handleCollapseAll}
             expandDisabled={collapsed.size === 0}

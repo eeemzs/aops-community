@@ -25,7 +25,7 @@ import {
 import { RecordMasterDetail, type RecordListItem } from "../components/recordMasterDetail";
 import { RecordCardsRegister } from "./projectman/record-cards/RecordCardsRegister";
 import { CloseIcon } from "./projectman/board-cards/icons";
-import { SegmentedControl } from "./projectman/components";
+import { CockpitViewIconSwitch, type CockpitViewIconKind } from "../components/CockpitViewIconSwitch";
 import { formatPmDate } from "./projectman/helpers";
 import type { AopsCockpitLocale, AopsCockpitTranslationKey } from "../lib/i18n";
 import type { ProjectmanRefKind, ProjectmanRefTarget } from "../lib/projectmanRefs";
@@ -49,6 +49,7 @@ type AgentspaceRecordItem = RecordListItem & {
 
 interface MemoryViewerUiState {
   viewByScope: Record<string, AgentspaceViewMode>;
+  navigatorOpenByScope: Record<string, boolean>;
   expandedByScope: Record<string, string[]>;
   sortByScope: Record<string, MemorySortKey>;
 }
@@ -59,6 +60,7 @@ const AGENTSPACE_DIGEST_INITIAL_ROWS = 3;
 const AGENTSPACE_DIGEST_PAGE_SIZE = 6;
 const EMPTY_MEMORY_VIEWER_UI_STATE: MemoryViewerUiState = {
   viewByScope: {},
+  navigatorOpenByScope: {},
   expandedByScope: {},
   sortByScope: {}
 };
@@ -154,10 +156,20 @@ export function AgentspacePage({
     ? normalizedRecordViewMode
     : viewModes[0];
   const recordViewMode = isMobile ? "cards" : preferredRecordViewMode;
+  const recordNavigatorOpen = memoryUi.navigatorOpenByScope[recordScopeKey] !== false;
+  const setRecordNavigatorOpen = (open: boolean) =>
+    patchMemoryViewerUiState(setMemoryUi, (prev) => ({
+      ...prev,
+      navigatorOpenByScope: { ...prev.navigatorOpenByScope, [recordScopeKey]: open }
+    }));
   const setRecordViewMode = (mode: AgentspaceViewMode) =>
     patchMemoryViewerUiState(setMemoryUi, (prev) => ({
       ...prev,
-      viewByScope: { ...prev.viewByScope, [recordScopeKey]: mode }
+      viewByScope: { ...prev.viewByScope, [recordScopeKey]: mode },
+      navigatorOpenByScope:
+        mode === "side-panel"
+          ? { ...prev.navigatorOpenByScope, [recordScopeKey]: true }
+          : prev.navigatorOpenByScope
     }));
 
   return (
@@ -194,7 +206,14 @@ export function AgentspacePage({
             ))}
           </div>
           {hasMultiView ? (
-            <AgentspaceViewSwitch section={section} value={recordViewMode} onChange={setRecordViewMode} t={t} />
+            <AgentspaceViewSwitch
+              section={section}
+              value={recordViewMode}
+              navigatorOpen={recordNavigatorOpen}
+              onChange={setRecordViewMode}
+              onToggleNavigator={() => setRecordNavigatorOpen(!recordNavigatorOpen)}
+              t={t}
+            />
           ) : null}
         </div>
         <div className="aops-pm-dispatch-body">
@@ -210,6 +229,8 @@ export function AgentspacePage({
             memoryUi={memoryUi}
             setMemoryUi={setMemoryUi}
             recordViewMode={recordViewMode}
+            recordNavigatorOpen={recordNavigatorOpen}
+            onCloseRecordNavigator={() => setRecordNavigatorOpen(false)}
           />
         </div>
       </div>
@@ -228,7 +249,9 @@ function AgentspaceSectionBody({
   recordScopeKey,
   memoryUi,
   setMemoryUi,
-  recordViewMode
+  recordViewMode,
+  recordNavigatorOpen,
+  onCloseRecordNavigator
 }: {
   section: AgentspaceSectionId;
   model: AgentspaceDataModel;
@@ -241,6 +264,8 @@ function AgentspaceSectionBody({
   memoryUi: MemoryViewerUiState;
   setMemoryUi: (value: (prev: MemoryViewerUiState) => MemoryViewerUiState) => void;
   recordViewMode: AgentspaceViewMode;
+  recordNavigatorOpen: boolean;
+  onCloseRecordNavigator: () => void;
 }): ReactNode {
   const sectionDef = AGENTSPACE_SECTIONS.find((entry) => entry.section === section) ?? AGENTSPACE_SECTIONS[0];
   const labels = (searchKey: AopsCockpitTranslationKey) => ({
@@ -289,6 +314,9 @@ function AgentspaceSectionBody({
             labels={labels(searchKey)}
             detailExtra={renderExtra}
             layout={recordViewMode === "dropdown" ? "dropdown" : "side-panel"}
+            navigatorOpen={recordNavigatorOpen}
+            onCloseNavigator={onCloseRecordNavigator}
+            closeNavigatorLabel={t("navSidePanelClose")}
           />
         )}
       </div>
@@ -433,12 +461,16 @@ function AgentspaceSectionBody({
 function AgentspaceViewSwitch({
   section,
   value,
+  navigatorOpen,
   onChange,
+  onToggleNavigator,
   t
 }: {
   section: AgentspaceSectionId;
   value: AgentspaceViewMode;
+  navigatorOpen: boolean;
   onChange: (value: AgentspaceViewMode) => void;
+  onToggleNavigator: () => void;
   t: TFn;
 }): ReactNode {
   const items =
@@ -456,20 +488,39 @@ function AgentspaceViewSwitch({
             { value: "digest", label: t("asMemoryViewDigest") }
           ]
         : [
-            { value: "side-panel", label: t("pmRecordViewSidePanel") },
+            {
+              value: "side-panel",
+              label: t(navigatorOpen && value === "side-panel" ? "navSidePanelHide" : "navSidePanelShow")
+            },
             { value: "cards", label: t("navModeCards") },
             { value: "dropdown", label: t("navModeDropdown") }
           ];
+  const iconForView = (view: AgentspaceViewMode): CockpitViewIconKind => {
+    if (view === "side-panel") return "side-panel";
+    if (view === "cards") return "cards";
+    if (view === "dropdown") return "dropdown";
+    if (view === "timeline") return "timeline";
+    if (view === "read") return "read";
+    return "digest";
+  };
   return (
-    <div className="aops-as-memory-view-switch aops-pm-section-view-switch">
-      <SegmentedControl
-        compact
-        ariaLabel={t("asMemoryViewLabel")}
-        value={value}
-        items={items}
-        onChange={(next) => onChange(next as AgentspaceViewMode)}
-      />
-    </div>
+    <CockpitViewIconSwitch
+      className="aops-as-memory-view-switch"
+      ariaLabel={t("asMemoryViewLabel")}
+      value={value}
+      items={items.map((item) => ({
+        value: item.value as AgentspaceViewMode,
+        label: item.label,
+        icon: iconForView(item.value as AgentspaceViewMode),
+        expanded: item.value === "side-panel" && value === "side-panel" && navigatorOpen,
+        onSelect:
+          item.value === "side-panel" && value === "side-panel"
+            ? onToggleNavigator
+            : undefined,
+        testId: `aops-as-${section}-view-${item.value}`
+      }))}
+      onChange={onChange}
+    />
   );
 }
 

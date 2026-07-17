@@ -16,4 +16,3 @@ export const ServiceFactoryDocumentVersion = {
     return ServiceBuilderDocumentVersion.create()
   },
 }
-

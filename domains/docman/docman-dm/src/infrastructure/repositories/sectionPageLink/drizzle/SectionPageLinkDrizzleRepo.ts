@@ -21,4 +21,3 @@ export class SectionPageLinkDrizzleRepo extends DraBase<IbmSectionPageLink, IdbS
   // }
   //<==//
 }
-

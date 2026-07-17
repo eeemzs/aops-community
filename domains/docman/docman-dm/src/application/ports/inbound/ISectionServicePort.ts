@@ -17,4 +17,3 @@ export interface ISectionServicePort {
 export interface ISectionLookupPort {
   getById(id: string): Effect.Effect<IbmSection | null, SectionServiceError>
 }
-

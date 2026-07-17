@@ -17,4 +17,3 @@ export class BmProjectPath extends BmBase<IbmProjectPath, IProjectPathMlgTags> {
     }
   }
 }
-

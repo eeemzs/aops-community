@@ -14,4 +14,3 @@ export interface IRepositoryPortSectionPageLink extends IRepositoryBaseCrud<IbmS
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmSectionPageLink>): import('effect').Effect<IbmSectionPageLink | null, RepositoryError>
   //<==//
 }
-

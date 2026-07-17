@@ -19,4 +19,3 @@ export const ResourceErrorTag = {
 export class ResourceDomainError extends Data.TaggedError(ResourceErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type ResourceServiceError = ResourceDomainError | XfError | RepositoryError | XfUpsertError
-

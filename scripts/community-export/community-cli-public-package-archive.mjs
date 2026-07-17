@@ -309,7 +309,7 @@ function inspectCommunityCliPublicPackageArchiveContentsInternal({
     fail('community_cli_public_archive_license_invalid');
   }
   if (!/AOPS Community/.test(noticeText)) fail('community_cli_public_archive_notice_invalid');
-  if (!/AOPS Community Third-Party Notices/.test(thirdPartyText)) {
+  if (!/AOPS Community Product Third-Party Notices/.test(thirdPartyText)) {
     fail('community_cli_public_archive_third_party_notices_invalid');
   }
   if (!/git clone/i.test(readmeText) || !/@aopslab\/aops-cli/.test(readmeText)) {

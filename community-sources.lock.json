@@ -26,7 +26,7 @@
     "community": {
       "repository": "https://github.com/eeemzs/aops-community",
       "commitBinding": "release.json#/source/commit",
-      "rawFileInventoryDigest": "sha256:cf7338c23993390373747cea43d34271d9e1001d4341790ec220322c8517cb84"
+      "rawFileInventoryDigest": "sha256:a2d7f2014880937171468be9b3c6869999cc55faf214a95caa5722a687214dc4"
     }
   },
   "cleanBuildRequirement": {
@@ -55,9 +55,9 @@
         "path": "apps/aops-cli",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:005298f48a3f7d1c148af09263cd9d4746240ad9d001bd5e0c45df8a51832e51",
-          "fileCount": 71,
-          "byteLength": 2293198
+          "digest": "sha256:b92727633ccc34eaba87f748a5f41e9e8f3493fb9624c1f8ff15e224c14400e1",
+          "fileCount": 89,
+          "byteLength": 2708448
         }
       }
     },
@@ -121,9 +121,9 @@
         "path": "apps/aops/packages/aops-pg-bootstrap",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:2dabe80ece3d619ac11a324534c14ee9dca6965eb6a1a4732057f27811cb8f58",
+          "digest": "sha256:04fd574f77a845b3353e99a508cd41afac3a4d40b76741a5dcfb4c7b516e9ea3",
           "fileCount": 19,
-          "byteLength": 394487
+          "byteLength": 470081
         }
       }
     },
@@ -165,9 +165,9 @@
         "path": "apps/aops/packages/aops-api-client",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:33f2a8fc90b295c153311b02db4fd52f2eee6a2fc235d93fba67495c36503c26",
+          "digest": "sha256:7068008611f47b30414f57df3c3fce11f049f79ce54bfdf654516543aee1efdf",
           "fileCount": 8,
-          "byteLength": 32653
+          "byteLength": 32651
         }
       }
     },
@@ -209,9 +209,9 @@
         "path": "domains/agentspace/agentspace-dm",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:3f66d01a587542f1ab1b6ed6f48ffd91ece56cfb22ef4ba866a5f3564c0007ef",
+          "digest": "sha256:988b88bbe1f6829db5913b34cadd3f31fa2a097848dbdb59536aa15a96a6feef",
           "fileCount": 773,
-          "byteLength": 1345861
+          "byteLength": 1345740
         }
       }
     },
@@ -253,9 +253,9 @@
         "path": "domains/docman/docman-dm",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:e49b7360a28857ca933512d4ebfaec5a65404eabcec28b9da4ef2d090a18b4c6",
+          "digest": "sha256:2432a18ad471b1eb0060598fb9b34270f3268fd6d0383dbf935a51960d58af6b",
           "fileCount": 273,
-          "byteLength": 593443
+          "byteLength": 593365
         }
       }
     },
@@ -473,9 +473,9 @@
         "path": "domains/docman/docman-kit",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:fb45c05c163d7283a748cc5bc5fe41500a2039f5b9ae64e6171535b0800bbf08",
+          "digest": "sha256:7b7bd9b5c641e801335dba50b10db40a3f0fab1c45ce4aa59d846469234f493f",
           "fileCount": 39,
-          "byteLength": 242753
+          "byteLength": 242746
         }
       }
     },

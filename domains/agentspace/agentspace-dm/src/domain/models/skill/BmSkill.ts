@@ -17,4 +17,3 @@ export class BmSkill extends BmBase<IbmSkill, ISkillMlgTags> {
     }
   }
 }
-

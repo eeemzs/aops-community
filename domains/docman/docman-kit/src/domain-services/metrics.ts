@@ -7,4 +7,3 @@ export function renderDocmanKitMetrics(_services: Partial<DocmanKitServices>): s
   //==> custom metrics renderer <==//
   return '# DocmanKit metrics not implemented';
 }
-

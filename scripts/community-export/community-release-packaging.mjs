@@ -15,7 +15,6 @@ const toPosix = (value) => value.split(path.sep).join('/');
 function fail(code, detail = '') {
   throw new Error(detail ? `${code}:${detail}` : code);
 }
-
 function runGit(checkoutRoot, args) {
   const result = spawnSync('git', ['-C', checkoutRoot, ...args], {
     encoding: 'utf8',
@@ -115,7 +114,6 @@ function assertOnlyReleaseWorktreeChanges(checkoutRoot) {
     if (!record.startsWith('?? release/')) fail('community_release_packaging_non_release_worktree_change', record);
   }
 }
-
 export function stageCommunityReleasePackaging({ checkoutRoot, bundleRoot, apply = false, confirm } = {}) {
   const checkout = requireAbsoluteDirectory(checkoutRoot, 'community_release_packaging_checkout_root');
   const bundle = readBundle(bundleRoot);

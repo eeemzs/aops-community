@@ -15,4 +15,3 @@ export interface IRepositoryPortProjectPath extends IRepositoryPortBaseCrud<IbmP
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmProjectPath>): import('effect').Effect<IbmProjectPath | null, RepositoryError>
   //<==//
 }
-

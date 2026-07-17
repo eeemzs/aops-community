@@ -21,4 +21,3 @@ export class SkillDrizzleRepo extends DraBase<IbmSkill, IdbSkillDrizzle, typeof 
   // }
   //<==//
 }
-

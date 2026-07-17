@@ -9,4 +9,3 @@ const conversions: FieldConversionLookup<IbmPageSnippetLink, PageSnippetLinkColu
 }
 
 export const mapperPageSnippetLinkDrizzle = createBmDbMapper<IbmPageSnippetLink, IdbPageSnippetLinkDrizzle, PageSnippetLinkColumnsDrizzle>(conversions);
-

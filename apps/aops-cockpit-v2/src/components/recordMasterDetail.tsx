@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { WorkbenchStatePanel } from "@aopslab/xf-ui-shell-react";
 import { shortId, toneForStatus, type PmTone } from "../lib/projectman";
 import { useCockpitViewport } from "../lib/viewport";
+import { CockpitPanelCloseIcon } from "./CockpitViewIconSwitch";
 
 // Generic searchable master-detail record surface: a list pane (search + rows)
 // on the left and a record detail (eyebrow/title/chips + field grid + text
@@ -74,7 +75,10 @@ export function RecordMasterDetail({
   labels,
   toolbar,
   detailExtra,
-  layout = "side-panel"
+  layout = "side-panel",
+  navigatorOpen = true,
+  onCloseNavigator,
+  closeNavigatorLabel
 }: {
   items: RecordListItem[];
   labels: RecordMasterDetailLabels;
@@ -84,6 +88,11 @@ export function RecordMasterDetail({
   detailExtra?: (item: RecordListItem) => ReactNode;
   /** Swap the master list for a compact selector while preserving the detail pane. */
   layout?: "side-panel" | "dropdown";
+  /** Controls whether the side-panel master list is visible. */
+  navigatorOpen?: boolean;
+  /** Optional close action rendered at the far right of the master list. */
+  onCloseNavigator?: () => void;
+  closeNavigatorLabel?: string;
 }): ReactNode {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -131,15 +140,15 @@ export function RecordMasterDetail({
     };
   }, [dropdownOpen]);
 
-  // With a toolbar (filter pills) an empty item set must keep the pane visible
-  // so the operator can widen the filter again.
-  if (items.length === 0 && !toolbar) {
+  // With a toolbar or a closable navigator an empty item set must keep the pane
+  // visible so the operator can widen the filter or close/reopen the navigator.
+  if (items.length === 0 && !toolbar && !onCloseNavigator) {
     return <WorkbenchStatePanel variant="empty" title={labels.title} message={labels.emptyLabel} />;
   }
 
   return (
     <div
-      className={`aops-pm-recordlist${layout === "dropdown" ? " is-dropdown" : ""}`}
+      className={`aops-pm-recordlist${layout === "dropdown" ? " is-dropdown" : ""}${layout === "side-panel" && !navigatorOpen ? " is-navigator-closed" : ""}`}
       data-detail-open={detailOpen ? "true" : "false"}
     >
       {layout === "dropdown" ? (
@@ -207,17 +216,30 @@ export function RecordMasterDetail({
             </div>
           ) : null}
         </div>
-      ) : (
+      ) : navigatorOpen ? (
       <aside className="aops-pm-recordlist-list" aria-label={labels.title}>
         {toolbar ? <div className="aops-pm-recordlist-toolbar">{toolbar}</div> : null}
-        <input
-          className="aops-pm-recordlist-search"
-          type="text"
-          value={search}
-          placeholder={labels.searchPlaceholder}
-          aria-label={labels.searchPlaceholder}
-          onChange={(event) => setSearch(event.target.value)}
-        />
+        <div className="aops-pm-recordlist-searchrow">
+          <input
+            className="aops-pm-recordlist-search"
+            type="text"
+            value={search}
+            placeholder={labels.searchPlaceholder}
+            aria-label={labels.searchPlaceholder}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          {onCloseNavigator ? (
+            <button
+              type="button"
+              className="aops-pm-recordlist-navclose"
+              onClick={onCloseNavigator}
+              aria-label={closeNavigatorLabel ?? labels.title}
+              title={closeNavigatorLabel ?? labels.title}
+            >
+              <CockpitPanelCloseIcon />
+            </button>
+          ) : null}
+        </div>
         <ul className="aops-pm-recordlist-rows">
           {filtered.map((item) => {
             const active = selected?.id === item.id;
@@ -248,7 +270,7 @@ export function RecordMasterDetail({
           {filtered.length === 0 ? <li className="aops-pm-recordlist-empty">{labels.noMatchLabel}</li> : null}
         </ul>
       </aside>
-      )}
+      ) : null}
       <section
         className="aops-pm-recordlist-detail"
         aria-label={labels.detailAriaLabel}

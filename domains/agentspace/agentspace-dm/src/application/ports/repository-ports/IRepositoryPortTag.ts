@@ -15,4 +15,3 @@ export interface IRepositoryPortTag extends IRepositoryPortBaseCrud<IbmTag, IdbT
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmTag>): import('effect').Effect<IbmTag | null, RepositoryError>
   //<==//
 }
-

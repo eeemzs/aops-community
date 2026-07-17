@@ -11,6 +11,7 @@ import type {
 	AgentGatewayListResult,
 	AgentGatewayOperationDocs
 } from './types';
+import { buildCommunityClientCompatibility } from '$lib/server/client-compatibility';
 
 const LANDING_PAGE_PATH = '/api-info';
 const DISCOVERY_JSON_ALIAS_PATH = '/api-info.json';
@@ -891,6 +892,7 @@ export function buildAgentDiscoveryDocument(input: {
 	return {
 		ok: true,
 		discoveryVersion: '1.2',
+		clientCompatibility: buildCommunityClientCompatibility(),
 		domain,
 		catalogVersion: input.listResult.catalogVersion,
 		service: {

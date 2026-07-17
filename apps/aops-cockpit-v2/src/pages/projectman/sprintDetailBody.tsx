@@ -3,6 +3,7 @@ import { WorkbenchDetailTabs } from "@aopslab/xf-ui-composition-react";
 import { toneForStatus, type CockpitPmPhase } from "../../lib/projectman";
 import { Badge, EmptyLine, SegmentedControl } from "./components";
 import { PhaseList, PlanTextList } from "./PlanDetailParts";
+import { SprintTimeline } from "./SprintTimeline";
 import { buildSprintStatusRollup } from "./helpers";
 import type { AopsCockpitTranslationKey } from "../../lib/i18n";
 import type { NormalizedPlanDetail, TFn } from "./types";
@@ -13,7 +14,7 @@ import type { NormalizedPlanDetail, TFn } from "./types";
 // sprint card hosts its OWN detail body).
 
 export type SprintTabId = "phases" | "scope" | "validation" | "references" | "tasks";
-export type SprintPhaseView = "accordion" | "table";
+export type SprintPhaseView = "timeline" | "accordion" | "table";
 
 // aops-desktop progressStatusChips label map (fixed order, zeros included).
 export const ROLLUP_LABEL_KEYS: Record<string, AopsCockpitTranslationKey> = {
@@ -126,6 +127,7 @@ export function SprintDetailBody({
       <div className="aops-pm-tabbody">
         {activeTab === "phases" ? (
           <PhasesTab
+            detail={detail}
             phases={phases}
             allEmpty={detail.phases.length === 0}
             phaseView={phaseView}
@@ -165,6 +167,7 @@ export function SprintDetailBody({
 }
 
 function PhasesTab({
+  detail,
   phases,
   allEmpty,
   phaseView,
@@ -177,6 +180,7 @@ function PhasesTab({
   compact,
   t
 }: {
+  detail: NormalizedPlanDetail;
   phases: CockpitPmPhase[];
   allEmpty: boolean;
   phaseView: SprintPhaseView;
@@ -199,6 +203,7 @@ function PhasesTab({
           ariaLabel={t("pmPhaseView")}
           value={phaseView}
           items={[
+            { value: "timeline", label: t("pmPhaseTimeline") },
             { value: "accordion", label: t("pmPhaseAccordion") },
             { value: "table", label: t("pmPhaseTable") }
           ]}
@@ -248,8 +253,11 @@ function PhasesTab({
           </div>
         ) : null}
       </div>
-      {searching && phases.length === 0 ? <EmptyLine t={t} /> : null}
-      {phaseView === "accordion" ? (
+      {searching && phases.length === 0 ? (
+        <EmptyLine t={t} />
+      ) : phaseView === "timeline" ? (
+        <SprintTimeline detail={detail} visiblePhases={phases} compact={compact} t={t} />
+      ) : phaseView === "accordion" ? (
         <PhaseList phases={phases} openPhases={openPhases} t={t} onToggle={onTogglePhase} />
       ) : (
         <PhaseGroupedTable phases={phases} collapsed={openPhases} onToggle={onTogglePhase} t={t} />

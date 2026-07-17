@@ -19,4 +19,3 @@ export const PageSnippetLinkErrorTag = {
 export class PageSnippetLinkDomainError extends Data.TaggedError(PageSnippetLinkErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type PageSnippetLinkServiceError = PageSnippetLinkDomainError | XfError | RepositoryError | XfUpsertError
-

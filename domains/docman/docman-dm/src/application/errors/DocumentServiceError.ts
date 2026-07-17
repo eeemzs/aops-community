@@ -19,4 +19,3 @@ export const DocumentErrorTag = {
 export class DocumentDomainError extends Data.TaggedError(DocumentErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type DocumentServiceError = DocumentDomainError | XfError | RepositoryError | XfUpsertError
-

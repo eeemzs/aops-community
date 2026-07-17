@@ -15,5 +15,3 @@ export interface IRepositoryPortTask extends IRepositoryPortBaseCrud<IbmTask, Id
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmTask>): import('effect').Effect<IbmTask | null, RepositoryError>
   //<==//
 }
-
-

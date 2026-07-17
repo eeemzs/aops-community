@@ -15,5 +15,3 @@ export interface IRepositoryPortAgentSession extends IRepositoryPortBaseCrud<Ibm
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmAgentSession>): import('effect').Effect<IbmAgentSession | null, RepositoryError>
   //<==//
 }
-
-

@@ -2,7 +2,7 @@ name: aops-community
 
 services:
   postgres:
-    image: ghcr.io/aopslab/aops-community-base-postgres:17-bookworm@sha256:5530681ea5d3e2ed4ce396f9b5cb443efbac6baf2a8a19c0c0635e40ae7eadce
+    image: ghcr.io/eeemzs/aops-community-base-postgres:17-bookworm@sha256:5530681ea5d3e2ed4ce396f9b5cb443efbac6baf2a8a19c0c0635e40ae7eadce
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${AOPS_POSTGRES_DB:-aops}
@@ -20,7 +20,7 @@ services:
       - "127.0.0.1:${AOPS_PORT:-5900}:5900"
 
   app:
-    image: ${AOPS_IMAGE_REF:-ghcr.io/aopslab/aops-community:latest}
+    image: ${AOPS_IMAGE_REF}
     pull_policy: always
     restart: unless-stopped
     network_mode: service:postgres
@@ -30,11 +30,8 @@ services:
         restart: true
     environment:
       NODE_ENV: production
-      HOST: 127.0.0.1
-      PORT: 5901
-      ORIGIN: http://127.0.0.1:5901
-      COMMUNITY_HOST: 0.0.0.0
-      COMMUNITY_PORT: 5900
+      AOPS_PUBLIC_PORT: ${AOPS_PORT:-5900}
+      AOPS_RELEASE_VERSION: ${AOPS_RELEASE_VERSION:?managed lifecycle must provide the verified release version}
       AOPS_DB_BOOTSTRAP_MODE: explicit
       AOPS_PG_URL: postgresql://${AOPS_POSTGRES_USER:-aops}:${AOPS_POSTGRES_PASSWORD}@127.0.0.1:5432/${AOPS_POSTGRES_DB:-aops}
       CHATV3_SERVER_KEY_ID: k1

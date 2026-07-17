@@ -20,4 +20,3 @@ export const pageSnippetLinkZodSchemaInsert = pageSnippetLinkZodSchema.omit({
   updatedAt: true,
   tenantId: true,
 }).strict()
-

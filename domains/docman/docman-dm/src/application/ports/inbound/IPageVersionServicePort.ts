@@ -17,4 +17,3 @@ export interface IPageVersionServicePort {
 export interface IPageVersionLookupPort {
   getById(id: string): Effect.Effect<IbmPageVersion | null, PageVersionServiceError>
 }
-

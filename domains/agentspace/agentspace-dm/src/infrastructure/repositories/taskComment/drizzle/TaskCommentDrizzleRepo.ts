@@ -21,4 +21,3 @@ export class TaskCommentDrizzleRepo extends DraBase<IbmTaskComment, IdbTaskComme
   // }
   //<==//
 }
-

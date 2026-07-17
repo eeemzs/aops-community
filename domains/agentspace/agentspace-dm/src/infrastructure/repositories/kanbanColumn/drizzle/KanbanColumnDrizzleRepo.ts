@@ -21,4 +21,3 @@ export class KanbanColumnDrizzleRepo extends DraBase<IbmKanbanColumn, IdbKanbanC
   // }
   //<==//
 }
-

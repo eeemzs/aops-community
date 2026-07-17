@@ -17,4 +17,3 @@ export class BmPromptVersion extends BmBase<IbmPromptVersion, IPromptVersionMlgT
     }
   }
 }
-

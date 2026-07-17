@@ -17,4 +17,3 @@ export interface IPageServicePort {
 export interface IPageLookupPort {
   getById(id: string): Effect.Effect<IbmPage | null, PageServiceError>
 }
-

@@ -13,4 +13,3 @@ export const taskCommentResources: BmResourceInline<IbmTaskComment, ITaskComment
 
 export type ITaskCommentTranslationKeys = I18nBmValidKeys<IbmTaskComment, ValidationResourceType, ITaskCommentMlgTags>
 export type ITaskCommentZodCtx = I18nZodContextWithChain<IbmTaskComment, ITaskCommentTranslationKeys>
-

@@ -38,11 +38,7 @@ import { ProjectmanBand } from "./pages/projectman/ProjectmanBand";
 import { ChatSpacesBand } from "./pages/chat/ChatSpacesBand";
 import { useBoardsNavigator } from "./lib/boardsNavigator";
 import { useSprintsNavigator } from "./lib/sprintsNavigator";
-import {
-  byRecordUpdatedDesc,
-  planItemFromImplementationPlan,
-  planItemFromSprint
-} from "./pages/projectman/helpers";
+import { buildSprintPlanItems } from "./pages/projectman/helpers";
 import { resolveAopsCockpitRuntimeConfig } from "./lib/runtimeConfig";
 import { useShellStore } from "./state/shellStore";
 import { useShellAppearance } from "./state/themeStyle";
@@ -125,7 +121,6 @@ export function App() {
   const viewport = useCockpitViewport();
   const runtimeConfig = useMemo(() => resolveAopsCockpitRuntimeConfig(), []);
   const locale = useShellStore((state) => state.locale);
-  const toggleLocale = useShellStore((state) => state.toggleLocale);
   const t = useCockpitTranslator(locale);
   const client = useMemo(
     () => createAopsApiClient({ baseUrl: runtimeConfig.serverBaseUrl }),
@@ -246,21 +241,17 @@ export function App() {
   const boardsNavigator = useBoardsNavigator(
     {
       boards: projectman.boards,
+      tasks: projectman.tasks,
       selectedBoardId,
       onSelectBoard: setSelectedBoardId,
       onCardsModeChange: setBoardsCardsMode
     },
     t
   );
-  // Sprints navigator: merge sprints + implementation plans into one selectable
-  // item list (App-owned selection, like boards), so the navigator can render
-  // shell-attached / inline / dropdown.
+  // Implementation-plan is a sprint-backed facade. Build one selectable item
+  // per underlying sprint id so navigator modes never duplicate the same plan.
   const sprintItems = useMemo(
-    () =>
-      [
-        ...projectman.sprints.map((sprint) => planItemFromSprint(sprint)),
-        ...projectman.implementationPlans.map((plan) => planItemFromImplementationPlan(plan))
-      ].sort(byRecordUpdatedDesc),
+    () => buildSprintPlanItems(projectman.sprints, projectman.implementationPlans),
     [projectman.sprints, projectman.implementationPlans]
   );
   const [selectedSprintKey, setSelectedSprintKey] = useState<string | null>(null);
@@ -526,10 +517,8 @@ export function App() {
         error={authQuery.error ?? (!trustedPrincipal ? new Error("trusted_local_principal_required") : null)}
         mode={authQuery.isPending ? "loading" : "error"}
         serverBaseUrl={runtimeConfig.serverBaseUrl}
-        locale={locale}
         t={t}
         onRetry={() => void authQuery.refetch()}
-        onToggleLocale={toggleLocale}
       />
     );
   }  const principalLabel =

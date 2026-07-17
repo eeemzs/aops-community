@@ -120,4 +120,3 @@ await main().catch((error) => {
   process.stderr.write(`[dcm] failed: ${message}\n`)
   process.exitCode = 1
 })
-

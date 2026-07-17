@@ -20,4 +20,3 @@ export interface ICodexChatSettingServicePort {
   ): Effect.Effect<IbmCodexChatSetting[], CodexChatSettingServiceError>
   removeSetting(id: string): Effect.Effect<void, CodexChatSettingServiceError>
 }
-

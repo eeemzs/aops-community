@@ -15,5 +15,3 @@ export interface IRepositoryPortAgentRun extends IRepositoryPortBaseCrud<IbmAgen
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmAgentRun>): import('effect').Effect<IbmAgentRun | null, RepositoryError>
   //<==//
 }
-
-

@@ -21,4 +21,3 @@ export class PageSnippetLinkDrizzleRepo extends DraBase<IbmPageSnippetLink, IdbP
   // }
   //<==//
 }
-

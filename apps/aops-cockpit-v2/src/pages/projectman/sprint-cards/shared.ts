@@ -12,7 +12,7 @@ export interface SprintBodyView {
   tab: SprintTabId;
   phaseView: SprintPhaseView;
 }
-export const DEFAULT_SPRINT_BODY_VIEW: SprintBodyView = { tab: "phases", phaseView: "accordion" };
+export const DEFAULT_SPRINT_BODY_VIEW: SprintBodyView = { tab: "phases", phaseView: "timeline" };
 
 export interface SprintCardsUiState {
   orderByProject: Record<string, string[]>;

@@ -15,5 +15,3 @@ export interface IRepositoryPortArtifact extends IRepositoryPortBaseCrud<IbmArti
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmArtifact>): import('effect').Effect<IbmArtifact | null, RepositoryError>
   //<==//
 }
-
-

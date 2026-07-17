@@ -19,4 +19,3 @@ export const KanbanColumnErrorTag = {
 export class KanbanColumnDomainError extends Data.TaggedError(KanbanColumnErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type KanbanColumnServiceError = KanbanColumnDomainError | XfError | RepositoryError | XfUpsertError
-

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "profile": "native-container-postgres",
+  "engine": "postgresql",
+  "majorVersion": 17,
+  "imageRef": "ghcr.io/eeemzs/aops-community-base-postgres:17-bookworm@sha256:5530681ea5d3e2ed4ce396f9b5cb443efbac6baf2a8a19c0c0635e40ae7eadce",
+  "imageDigest": "sha256:5530681ea5d3e2ed4ce396f9b5cb443efbac6baf2a8a19c0c0635e40ae7eadce",
+  "database": "aops",
+  "username": "aops",
+  "containerPort": 5432,
+  "dataMount": "/var/lib/postgresql/data",
+  "bindHost": "127.0.0.1"
+}

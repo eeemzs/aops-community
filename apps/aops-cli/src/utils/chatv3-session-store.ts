@@ -3,54 +3,12 @@ import fs from 'node:fs/promises'
 import fsSync from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { promisify } from 'node:util'
-
-type EncryptedPayload = {
-  v: 1
-  kdf: 'scrypt'
-  salt: string
-  iv: string
-  tag: string
-  data: string
-}
-
-const COMMUNITY_CHATV3_KEY_LENGTH = 32
-const COMMUNITY_CHATV3_IV_LENGTH = 12
-const COMMUNITY_CHATV3_SALT_LENGTH = 16
-const communityChatv3Scrypt = promisify(crypto.scrypt)
-
-async function deriveCommunityChatv3Key(password: string, salt: Buffer): Promise<Buffer> {
-  return await communityChatv3Scrypt(password, salt, COMMUNITY_CHATV3_KEY_LENGTH) as Buffer
-}
-
-async function encryptWithPassword(value: string, password: string): Promise<{ key: Buffer; payload: EncryptedPayload }> {
-  const salt = crypto.randomBytes(COMMUNITY_CHATV3_SALT_LENGTH)
-  const key = await deriveCommunityChatv3Key(password, salt)
-  const iv = crypto.randomBytes(COMMUNITY_CHATV3_IV_LENGTH)
-  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
-  const encrypted = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()])
-  return {
-    key,
-    payload: {
-      v: 1,
-      kdf: 'scrypt',
-      salt: salt.toString('base64'),
-      iv: iv.toString('base64'),
-      tag: cipher.getAuthTag().toString('base64'),
-      data: encrypted.toString('base64'),
-    },
-  }
-}
-
-async function decryptWithPassword(payload: EncryptedPayload, password: string): Promise<string> {
-  const key = await deriveCommunityChatv3Key(password, Buffer.from(payload.salt, 'base64'))
-  const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(payload.iv, 'base64'))
-  decipher.setAuthTag(Buffer.from(payload.tag, 'base64'))
-  return Buffer.concat([
-    decipher.update(Buffer.from(payload.data, 'base64')),
-    decipher.final(),
-  ]).toString('utf8')
-}
+import { getAopsCliConfigFilePath } from './config.js'
+import {
+  decryptWithPassword,
+  encryptWithPassword,
+  type AopsEncryptedPayload as EncryptedPayload,
+} from './password-crypto.js'
 
 export type Chatv3SessionRoom = {
   id: string
@@ -132,10 +90,9 @@ function normalizeNonEmpty(value: unknown): string | undefined {
 }
 
 function baseDirFromConfig(): string {
-  const configPath =
-    normalizeNonEmpty(process.env.AOPS_CLI_CONFIG_PATH) ??
-    normalizeNonEmpty(process.env.AGENT_OPS_CONFIG_PATH)
-  if (configPath) return path.dirname(configPath)
+  if (normalizeNonEmpty(process.env.AOPS_CLI_CONFIG_PATH) || normalizeNonEmpty(process.env.AGENT_OPS_CONFIG_PATH)) {
+    return path.dirname(getAopsCliConfigFilePath())
+  }
   return path.join(os.homedir(), '.aops')
 }
 

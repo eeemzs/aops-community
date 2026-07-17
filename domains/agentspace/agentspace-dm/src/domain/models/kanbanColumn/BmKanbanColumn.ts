@@ -17,4 +17,3 @@ export class BmKanbanColumn extends BmBase<IbmKanbanColumn, IKanbanColumnMlgTags
     }
   }
 }
-

@@ -19,4 +19,3 @@ export const ProjectErrorTag = {
 export class ProjectDomainError extends Data.TaggedError(ProjectErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type ProjectServiceError = ProjectDomainError | XfError | RepositoryError | XfUpsertError
-

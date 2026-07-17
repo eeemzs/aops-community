@@ -11,7 +11,7 @@ import {
   type NavigatorTreeRow,
   type WorkbenchNavigatorController
 } from "@aopslab/xf-ui-composition-react";
-import { NavigatorSettingsGear } from "./navigatorGear";
+import { CockpitPanelCloseIcon } from "../components/CockpitViewIconSwitch";
 import type { ProjectOption } from "./projects";
 import type { AopsCockpitTranslationKey } from "./i18n";
 
@@ -342,14 +342,6 @@ export function useProjectsNavigator(model: ProjectsNavigatorModel, t: NavT): Pr
     },
     [toggleStatus]
   );
-  const handleModeChange = useCallback(
-    (next: string) => {
-      if (next === "left-menu" && model.allowLeftMenuMode === false) return;
-      if (next === "left-menu") nav.switchToLeftMenu();
-      else nav.switchToNavigator();
-    },
-    [model.allowLeftMenuMode, nav]
-  );
   const handleExpandAll = useCallback(() => setCollapsed(new Set()), []);
   const handleCollapseAll = useCallback(
     () => setCollapsed(new Set(allStatuses)),
@@ -399,15 +391,16 @@ export function useProjectsNavigator(model: ProjectsNavigatorModel, t: NavT): Pr
       iconBar={
         <NavigatorCategoryIconBar
           settingsSlot={
-            <NavigatorSettingsGear
-              mode={nav.mode}
-              onModeChange={handleModeChange}
-              title={t("navSettings")}
-              modeLabel={t("navMode")}
-              navigatorLabel={t("navModeNavigator")}
-              leftMenuLabel={t("navModeLeftMenu")}
-              showLeftMenuOption={model.allowLeftMenuMode !== false}
-            />
+            <button
+              type="button"
+              className="inv-iv3-cattree-tool-btn aops-v2-tree-close"
+              aria-label={t("navSidePanelClose")}
+              title={t("navSidePanelClose")}
+              onClick={() => nav.setOpen(false)}
+              data-testid="aops-v2-projects-tree-close"
+            >
+              <CockpitPanelCloseIcon />
+            </button>
           }
           onExpandAll={handleExpandAll}
           onCollapseAll={handleCollapseAll}

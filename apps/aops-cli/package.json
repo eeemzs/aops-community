@@ -20,7 +20,12 @@
   },
   "dependencies": {
     "@aops/host-registration": "workspace:*",
+    "@aops/pg-bootstrap": "workspace:*",
     "@aops/runtime-config": "workspace:*",
+    "@sigstore/bundle": "4.0.0",
+    "@sigstore/protobuf-specs": "0.5.1",
+    "@sigstore/tuf": "4.0.2",
+    "@sigstore/verify": "3.1.1",
     "@aopslab/api-client": "workspace:*",
     "@aopslab/domain-product-client-chatv3": "workspace:*",
     "@aopslab/xf-cli-operator": "0.0.2",

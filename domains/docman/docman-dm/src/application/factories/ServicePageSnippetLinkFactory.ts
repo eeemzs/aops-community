@@ -16,4 +16,3 @@ export const ServiceFactoryPageSnippetLink = {
     return ServiceBuilderPageSnippetLink.create()
   },
 }
-

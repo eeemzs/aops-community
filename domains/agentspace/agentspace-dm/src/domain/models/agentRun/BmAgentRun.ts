@@ -17,4 +17,3 @@ export class BmAgentRun extends BmBase<IbmAgentRun, IAgentRunMlgTags> {
     }
   }
 }
-

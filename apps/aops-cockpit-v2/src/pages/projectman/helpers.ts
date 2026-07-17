@@ -159,6 +159,33 @@ export function byRecordUpdatedDesc(
   return Date.parse(b.updatedAt ?? b.createdAt ?? "") - Date.parse(a.updatedAt ?? a.createdAt ?? "");
 }
 
+/**
+ * Implementation plans are a sprint-backed facade: their id is the underlying
+ * sprint id, not a second record identity. Prefer the canonical sprint shape,
+ * while retaining plan-only rows as a fallback when that read surface is
+ * temporarily incomplete.
+ */
+export function buildSprintPlanItems(
+  sprints: CockpitPmSprint[],
+  implementationPlans: CockpitPmImplementationPlan[]
+): PlanRecordItem[] {
+  const bySprintId = new Map<string, PlanRecordItem>();
+  for (const plan of implementationPlans) {
+    bySprintId.set(plan.id, planItemFromImplementationPlan(plan));
+  }
+  for (const sprint of sprints) {
+    bySprintId.set(sprint.id, planItemFromSprint(sprint));
+  }
+  return [...bySprintId.values()].sort(byRecordUpdatedDesc);
+}
+
+export function countSprintPlanRecords(
+  sprints: CockpitPmSprint[],
+  implementationPlans: CockpitPmImplementationPlan[]
+): number {
+  return new Set([...sprints, ...implementationPlans].map((record) => record.id)).size;
+}
+
 export function issueSprintId(issue: unknown): string | null {
   const value = (issue as { sprintId?: string | null }).sprintId;
   return value ?? null;

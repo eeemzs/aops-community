@@ -7,4 +7,3 @@ export const DomainMetadata = {
   version: '1.0.0',
   description: 'Generated domain',
 } as const;
-

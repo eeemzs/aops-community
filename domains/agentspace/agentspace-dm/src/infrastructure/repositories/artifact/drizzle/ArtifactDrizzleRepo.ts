@@ -21,4 +21,3 @@ export class ArtifactDrizzleRepo extends DraBase<IbmArtifact, IdbArtifactDrizzle
   // }
   //<==//
 }
-

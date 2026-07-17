@@ -1,10 +1,17 @@
 import { createHash } from 'node:crypto';
 
 import { codepointCompare } from './community-codepoint-compare.mjs';
+import {
+  COMMUNITY_PUBLIC_CLI_PACKAGE_NAME,
+  canonicalCommunityCliArtifactRef,
+} from './community-cli-public-package-archive.mjs';
+
+export { COMMUNITY_PUBLIC_CLI_PACKAGE_NAME, canonicalCommunityCliArtifactRef };
 
 export const COMMUNITY_IMAGE_CONTRACT_ID = 'aops-community-image-contract-v1';
-export const COMMUNITY_IMAGE_REPOSITORY = 'ghcr.io/aopslab/aops-community';
+export const COMMUNITY_IMAGE_REPOSITORY = 'ghcr.io/eeemzs/aops-community';
 export const COMMUNITY_PUBLIC_SOURCE_REPOSITORY = 'git+https://github.com/eeemzs/aops-community';
+export const COMMUNITY_CLI_COMMAND_SCHEMA_VERSION = 1;
 export const COMMUNITY_IMAGE_PLATFORMS = Object.freeze(['linux/amd64', 'linux/arm64']);
 export const COMMUNITY_IMAGE_SOURCE_DATE_EPOCH = '0';
 export const COMMUNITY_RELEASE_SCHEMA_PATH = 'deploy/community/release.schema.json';
@@ -15,6 +22,10 @@ const NPM_INTEGRITY_SHA512_PATTERN = '^sha512-[A-Za-z0-9+/]{86}==$';
 const SEMVER_PATTERN = '^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$';
 const SAFE_ARTIFACT_REF_PATTERN = '^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$';
 const sha256 = (content) => `sha256:${createHash('sha256').update(content).digest('hex')}`;
+
+export function communityCliNpmDistTag(version) {
+  return String(version).includes('-') ? 'next' : 'latest';
+}
 
 function stableObject(value) {
   if (Array.isArray(value)) return value.map(stableObject);
@@ -88,7 +99,7 @@ export function createCommunityReleaseSchema() {
           'npmIntegrity',
         ],
         properties: {
-          packageName: { const: '@aopslab/aops-cli' },
+          packageName: { const: COMMUNITY_PUBLIC_CLI_PACKAGE_NAME },
           version: { type: 'string', pattern: SEMVER_PATTERN },
           commandSchemaVersion: { type: 'integer', minimum: 1, maximum: Number.MAX_SAFE_INTEGER },
           bundleSha256: digest,

@@ -5,13 +5,14 @@ import { PROJECTMAN_SECTIONS, projectmanPageIdForSection, type ProjectmanSection
 import { shortId } from "../lib/projectman";
 import { ProjectmanBoards } from "./projectman/ProjectmanBoards";
 import { ProjectmanSprintsPlans } from "./projectman/ProjectmanSprintsPlans";
+import { countSprintPlanRecords } from "./projectman/helpers";
 import {
   buildFeedbackItems,
   buildIssueItems,
   buildReviewItems
 } from "./projectman/ProjectmanRecordList";
 import { ProjectmanRecordSection } from "./projectman/ProjectmanRecordSection";
-import { SegmentedControl } from "./projectman/components";
+import { CockpitViewIconSwitch } from "../components/CockpitViewIconSwitch";
 import {
   readRecordCardsUiState,
   writeRecordCardsUiState,
@@ -39,7 +40,7 @@ export function ProjectmanPage({
 }: ProjectmanDispatcherProps) {
   const sectionCounts: Record<ProjectmanSectionId, number> = {
     boards: model.boards.length,
-    sprints: model.sprints.length + model.implementationPlans.length,
+    sprints: countSprintPlanRecords(model.sprints, model.implementationPlans),
     issues: model.issues.length,
     feedback: model.feedback.length,
     reviews: model.reviewRequests.length
@@ -106,10 +107,11 @@ export function ProjectmanPage({
       return nextState;
     });
   };
+  const activeNavigator = section === "boards" ? boardsNavigator : section === "sprints" ? sprintsNavigator : null;
 
   return (
     <WorkbenchSectionShell className="aops-v2-section aops-pm-section" mainClassName="aops-v2-section-main">
-      <div className="aops-pm-dispatch has-view-switch">
+      <div className={`aops-pm-dispatch has-view-switch is-${section} is-${viewMode}`}>
         <label className="aops-pm-mobile-section-picker">
           <span>{t("pmTitle")}</span>
           <select
@@ -142,7 +144,25 @@ export function ProjectmanPage({
               </button>
             ))}
           </div>
-          <ProjectmanViewSwitch section={section} value={viewMode} onChange={setViewMode} t={t} />
+          <ProjectmanViewSwitch
+            section={section}
+            value={viewMode}
+            sidePanelOpen={activeNavigator?.controller.open ?? true}
+            onSidePanelToggle={() => {
+              if (!activeNavigator) {
+                setViewMode("side-panel");
+                return;
+              }
+              if (viewMode === "side-panel") {
+                activeNavigator.controller.setOpen((current) => !current);
+                return;
+              }
+              activeNavigator.controller.setOpen(true);
+              setViewMode("side-panel");
+            }}
+            onChange={setViewMode}
+            t={t}
+          />
         </div>
         <div className="aops-pm-dispatch-body">
           <ProjectmanSectionBody
@@ -165,29 +185,44 @@ export function ProjectmanPage({
 function ProjectmanViewSwitch({
   section,
   value,
+  sidePanelOpen,
+  onSidePanelToggle,
   onChange,
   t
 }: {
   section: ProjectmanSectionId;
   value: ProjectmanSectionViewMode;
+  sidePanelOpen: boolean;
+  onSidePanelToggle: () => void;
   onChange: (value: ProjectmanSectionViewMode) => void;
   t: TFn;
 }): ReactNode {
   const sectionDef = PROJECTMAN_SECTIONS.find((entry) => entry.section === section) ?? PROJECTMAN_SECTIONS[0];
+  const supportsClosablePanel = section === "boards" || section === "sprints";
+  const panelVisible = value === "side-panel" && sidePanelOpen;
+  const panelLabel = supportsClosablePanel
+    ? panelVisible
+      ? t("navSidePanelHide")
+      : t("navSidePanelShow")
+    : t("pmRecordViewSidePanel");
   return (
-    <div className="aops-pm-section-view-switch">
-      <SegmentedControl
-        compact
-        ariaLabel={`${t("pmRecordViewLabel")}: ${t(sectionDef.labelKey)}`}
-        value={value}
-        items={[
-          { value: "side-panel", label: t("pmRecordViewSidePanel") },
-          { value: "cards", label: t("navModeCards") },
-          { value: "dropdown", label: t("navModeDropdown") }
-        ]}
-        onChange={(next) => onChange(next as ProjectmanSectionViewMode)}
-      />
-    </div>
+    <CockpitViewIconSwitch
+      ariaLabel={`${t("pmRecordViewLabel")}: ${t(sectionDef.labelKey)}`}
+      value={value}
+      items={[
+        {
+          value: "side-panel",
+          label: panelLabel,
+          icon: "side-panel",
+          expanded: supportsClosablePanel ? panelVisible : value === "side-panel",
+          onSelect: onSidePanelToggle,
+          testId: `aops-pm-${section}-view-side-panel`
+        },
+        { value: "cards", label: t("navModeCards"), icon: "cards", testId: `aops-pm-${section}-view-cards` },
+        { value: "dropdown", label: t("navModeDropdown"), icon: "dropdown", testId: `aops-pm-${section}-view-dropdown` }
+      ]}
+      onChange={onChange}
+    />
   );
 }
 

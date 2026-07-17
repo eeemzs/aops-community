@@ -21,4 +21,3 @@ export class AgentRunDrizzleRepo extends DraBase<IbmAgentRun, IdbAgentRunDrizzle
   // }
   //<==//
 }
-

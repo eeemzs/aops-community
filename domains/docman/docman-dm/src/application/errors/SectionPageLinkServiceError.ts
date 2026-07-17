@@ -19,4 +19,3 @@ export const SectionPageLinkErrorTag = {
 export class SectionPageLinkDomainError extends Data.TaggedError(SectionPageLinkErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type SectionPageLinkServiceError = SectionPageLinkDomainError | XfError | RepositoryError | XfUpsertError
-

@@ -17,4 +17,3 @@ export class BmTaskComment extends BmBase<IbmTaskComment, ITaskCommentMlgTags> {
     }
   }
 }
-

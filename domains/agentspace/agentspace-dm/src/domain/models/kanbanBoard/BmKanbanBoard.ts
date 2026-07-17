@@ -17,4 +17,3 @@ export class BmKanbanBoard extends BmBase<IbmKanbanBoard, IKanbanBoardMlgTags> {
     }
   }
 }
-

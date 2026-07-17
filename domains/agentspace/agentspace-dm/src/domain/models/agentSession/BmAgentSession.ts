@@ -17,4 +17,3 @@ export class BmAgentSession extends BmBase<IbmAgentSession, IAgentSessionMlgTags
     }
   }
 }
-

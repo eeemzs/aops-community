@@ -19,4 +19,3 @@ export const KanbanBoardErrorTag = {
 export class KanbanBoardDomainError extends Data.TaggedError(KanbanBoardErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type KanbanBoardServiceError = KanbanBoardDomainError | XfError | RepositoryError | XfUpsertError
-

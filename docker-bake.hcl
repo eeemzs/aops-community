@@ -1,5 +1,5 @@
 variable "IMAGE_NAME" {
-  default = "ghcr.io/aopslab/aops-community"
+  default = "ghcr.io/eeemzs/aops-community"
 }
 
 variable "IMAGE_TAG" {

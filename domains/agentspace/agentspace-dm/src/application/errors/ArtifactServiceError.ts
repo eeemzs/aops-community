@@ -19,4 +19,3 @@ export const ArtifactErrorTag = {
 export class ArtifactDomainError extends Data.TaggedError(ArtifactErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type ArtifactServiceError = ArtifactDomainError | XfError | RepositoryError | XfUpsertError
-

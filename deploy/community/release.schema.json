@@ -61,7 +61,7 @@
       ],
       "properties": {
         "repository": {
-          "const": "ghcr.io/aopslab/aops-community"
+          "const": "ghcr.io/eeemzs/aops-community"
         },
         "tag": {
           "type": "string",

@@ -7,4 +7,3 @@ const conversions: FieldConversionLookup<IbmPage, PageColumnsDrizzle> = {
 }
 
 export const mapperPageDrizzle = createBmDbMapper<IbmPage, IdbPageDrizzle, PageColumnsDrizzle>(conversions);
-
