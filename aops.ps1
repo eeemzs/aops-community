@@ -14,7 +14,7 @@ $transportName = 'AOPS_CLONE_LAUNCHER_TRANSPORT'
 $payloadName = 'AOPS_CLONE_LAUNCHER_ARGV_B64'
 $priorTransport = [System.Environment]::GetEnvironmentVariable($transportName, "Process")
 $priorPayload = [System.Environment]::GetEnvironmentVariable($payloadName, "Process")
-$node = Get-Command node -CommandType Application -ErrorAction Stop
+$node = Get-Command node -CommandType Application -ErrorAction Stop | Select-Object -First 1
 $launcher = Join-Path -Path $PSScriptRoot -ChildPath 'deploy/community/aops-launcher.mjs'
 try {
   [System.Environment]::SetEnvironmentVariable($transportName, 'powershell-json-base64-v1', 'Process')

@@ -192,19 +192,6 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Preserve the bundled release CLI contract on Windows
-        if: ${{ runner.os == 'Windows' }}
-        shell: pwsh
-        run: |
-          .\aops.ps1 server --help
-
-      - name: Preserve the bundled release CLI contract on Unix
-        if: ${{ runner.os != 'Windows' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          ./aops server --help
-
       - name: Pin pnpm 11
         uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
         with:
@@ -228,6 +215,19 @@ jobs:
           set -euo pipefail
           pnpm install --frozen-lockfile
           pnpm --filter @aops/aops-cli... run build
+
+      - name: Preserve the bundled release CLI contract on Windows
+        if: ${{ runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          .\aops.ps1 server --help
+
+      - name: Preserve the bundled release CLI contract on Unix
+        if: ${{ runner.os != 'Windows' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./aops server --help
 
       - name: Prove native setup, health, restart, logs and stop
         shell: bash
