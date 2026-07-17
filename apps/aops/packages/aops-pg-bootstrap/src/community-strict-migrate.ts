@@ -397,6 +397,104 @@ function sha256Json(value: unknown): string {
   return sha256(JSON.stringify(value))
 }
 
+function canonicalMigrationPlanJson(value: unknown): CommunityStrictMigrationPlanV1 {
+  if (!isRecord(value)) throw new Error('community_strict_plan_json_invalid')
+  assertExactKeys('community_strict_plan_json', value, [
+    'schemaVersion', 'policyId', 'policySha256', 'inventorySha256', 'bundleSha256',
+    'target', 'source', 'sourceFingerprintSha256', 'pendingMigrations',
+    'convergenceSha256', 'action',
+  ])
+  if (!isRecord(value.target) || !isRecord(value.source) ||
+      !Array.isArray(value.pendingMigrations) || !Array.isArray(value.source.appliedPrefixes)) {
+    throw new Error('community_strict_plan_json_invalid')
+  }
+  assertExactKeys('community_strict_plan_json_target', value.target, [
+    'lineageId', 'postgresMajor', 'relationCount', 'schemaFingerprintSha256',
+    'appliedCounts', 'policyId', 'inventorySha256', 'convergenceSha256',
+  ])
+  assertExactKeys('community_strict_plan_json_source', value.source, [
+    'postgresMajor', 'lineageId', 'schemaFingerprintSha256', 'receiptFingerprintSha256',
+    'strictReceiptRowsSha256', 'appliedPrefixes',
+  ])
+  if (!Array.isArray(value.target.appliedCounts)) {
+    throw new Error('community_strict_plan_json_invalid')
+  }
+
+  const appliedPrefixes = value.source.appliedPrefixes.map((candidate) => {
+    if (!isRecord(candidate) || !Array.isArray(candidate.migrations)) {
+      throw new Error('community_strict_plan_json_invalid')
+    }
+    assertExactKeys('community_strict_plan_json_applied_prefix', candidate, [
+      'rootId', 'rootOrdinal', 'migrationTablePresent', 'appliedCount', 'migrations',
+    ])
+    const migrations = candidate.migrations.map((migration) => {
+      if (!isRecord(migration)) throw new Error('community_strict_plan_json_invalid')
+      assertExactKeys('community_strict_plan_json_applied_migration', migration, [
+        'migrationIdx', 'tag', 'sqlSha256',
+      ])
+      return {
+        migrationIdx: migration.migrationIdx as number,
+        tag: migration.tag as string,
+        sqlSha256: migration.sqlSha256 as string,
+      }
+    })
+    return {
+      rootId: candidate.rootId as string,
+      rootOrdinal: candidate.rootOrdinal as number,
+      migrationTablePresent: candidate.migrationTablePresent as boolean,
+      appliedCount: candidate.appliedCount as number,
+      migrations,
+    }
+  })
+  const pendingMigrations = value.pendingMigrations.map((candidate) => {
+    if (!isRecord(candidate)) throw new Error('community_strict_plan_json_invalid')
+    assertExactKeys('community_strict_plan_json_pending_migration', candidate, [
+      'order', 'rootId', 'rootOrdinal', 'migrationIdx', 'tag', 'sqlSha256', 'risk',
+    ])
+    return {
+      order: candidate.order as number,
+      rootId: candidate.rootId as string,
+      rootOrdinal: candidate.rootOrdinal as number,
+      migrationIdx: candidate.migrationIdx as number,
+      tag: candidate.tag as string,
+      sqlSha256: candidate.sqlSha256 as string,
+      risk: candidate.risk as CommunityStrictMigrationRiskV1,
+    }
+  })
+
+  return {
+    schemaVersion: value.schemaVersion as 1,
+    policyId: value.policyId as string,
+    policySha256: value.policySha256 as string,
+    inventorySha256: value.inventorySha256 as string,
+    bundleSha256: value.bundleSha256 as string,
+    target: {
+      lineageId: value.target.lineageId as string,
+      postgresMajor: value.target.postgresMajor as number,
+      relationCount: value.target.relationCount as number,
+      schemaFingerprintSha256: value.target.schemaFingerprintSha256 as string,
+      appliedCounts: value.target.appliedCounts as number[],
+      policyId: value.target.policyId as string,
+      inventorySha256: value.target.inventorySha256 as string,
+      convergenceSha256: value.target.convergenceSha256 as string,
+    },
+    source: {
+      postgresMajor: value.source.postgresMajor as number,
+      lineageId: value.source.lineageId as string,
+      schemaFingerprintSha256: value.source.schemaFingerprintSha256 as string,
+      receiptFingerprintSha256: value.source.receiptFingerprintSha256 as string,
+      strictReceiptRowsSha256: value.source.strictReceiptRowsSha256 === null
+        ? null
+        : value.source.strictReceiptRowsSha256 as string,
+      appliedPrefixes,
+    },
+    sourceFingerprintSha256: value.sourceFingerprintSha256 as string,
+    pendingMigrations,
+    convergenceSha256: value.convergenceSha256 as string,
+    action: value.action as CommunityStrictMigrationPlanV1['action'],
+  }
+}
+
 function renderCommunityStrictConvergenceSql(operation: CommunityStrictConvergenceOperationV1): string {
   return `ALTER TABLE public.${quoteIdentifier(operation.table)} ADD COLUMN IF NOT EXISTS ${quoteIdentifier(operation.column)} ${operation.dataType}`
 }
@@ -919,7 +1017,7 @@ export function buildCommunityStrictMigrationPlanV1(params: {
   }
   return {
     plan,
-    planSha256: sha256Json(plan),
+    planSha256: sha256Json(canonicalMigrationPlanJson(plan)),
     sourceFingerprintSha256,
   }
 }
@@ -2122,7 +2220,16 @@ async function ensureMigrationPlanAcceptanceTableV1(client: CommunityStrictPgCli
 function parseMigrationPlanAcceptanceRowUnbound(
   row: Record<string, unknown>,
 ): { acceptance: CommunityStrictMigrationPlanAcceptanceV1; planJson: unknown } {
-  const planJson = typeof row.planJson === 'string' ? JSON.parse(row.planJson) as unknown : row.planJson
+  const rawPlanJson = typeof row.planJson === 'string' ? JSON.parse(row.planJson) as unknown : row.planJson
+  let planJson: CommunityStrictMigrationPlanV1
+  try {
+    // PostgreSQL jsonb does not preserve object key insertion order. Rebuild the
+    // typed plan order before hashing so a semantic round-trip retains the
+    // accepted digest without weakening exact-key validation.
+    planJson = canonicalMigrationPlanJson(rawPlanJson)
+  } catch {
+    throw new Error('community_strict_plan_acceptance_corrupt')
+  }
   const evidenceKind = row.evidenceKind === null || row.evidenceKind === undefined
     ? null
     : String(row.evidenceKind) as CommunityStrictSnapshotEvidenceV1['kind']

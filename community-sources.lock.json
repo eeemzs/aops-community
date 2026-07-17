@@ -26,7 +26,7 @@
     "community": {
       "repository": "https://github.com/eeemzs/aops-community",
       "commitBinding": "release.json#/source/commit",
-      "rawFileInventoryDigest": "sha256:c12621765600102f1f1ff304a81e81c98732d5a44edc82b7d2dbadebfaae6133"
+      "rawFileInventoryDigest": "sha256:bf94565da1c2e7f204f74ce37d1b9ed390e3c1f0fe1983152c4e8ec421df7996"
     }
   },
   "cleanBuildRequirement": {
@@ -121,9 +121,9 @@
         "path": "apps/aops/packages/aops-pg-bootstrap",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:04fd574f77a845b3353e99a508cd41afac3a4d40b76741a5dcfb4c7b516e9ea3",
+          "digest": "sha256:3a9138d39c8ce4419ffce9f9c4c11bb51876a9bd392fadceebefd05cc1bee168",
           "fileCount": 19,
-          "byteLength": 470081
+          "byteLength": 475481
         }
       }
     },
