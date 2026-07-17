@@ -357,7 +357,20 @@ function managedSnapshotEvidence(plan, policy, backupPath, backup) {
   }
 }
 
-function createRiskyApplyHarness(fixture, { failAcceptanceRead = false, beforeCommit } = {}) {
+function reorderJsonObjectKeys(value) {
+  if (Array.isArray(value)) return value.map(reorderJsonObjectKeys)
+  if (value === null || typeof value !== 'object') return value
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => right.localeCompare(left))
+      .map(([key, candidate]) => [key, reorderJsonObjectKeys(candidate)]),
+  )
+}
+
+function createRiskyApplyHarness(
+  fixture,
+  { failAcceptanceRead = false, beforeCommit, jsonbPlanRoundTrip = false } = {},
+) {
   const rowsByTable = structuredClone(fixture.rowsByTable)
   const strictReceipts = []
   const committedAcceptances = new Map()
@@ -485,7 +498,9 @@ function createRiskyApplyHarness(fixture, { failAcceptanceRead = false, beforeCo
           resultStateFingerprintSha256: params[7],
           evidenceKind: params[8],
           evidenceSha256: params[9],
-          planJson: JSON.parse(params[10]),
+          planJson: jsonbPlanRoundTrip
+            ? reorderJsonObjectKeys(JSON.parse(params[10]))
+            : JSON.parse(params[10]),
           acceptedAt: params[11],
         })
         return { rows: [] }
@@ -990,14 +1005,14 @@ test('external snapshot evidence rejects blank and credential-bearing recovery r
   }
 })
 
-test('managed-or-external policy accepts exact external attestation and commits its audit with public DDL', async () => {
+test('managed-or-external policy accepts exact external attestation after jsonb plan key reordering', async () => {
   const fixture = createRiskyFixture()
   try {
     const plan = await planRiskyFixture(fixture)
     const evidence = externalSnapshotEvidence(plan, fixture.policy)
     const evidencePath = path.join(fixture.workspaceRoot, 'external-exact.json')
     writeFileSync(evidencePath, JSON.stringify(evidence))
-    const harness = createRiskyApplyHarness(fixture)
+    const harness = createRiskyApplyHarness(fixture, { jsonbPlanRoundTrip: true })
 
     const result = await applyCommunityStrictPgSchema({
       repoUrl: 'postgresql://user:pass@localhost:5432/community',
