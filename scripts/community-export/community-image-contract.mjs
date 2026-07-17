@@ -15,7 +15,6 @@ export const COMMUNITY_CLI_COMMAND_SCHEMA_VERSION = 1;
 export const COMMUNITY_IMAGE_PLATFORMS = Object.freeze(['linux/amd64', 'linux/arm64']);
 export const COMMUNITY_IMAGE_SOURCE_DATE_EPOCH = '0';
 export const COMMUNITY_RELEASE_SCHEMA_PATH = 'deploy/community/release.schema.json';
-export const COMMUNITY_DOCKER_BAKE_PATH = 'docker-bake.hcl';
 
 const SHA256_PATTERN = '^sha256:[a-f0-9]{64}$';
 const NPM_INTEGRITY_SHA512_PATTERN = '^sha512-[A-Za-z0-9+/]{86}==$';
@@ -208,45 +207,6 @@ export function createCommunityReleaseSchema() {
   };
 }
 
-export function renderCommunityDockerBake() {
-  const platforms = COMMUNITY_IMAGE_PLATFORMS.map((platform) => `    ${JSON.stringify(platform)},`).join('\n');
-  return `variable "IMAGE_NAME" {
-  default = "${COMMUNITY_IMAGE_REPOSITORY}"
-}
-
-variable "IMAGE_TAG" {
-  default = "dev"
-}
-
-variable "SOURCE_DATE_EPOCH" {
-  default = "${COMMUNITY_IMAGE_SOURCE_DATE_EPOCH}"
-}
-
-target "community" {
-  context    = "."
-  dockerfile = "Dockerfile"
-  platforms = [
-${platforms}
-  ]
-  tags = ["\${IMAGE_NAME}:\${IMAGE_TAG}"]
-  args = {
-    BUILDKIT_MULTI_PLATFORM = "1"
-    SOURCE_DATE_EPOCH       = "\${SOURCE_DATE_EPOCH}"
-  }
-  # Keep attestations detached from this index: Buildx attestation manifests
-  # carry invocation metadata and would make the top-level runtime digest vary.
-  # release.json binds the separately signed SBOM and provenance references.
-  attest = [
-    "type=provenance,disabled=true",
-    "type=sbom,disabled=true",
-  ]
-  output = [
-    "type=oci,dest=dist/aops-community-\${IMAGE_TAG}.oci,tar=false,oci-mediatypes=true,rewrite-timestamp=true",
-  ]
-}
-`;
-}
-
 function generatedFile(targetPath, content, action) {
   return {
     targetPath,
@@ -261,9 +221,7 @@ function generatedFile(targetPath, content, action) {
 export function createCommunityImageContractOverlay() {
   const releaseSchema = createCommunityReleaseSchema();
   const releaseSchemaContent = `${JSON.stringify(releaseSchema, null, 2)}\n`;
-  const bakeContent = renderCommunityDockerBake();
   const files = [
-    generatedFile(COMMUNITY_DOCKER_BAKE_PATH, bakeContent, 'generate-reproducible-multiarch-bake-contract'),
     generatedFile(COMMUNITY_RELEASE_SCHEMA_PATH, releaseSchemaContent, 'generate-release-manifest-schema'),
   ];
   const digestPayload = stableObject({

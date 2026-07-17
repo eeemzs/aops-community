@@ -1,7 +1,0 @@
-services:
-  app:
-    image: aops-community:local
-    pull_policy: never
-    build:
-      context: .
-      dockerfile: Dockerfile
