@@ -1,3 +1,5 @@
+import { lstatSync, readFileSync, realpathSync } from 'node:fs'
+import path from 'node:path'
 import { Pool, type PoolConfig } from 'pg'
 
 export const COMMUNITY_PG_ENV_KEY = 'AOPS_PG_URL' as const
@@ -10,6 +12,7 @@ type CommunityPgTarget = {
   user: string
   password: string
   database: string
+  ssl: PoolConfig['ssl']
 }
 
 export type ResolvedAopsServerRuntimeConfig = {
@@ -59,7 +62,7 @@ function parsePgTarget(value: unknown): CommunityPgTarget {
   } catch {
     throw new Error('community_pg_url_invalid')
   }
-  if ((parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') || parsed.search || parsed.hash) {
+  if ((parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') || parsed.hash) {
     throw new Error('community_pg_url_invalid')
   }
   const host = parsed.hostname.startsWith('[') && parsed.hostname.endsWith(']')
@@ -69,15 +72,47 @@ function parsePgTarget(value: unknown): CommunityPgTarget {
   const user = decodeUrlComponent(parsed.username)
   const password = decodeUrlComponent(parsed.password)
   const database = decodeUrlComponent(parsed.pathname.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname)
+  const entries = [...parsed.searchParams.entries()]
+  const uniqueQueryKeys = new Set(entries.map(([key]) => key))
+  const exactQuery = (expected: Record<string, string>): boolean =>
+    entries.length === Object.keys(expected).length &&
+    uniqueQueryKeys.size === entries.length &&
+    entries.every(([key, entryValue]) => expected[key] === entryValue)
+  const loopback = isLoopbackPgHost(host)
+  let ssl: CommunityPgTarget['ssl']
+  if (entries.length === 0 && loopback) {
+    ssl = false
+  } else if (loopback && exactQuery({ sslmode: 'disable' })) {
+    ssl = false
+  } else if (exactQuery({ sslmode: 'require', uselibpqcompat: 'true' })) {
+    ssl = { rejectUnauthorized: false }
+  } else if (exactQuery({ sslmode: 'verify-full' })) {
+    ssl = { rejectUnauthorized: true }
+  } else if (entries.length === 2 && uniqueQueryKeys.size === entries.length &&
+    parsed.searchParams.get('sslmode') === 'verify-full' &&
+    entries.every(([key]) => key === 'sslmode' || key === 'sslrootcert')) {
+    const rootCertInput = nonEmpty(parsed.searchParams.get('sslrootcert'))
+    if (!path.isAbsolute(rootCertInput)) throw new Error('community_pg_url_invalid')
+    let rootCertStats: ReturnType<typeof lstatSync>
+    try { rootCertStats = lstatSync(rootCertInput) } catch { throw new Error('community_pg_url_invalid') }
+    if (!rootCertStats.isFile() || rootCertStats.isSymbolicLink() || rootCertStats.size < 1 || rootCertStats.size > 262_144) {
+      throw new Error('community_pg_url_invalid')
+    }
+    const canonicalRootCert = realpathSync(rootCertInput)
+    if (path.resolve(canonicalRootCert) !== path.resolve(rootCertInput)) throw new Error('community_pg_url_invalid')
+    ssl = { rejectUnauthorized: true, ca: readFileSync(canonicalRootCert, 'utf8') }
+  } else {
+    throw new Error('community_pg_url_invalid')
+  }
   if (
-    !host || !isLoopbackPgHost(host) || !user || !password || !database ||
+    !host || !user || !password || !database ||
     !Number.isInteger(port) || port < 1 || port > 65535 ||
     /[\/\u0000-\u001f\u007f]/.test(database) ||
     /[\u0000-\u001f\u007f]/.test(host + user + password)
   ) {
     throw new Error('community_pg_url_invalid')
   }
-  return { host, port, user, password, database }
+  return { host, port, user, password, database, ssl }
 }
 
 function redactPgTarget(target: CommunityPgTarget): string {
@@ -92,7 +127,7 @@ function createPoolConfig(target: CommunityPgTarget): PoolConfig {
     user: target.user,
     password: target.password,
     database: target.database,
-    ssl: false,
+    ssl: target.ssl,
     application_name: 'aops-community-probe',
     options: '-c search_path=public',
     connectionTimeoutMillis: 8_000,

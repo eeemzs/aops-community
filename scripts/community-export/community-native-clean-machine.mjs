@@ -17,6 +17,8 @@ const POSTGRES_URL_ENV = 'AOPS_CLEAN_MACHINE_POSTGRES_URL';
 const DEFAULT_PORT = 5910;
 const MAX_POSTGRES_URL_BYTES = 4_096;
 const INSTANCE_NAME = 'clean-machine-n1';
+const HTTP_FETCH_ATTEMPTS = 3;
+const HTTP_FETCH_RETRY_DELAY_MS = 250;
 
 function fail(code, detail) {
   throw new Error(detail === undefined ? code : `${code}:${detail}`);
@@ -171,18 +173,38 @@ function assertRunningStatus(status) {
   ) fail('community_native_clean_machine_running_status_invalid');
 }
 
-async function verifyHttpSurface(origin, fetchImpl) {
+export async function verifyCommunityNativeHttpSurface(
+  origin,
+  fetchImpl,
+  sleepImpl = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs)),
+) {
   const expectedOrigin = new URL(origin);
   if (expectedOrigin.protocol !== 'http:' || expectedOrigin.hostname !== '127.0.0.1') {
     fail('community_native_clean_machine_origin_invalid');
   }
   const request = async (pathname) => {
-    const response = await fetchImpl(new URL(pathname, expectedOrigin), {
-      redirect: 'error',
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!response?.ok) fail('community_native_clean_machine_http_failed', `${pathname}:${response?.status ?? 'unknown'}`);
-    return response;
+    for (let attempt = 1; attempt <= HTTP_FETCH_ATTEMPTS; attempt += 1) {
+      try {
+        const response = await fetchImpl(new URL(pathname, expectedOrigin), {
+          redirect: 'error',
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (!response?.ok) {
+          fail('community_native_clean_machine_http_failed', `${pathname}:${response?.status ?? 'unknown'}`);
+        }
+        return response;
+      } catch (error) {
+        if (String(error?.message ?? '').startsWith('community_native_clean_machine_http_failed:')) throw error;
+        if (attempt < HTTP_FETCH_ATTEMPTS) {
+          await sleepImpl(HTTP_FETCH_RETRY_DELAY_MS);
+          continue;
+        }
+        const reason = String(error?.cause?.code ?? error?.code ?? error?.name ?? 'unknown')
+          .replace(/[^A-Za-z0-9_-]/g, '') || 'unknown';
+        fail('community_native_clean_machine_fetch_failed', `${pathname}:${reason}`);
+      }
+    }
+    fail('community_native_clean_machine_fetch_failed', `${pathname}:unknown`);
   };
   const health = await request('/api/health');
   const healthText = await health.text();
@@ -250,7 +272,7 @@ export async function proveCommunityNativeCleanMachine({
     ) fail('community_native_clean_machine_setup_invalid');
     const initialStatus = await invoke(['server', 'status', ...common]);
     assertRunningStatus(initialStatus);
-    const initialHttp = await verifyHttpSurface(expectedOrigin, fetchImpl);
+    const initialHttp = await verifyCommunityNativeHttpSurface(expectedOrigin, fetchImpl);
 
     const firstStop = await invoke(['server', 'stop', ...common]);
     if (!['community-server-stopped', 'community-server-already-stopped'].includes(firstStop?.status) || firstStop.runtime !== 'native') {
@@ -271,7 +293,7 @@ export async function proveCommunityNativeCleanMachine({
     }
     const startedStatus = await invoke(['server', 'status', ...common]);
     assertRunningStatus(startedStatus);
-    const startedHttp = await verifyHttpSurface(expectedOrigin, fetchImpl);
+    const startedHttp = await verifyCommunityNativeHttpSurface(expectedOrigin, fetchImpl);
 
     const restart = await invoke(['server', 'restart', '--detach', ...common]);
     if (restart?.status !== 'community-server-restarted' || restart.runtime !== 'native' || restart.origin !== expectedOrigin) {
@@ -279,7 +301,7 @@ export async function proveCommunityNativeCleanMachine({
     }
     const restartedStatus = await invoke(['server', 'status', ...common]);
     assertRunningStatus(restartedStatus);
-    const restartedHttp = await verifyHttpSurface(expectedOrigin, fetchImpl);
+    const restartedHttp = await verifyCommunityNativeHttpSurface(expectedOrigin, fetchImpl);
 
     const logs = await invoke(['server', 'logs', '--tail', '200', ...common]);
     if (logs?.status !== 'community-native-logs' || !Number.isSafeInteger(logs.lineCount)) {
