@@ -108,13 +108,28 @@ function requirePostgresqlUrl(value) {
   }
   if (
     (parsed.protocol !== "postgres:" && parsed.protocol !== "postgresql:") ||
-    parsed.search ||
     parsed.hash ||
-    !isLoopbackPostgresqlHost(parsed.hostname) ||
+    !parsed.hostname ||
     !parsed.username ||
     !parsed.password ||
     !parsed.pathname.slice(1)
   ) {
+    throw new Error("community_server_postgresql_url_required");
+  }
+  const entries = [...parsed.searchParams.entries()];
+  const exactQuery = (expected) =>
+    entries.length === Object.keys(expected).length &&
+    entries.every(([key, entryValue]) => expected[key] === entryValue);
+  const loopback = isLoopbackPostgresqlHost(parsed.hostname);
+  const noQuery = entries.length === 0;
+  const localDisable = loopback && exactQuery({ sslmode: "disable" });
+  const tlsRequire = exactQuery({ sslmode: "require", uselibpqcompat: "true" });
+  const verifyFull = exactQuery({ sslmode: "verify-full" });
+  const verifyFullWithRoot = entries.length === 2 &&
+    parsed.searchParams.get("sslmode") === "verify-full" &&
+    path.isAbsolute(nonEmpty(parsed.searchParams.get("sslrootcert"))) &&
+    entries.every(([key]) => key === "sslmode" || key === "sslrootcert");
+  if (!(loopback && noQuery) && !localDisable && !tlsRequire && !verifyFull && !verifyFullWithRoot) {
     throw new Error("community_server_postgresql_url_required");
   }
   return candidate;
