@@ -73,8 +73,10 @@ function parsePgTarget(value: unknown): CommunityPgTarget {
   const password = decodeUrlComponent(parsed.password)
   const database = decodeUrlComponent(parsed.pathname.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname)
   const entries = [...parsed.searchParams.entries()]
+  const uniqueQueryKeys = new Set(entries.map(([key]) => key))
   const exactQuery = (expected: Record<string, string>): boolean =>
     entries.length === Object.keys(expected).length &&
+    uniqueQueryKeys.size === entries.length &&
     entries.every(([key, entryValue]) => expected[key] === entryValue)
   const loopback = isLoopbackPgHost(host)
   let ssl: CommunityPgTarget['ssl']
@@ -86,7 +88,8 @@ function parsePgTarget(value: unknown): CommunityPgTarget {
     ssl = { rejectUnauthorized: false }
   } else if (exactQuery({ sslmode: 'verify-full' })) {
     ssl = { rejectUnauthorized: true }
-  } else if (entries.length === 2 && parsed.searchParams.get('sslmode') === 'verify-full' &&
+  } else if (entries.length === 2 && uniqueQueryKeys.size === entries.length &&
+    parsed.searchParams.get('sslmode') === 'verify-full' &&
     entries.every(([key]) => key === 'sslmode' || key === 'sslrootcert')) {
     const rootCertInput = nonEmpty(parsed.searchParams.get('sslrootcert'))
     if (!path.isAbsolute(rootCertInput)) throw new Error('community_pg_url_invalid')

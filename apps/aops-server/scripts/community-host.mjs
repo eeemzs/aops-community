@@ -117,8 +117,10 @@ function requirePostgresqlUrl(value) {
     throw new Error("community_server_postgresql_url_required");
   }
   const entries = [...parsed.searchParams.entries()];
+  const uniqueQueryKeys = new Set(entries.map(([key]) => key));
   const exactQuery = (expected) =>
     entries.length === Object.keys(expected).length &&
+    uniqueQueryKeys.size === entries.length &&
     entries.every(([key, entryValue]) => expected[key] === entryValue);
   const loopback = isLoopbackPostgresqlHost(parsed.hostname);
   const noQuery = entries.length === 0;
@@ -126,6 +128,7 @@ function requirePostgresqlUrl(value) {
   const tlsRequire = exactQuery({ sslmode: "require", uselibpqcompat: "true" });
   const verifyFull = exactQuery({ sslmode: "verify-full" });
   const verifyFullWithRoot = entries.length === 2 &&
+    uniqueQueryKeys.size === entries.length &&
     parsed.searchParams.get("sslmode") === "verify-full" &&
     path.isAbsolute(nonEmpty(parsed.searchParams.get("sslrootcert"))) &&
     entries.every(([key]) => key === "sslmode" || key === "sslrootcert");
