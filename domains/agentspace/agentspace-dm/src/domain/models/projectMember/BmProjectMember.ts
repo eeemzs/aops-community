@@ -17,4 +17,3 @@ export class BmProjectMember extends BmBase<IbmProjectMember, IProjectMemberMlgT
     }
   }
 }
-

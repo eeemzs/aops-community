@@ -21,4 +21,3 @@ export class SnippetDrizzleRepo extends DraBase<IbmSnippet, IdbSnippetDrizzle, t
   // }
   //<==//
 }
-

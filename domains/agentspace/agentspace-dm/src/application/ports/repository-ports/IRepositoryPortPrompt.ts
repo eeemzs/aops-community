@@ -15,5 +15,3 @@ export interface IRepositoryPortPrompt extends IRepositoryPortBaseCrud<IbmPrompt
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmPrompt>): import('effect').Effect<IbmPrompt | null, RepositoryError>
   //<==//
 }
-
-

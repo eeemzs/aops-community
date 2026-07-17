@@ -19,4 +19,3 @@ export const SectionErrorTag = {
 export class SectionDomainError extends Data.TaggedError(SectionErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type SectionServiceError = SectionDomainError | XfError | RepositoryError | XfUpsertError
-

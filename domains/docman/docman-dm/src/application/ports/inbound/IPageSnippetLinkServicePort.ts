@@ -17,4 +17,3 @@ export interface IPageSnippetLinkServicePort {
 export interface IPageSnippetLinkLookupPort {
   getById(id: string): Effect.Effect<IbmPageSnippetLink | null, PageSnippetLinkServiceError>
 }
-

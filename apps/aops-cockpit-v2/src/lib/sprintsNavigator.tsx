@@ -11,8 +11,8 @@ type NavT = (key: AopsCockpitTranslationKey) => string;
 
 // Sprints navigator — same mode contract as the Boards navigator via the
 // shared record navigator (left-menu / dock / dropdown / cards register).
-// Items are the merged sprint + plan records grouped into Sprints / Plans /
-// Archived.
+// Implementation-plan is a sprint-backed facade, so items are grouped only by
+// real lifecycle state. A sole active group is flattened into a compact list.
 
 const SprintIcon = (
   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
@@ -41,11 +41,16 @@ export function useSprintsNavigator(model: SprintsNavigatorModel, t: NavT): Spri
       storagePrefix: "aops-cockpit-v2.sprints",
       testIdPrefix: "aops-v2-sprints",
       dockClassName: "aops-v2-sprints-navdock",
+      treeClassName: "aops-v2-sprints-tree",
+      flattenSingleGroup: true,
       // Cards mode: the sprints page renders the card register (boards parity).
       enableCardsMode: true,
       showDropdownSettings: false,
       showDropdownMeta: false,
       showModeShortcuts: false,
+      showTreeSettings: false,
+      showTreeClose: true,
+      treeCloseLabel: "pmSprintSidePanelClose",
       showNavigatorSetting: false,
       leftMenuModeLabel: "pmRecordViewSidePanel",
       settingsModeOrder: ["left-menu", "cards", "dropdown"],
@@ -64,14 +69,9 @@ export function useSprintsNavigator(model: SprintsNavigatorModel, t: NavT): Spri
       dropdownIcon: SprintIcon,
       groups: [
         {
-          key: "sprints",
-          label: t("pmNavSprintsGroup"),
-          items: model.items.filter((item) => !item.archived && item.kind === "sprint")
-        },
-        {
-          key: "plans",
-          label: t("pmNavPlansGroup"),
-          items: model.items.filter((item) => !item.archived && item.kind === "plan")
+          key: "active",
+          label: t("navActiveGroup"),
+          items: model.items.filter((item) => !item.archived)
         },
         {
           key: "archived",
@@ -81,7 +81,6 @@ export function useSprintsNavigator(model: SprintsNavigatorModel, t: NavT): Spri
       ],
       itemKey: (item) => item.key,
       itemLabel: (item) => item.name,
-      itemMeta: (item) => [item.kind === "sprint" ? t("pmSprintType") : t("pmPlanType")],
       searchText: (item) => item.name,
       selectedKey: model.selectedKey,
       onSelect: model.onSelect

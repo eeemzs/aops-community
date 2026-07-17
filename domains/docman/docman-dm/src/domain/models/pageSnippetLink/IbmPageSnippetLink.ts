@@ -23,4 +23,3 @@ export const ibmPageSnippetLinkKeys = [
 type _VerifyKeys = EnsureAllKeys<IbmPageSnippetLink, typeof ibmPageSnippetLinkKeys>
 const _verifyKeys: _VerifyKeys = true
 void _verifyKeys
-

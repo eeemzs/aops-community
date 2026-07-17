@@ -1,6 +1,10 @@
 import { createHash } from 'node:crypto'
 import { lstatSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { bundleFromJSON } from '@sigstore/bundle'
+import { TrustedRoot } from '@sigstore/protobuf-specs'
+import sigstoreTufSeeds from '@sigstore/tuf/seeds.json' with { type: 'json' }
+import { toSignedEntity, toTrustMaterial, Verifier } from '@sigstore/verify'
 import { verify as verifySigstore, type Bundle } from 'sigstore'
 
 import { parseCommunityRelease, type CommunityReleaseIdentity } from './community-lifecycle.js'
@@ -43,10 +47,7 @@ type ReleaseManifest = {
   }
 }
 
-export type CommunityVerifiedReleaseBundle = {
-  releaseRoot: string
-  manifestPath: string
-  signatureBundlePath: string
+export type CommunityVerifiedReleaseDescriptor = {
   manifestContent: string
   composeContent: string
   identity: CommunityReleaseIdentity
@@ -55,10 +56,20 @@ export type CommunityVerifiedReleaseBundle = {
   verifiedArtifactCount: number
 }
 
-type SignatureVerifier = (
+export type CommunityVerifiedReleaseBundle = CommunityVerifiedReleaseDescriptor & {
+  releaseRoot: string
+  manifestPath: string
+  signatureBundlePath: string
+}
+
+export type CommunityReleaseSignatureVerifier = (
   bundle: Bundle,
   payload: Buffer,
-  options: { certificateIssuer: string; certificateIdentityURI: string },
+  options: {
+    certificateIssuer: string
+    certificateIdentityURI: string
+    verificationMode?: 'online' | 'offline'
+  },
 ) => Promise<unknown>
 
 function fail(code: string, detail?: string): never {
@@ -115,7 +126,11 @@ function parseManifest(content: string): ReleaseManifest {
   }
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('community_release_manifest_invalid')
   const manifest = value as ReleaseManifest
-  if (manifest.schemaVersion !== 1 || typeof manifest.releaseVersion !== 'string' || !manifest.releaseVersion) {
+  if (
+    manifest.schemaVersion !== 1 ||
+    typeof manifest.releaseVersion !== 'string' ||
+    !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(manifest.releaseVersion)
+  ) {
     fail('community_release_manifest_invalid')
   }
   if (!manifest.source || !manifest.cli || !manifest.compose || !manifest.migrations || !manifest.legal || !manifest.evidence) {
@@ -125,11 +140,12 @@ function parseManifest(content: string): ReleaseManifest {
     fail('community_release_source_repository_invalid')
   }
   if (
-    manifest.image?.repository !== 'ghcr.io/aopslab/aops-community' ||
+    manifest.image?.repository !== 'ghcr.io/eeemzs/aops-community' ||
     manifest.image.tag !== `v${manifest.releaseVersion}`
   ) {
     fail('community_release_image_identity_invalid')
   }
+  assertDigest(manifest.image.indexDigest, 'community_release_index_digest_invalid')
   assertDigest(manifest.source.treeDigest, 'community_release_source_digest_invalid')
   assertExactObject(manifest.cli, [
     'packageName',
@@ -158,6 +174,7 @@ function parseManifest(content: string): ReleaseManifest {
   if (manifest.cli.commandSchemaVersion !== 1) fail('community_release_cli_command_schema_unsupported')
   assertDigest(manifest.cli.bundleSha256, 'community_release_cli_bundle_digest_invalid')
   assertDigest(manifest.cli.artifactSha256, 'community_release_cli_digest_invalid')
+  if (manifest.compose.ref !== 'compose.yaml') fail('community_release_compose_ref_invalid')
   assertDigest(manifest.compose.sha256, 'community_release_compose_digest_invalid')
   assertDigest(manifest.migrations.setDigest, 'community_release_migration_digest_invalid')
   for (const [kind, expectedRef] of [
@@ -172,6 +189,9 @@ function parseManifest(content: string): ReleaseManifest {
   }
   assertDigest(manifest.evidence.sbom?.sha256, 'community_release_sbom_digest_invalid')
   assertDigest(manifest.evidence.provenance?.sha256, 'community_release_provenance_digest_invalid')
+  if (manifest.evidence.signature?.bundleRef !== 'release.sigstore.json') {
+    fail('community_release_signature_ref_invalid')
+  }
   if (!Array.isArray(manifest.migrations.files) || manifest.migrations.files.length === 0) {
     fail('community_release_migration_files_invalid')
   }
@@ -181,18 +201,129 @@ function parseManifest(content: string): ReleaseManifest {
 
 function defaultCertificateIdentity(manifest: ReleaseManifest): string {
   const tag = manifest.image.tag || `v${manifest.releaseVersion}`
-  return `https://github.com/aopslab/aops/.github/workflows/community-release.yml@refs/tags/${tag}`
+  return `https://github.com/eeemzs/aops/.github/workflows/community-release.yml@refs/tags/${tag}`
 }
 
 function exactRegex(value: string): string {
   return `^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`
 }
 
+function parseSignatureBundle(content: string): Bundle {
+  try {
+    return JSON.parse(content) as Bundle
+  } catch {
+    fail('community_release_signature_bundle_json_invalid')
+  }
+}
+
+function embeddedSigstoreTrustedRoot(): TrustedRoot {
+  const seeds = sigstoreTufSeeds as Record<string, { targets?: Record<string, string> }>
+  const encoded = seeds['https://tuf-repo-cdn.sigstore.dev']?.targets?.['trusted_root.json']
+  if (typeof encoded !== 'string' || encoded.length === 0) {
+    fail('community_release_offline_trusted_root_missing')
+  }
+  try {
+    return TrustedRoot.fromJSON(JSON.parse(Buffer.from(encoded, 'base64').toString('utf8')))
+  } catch {
+    fail('community_release_offline_trusted_root_invalid')
+  }
+}
+
+async function verifySigstoreOffline(
+  bundle: Bundle,
+  payload: Buffer,
+  options: { certificateIssuer: string; certificateIdentityURI: string },
+): Promise<unknown> {
+  const verifier = new Verifier(toTrustMaterial(embeddedSigstoreTrustedRoot()))
+  return verifier.verify(
+    toSignedEntity(bundleFromJSON(bundle), payload),
+    {
+      subjectAlternativeName: options.certificateIdentityURI,
+      extensions: { issuer: options.certificateIssuer },
+    },
+  )
+}
+
+async function verifyManifestSignature(options: {
+  manifest: ReleaseManifest
+  manifestContent: string
+  signatureBundleContent: string
+  certificateIdentity?: string
+  certificateOidcIssuer?: string
+  signatureVerifier?: CommunityReleaseSignatureVerifier
+  verificationMode?: 'online' | 'offline'
+}): Promise<{ certificateIdentity: string; certificateOidcIssuer: string }> {
+  const certificateIdentity = options.certificateIdentity ?? defaultCertificateIdentity(options.manifest)
+  const certificateOidcIssuer = options.certificateOidcIssuer ?? COMMUNITY_GITHUB_OIDC_ISSUER
+  const verificationMode = options.verificationMode ?? 'online'
+  try {
+    const bundle = parseSignatureBundle(options.signatureBundleContent)
+    const payload = Buffer.from(options.manifestContent)
+    const verifierOptions = {
+      certificateIssuer: certificateOidcIssuer,
+      certificateIdentityURI: exactRegex(certificateIdentity),
+      verificationMode,
+    }
+    if (options.signatureVerifier) {
+      await options.signatureVerifier(bundle, payload, verifierOptions)
+    } else if (verificationMode === 'offline') {
+      await verifySigstoreOffline(bundle, payload, verifierOptions)
+    } else {
+      await verifySigstore(
+        bundle,
+        payload,
+        verifierOptions,
+      )
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('community_release_signature_bundle_json_invalid')) throw error
+    fail('community_release_sigstore_verification_failed', error instanceof Error ? error.message : String(error))
+  }
+  return { certificateIdentity, certificateOidcIssuer }
+}
+
+export async function verifyCommunityReleaseDescriptor(options: {
+  manifestContent: string
+  composeContent: string
+  signatureBundleContent: string
+  expectedReleaseVersion?: string
+  certificateIdentity?: string
+  certificateOidcIssuer?: string
+  signatureVerifier?: CommunityReleaseSignatureVerifier
+  verificationMode?: 'online' | 'offline'
+}): Promise<CommunityVerifiedReleaseDescriptor> {
+  const manifest = parseManifest(options.manifestContent)
+  if (options.expectedReleaseVersion !== undefined && manifest.releaseVersion !== options.expectedReleaseVersion) {
+    fail(
+      'community_release_descriptor_version_mismatch',
+      `expected=${options.expectedReleaseVersion}:actual=${manifest.releaseVersion}`,
+    )
+  }
+  const identity = parseCommunityRelease(options.manifestContent, options.composeContent)
+  const certificate = await verifyManifestSignature({
+    manifest,
+    manifestContent: options.manifestContent,
+    signatureBundleContent: options.signatureBundleContent,
+    certificateIdentity: options.certificateIdentity,
+    certificateOidcIssuer: options.certificateOidcIssuer,
+    signatureVerifier: options.signatureVerifier,
+    verificationMode: options.verificationMode,
+  })
+  return {
+    manifestContent: options.manifestContent,
+    composeContent: options.composeContent,
+    identity,
+    ...certificate,
+    verifiedArtifactCount: 3,
+  }
+}
+
 export async function verifyCommunityReleaseBundle(options: {
   releaseRoot: string
   certificateIdentity?: string
   certificateOidcIssuer?: string
-  signatureVerifier?: SignatureVerifier
+  signatureVerifier?: CommunityReleaseSignatureVerifier
+  verificationMode?: 'online' | 'offline'
 }): Promise<CommunityVerifiedReleaseBundle> {
   const releaseRoot = path.resolve(options.releaseRoot)
   const rootStat = lstatSync(releaseRoot)
@@ -226,32 +357,21 @@ export async function verifyCommunityReleaseBundle(options: {
     manifest.evidence.signature?.bundleRef,
     'community_release_signature',
   )
-  const certificateIdentity = options.certificateIdentity ?? defaultCertificateIdentity(manifest)
-  const certificateOidcIssuer = options.certificateOidcIssuer ?? COMMUNITY_GITHUB_OIDC_ISSUER
-  let signatureBundle: Bundle
-  try {
-    signatureBundle = JSON.parse(readFileSync(signatureBundlePath, 'utf8')) as Bundle
-  } catch {
-    fail('community_release_signature_bundle_json_invalid')
-  }
-  try {
-    await (options.signatureVerifier ?? verifySigstore)(signatureBundle, Buffer.from(manifestContent), {
-      certificateIssuer: certificateOidcIssuer,
-      certificateIdentityURI: exactRegex(certificateIdentity),
-    })
-  } catch (error) {
-    fail('community_release_sigstore_verification_failed', error instanceof Error ? error.message : String(error))
-  }
   const composeContent = readFileSync(composePath, 'utf8')
+  const descriptor = await verifyCommunityReleaseDescriptor({
+    manifestContent,
+    composeContent,
+    signatureBundleContent: readFileSync(signatureBundlePath, 'utf8'),
+    certificateIdentity: options.certificateIdentity,
+    certificateOidcIssuer: options.certificateOidcIssuer,
+    signatureVerifier: options.signatureVerifier,
+    verificationMode: options.verificationMode,
+  })
   return {
     releaseRoot,
     manifestPath,
     signatureBundlePath,
-    manifestContent,
-    composeContent,
-    identity: parseCommunityRelease(manifestContent, composeContent),
-    certificateIdentity,
-    certificateOidcIssuer,
+    ...descriptor,
     verifiedArtifactCount: artifacts.length + 2,
   }
 }

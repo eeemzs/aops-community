@@ -26,4 +26,3 @@ export const pageSnippetLinkTable = pgTable(
 
 export type IdbPageSnippetLinkDrizzle = InferSelectModel<typeof pageSnippetLinkTable>;
 export type PageSnippetLinkColumnsDrizzle = keyof IdbPageSnippetLinkDrizzle;
-

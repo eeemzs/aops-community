@@ -7,4 +7,3 @@ const conversions: FieldConversionLookup<IbmSnippet, SnippetColumnsDrizzle> = {
 }
 
 export const mapperSnippetDrizzle = createBmDbMapper<IbmSnippet, IdbSnippetDrizzle, SnippetColumnsDrizzle>(conversions);
-

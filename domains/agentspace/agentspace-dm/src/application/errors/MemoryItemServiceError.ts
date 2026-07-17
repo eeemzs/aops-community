@@ -19,4 +19,3 @@ export const MemoryItemErrorTag = {
 export class MemoryItemDomainError extends Data.TaggedError(MemoryItemErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type MemoryItemServiceError = MemoryItemDomainError | XfError | RepositoryError | XfUpsertError
-

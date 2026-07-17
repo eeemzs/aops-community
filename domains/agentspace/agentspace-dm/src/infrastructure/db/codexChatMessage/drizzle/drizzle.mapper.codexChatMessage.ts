@@ -17,4 +17,3 @@ export const mapperCodexChatMessageDrizzle = createBmDbMapper<
   IdbCodexChatMessageDrizzle,
   CodexChatMessageColumnsDrizzle
 >(conversions)
-

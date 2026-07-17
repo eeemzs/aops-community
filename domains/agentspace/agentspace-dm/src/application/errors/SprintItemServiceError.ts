@@ -19,4 +19,3 @@ export const SprintItemErrorTag = {
 export class SprintItemDomainError extends Data.TaggedError(SprintItemErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type SprintItemServiceError = SprintItemDomainError | XfError | RepositoryError | XfUpsertError
-

@@ -17,4 +17,3 @@ export class BmCodexChatMessage extends BmBase<IbmCodexChatMessage, ICodexChatMe
     }
   }
 }
-

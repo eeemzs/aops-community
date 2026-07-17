@@ -1,7 +1,7 @@
 {
   "cockpit": {
     "firstPartyAssetCount": 1,
-    "firstPartyModuleCount": 84,
+    "firstPartyModuleCount": 86,
     "firstPartyRefs": [
       "cockpit-first-party-package:@aopslab/xf-i18n@0.1.73",
       "cockpit-first-party-package:@aopslab/xf-ui-composition-react@0.1.1",
@@ -9,7 +9,7 @@
       "cockpit-first-party-package:@aopslab/xf-ui-plugin@0.1.1",
       "cockpit-first-party-package:@aopslab/xf-ui-shell-react@0.1.1"
     ],
-    "moduleInventorySha256": "sha256:b1573644f60a045fc0b78e126ad52b87daeb013077bf503fbe17b300760778f1",
+    "moduleInventorySha256": "sha256:4fc930f7d2237b2a640db33b21dfd873f70e50bfbfe8f60a14989a6815fa0892",
     "outputCount": 41,
     "surface": "cockpit-vite-bundle",
     "thirdPartyIdentities": [
@@ -40,7 +40,7 @@
         "npm:@aopslab/xf-i18n@0.1.73/dist/core/types.js"
       ],
       "outputs": [
-        "assets/index-ChSbyBXD.js"
+        "assets/index-QQptZVmu.js"
       ],
       "ref": "cockpit-first-party-package:@aopslab/xf-i18n@0.1.73",
       "surfaces": [
@@ -60,7 +60,7 @@
         "npm:@aopslab/xf-ui-composition-react@0.1.1/styles/navigator.css"
       ],
       "outputs": [
-        "assets/index-ChSbyBXD.js"
+        "assets/index-QQptZVmu.js"
       ],
       "ref": "cockpit-first-party-package:@aopslab/xf-ui-composition-react@0.1.1",
       "surfaces": [
@@ -76,7 +76,7 @@
         "npm:@aopslab/xf-ui-foundation@0.1.1/styles.css"
       ],
       "outputs": [
-        "assets/index-ChSbyBXD.js"
+        "assets/index-QQptZVmu.js"
       ],
       "ref": "cockpit-first-party-package:@aopslab/xf-ui-foundation@0.1.1",
       "surfaces": [
@@ -92,7 +92,7 @@
         "npm:@aopslab/xf-ui-plugin@0.1.1/dist/plugin.js"
       ],
       "outputs": [
-        "assets/index-ChSbyBXD.js"
+        "assets/index-QQptZVmu.js"
       ],
       "ref": "cockpit-first-party-package:@aopslab/xf-ui-plugin@0.1.1",
       "surfaces": [
@@ -114,7 +114,7 @@
         "npm:@aopslab/xf-ui-shell-react@0.1.1/styles/reference-shell.css"
       ],
       "outputs": [
-        "assets/index-ChSbyBXD.js"
+        "assets/index-QQptZVmu.js"
       ],
       "ref": "cockpit-first-party-package:@aopslab/xf-ui-shell-react@0.1.1",
       "surfaces": [
@@ -124,10 +124,10 @@
     {
       "identity": "@aopslab/host-adapter-sveltekit@0.1.1",
       "kind": "runtime-first-party-package",
-      "locator": "@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))",
+      "locator": "@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))",
       "lockIntegrity": "sha512-h+OILsjXIX3+G9xtWDGwOeh6x533MlA3s7I49NGKY5zkMkB78HdgpUQiCHZNCZT6qLuPt6J+HfUdPmOovEDIOg==",
-      "peerContext": "(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))",
-      "ref": "runtime-first-party-package:@aopslab/host-adapter-sveltekit@0.1.1:@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))",
+      "peerContext": "(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))",
+      "ref": "runtime-first-party-package:@aopslab/host-adapter-sveltekit@0.1.1:@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))",
       "surfaces": [
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
@@ -153,8 +153,8 @@
       "peerContext": "",
       "ref": "runtime-first-party-package:@aopslab/host-registration@0.1.1:@aopslab/host-registration@0.1.1",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -191,8 +191,8 @@
       "peerContext": "",
       "ref": "runtime-first-party-package:@aopslab/xf-cli-operator@0.0.2:@aopslab/xf-cli-operator@0.0.2",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -203,8 +203,8 @@
       "peerContext": "(@types/node@25.3.1)",
       "ref": "runtime-first-party-package:@aopslab/xf-cli-ui@0.1.13:@aopslab/xf-cli-ui@0.1.13(@types/node@25.3.1)",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -339,8 +339,8 @@
       "ref": "runtime-source:@aops/aops-cli@0.1.0:apps/aops-cli:apps/aops-cli",
       "sourcePath": "apps/aops-cli",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -378,8 +378,8 @@
       "ref": "runtime-source:@aops/host-registration@0.0.1:apps/aops/packages/aops-host-registration:apps/aops/packages/aops-host-registration",
       "sourcePath": "apps/aops/packages/aops-host-registration",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -393,6 +393,8 @@
       "ref": "runtime-source:@aops/pg-bootstrap@0.0.1:apps/aops/packages/aops-pg-bootstrap:apps/aops/packages/aops-pg-bootstrap",
       "sourcePath": "apps/aops/packages/aops-pg-bootstrap",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -406,8 +408,8 @@
       "ref": "runtime-source:@aops/runtime-config@0.0.1:apps/aops/packages/aops-runtime-config:apps/aops/packages/aops-runtime-config",
       "sourcePath": "apps/aops/packages/aops-runtime-config",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -419,8 +421,8 @@
       "ref": "runtime-source:@aopslab/api-client@0.0.15:apps/aops/packages/aops-api-client:apps/aops/packages/aops-api-client",
       "sourcePath": "apps/aops/packages/aops-api-client",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -666,8 +668,8 @@
       "ref": "runtime-source:@aopslab/domain-product-client-chatv3@0.1.0:domains/chatv3/chatv3-product-client:domains/chatv3/chatv3-product-client",
       "sourcePath": "domains/chatv3/chatv3-product-client",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -731,12 +733,20 @@
       "ref": "runtime-source:@aopslab/light-client-core@0.1.0:domains/chatv3/light-client-core:domains/chatv3/light-client-core",
       "sourcePath": "domains/chatv3/light-client-core",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     }
   ],
-  "lockSha256": "sha256:f1fbc3d1c1447d2f910714d144f56035f8a543d1e1b2e9b0795f508ed13a7b9f",
+  "legalCorpus": {
+    "corpusSha256": "sha256:562582f8219f02c231cec9c3a78d4278b31ec93ede8e3871811f8fc994bf2f76",
+    "planSha256": "sha256:c99e59ffcbfad95b3f9292c0ae85e4d3bbab27cfce4d0a83e8ea2ed6302df956",
+    "reviewedRecordCount": 317,
+    "sealSha256": "sha256:52594acc6a22e5b2b6a4a7d06f49125130bcd3cd46383d5dd60093bc9a010be1",
+    "selectedRecordCount": 295,
+    "unusedReviewedRecordCount": 22
+  },
+  "lockSha256": "sha256:fb0c58e5687f5518b120c058a8dd1089682005bafdb3c77915a0fcf038b60cc2",
   "packages": [
     {
       "files": [
@@ -765,6 +775,8 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -793,6 +805,8 @@
       "registryIntegrity": "sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -821,6 +835,8 @@
       "registryIntegrity": "sha512-FxEMIkJKnodyA1OaCUoEvbYRkoZlLZ4d/eXFu9Fh8CbBBgP5EmZxrfTRyN0qpXZ4vOvqnE5YdRdcrmUUXuU+dA==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -854,6 +870,7 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:78da44c3847c3d894adc2f5edf3d20ea507c88e8ed5abb6d20ecdcbaadb8e4da",
@@ -886,6 +903,7 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:d5e01d210e026823d559e2b82554cdcdab6fd87c4a57b519b392ef183c1f87fd",
@@ -950,6 +968,7 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:2145e9e686c95ee47c1181f83f272f0ff95820e52d7736fdcd9eeb106fd6456a",
@@ -982,6 +1001,7 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/amd64"
       ],
       "tarballSha256": "sha256:d755469b986aa73c7db75cb7714d6ea009016fe4a923a50945aeb9117eb176a2",
@@ -1014,6 +1034,7 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/amd64"
       ],
       "tarballSha256": "sha256:f7efc127658a108dcda9d4210b01804ee8f5d6b3acbd6d63f20aa51d3b50bd5f",
@@ -1078,6 +1099,7 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/amd64"
       ],
       "tarballSha256": "sha256:9ed00ab5330c94386f3273eda99a1fb0e8f37cfd6cb5270e4ad2fe3527da3546",
@@ -1205,8 +1227,8 @@
       "registryIntegrity": "sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:bcef4048202c052a07338626509ee89fdd94cb8c972fddb1c27c41f3929f7eee",
       "version": "1.0.3"
@@ -1233,8 +1255,8 @@
       "registryIntegrity": "sha512-S8qNSZiYzFd0wAcyG5AXCvUHC5Sr7xpZ9wZ2py9XR88jUz8wooStVx5M6dRzczbBWjic9NP7+rY0Xi7qqK/aMQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:4ef4ea3c96d43f64817d5ab6c572194e2fb8ed96036ea83d0049512f3d198bec",
       "version": "1.0.2"
@@ -1261,8 +1283,8 @@
       "registryIntegrity": "sha512-3eTuUO1vH2cZm2ZKHeQxnOqlTi9EfZDGgIe3BL3I4u+rJHocr9Fz86M4fjYABPvFnQG/gGK551HqDiIcETwU6Q==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:c5506fa89daf48aa33c09605891066209672940fe254da35e0559404f4062e02",
       "version": "2.0.7"
@@ -1291,8 +1313,8 @@
       "registryIntegrity": "sha512-VXukHf0RR1doGe6Sm4F0Em7SWYLTHSsbGfJdS9Ja2bX5/D5uwVOEjr07cncLROdBvmnvCATYEWlHqYmXv2IlQA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:60383c84886175a86b7074cf2405da0a8424349f1e58fade8ed2ce711df8ef44",
       "version": "4.3.2"
@@ -1321,8 +1343,8 @@
       "registryIntegrity": "sha512-b6xmA/VlTe0ZgDQHDui+Nav470u7u49nRd8/iuhOcQPO9Ch7lGuogydhi2VOmNlZ+zXcM8IcPuNSwQcdJaF/kw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:87487721fd8b96e01ebb718f860022a22ec501fa1319e143aa10bd381f624174",
       "version": "5.2.1"
@@ -1351,8 +1373,8 @@
       "registryIntegrity": "sha512-KR8edRkIsUayMXV+o3Gv+q4jlhENF9nMYUZs9PA2HzrXeHI8M5uDag70U7RJn9yyiMZSbtF5/UexBtAVtZGSbQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:f453928aeedb30d8e79fb5b5e935d101040a570b77515ff59837ce9ea0fbcccd",
       "version": "5.1.21"
@@ -1381,8 +1403,8 @@
       "registryIntegrity": "sha512-eb8DBZcz/2qHWQda4rk2JiQk5h9QV/cVHi1yjt0f69WFZMRFn0sJTye3EAP8icut8UDMjQPsaH5KbcOogefrFQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:4e37ae19905c30bbc434f10578bfd8eafe3cf58f777f7fdf676888ba74a2d834",
       "version": "6.1.1"
@@ -1411,8 +1433,8 @@
       "registryIntegrity": "sha512-43RTuEbfP8MbKzedNqBrlhhNKVwoK//vUFNW3Q3vZ88BLcrs4kYpGg+B2mm5p2K/HfygoCxuKwJJiv8PbGmE0A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:ddf4fb37dd2f79bc64581bd0bee5aaa3223b0764c1c11ec963d1dd7bb44509ce",
       "version": "10.3.2"
@@ -1441,8 +1463,8 @@
       "registryIntegrity": "sha512-Qd6GJT1yVyrZZCfN8W2qKF5ApmqryXRhRKCuip8h01x2w/esJQ2XIYc6f9abMIHgKQdBfFTSOdbHRLAhuM09UA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:5aabf43f901368b7395c8355d5326ca6a7532241e80c2469dbdcac6d452d1d90",
       "version": "11.2.1"
@@ -1471,8 +1493,8 @@
       "registryIntegrity": "sha512-aLSROkEwirotxZ1pBaP8tugXRFCxW94gwrQLxXfrZsKkfjOYC1aRvAZuhpJOb5cu4IBTJdsCigUlf2iCOu4ZDQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:a661367902a250ba2355e175c975f44fbae6fcec8f136b3bd3e9c17e1856ebc9",
       "version": "4.2.23"
@@ -1501,8 +1523,8 @@
       "registryIntegrity": "sha512-ZRVd/oD+sYsUd5zVm0NflqEzlqfYCyHNsqkHl2oWXEUHs12tCbcSFi+wVFEvD8+LGRaMUsVrE7qeo6lSG/S1Vg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:71a54526b28fbeffd0e482749cf67bd521017cf17b8289b8705a268da55b10e3",
       "version": "5.2.2"
@@ -1531,8 +1553,8 @@
       "registryIntegrity": "sha512-nRzdOyFYnpeYTTR2qFwEVmIWypzdAx/sIkCMeTNTcflFOovfqUk+HcFhQQVBftAh9gmGrpFj6QcGEqrDMDOiew==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:dce4e99516395d1d6229a61f1cfff0701c92c0f9b61f920ddb58a0ed58d5c140",
       "version": "4.0.23"
@@ -1561,8 +1583,8 @@
       "registryIntegrity": "sha512-YmQpenjbFSHAK3sOd44puHh3V1KXXr+JiNpUztoSQ4drLh2rTVzTap/YtlAVu/5xavifIlBfNEzJ/neZJ1a/1g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:e05a122b81925afe29ab729b76c4c291e89513bce2a3bbeeea062b79748e19b5",
       "version": "5.1.1"
@@ -1591,8 +1613,8 @@
       "registryIntegrity": "sha512-RWbSrDiYmO4LbejWY7ttpxczuwQyZLBUyygsA9Nsv95hpzUWwnNTVQmAq3xuh7vNwCp07UTmE5i11XAEExx4RA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:6f88fe11c7723c3ac62bec397af5cfe7f6548a239e918929292edfbbfe628db2",
       "version": "1.0.3"
@@ -1621,8 +1643,8 @@
       "registryIntegrity": "sha512-6thf5I8q7lZwzGLAxPaaGEREEkZ3nyePPDQ1oyobblxmEE8mqTLguScP7pDjUTAibiyb4hfXl+qjUEJ+di/aNA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:c7a32f59c28f7325cadbd8f32a3943602f315f565a0a8fb1c13bb42ce34fd173",
       "version": "3.0.3"
@@ -1649,8 +1671,8 @@
       "registryIntegrity": "sha512-t2IEY+unGHOzAaVM5Xx6DEWKeXlDDcNPeDyUpsRc6CUhBfU3VQOEl+Vssh7VNp1dR8MdUJBWhuObjXCsVpjN5g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:845b92daf8e273de498f8e80906e68fcf1df920865cfbe5c2a2a72cc713b2e06",
       "version": "1.0.15"
@@ -1677,8 +1699,8 @@
       "registryIntegrity": "sha512-aJ8TBPOGB6f/2qziPfElISTCEd5XOYTFckA2SGjhNmiKzfK/u4ot3v0DUzGVdUnKjN10EqnnEPck36BkyfLnJw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:32578515f7ff67c56284cfda53c5fdc65c58a0e9f9d482492218e6fac57a09a3",
       "version": "2.0.7"
@@ -1707,8 +1729,8 @@
       "registryIntegrity": "sha512-kN0pAM4yPrLjJ1XJBjDxyfDduXOuQHrBB8aLDMueuwUGn+vNpF7Gq7TvyVxx8u4SHlFFj4trmj+a2cbpG4Jn1g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:a5334ce241976fc0febbddd632e805665bbbb4726ed3248bbc3cbed5bd704b66",
       "version": "4.3.1"
@@ -1737,8 +1759,8 @@
       "registryIntegrity": "sha512-9K/DDBSQpOyZSkt6sOVP9Vo0TR7atX2kuILsUu0x3wVcVbe97lJwIJKMLdMw25tDYuXl/qp6erT0Xs1rfmcfZg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:bc793cf2ee7d5a3130d6058caf75656dccdeea0773ca481cbe4804dd13a5f4d1",
       "version": "5.1.2"
@@ -1767,8 +1789,8 @@
       "registryIntegrity": "sha512-5Smv0OK7K0KUzUfYUXDXQc9jrf8OHo4ktlEayFlelCjwMXz0299Y8OrI+lj7i4gCBY15UObk76q0QtxjzFcFcg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b4696e68751e771aa042f5c26d6ac54dcf1888d0d6d28d1e563b4e75c2407886",
       "version": "3.0.23"
@@ -1797,8 +1819,8 @@
       "registryIntegrity": "sha512-XF4IXAbPnGPgw0wsbC/i2tPcyfdZgDpUlhsqU0SfT4IRIGWha6Xm9VRgN5yYxJq+jnyXlfXI/nQ3ulfk0iEICA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:ecb5215489a9f88660610b9d212e8b4421540231deeade62f7fda760e811d3b3",
       "version": "4.1.1"
@@ -1827,8 +1849,8 @@
       "registryIntegrity": "sha512-zREJHjhT5vJBMZX/IUbyI9zVtVfOLiTO66MrF/3GFZYZ7T4YILW5MSkEYHceSii/KtRk+4i3RE7E1CUXA2jHcA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:6fd9e886b6314b5e02bd46749f0b0d1bc7e92db1ded96fe55c95db3dca5b11ec",
       "version": "4.0.23"
@@ -1857,8 +1879,8 @@
       "registryIntegrity": "sha512-3XBfF7DAsp5qeDsvN5Rd1HmbNokVvEQoUM0QLrRcybC9nX96w3Pbmu7qUsb3IT3J3jBvs2+mTXaKHOUsgHMLzg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:99fd127ad2ed71567fa8a2c4908dc5ea539c1bcab2391614a3b965459b693592",
       "version": "5.1.1"
@@ -1887,8 +1909,8 @@
       "registryIntegrity": "sha512-Dx/y9bCQcXLI5ooQ5KyvA4FTgeo2jYj/7plWfV5Ak5wDPKQZgudKez2ixyfz7tKXzcJciTxqLeK7R9HItwiByg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:e1eab3d5695176762ea1a68750eee4a3cab15529daae1cf5183a94788f18e1dd",
       "version": "7.10.1"
@@ -1917,8 +1939,8 @@
       "registryIntegrity": "sha512-IYR/3C/paEVVQYQvdDlFZVjRCJVYHHON0XXMH91KO9GSxs0TdKYWlUdvfQl2EfAHDxUaN3IBffkE/BDTh5nJ6g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:92623cec946a6a2f13c9a18e1d051f85e3120b3a62a31602ae2b295c9eb296c5",
       "version": "8.5.2"
@@ -1947,8 +1969,8 @@
       "registryIntegrity": "sha512-+LLQB8XGr3I5LZN/GuAHo+GpDJegQwuPARLChlMICNdwW7OwV2izlCSCxN6cqpL0sMXmbKbFcItJgdQq5EBXTw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:de19217e2a28096de57e8306434baf11d0f11939ea46742c4a81d4fbd72a01db",
       "version": "4.1.11"
@@ -1977,8 +1999,8 @@
       "registryIntegrity": "sha512-QqdTqQddL3qPX/PPrjobpsO25NZ4dWXgTLenrR445L2ptLEYE6Z+PD5c5CNDJNx4ugRgELAIpSIJxZaO2jJ2Og==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:d4b1ee99763bd150c07625b007f5499f4269691b64fa63eec5bbf754585c6714",
       "version": "5.3.1"
@@ -2007,8 +2029,8 @@
       "registryIntegrity": "sha512-p2bvRfENXCZdWF/U2BXvnSI9h+tuA8iNqtUKb9UWbmLYCRQxd8WkvwWvYn+3NgYaNwdUkHytJMGG4MMLucI1kA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:1993462e4d8561167510dbfd0fa1ccbe7fb31aafcd29b77190d532960450ab14",
       "version": "3.2.2"
@@ -2037,8 +2059,8 @@
       "registryIntegrity": "sha512-xJj8QWKRSrfKoBIITLZK61dD3zwo0Rz11fgDImku30/Oe81zMdIdGgrLY2h6RkJ+KZ/GhNYIRMKnH/62qBTA5g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:ebdc3169de61d983309bdae7ed7c49ed11538f91d679600a41e82a2cbf36d6df",
       "version": "4.2.1"
@@ -2067,8 +2089,8 @@
       "registryIntegrity": "sha512-l4xMuJo55MAe+N7Qr4rX90vypFwCajSakx59qe/tMaC1aEHWLyw68wF4o0A4SLAY4E0nd+Vt+EyskeDIqu1M6w==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:0b5932229fb3ab8e5e603d25ebb0ca354f87dfc3dc3d3269dcd6b6ff7de9095d",
       "version": "4.4.2"
@@ -2097,8 +2119,8 @@
       "registryIntegrity": "sha512-FlDndEUww8m7BfukO2nJa25vhD+H5jxxCv4oGioKqzyWz3nPHhhw4LKdYRSlXuAx7DsdWia7iyaBPKKS95Evfw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:bd89e51925b2d1f363c49c2ee1956a8ba727380eed92d3d9eedf2b8182561419",
       "version": "5.2.1"
@@ -2127,8 +2149,8 @@
       "registryIntegrity": "sha512-BvziSRxfz5Ov8ch0z/n3oijRSEcEsHnhggm4xFZe93DHcUCTlutlq9Ox4SVENAfcRD22UQq7T/atg9Wr3k09eA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:d1a0c66de6532c9f263ff7062f289d767467b8b3bf00e22e3f4879c4e6a5197c",
       "version": "3.0.10"
@@ -2157,8 +2179,8 @@
       "registryIntegrity": "sha512-t28inv14nMQ1PhKpsJPY+kEs/c00qzeCOS2gTNRyTjG5d6qsVA2fItxW4hkvGZ5lvanGLdtCzVIx5dwdRpN1+g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:510e5d72a37cb2e37dc763291b0473457ba49589fd6fb7285a8d10019d43e5e9",
       "version": "4.0.7"
@@ -2358,8 +2380,8 @@
         "status": "accepted"
       },
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:88dcd3e47fbb0ab7b9160014531c0e99a7ab478656d465a7985c25c759701b9a",
       "version": "4.0.2"
@@ -2386,8 +2408,8 @@
       "registryIntegrity": "sha512-7OsC1gNORBEawOa5+j2pXN9vsicaIOH5cPXxoR6fJOmH6/EXpJB2CajXOu1fPRFun2m1lktEFX11+P89hqO/og==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:a96ef9d8e12634c74d2e7d98a62fa81b8d20e362529c3b4722e4f7854233d62c",
       "version": "5.0.0"
@@ -2414,8 +2436,8 @@
       "registryIntegrity": "sha512-gOBg5YHMfZy+TfHArfVogwgfBeQnKbbGo3pSUyK/gSI0AVu+pEiDVcKlQb0D8Mg1LNRZILZ6XG8I5dJ4KuAd9Q==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:1462724c359bbdcd745fd1fdaf030d1b27ceb26b86af481168803c0ae77a7aba",
       "version": "4.0.0"
@@ -2740,8 +2762,8 @@
       "registryIntegrity": "sha512-NwCl5Y0V6Di0NexvkTqdoVfmjTaQwoLM236r89KEojGmq/jMls8S+zb7yOwAPdXvbwfKDlP+lmXgAL4vKSQT+A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:a2746c45926a4a34622d8f9d6a3f288133c4762b1a89916d4b6d1eae8375b1a5",
       "version": "4.0.0"
@@ -2768,8 +2790,8 @@
       "registryIntegrity": "sha512-qRsxPnCrbC/puegGxKuynfnxgLiHqWStrSjxkoB4YKqq3Z3s4cyZyj42ZdWFAEblNP65C+rBH8EuREHIXoi83g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b1ebd091f75345f83c709f9a4e5be06c2c0f80adc7f42c0ab469008367998a3e",
       "version": "3.2.1"
@@ -2796,8 +2818,8 @@
       "registryIntegrity": "sha512-/ScWUhhoFasJsSRGTVBwId1loQjjnjAfE4djL6ZhrXRpNCmPTnUKF5Jokd58ILseOMjzET3UrMOtJPS9sYeI0g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:c48f55cbf9542761e2bfe54635a569519eefa079bf4f3dbdd018b9425954bb1d",
       "version": "0.5.1"
@@ -2824,8 +2846,8 @@
       "registryIntegrity": "sha512-Hf4xglukg0XXQ2RiD5vSoLjdPe8OBUPA8XeVjUObheuDcWdYWrnH/BNmxZCzkAy68MzmNCxXLeurJvs6hcP2OQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:4ddf5b3d2b583714d7358b7d397475c4d1ba437ff7d83a569605d39aeb82b49c",
       "version": "4.1.1"
@@ -2852,8 +2874,8 @@
       "registryIntegrity": "sha512-TCAzTy0xzdP79EnxSjq9KQ3eaR7+FmudLC6eRKknVKZbV7ZNlGLClAAQb/HMNJ5n2OBNk2GT1tEmU0xuPr+SLQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:f75c5940721845a20f578052581e0328401f92e9502cb74a7296665da4faa84d",
       "version": "4.0.2"
@@ -2885,8 +2907,8 @@
         "status": "accepted"
       },
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:66fba97654e6850703065d461678965f604aba69f6f792b3fed316a6ffba4154",
       "version": "3.1.1"
@@ -2963,12 +2985,12 @@
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "lockIntegrity": "sha512-M+MqAvFve12T1HWws/2npP/s3hFtyjw3GB/OXW/8a1jZBk48qnvPJrtgE+VOMc3RnjUMxc4mv/vQ73nvj2uNMg==",
       "name": "@sveltejs/kit",
       "peerContexts": [
-        "(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "registryIntegrity": "sha512-M+MqAvFve12T1HWws/2npP/s3hFtyjw3GB/OXW/8a1jZBk48qnvPJrtgE+VOMc3RnjUMxc4mv/vQ73nvj2uNMg==",
       "review": null,
@@ -2993,12 +3015,12 @@
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "lockIntegrity": "sha512-TZzRTcEtZffICSAoZGkPSl6Etsj2torOVrx6Uw0KpXxrec9Gg6jFWQ60Q3+LmNGfZSxHRCZL7vXVZIWmuV50Ig==",
       "name": "@sveltejs/vite-plugin-svelte-inspector",
       "peerContexts": [
-        "(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "registryIntegrity": "sha512-TZzRTcEtZffICSAoZGkPSl6Etsj2torOVrx6Uw0KpXxrec9Gg6jFWQ60Q3+LmNGfZSxHRCZL7vXVZIWmuV50Ig==",
       "review": null,
@@ -3023,12 +3045,12 @@
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "lockIntegrity": "sha512-ou/d51QSdTyN26D7h6dSpusAKaZkAiGM55/AKYi+9AGZw7q85hElbjK3kEyzXHhLSnRISHOYzVge6x0jRZ7DXA==",
       "name": "@sveltejs/vite-plugin-svelte",
       "peerContexts": [
-        "(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "registryIntegrity": "sha512-ou/d51QSdTyN26D7h6dSpusAKaZkAiGM55/AKYi+9AGZw7q85hElbjK3kEyzXHhLSnRISHOYzVge6x0jRZ7DXA==",
       "review": null,
@@ -3111,8 +3133,8 @@
       "registryIntegrity": "sha512-yVtV8zsdo8qFHe+/3kw81dSLyF7D576A5cCFCi4X7B39tWT7SekaEFUnvnWJHz+9qO7qJTah1JbrDjWKqFtdWA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:6697839da72a4f8fde54cf037d984ce3b52962466af283548e245555256b66cd",
       "version": "2.0.0"
@@ -3139,8 +3161,8 @@
       "registryIntegrity": "sha512-Y8cK9aggNRsqJVaKUlEYs4s7CvQ1b1ta2DVPyAimb0I2qhzjNk+A+mxvll/klL0RlfuIUei8BF7YWiua4kQqww==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:16a48e41a41fb892c53c17197e71972dd98fbfdc7d972af0f1251a32e4d5dc64",
       "version": "4.1.0"
@@ -3223,8 +3245,8 @@
       "registryIntegrity": "sha512-hj9YIJimBCipHVfHKRMnvmHg+wfhKc0o4mTtXh9pKBjC8TLJzz0nzGmLi5UJsYAUgSvXFHgb0V2oY10DUFtImw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -3421,8 +3443,8 @@
       "registryIntegrity": "sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:7dd4a61668a9a4e8d4e903f1a254f94d53dafd3f316f2b9b597c5ad8c79cb57e",
       "version": "7.1.4"
@@ -3477,8 +3499,8 @@
       "registryIntegrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:0e0eadcdaada805db5d85b53ad5cdca0760b996ee199ec9658e7b34aa6c8e0d9",
       "version": "5.0.1"
@@ -3505,8 +3527,8 @@
       "registryIntegrity": "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:2c539a46d85ab6033183997434d2d9a5ca2ceefc12b4db9022f564784cd7987f",
       "version": "4.3.0"
@@ -3617,8 +3639,8 @@
       "registryIntegrity": "sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:9025508d9125eee531bbc49ce3ae560183975ad595f058c378bd56af4152fb16",
       "version": "4.0.4"
@@ -3645,8 +3667,8 @@
       "registryIntegrity": "sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b1b7a945b52685269083425216d6597e33d97bf21699d656e92fdb3eb5210a85",
       "version": "1.5.1"
@@ -3673,8 +3695,8 @@
       "registryIntegrity": "sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:83deb909ad1829ca990e5b0852810dd1f4402fa5e3a00978fb16a05c49a5a7cb",
       "version": "4.1.0"
@@ -3701,8 +3723,8 @@
       "registryIntegrity": "sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:e6f29666db5a9503146d8fd93a2a492a64694bc819ce158b18c584610f240fba",
       "version": "5.0.7"
@@ -3757,6 +3779,8 @@
       "registryIntegrity": "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -3785,8 +3809,8 @@
       "registryIntegrity": "sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:98bfac55b7a37ade644f5eccbcf94a59269afd13e1f9af597e61fd06c057c0bc",
       "version": "5.7.1"
@@ -3813,8 +3837,8 @@
       "registryIntegrity": "sha512-M3Lab8NPYlZU2exsL3bMVvMrMqgwCnMWfdZbK28bn3pK6APT/Te/I8hjRPNu1uwORY9a1eEQoifXbKPQMfMTOA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:da249af06a7c66ae62dc1fd676cf3ca8b802c894e681ee53906c03ba9d1aeda7",
       "version": "20.0.4"
@@ -3841,8 +3865,8 @@
       "registryIntegrity": "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:e84c643aa53e87ace6c3d368b3cddda24a2d1434a06b6dfbdb628ad2107df90a",
       "version": "4.1.2"
@@ -3869,8 +3893,8 @@
       "registryIntegrity": "sha512-rddelWYNPRrXq6PtNEN2S3f6t9ILzvqaN5pVgi4kqt9jHQaXIial9PznB5iSPVlQSLNaaH22ItWz3EJtQ10+OA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:4ed40fdfccd182e88dfee363488ab4e9a159752f64e035e39bd783de7d007d08",
       "version": "2.2.0"
@@ -3897,8 +3921,8 @@
       "registryIntegrity": "sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b5cf0e4dc53b84b4daf0f3f6d60e31eb07f7dbfb0f08a908cca6a6d6cb7e984c",
       "version": "3.1.0"
@@ -3925,8 +3949,8 @@
       "registryIntegrity": "sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:46c24c4edebc7b1297c6e9bb92b2f53f0be5c59037bbe1a695ffc953da02b48c",
       "version": "2.9.2"
@@ -3953,8 +3977,8 @@
       "registryIntegrity": "sha512-ouuZd4/dm2Sw5Gmqy6bGyNNNe1qt9RpmxveLSO7KcgsTnU7RXfsw+/bukWGo1abgBiMAic068rclZsO4IWmmxQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:17681f520e0b169950e3e0712ded701306efa98b2bd1daa6ca53db8362557ffb",
       "version": "4.1.0"
@@ -3981,8 +4005,8 @@
       "registryIntegrity": "sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:3393d5552400ded353826ad4052a7968f61c0ff59d4b515d0a502ea150588023",
       "version": "1.0.4"
@@ -4065,8 +4089,8 @@
       "registryIntegrity": "sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:920fa43538c019a085dbbf04cb6f72cc337624e5f5217519f0e7b2ef784e7ce1",
       "version": "2.0.1"
@@ -4093,8 +4117,8 @@
       "registryIntegrity": "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:507b7c4461e8eb941355af9a59e9a7e02cd0e7c6176b48d1809766344f3f1708",
       "version": "1.1.4"
@@ -4149,8 +4173,8 @@
       "registryIntegrity": "sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:5849703c500e0f324eb01340d8bda1f9ec48fc37bb7be9712eb0dd52aad92f6c",
       "version": "14.0.3"
@@ -4233,8 +4257,8 @@
       "registryIntegrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -4291,8 +4315,8 @@
       "registryIntegrity": "sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:a6dfe090d8379bb9afc062562e461767b241fd02e858198f216178523874891e",
       "version": "1.0.4"
@@ -4375,6 +4399,8 @@
       "registryIntegrity": "sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -4408,6 +4434,8 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -4499,8 +4527,8 @@
       "registryIntegrity": "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b5ccd9fbfb08098eefbeb6b6b4b40db6db3acf9243e327e039925aa8661cb107",
       "version": "8.0.0"
@@ -4555,6 +4583,8 @@
       "registryIntegrity": "sha512-ceqxoedUrcayh7Y7ZX6NdbbDzGROiyVBgC4PriJThBKSVPWnnFHZAkfI1lJT8QFkOwH4qOS2SJkS4wvpGl8BpA==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -4583,6 +4613,8 @@
       "registryIntegrity": "sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -4639,6 +4671,8 @@
       "registryIntegrity": "sha512-HrJrvZv5ayxBzPfwphOoNzkzOIIlifzk0KJrGK2c8R4+LKpMtpYLQeUdjnwjWv/LZlkH2laZk+4w78pi99D4Vw==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -4835,8 +4869,8 @@
       "registryIntegrity": "sha512-0jjjIEL6+0jag3l2XWWizO64/aZVtpiGE3t0Zgqxv0DPuxiMjvB3M24fCyhZUO4KomJQPj3LTSUnDP3GpdwC0g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b5dace35423470b453ed5dba20419052124b8a65cb233833f17e5483523b5eb1",
       "version": "3.0.3"
@@ -4863,8 +4897,8 @@
       "registryIntegrity": "sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:72daf113df209b0e55a227ff5f62683ca99da07b59c5da36a2da62920cb3752a",
       "version": "3.0.2"
@@ -4919,8 +4953,8 @@
       "registryIntegrity": "sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:f6b4a10f346b4405f01a1734be4c29b1aba315977f409ed11ea12ff2d3fae051",
       "version": "0.2.2"
@@ -4977,8 +5011,8 @@
       "registryIntegrity": "sha512-XUBA9XClHbnJWSfBzjkm6RvPsyg3sryZt06BEQoXcF7EK/xpGaQYJgQKDJSUH5SGZ76Y7pFx1QBnXz09rU5Fbw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:413d98ddd5b14e4ad826be254208e3b376acdcb9cafb72b397dc26dc59406a58",
       "version": "3.0.3"
@@ -5005,6 +5039,8 @@
       "registryIntegrity": "sha512-yTb+8DXzDREzgvYmh6s9vHsSVCHeC0G3PI5bEXNBHtmshPnO+S5O7qgLEOn0I5QvMy6kpZN8K1NKGyilLb93wA==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -5033,8 +5069,8 @@
       "registryIntegrity": "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:020f184fa9c4e2905cf33c3d1dbba4b25a58e05f6f785f81cc931394e07b8970",
       "version": "13.0.6"
@@ -5061,8 +5097,8 @@
       "registryIntegrity": "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:77a7eb1411d927bb8a5ca7069dbe168886d63c88f446f0b81500a2cf23ddb5b1",
       "version": "4.0.0"
@@ -5142,8 +5178,8 @@
       "registryIntegrity": "sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:f57454db8ab2d06a4baabbfb7c70ad4181a00b7ee0efebcdffa9ba313bd80eb7",
       "version": "4.2.0"
@@ -5170,8 +5206,8 @@
       "registryIntegrity": "sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:785f73faa92bfba8d61da20bf59325ab2b3dca1bbc0bbac523406f404d8a6f02",
       "version": "7.0.2"
@@ -5198,8 +5234,8 @@
       "registryIntegrity": "sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:960f89e8e5240882f64249d04a538421dd39d62ffacc138544647cc3251bc0e0",
       "version": "7.0.6"
@@ -5226,8 +5262,8 @@
       "registryIntegrity": "sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:40789b7733e230a0439e07075fe2f37819f4a47ee7115fe17188451fab8e3941",
       "version": "0.7.3"
@@ -5254,8 +5290,8 @@
       "registryIntegrity": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:8ef14b9b397e339db89db97881fb714f49319d8f0eb1275901f45567b28f9dac",
       "version": "1.2.1"
@@ -5282,8 +5318,8 @@
       "registryIntegrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:d94dbc6c1bb3c5ac0fb12a73ade187108fc60de273a1b754f55044eb5e24afaf",
       "version": "2.0.4"
@@ -5312,8 +5348,8 @@
       "registryIntegrity": "sha512-9VF7mrY+3OmsAfjH3yKz/pLbJ5z22E23hENKw3/LNSaA/sAt3v49bDRY+Ygct1xwuKT+U+cBfTzjCPySna69Qw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:22b72550d3e25ce5df559a4429d8a957b329ec12e29033d9719e72dbf5f92c83",
       "version": "12.11.1"
@@ -5342,8 +5378,8 @@
       "registryIntegrity": "sha512-APTrZe9IhrsshL0u2PgmEMLP3CXDBjZ99xh5dR2+sryOt5R+JGL0KNuaTTT2lW54B9eNQDMutPR05UYTL7Xb1Q==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:4f017a69f95e08f47eb8e4099d828370f5a2a31d0177cfb8600579b6637665b8",
       "version": "13.3.0"
@@ -5370,8 +5406,8 @@
       "registryIntegrity": "sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -5400,8 +5436,8 @@
       "registryIntegrity": "sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:6f415dae5dc6070f1b42daee6165eab941a97101982305facc8bafdaf300bc4a",
       "version": "3.0.0"
@@ -5428,8 +5464,8 @@
       "registryIntegrity": "sha512-2HvIEKRoqS62guEC+qBjpvRubdX910WCMuJTZ+I9yvqKU2/12eSL549HMwtabb4oupdj2sMP50k+XJfB/8JE6w==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:2c848979d8554a2ef3bfb0d89edb1cce5d3ea6db3c4483434930daf86c198fa4",
       "version": "1.0.0"
@@ -5489,8 +5525,8 @@
       "registryIntegrity": "sha512-knxG2q4UC3u8stRGyAVJCOdxFmv5DZiRcdlIaAQXAbSfJya+OhopNotLQrstBhququ4ZpuKbDc/8S6mgXgPFPw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:7c15fefe222c2ec445ebf1d1b7c9ceb6e9513ce6195b002b7b8c3280ca9ecabe",
       "version": "0.1.0"
@@ -5662,8 +5698,8 @@
       "registryIntegrity": "sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:32e706aac11b2ba4c0e9647a3a6738bcd9eb6615bf8ad9f157282e8ed9701323",
       "version": "4.1.0"
@@ -5690,8 +5726,8 @@
       "registryIntegrity": "sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:e46c8eaafc64f168603aebd39cfd0e987bec39a93ade280653e2331fd2516a22",
       "version": "11.5.2"
@@ -5746,8 +5782,8 @@
       "registryIntegrity": "sha512-Je0fLJ0F5atA7F+eIlLzk+Wkcl57JDf4kf+EW8xiP5E31xOQxkIxTbgf1Oi1Lw9tRI9UEMRdI5Vz2xTzoNU1Jw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:ea63ec1826750e2ee63713ac476350e413116d836613a2f8b18b31899accd9dd",
       "version": "15.0.6"
@@ -5830,8 +5866,8 @@
       "registryIntegrity": "sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:ea705c261486c4ef2a8c936b159c86ad1d7451d7afc7b7f97cc2d1805c0466bf",
       "version": "2.1.0"
@@ -5858,8 +5894,8 @@
       "registryIntegrity": "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:a6cea46915bfc6c3fae60f9bd003ea4f9d6a4233aa59a9ca729474d3824ca9e5",
       "version": "10.2.5"
@@ -5914,8 +5950,8 @@
       "registryIntegrity": "sha512-D7V8PO9oaz7PWGLbCACuI1qEOsq7UKfLotx/C0Aet43fCUB/wfQ7DYeq2oR/svFJGYDHPr38SHATeaj/ZoKHKw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:1a4d094d890b9fa542e1608a73bef29e90389fa8960e40441c5d25284d7c4097",
       "version": "2.0.1"
@@ -5942,8 +5978,8 @@
       "registryIntegrity": "sha512-2d0q2a8eCi2IRg/IGubCNRJoYbA1+YPXAzQVRFmB45gdGZafyivnZ5YSEfo3JikbjGxOdntGFvBQGqaSMXlAFQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:098d4ea2b587d9ca3c27caa288f15f5f10266c1f6a62047a4f5399ac1496d34b",
       "version": "5.0.2"
@@ -5970,8 +6006,8 @@
       "registryIntegrity": "sha512-TbqTz9cUwWyHS2Dy89P3ocAGUGxKjjLuR9z8w4WUTGAVgEj17/4nhgo2Du56i0Fm3Pm30g4iA8Lcqctc76jCzA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:26baadb82d20dc010e4c9037491d2f1483705adc7e484abe1dc5486e41cab33b",
       "version": "1.0.7"
@@ -5998,8 +6034,8 @@
       "registryIntegrity": "sha512-xuIq7cIOt09RPRJ19gdi4b+RiNvDFYe5JH+ggNvBqGqpQXcru3PcRmOZuHBKWK1Txf9+cQ+HMVN4d6z46LZP7A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:0b64f23832fd6391b879182615c6d0363371b0df2fa37a7d63e30903b156078f",
       "version": "1.2.4"
@@ -6026,8 +6062,8 @@
       "registryIntegrity": "sha512-zSsHhto5BcUVM2m1LurnXY6M//cGhVaegT71OfOXoprxT6o780GZd792ea6FfrQkuU4usHZIUczAQMRUE2plzA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:5b4c9e1b1a7db12cb43e8e320a4bb8b40b23cbb6ed0f52dd67494d2375906d06",
       "version": "2.0.0"
@@ -6054,8 +6090,8 @@
       "registryIntegrity": "sha512-DxiNidxSEK+tHG6zOIklvNOwm3hvCrbUrdtzY74U6HKTJxvIDfOUL5W5P2Ghd3DTkhhKPYGqeNUIh5qcM4YBfw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:7ad2907443a21947802c8e4fcbb7ecd6f1b66f3d0a83908235d93a2174cf9e5d",
       "version": "3.3.6"
@@ -6082,8 +6118,8 @@
       "registryIntegrity": "sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:52ac61be743755e3fdc98e560086d0d4a1e2c7fd3643387792db38e322d27d12",
       "version": "7.1.3"
@@ -6110,8 +6146,8 @@
       "registryIntegrity": "sha512-KZxYo1BUkWD2TVFLr0MQoM8vUUigWD3LlD83a/75BqC+4qE0Hb1Vo5v1FgcfaNXvfXzr+5EhQ6ing/CaBijTlw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:99bf2e29618172dd71f0654737490c68f71bc7e2379d473e38f9fef2dbece2e3",
       "version": "3.1.0"
@@ -6310,8 +6346,8 @@
       "registryIntegrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6340,8 +6376,8 @@
       "registryIntegrity": "sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:65ed9e008091b256e7819cd58c554406a7801da0501babf45ce0f2740628ddb5",
       "version": "2.0.0"
@@ -6368,8 +6404,8 @@
       "registryIntegrity": "sha512-dkEJPVvun4FryqBmZ5KhDo0K9iDXAwn08tMLDinNdRBNPcYEDiWYysLcc6k3mjTMlbP9KyylvRpd4wFtwrT9rw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:09489744153746acf7572655eae3f591c7a38f4faa31e25831eb04fb2e4b68eb",
       "version": "3.0.0"
@@ -6383,24 +6419,24 @@
           "source": "registry-tarball"
         }
       ],
-      "identity": "nanoid@3.3.15",
-      "legalRecordSha256": "sha256:533d5fec1401bf4c7e3d7778521bb7f830cde0c1e2df360eba10eb6e5490f3de",
+      "identity": "nanoid@3.3.16",
+      "legalRecordSha256": "sha256:be1483ad7293c2656ea7697aa02dd5239e387f2e62b0571fd1658f9eecbb765e",
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "nanoid@3.3.15"
+        "nanoid@3.3.16"
       ],
-      "lockIntegrity": "sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==",
+      "lockIntegrity": "sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==",
       "name": "nanoid",
       "peerContexts": [],
-      "registryIntegrity": "sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==",
+      "registryIntegrity": "sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==",
       "review": null,
       "surfaces": [
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
-      "tarballSha256": "sha256:1f5c77283e894430f5eb5ee2d157a3cfeba0adf89ac228ccd08d00330bd80408",
-      "version": "3.3.15"
+      "tarballSha256": "sha256:42b7f772b6df95f32aab9a2aab1ef6209a0883fd1cbb410f659d0cd61c8ff4b6",
+      "version": "3.3.16"
     },
     {
       "files": [
@@ -6424,8 +6460,8 @@
       "registryIntegrity": "sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b5a2dfee1dc0ac52c623cd5c0304be5a8a41cfad40e09f1a13606972cb2dbc04",
       "version": "1.0.0"
@@ -6536,8 +6572,8 @@
       "registryIntegrity": "sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:f059b2ea801cb7b253c4613f43d96cd56ae8dda56faa0999539aa1795725aacd",
       "version": "5.1.2"
@@ -6564,8 +6600,8 @@
       "registryIntegrity": "sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:81ecc9a0bc6a44876a24a01ca8955f1a129857857337e0e81606cbad0be0a798",
       "version": "5.4.1"
@@ -6592,8 +6628,8 @@
       "registryIntegrity": "sha512-e8vJF4XdVkzqqSHguEMz41mQO1wKwxKm5ENrUJQUu9kLDCtn83cxbyHZcszr4QC5zEA7WffRRC4gsTecC7J9oA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:afadb93873a1284fa53f70ba9b5bc17055d6b3ab5cf3195000a5c70058d48f97",
       "version": "7.0.5"
@@ -6620,8 +6656,8 @@
       "registryIntegrity": "sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:dea3e3dab1c00c28fcb5871b1133b02050c7e110dde2dbe31e14067922c23ec1",
       "version": "2.0.2"
@@ -6648,6 +6684,8 @@
       "registryIntegrity": "sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6676,6 +6714,8 @@
       "registryIntegrity": "sha512-XwWDGcLRGCXAR8F/AM5bG7Q+A3Wm2s6QeEjlOKZLlH3UYcguiqCWKyWXVag5TLTIjR7oOJUY8kcADaZgWPyLeg==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6704,6 +6744,8 @@
       "registryIntegrity": "sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6734,6 +6776,8 @@
       "registryIntegrity": "sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6762,6 +6806,8 @@
       "registryIntegrity": "sha512-cq9sECI5s0+uPUXjbz8ioyPJni6RzsRib0US67i5IoTZKw8fNeYlVE7u8F4dG7vEJJtc5wdD1K189lCCUwqWTQ==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6795,6 +6841,8 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6823,6 +6871,8 @@
       "registryIntegrity": "sha512-ldhMxz2r8fl/6QkXnBD3CR9/xg694oT6DZQ2s6c/RI28OjtSOpxnPrUCGOBJ46RCUxcWdx3p6kw/xnDHjKvaRA==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -6856,6 +6906,8 @@
         "status": "accepted"
       },
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -7067,24 +7119,24 @@
           "source": "registry-tarball"
         }
       ],
-      "identity": "postcss@8.5.17",
-      "legalRecordSha256": "sha256:09fedeeaf31563462b3d8f7bb82aa7e7890b101ed3a025034a6209356ae5777a",
+      "identity": "postcss@8.5.19",
+      "legalRecordSha256": "sha256:953200475d603daa99533371cd91efcf0da31337553b0d39d2bed05d9d01467f",
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "postcss@8.5.17"
+        "postcss@8.5.19"
       ],
-      "lockIntegrity": "sha512-J7EF+8X+CzRPaJPOv9Ck2wNWJvGnnl3PcNPAdGg6GTLjyVpyQ0yATMSXRFRV01BviT/9Gwuc3rjEyJbDJG9a4w==",
+      "lockIntegrity": "sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ==",
       "name": "postcss",
       "peerContexts": [],
-      "registryIntegrity": "sha512-J7EF+8X+CzRPaJPOv9Ck2wNWJvGnnl3PcNPAdGg6GTLjyVpyQ0yATMSXRFRV01BviT/9Gwuc3rjEyJbDJG9a4w==",
+      "registryIntegrity": "sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ==",
       "review": null,
       "surfaces": [
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
-      "tarballSha256": "sha256:bd518268f139e5234e9699e76eb99f7850b3d3fabde12afacba4afa6de4e3fc9",
-      "version": "8.5.17"
+      "tarballSha256": "sha256:d128810f369567a5908105c5cec7e49304fc6fcde013924d16dd4773361e2b39",
+      "version": "8.5.19"
     },
     {
       "files": [
@@ -7108,6 +7160,8 @@
       "registryIntegrity": "sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -7136,6 +7190,8 @@
       "registryIntegrity": "sha512-5+5HqXnsZPE65IJZSMkZtURARZelel2oXUEO8rH83VS/hxH5vv1uHquPg5wZs8yMAfdv971IU+kcPUczi7NVBQ==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -7164,6 +7220,8 @@
       "registryIntegrity": "sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -7192,6 +7250,8 @@
       "registryIntegrity": "sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -7220,8 +7280,8 @@
       "registryIntegrity": "sha512-iG+GYldRf2BQ0UDUAd6JQ/RwzaQy6mXmsk/IzlYyal4A4SNFw54MeH4/tLkF4I5WoWG9SQwuqWzS99jaFQHBuQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:02d337f7a6d74559939724dd211c3557f86f9ef949a72e2f1816ef9e3e3f59c5",
       "version": "6.1.0"
@@ -7438,8 +7498,8 @@
       "registryIntegrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:edd866c05e318aa9c091763eebdd4207409b7a7648be19c5317a96047305ab5d",
       "version": "3.6.2"
@@ -7583,6 +7643,8 @@
       "registryIntegrity": "sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -7611,8 +7673,8 @@
       "registryIntegrity": "sha512-l+sSefzHpj5qimhFSE5a8nufZYAM3sBSVMAPtYkmC+4EH2anSGaEMXSD0izRQbu9nfyQ9y5JrVmp7E8oZrUjvA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:0948716bb31f4cb02857a37b539cbe2aad249d5182f114a27404716064e3ec29",
       "version": "3.1.0"
@@ -7667,8 +7729,8 @@
       "registryIntegrity": "sha512-IoDlSLTs3Yq593mb3ZoKWKXMNu3UpObxhgA/Xuid5p4bbfi2jdY1Hj0m1K+0/tEuQTxIGMhQDqGjKb7RuxGpAQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:67932662926e4b4121e83d70f2613f7a000e6489037f0b8eb184f05292558151",
       "version": "4.0.6"
@@ -7695,8 +7757,8 @@
       "registryIntegrity": "sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:2312f8ffd9726ffd7bd53ea12c5f13663d09a3dc3326f448c70b88f5ef6fac82",
       "version": "7.8.2"
@@ -7723,8 +7785,8 @@
       "registryIntegrity": "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:5d181804516c4a693a384272a7bd0e42d17e0d4b301ccfbe408669ccafdcb3e8",
       "version": "5.2.1"
@@ -7779,8 +7841,8 @@
       "registryIntegrity": "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:78812f65ae3b98071ce1c9bacbe0666f4220d0b2753c2a11530eb27df440a3b3",
       "version": "2.1.2"
@@ -7860,8 +7922,8 @@
       "registryIntegrity": "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:d85045d4300d7d57c891336b95df532e73f34c22ffcd222452b6d08b9d127d5d",
       "version": "7.8.5"
@@ -7949,8 +8011,8 @@
       "registryIntegrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:439623fa6aab91600615ec757eaa137fcab40d3b35dda38df7444c15678f20a8",
       "version": "3.0.7"
@@ -7977,8 +8039,8 @@
       "registryIntegrity": "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:9d3b58a811ecf6a641537387289274cd14f5bb912a27e4f1f2a74182bca8b795",
       "version": "4.1.0"
@@ -8005,8 +8067,8 @@
       "registryIntegrity": "sha512-endqECJkfhozrXMK5ngu/UAA0xVcVEFdnHJCElGaExypjW+HK5i6zu3NteLoaX/iFbRUbC3+DjttQs0GARr+5w==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:4d7ecc73cd9559457209adab0d9a64c50145e5cb1286de92abc75f0a140928a0",
       "version": "4.1.1"
@@ -8066,8 +8128,8 @@
       "registryIntegrity": "sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -8096,8 +8158,8 @@
       "registryIntegrity": "sha512-HehCEsotFqbPW9sJ8WVYB6UbmIMv7kUUORIF2Nncq4VQvBfNBLibW9YZR5dlYCSUhwcD628pRllm7n+E+YTzJw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:d439af91301f84eb6baf190928efaba07db399ad9e602bfd4b24ba240cffc1f6",
       "version": "8.0.5"
@@ -8124,8 +8186,8 @@
       "registryIntegrity": "sha512-LJhUYUvItdQ0LkJTmPeaEObWXAqFyfmP85x0tch/ez9cahmhlBBLbIqDFnvBnUJGagb0JbIQrkBs1wJ+yRYpEw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -8210,6 +8272,8 @@
       "registryIntegrity": "sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -8238,6 +8302,8 @@
       "registryIntegrity": "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -8294,6 +8360,8 @@
       "registryIntegrity": "sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -8322,8 +8390,8 @@
       "registryIntegrity": "sha512-QUiRf1+u9wPTL/76GTYlKttDEBWV1ga9ZXW8BG6kfdeyyM8LGPix9gROyg9V2+P0xNyF3X2Go526xKFdMZrHSQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:03367e184dfb0d9f128f1b84da47255fe888e10653c10d2c26f337414457897b",
       "version": "13.0.1"
@@ -8350,8 +8418,8 @@
       "registryIntegrity": "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:adbb4fb1b26e8069af99adff0079369c93f17cf887b91086691d671ddbd52934",
       "version": "4.2.3"
@@ -8378,8 +8446,8 @@
       "registryIntegrity": "sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:7d036900940345e423538371ae45b23bfaf4b454bc398c6ba604063b0597b3ad",
       "version": "1.3.0"
@@ -8406,8 +8474,8 @@
       "registryIntegrity": "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:9bdb75d0bff49f156dd8c3bcb0e06b3fa96c3d88ddd4c342a4345866a40c08ca",
       "version": "6.0.1"
@@ -8462,8 +8530,8 @@
       "registryIntegrity": "sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:f16acafd1634624e60c24a5538004c4e168c82607f10dbe28395e9df3e7d5e4a",
       "version": "7.2.0"
@@ -8630,8 +8698,8 @@
       "registryIntegrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -8647,24 +8715,26 @@
           "source": "registry-tarball"
         }
       ],
-      "identity": "tsx@4.23.0",
-      "legalRecordSha256": "sha256:aef328519c17cd202472b5ecfb8f606a4a406162563e41284caca89495c4a546",
+      "identity": "tsx@4.23.1",
+      "legalRecordSha256": "sha256:a55e90c77f92489585914b737728f642c629a9d04c810cabee79c06b8a847269",
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "tsx@4.23.0"
+        "tsx@4.23.1"
       ],
-      "lockIntegrity": "sha512-eUdUIaCr963q2h5u3+QwvYp0+eqPvn+egeqZUm0hwERCqqx1E3kK5ehbGCvqSE5MQAULr67ww0cA3jKc3YkM1w==",
+      "lockIntegrity": "sha512-GQHnkIfxyx1wYCOS/wonik5MVRZU9hi1TEZmzGZSCJB1y9YgoZ8H6itNE/u4suE+yLmOzuE4E5S4TZ/ZX2wcWQ==",
       "name": "tsx",
       "peerContexts": [],
-      "registryIntegrity": "sha512-eUdUIaCr963q2h5u3+QwvYp0+eqPvn+egeqZUm0hwERCqqx1E3kK5ehbGCvqSE5MQAULr67ww0cA3jKc3YkM1w==",
+      "registryIntegrity": "sha512-GQHnkIfxyx1wYCOS/wonik5MVRZU9hi1TEZmzGZSCJB1y9YgoZ8H6itNE/u4suE+yLmOzuE4E5S4TZ/ZX2wcWQ==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
-      "tarballSha256": "sha256:a854f8a6c26b337c040270493f54be6739ec940317c25d78f94440ca16f5555c",
-      "version": "4.23.0"
+      "tarballSha256": "sha256:e3905210fa2c05106ab4d75c7477088c34a7db4dec8cc2d9c8f9ef5dde3da344",
+      "version": "4.23.1"
     },
     {
       "files": [
@@ -8688,8 +8758,8 @@
       "registryIntegrity": "sha512-50QV99kCKH5P/Vs4E2Gzp7BopNV+KzTXqWeaxrfu5IQJBOULRsTIS9seSsOVT8ZnGXzCyx55nYWAi4qJzpZKEQ==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:b6fd0e1e8f02eea9811cb4204bb663f18b9aa4441492554affd960cfba466911",
       "version": "4.1.0"
@@ -8772,8 +8842,8 @@
       "registryIntegrity": "sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -8802,8 +8872,8 @@
       "registryIntegrity": "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:79a1de983c1b393180c47456d6b73caab278a00ea6e37d5c6675f2dcdec2a3e5",
       "version": "1.0.2"
@@ -8850,12 +8920,12 @@
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)"
+        "vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)"
       ],
       "lockIntegrity": "sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==",
       "name": "vite",
       "peerContexts": [
-        "(@types/node@25.3.1)(tsx@4.23.0)"
+        "(@types/node@25.3.1)(tsx@4.23.1)"
       ],
       "registryIntegrity": "sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==",
       "review": null,
@@ -8880,12 +8950,12 @@
       "legalSource": "registry-tarball",
       "licenseExpression": "MIT",
       "locators": [
-        "vitefu@1.1.3(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "vitefu@1.1.3(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "lockIntegrity": "sha512-ub4okH7Z5KLjb6hDyjqrGXqWtWvoYdU3IGm/NorpgHncKoLTCfRIbvlhBm7r0YstIaQRYlp4yEbFqDcKSzXSSg==",
       "name": "vitefu",
       "peerContexts": [
-        "(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))"
+        "(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))"
       ],
       "registryIntegrity": "sha512-ub4okH7Z5KLjb6hDyjqrGXqWtWvoYdU3IGm/NorpgHncKoLTCfRIbvlhBm7r0YstIaQRYlp4yEbFqDcKSzXSSg==",
       "review": null,
@@ -8918,8 +8988,8 @@
       "registryIntegrity": "sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:9f28cbc31e061ba4517fc3882357d4f43f00b14717e1f7ffa61656d7edbaa3a8",
       "version": "1.0.1"
@@ -9002,8 +9072,8 @@
       "registryIntegrity": "sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:d46fc412f04d873700a557bc9686d42c0d6c7979e1825cefebf4279ca9d678f8",
       "version": "6.2.0"
@@ -9058,6 +9128,8 @@
       "registryIntegrity": "sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==",
       "review": null,
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ],
@@ -9086,8 +9158,8 @@
       "registryIntegrity": "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:a80c78aa276536615891ef66efbc17d3bd07c8cb14e3bd5298eed3006bfa4d49",
       "version": "4.0.0"
@@ -9114,8 +9186,8 @@
       "registryIntegrity": "sha512-U/PBtDf35ff0D8X8D0jfdzHYEPFxAI7jJlxZXwCSez5M3190m+QobIfh+sWDWSHMCWWJN2AWamkegn6vr6YBTw==",
       "review": null,
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ],
       "tarballSha256": "sha256:3713f19b168cdff7971836fc7e500b19c7b129633ab465b876de6a641d40a04e",
       "version": "2.1.3"
@@ -9231,8 +9303,8 @@
       "identity": "@aopslab/host-registration@0.1.1",
       "lockIntegrity": "sha512-oF5XclsIo9qtX5o5710HgNmhgckfRzLxMptQ3E5zf7uWd+icHdv0xcdE3RCfslnIr2fj/iswWlN4yWaDD/f8hA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -9260,8 +9332,8 @@
       "identity": "@aopslab/xf-cli-operator@0.0.2",
       "lockIntegrity": "sha512-VPuQF7EpY7rTzMWp838nABnbdFJU5e38KPYgHaHEtWzOnRkaxoeBV8sdO/a35HbBS6qoQb6EWSerMf/I02ba8g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9269,8 +9341,8 @@
       "identity": "@aopslab/xf-cli-ui@0.1.13",
       "lockIntegrity": "sha512-QI5N04/ifKo3wSi2gbTJ+jaDyQWZyAP0BTiRkJ9e6aK2mtVI28BrL6KIouQRBqxBE0yBO28wXWZ3m3EOfVVy9g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9401,6 +9473,8 @@
       "identity": "@drizzle-team/brocli@0.10.2",
       "lockIntegrity": "sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -9410,6 +9484,8 @@
       "identity": "@esbuild-kit/core-utils@3.3.2",
       "lockIntegrity": "sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -9419,6 +9495,8 @@
       "identity": "@esbuild-kit/esm-loader@2.6.5",
       "lockIntegrity": "sha512-FxEMIkJKnodyA1OaCUoEvbYRkoZlLZ4d/eXFu9Fh8CbBBgP5EmZxrfTRyN0qpXZ4vOvqnE5YdRdcrmUUXuU+dA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -9428,6 +9506,7 @@
       "identity": "@esbuild/linux-arm64@0.18.20",
       "lockIntegrity": "sha512-2YbscF+UL7SQAVIpnWvYwM+3LskyDmPhe31pE7/aoTMFKKzIc9lLbyGUpmmb8a8AixOL61sQ/mFh3jEjHYFvdA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/arm64"
       ]
     },
@@ -9436,6 +9515,7 @@
       "identity": "@esbuild/linux-arm64@0.25.12",
       "lockIntegrity": "sha512-8bwX7a8FghIgrupcxb4aUmYDLp8pX06rGh5HqDT7bB+8Rdells6mHvrFHHW2JAOPZUbnjUpKTLg6ECyzvas2AQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/arm64"
       ]
     },
@@ -9452,6 +9532,7 @@
       "identity": "@esbuild/linux-arm64@0.28.1",
       "lockIntegrity": "sha512-yHs+0uc8+nvEAfAfxrWQKK5peSNzBc4PegcMO0EJ2hT71uA7vB8Ihg2e77R2P7SG5uYjPbHlLLmve4LLLRCf0g==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/arm64"
       ]
     },
@@ -9460,6 +9541,7 @@
       "identity": "@esbuild/linux-x64@0.18.20",
       "lockIntegrity": "sha512-UYqiqemphJcNsFEskc73jQ7B9jgwjWrSayxawS6UVFZGWrAAtkzjxSqnoclCXxWtfwLdzU+vTpcNYhpn43uP1w==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/amd64"
       ]
     },
@@ -9468,6 +9550,7 @@
       "identity": "@esbuild/linux-x64@0.25.12",
       "lockIntegrity": "sha512-uqZMTLr/zR/ed4jIGnwSLkaHmPjOjJvnm6TVVitAa08SLS9Z0VM8wIRx7gWbJB5/J54YuIMInDquWyYvQLZkgw==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/amd64"
       ]
     },
@@ -9484,6 +9567,7 @@
       "identity": "@esbuild/linux-x64@0.28.1",
       "lockIntegrity": "sha512-u/anNYF2mmVOEDwLtnQ1wOr3EZ9sTNGLWrsYGYwHWzGA3Si84IOkHXlbWTD1NB+9/1lcnweYKO54uhxZydNzfA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/amd64"
       ]
     },
@@ -9524,8 +9608,8 @@
       "identity": "@gar/promise-retry@1.0.3",
       "lockIntegrity": "sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9533,8 +9617,8 @@
       "identity": "@inquirer/ansi@1.0.2",
       "lockIntegrity": "sha512-S8qNSZiYzFd0wAcyG5AXCvUHC5Sr7xpZ9wZ2py9XR88jUz8wooStVx5M6dRzczbBWjic9NP7+rY0Xi7qqK/aMQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9542,8 +9626,8 @@
       "identity": "@inquirer/ansi@2.0.7",
       "lockIntegrity": "sha512-3eTuUO1vH2cZm2ZKHeQxnOqlTi9EfZDGgIe3BL3I4u+rJHocr9Fz86M4fjYABPvFnQG/gGK551HqDiIcETwU6Q==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9551,8 +9635,8 @@
       "identity": "@inquirer/checkbox@4.3.2",
       "lockIntegrity": "sha512-VXukHf0RR1doGe6Sm4F0Em7SWYLTHSsbGfJdS9Ja2bX5/D5uwVOEjr07cncLROdBvmnvCATYEWlHqYmXv2IlQA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9560,8 +9644,8 @@
       "identity": "@inquirer/checkbox@5.2.1",
       "lockIntegrity": "sha512-b6xmA/VlTe0ZgDQHDui+Nav470u7u49nRd8/iuhOcQPO9Ch7lGuogydhi2VOmNlZ+zXcM8IcPuNSwQcdJaF/kw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9569,8 +9653,8 @@
       "identity": "@inquirer/confirm@5.1.21",
       "lockIntegrity": "sha512-KR8edRkIsUayMXV+o3Gv+q4jlhENF9nMYUZs9PA2HzrXeHI8M5uDag70U7RJn9yyiMZSbtF5/UexBtAVtZGSbQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9578,8 +9662,8 @@
       "identity": "@inquirer/confirm@6.1.1",
       "lockIntegrity": "sha512-eb8DBZcz/2qHWQda4rk2JiQk5h9QV/cVHi1yjt0f69WFZMRFn0sJTye3EAP8icut8UDMjQPsaH5KbcOogefrFQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9587,8 +9671,8 @@
       "identity": "@inquirer/core@10.3.2",
       "lockIntegrity": "sha512-43RTuEbfP8MbKzedNqBrlhhNKVwoK//vUFNW3Q3vZ88BLcrs4kYpGg+B2mm5p2K/HfygoCxuKwJJiv8PbGmE0A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9596,8 +9680,8 @@
       "identity": "@inquirer/core@11.2.1",
       "lockIntegrity": "sha512-Qd6GJT1yVyrZZCfN8W2qKF5ApmqryXRhRKCuip8h01x2w/esJQ2XIYc6f9abMIHgKQdBfFTSOdbHRLAhuM09UA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9605,8 +9689,8 @@
       "identity": "@inquirer/editor@4.2.23",
       "lockIntegrity": "sha512-aLSROkEwirotxZ1pBaP8tugXRFCxW94gwrQLxXfrZsKkfjOYC1aRvAZuhpJOb5cu4IBTJdsCigUlf2iCOu4ZDQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9614,8 +9698,8 @@
       "identity": "@inquirer/editor@5.2.2",
       "lockIntegrity": "sha512-ZRVd/oD+sYsUd5zVm0NflqEzlqfYCyHNsqkHl2oWXEUHs12tCbcSFi+wVFEvD8+LGRaMUsVrE7qeo6lSG/S1Vg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9623,8 +9707,8 @@
       "identity": "@inquirer/expand@4.0.23",
       "lockIntegrity": "sha512-nRzdOyFYnpeYTTR2qFwEVmIWypzdAx/sIkCMeTNTcflFOovfqUk+HcFhQQVBftAh9gmGrpFj6QcGEqrDMDOiew==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9632,8 +9716,8 @@
       "identity": "@inquirer/expand@5.1.1",
       "lockIntegrity": "sha512-YmQpenjbFSHAK3sOd44puHh3V1KXXr+JiNpUztoSQ4drLh2rTVzTap/YtlAVu/5xavifIlBfNEzJ/neZJ1a/1g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9641,8 +9725,8 @@
       "identity": "@inquirer/external-editor@1.0.3",
       "lockIntegrity": "sha512-RWbSrDiYmO4LbejWY7ttpxczuwQyZLBUyygsA9Nsv95hpzUWwnNTVQmAq3xuh7vNwCp07UTmE5i11XAEExx4RA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9650,8 +9734,8 @@
       "identity": "@inquirer/external-editor@3.0.3",
       "lockIntegrity": "sha512-6thf5I8q7lZwzGLAxPaaGEREEkZ3nyePPDQ1oyobblxmEE8mqTLguScP7pDjUTAibiyb4hfXl+qjUEJ+di/aNA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9659,8 +9743,8 @@
       "identity": "@inquirer/figures@1.0.15",
       "lockIntegrity": "sha512-t2IEY+unGHOzAaVM5Xx6DEWKeXlDDcNPeDyUpsRc6CUhBfU3VQOEl+Vssh7VNp1dR8MdUJBWhuObjXCsVpjN5g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9668,8 +9752,8 @@
       "identity": "@inquirer/figures@2.0.7",
       "lockIntegrity": "sha512-aJ8TBPOGB6f/2qziPfElISTCEd5XOYTFckA2SGjhNmiKzfK/u4ot3v0DUzGVdUnKjN10EqnnEPck36BkyfLnJw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9677,8 +9761,8 @@
       "identity": "@inquirer/input@4.3.1",
       "lockIntegrity": "sha512-kN0pAM4yPrLjJ1XJBjDxyfDduXOuQHrBB8aLDMueuwUGn+vNpF7Gq7TvyVxx8u4SHlFFj4trmj+a2cbpG4Jn1g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9686,8 +9770,8 @@
       "identity": "@inquirer/input@5.1.2",
       "lockIntegrity": "sha512-9K/DDBSQpOyZSkt6sOVP9Vo0TR7atX2kuILsUu0x3wVcVbe97lJwIJKMLdMw25tDYuXl/qp6erT0Xs1rfmcfZg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9695,8 +9779,8 @@
       "identity": "@inquirer/number@3.0.23",
       "lockIntegrity": "sha512-5Smv0OK7K0KUzUfYUXDXQc9jrf8OHo4ktlEayFlelCjwMXz0299Y8OrI+lj7i4gCBY15UObk76q0QtxjzFcFcg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9704,8 +9788,8 @@
       "identity": "@inquirer/number@4.1.1",
       "lockIntegrity": "sha512-XF4IXAbPnGPgw0wsbC/i2tPcyfdZgDpUlhsqU0SfT4IRIGWha6Xm9VRgN5yYxJq+jnyXlfXI/nQ3ulfk0iEICA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9713,8 +9797,8 @@
       "identity": "@inquirer/password@4.0.23",
       "lockIntegrity": "sha512-zREJHjhT5vJBMZX/IUbyI9zVtVfOLiTO66MrF/3GFZYZ7T4YILW5MSkEYHceSii/KtRk+4i3RE7E1CUXA2jHcA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9722,8 +9806,8 @@
       "identity": "@inquirer/password@5.1.1",
       "lockIntegrity": "sha512-3XBfF7DAsp5qeDsvN5Rd1HmbNokVvEQoUM0QLrRcybC9nX96w3Pbmu7qUsb3IT3J3jBvs2+mTXaKHOUsgHMLzg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9731,8 +9815,8 @@
       "identity": "@inquirer/prompts@7.10.1",
       "lockIntegrity": "sha512-Dx/y9bCQcXLI5ooQ5KyvA4FTgeo2jYj/7plWfV5Ak5wDPKQZgudKez2ixyfz7tKXzcJciTxqLeK7R9HItwiByg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9740,8 +9824,8 @@
       "identity": "@inquirer/prompts@8.5.2",
       "lockIntegrity": "sha512-IYR/3C/paEVVQYQvdDlFZVjRCJVYHHON0XXMH91KO9GSxs0TdKYWlUdvfQl2EfAHDxUaN3IBffkE/BDTh5nJ6g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9749,8 +9833,8 @@
       "identity": "@inquirer/rawlist@4.1.11",
       "lockIntegrity": "sha512-+LLQB8XGr3I5LZN/GuAHo+GpDJegQwuPARLChlMICNdwW7OwV2izlCSCxN6cqpL0sMXmbKbFcItJgdQq5EBXTw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9758,8 +9842,8 @@
       "identity": "@inquirer/rawlist@5.3.1",
       "lockIntegrity": "sha512-QqdTqQddL3qPX/PPrjobpsO25NZ4dWXgTLenrR445L2ptLEYE6Z+PD5c5CNDJNx4ugRgELAIpSIJxZaO2jJ2Og==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9767,8 +9851,8 @@
       "identity": "@inquirer/search@3.2.2",
       "lockIntegrity": "sha512-p2bvRfENXCZdWF/U2BXvnSI9h+tuA8iNqtUKb9UWbmLYCRQxd8WkvwWvYn+3NgYaNwdUkHytJMGG4MMLucI1kA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9776,8 +9860,8 @@
       "identity": "@inquirer/search@4.2.1",
       "lockIntegrity": "sha512-xJj8QWKRSrfKoBIITLZK61dD3zwo0Rz11fgDImku30/Oe81zMdIdGgrLY2h6RkJ+KZ/GhNYIRMKnH/62qBTA5g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9785,8 +9869,8 @@
       "identity": "@inquirer/select@4.4.2",
       "lockIntegrity": "sha512-l4xMuJo55MAe+N7Qr4rX90vypFwCajSakx59qe/tMaC1aEHWLyw68wF4o0A4SLAY4E0nd+Vt+EyskeDIqu1M6w==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9794,8 +9878,8 @@
       "identity": "@inquirer/select@5.2.1",
       "lockIntegrity": "sha512-FlDndEUww8m7BfukO2nJa25vhD+H5jxxCv4oGioKqzyWz3nPHhhw4LKdYRSlXuAx7DsdWia7iyaBPKKS95Evfw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9803,8 +9887,8 @@
       "identity": "@inquirer/type@3.0.10",
       "lockIntegrity": "sha512-BvziSRxfz5Ov8ch0z/n3oijRSEcEsHnhggm4xFZe93DHcUCTlutlq9Ox4SVENAfcRD22UQq7T/atg9Wr3k09eA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9812,8 +9896,8 @@
       "identity": "@inquirer/type@4.0.7",
       "lockIntegrity": "sha512-t28inv14nMQ1PhKpsJPY+kEs/c00qzeCOS2gTNRyTjG5d6qsVA2fItxW4hkvGZ5lvanGLdtCzVIx5dwdRpN1+g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9875,8 +9959,8 @@
       "identity": "@npmcli/agent@4.0.2",
       "lockIntegrity": "sha512-EUEuWAxnL07Sp5/iC/1X6Xj+XThUvnbei9zfRWZdEXa7lss9RTHMhAHBeg+MZ5To9s/gGaSI+UwZTPdYMvKSeg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9884,8 +9968,8 @@
       "identity": "@npmcli/fs@5.0.0",
       "lockIntegrity": "sha512-7OsC1gNORBEawOa5+j2pXN9vsicaIOH5cPXxoR6fJOmH6/EXpJB2CajXOu1fPRFun2m1lktEFX11+P89hqO/og==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9893,8 +9977,8 @@
       "identity": "@npmcli/redact@4.0.0",
       "lockIntegrity": "sha512-gOBg5YHMfZy+TfHArfVogwgfBeQnKbbGo3pSUyK/gSI0AVu+pEiDVcKlQb0D8Mg1LNRZILZ6XG8I5dJ4KuAd9Q==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9981,8 +10065,8 @@
       "identity": "@sigstore/bundle@4.0.0",
       "lockIntegrity": "sha512-NwCl5Y0V6Di0NexvkTqdoVfmjTaQwoLM236r89KEojGmq/jMls8S+zb7yOwAPdXvbwfKDlP+lmXgAL4vKSQT+A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9990,8 +10074,8 @@
       "identity": "@sigstore/core@3.2.1",
       "lockIntegrity": "sha512-qRsxPnCrbC/puegGxKuynfnxgLiHqWStrSjxkoB4YKqq3Z3s4cyZyj42ZdWFAEblNP65C+rBH8EuREHIXoi83g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -9999,8 +10083,8 @@
       "identity": "@sigstore/protobuf-specs@0.5.1",
       "lockIntegrity": "sha512-/ScWUhhoFasJsSRGTVBwId1loQjjnjAfE4djL6ZhrXRpNCmPTnUKF5Jokd58ILseOMjzET3UrMOtJPS9sYeI0g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10008,8 +10092,8 @@
       "identity": "@sigstore/sign@4.1.1",
       "lockIntegrity": "sha512-Hf4xglukg0XXQ2RiD5vSoLjdPe8OBUPA8XeVjUObheuDcWdYWrnH/BNmxZCzkAy68MzmNCxXLeurJvs6hcP2OQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10017,8 +10101,8 @@
       "identity": "@sigstore/tuf@4.0.2",
       "lockIntegrity": "sha512-TCAzTy0xzdP79EnxSjq9KQ3eaR7+FmudLC6eRKknVKZbV7ZNlGLClAAQb/HMNJ5n2OBNk2GT1tEmU0xuPr+SLQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10026,8 +10110,8 @@
       "identity": "@sigstore/verify@3.1.1",
       "lockIntegrity": "sha512-qv7+G3J2cc6wwFj3yKvXOamzqhMwSk1ogPGmhpS8iXllcPrJaIIBA+4HbttlHVu1pqWTdmaCH/WE7UOC51kdoA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10096,8 +10180,8 @@
       "identity": "@tufjs/canonical-json@2.0.0",
       "lockIntegrity": "sha512-yVtV8zsdo8qFHe+/3kw81dSLyF7D576A5cCFCi4X7B39tWT7SekaEFUnvnWJHz+9qO7qJTah1JbrDjWKqFtdWA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10105,8 +10189,8 @@
       "identity": "@tufjs/models@4.1.0",
       "lockIntegrity": "sha512-Y8cK9aggNRsqJVaKUlEYs4s7CvQ1b1ta2DVPyAimb0I2qhzjNk+A+mxvll/klL0RlfuIUei8BF7YWiua4kQqww==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10132,8 +10216,8 @@
       "identity": "@types/node@25.3.1",
       "lockIntegrity": "sha512-hj9YIJimBCipHVfHKRMnvmHg+wfhKc0o4mTtXh9pKBjC8TLJzz0nzGmLi5UJsYAUgSvXFHgb0V2oY10DUFtImw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10197,8 +10281,8 @@
       "identity": "agent-base@7.1.4",
       "lockIntegrity": "sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10215,8 +10299,8 @@
       "identity": "ansi-regex@5.0.1",
       "lockIntegrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10224,8 +10308,8 @@
       "identity": "ansi-styles@4.3.0",
       "lockIntegrity": "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10260,8 +10344,8 @@
       "identity": "balanced-match@4.0.4",
       "lockIntegrity": "sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10269,8 +10353,8 @@
       "identity": "base64-js@1.5.1",
       "lockIntegrity": "sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10278,8 +10362,8 @@
       "identity": "bl@4.1.0",
       "lockIntegrity": "sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10287,8 +10371,8 @@
       "identity": "brace-expansion@5.0.7",
       "lockIntegrity": "sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10305,6 +10389,8 @@
       "identity": "buffer-from@1.1.2",
       "lockIntegrity": "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10314,8 +10400,8 @@
       "identity": "buffer@5.7.1",
       "lockIntegrity": "sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10323,8 +10409,8 @@
       "identity": "cacache@20.0.4",
       "lockIntegrity": "sha512-M3Lab8NPYlZU2exsL3bMVvMrMqgwCnMWfdZbK28bn3pK6APT/Te/I8hjRPNu1uwORY9a1eEQoifXbKPQMfMTOA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10332,8 +10418,8 @@
       "identity": "chalk@4.1.2",
       "lockIntegrity": "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10341,8 +10427,8 @@
       "identity": "chardet@2.2.0",
       "lockIntegrity": "sha512-rddelWYNPRrXq6PtNEN2S3f6t9ILzvqaN5pVgi4kqt9jHQaXIial9PznB5iSPVlQSLNaaH22ItWz3EJtQ10+OA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10350,8 +10436,8 @@
       "identity": "cli-cursor@3.1.0",
       "lockIntegrity": "sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10359,8 +10445,8 @@
       "identity": "cli-spinners@2.9.2",
       "lockIntegrity": "sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10368,8 +10454,8 @@
       "identity": "cli-width@4.1.0",
       "lockIntegrity": "sha512-ouuZd4/dm2Sw5Gmqy6bGyNNNe1qt9RpmxveLSO7KcgsTnU7RXfsw+/bukWGo1abgBiMAic068rclZsO4IWmmxQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10377,8 +10463,8 @@
       "identity": "clone@1.0.4",
       "lockIntegrity": "sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10404,8 +10490,8 @@
       "identity": "color-convert@2.0.1",
       "lockIntegrity": "sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10413,8 +10499,8 @@
       "identity": "color-name@1.1.4",
       "lockIntegrity": "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10431,8 +10517,8 @@
       "identity": "commander@14.0.3",
       "lockIntegrity": "sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10458,8 +10544,8 @@
       "identity": "debug@4.4.3",
       "lockIntegrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10478,8 +10564,8 @@
       "identity": "defaults@1.0.4",
       "lockIntegrity": "sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10505,6 +10591,8 @@
       "identity": "dotenv@17.4.2",
       "lockIntegrity": "sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10514,6 +10602,8 @@
       "identity": "drizzle-kit@0.31.10",
       "lockIntegrity": "sha512-7OZcmQUrdGI+DUNNsKBn1aW8qSoKuTH7d0mYgSP8bAzdFzKoovxEFnoGQp2dVs82EOJeYycqRtciopszwUf8bw==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10541,8 +10631,8 @@
       "identity": "emoji-regex@8.0.0",
       "lockIntegrity": "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10559,6 +10649,8 @@
       "identity": "esbuild@0.18.20",
       "lockIntegrity": "sha512-ceqxoedUrcayh7Y7ZX6NdbbDzGROiyVBgC4PriJThBKSVPWnnFHZAkfI1lJT8QFkOwH4qOS2SJkS4wvpGl8BpA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10568,6 +10660,8 @@
       "identity": "esbuild@0.25.12",
       "lockIntegrity": "sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10586,6 +10680,8 @@
       "identity": "esbuild@0.28.1",
       "lockIntegrity": "sha512-HrJrvZv5ayxBzPfwphOoNzkzOIIlifzk0KJrGK2c8R4+LKpMtpYLQeUdjnwjWv/LZlkH2laZk+4w78pi99D4Vw==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10649,8 +10745,8 @@
       "identity": "fast-string-truncated-width@3.0.3",
       "lockIntegrity": "sha512-0jjjIEL6+0jag3l2XWWizO64/aZVtpiGE3t0Zgqxv0DPuxiMjvB3M24fCyhZUO4KomJQPj3LTSUnDP3GpdwC0g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10658,8 +10754,8 @@
       "identity": "fast-string-width@3.0.2",
       "lockIntegrity": "sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10676,8 +10772,8 @@
       "identity": "fast-wrap-ansi@0.2.2",
       "lockIntegrity": "sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10694,8 +10790,8 @@
       "identity": "fs-minipass@3.0.3",
       "lockIntegrity": "sha512-XUBA9XClHbnJWSfBzjkm6RvPsyg3sryZt06BEQoXcF7EK/xpGaQYJgQKDJSUH5SGZ76Y7pFx1QBnXz09rU5Fbw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10703,6 +10799,8 @@
       "identity": "get-tsconfig@4.14.0",
       "lockIntegrity": "sha512-yTb+8DXzDREzgvYmh6s9vHsSVCHeC0G3PI5bEXNBHtmshPnO+S5O7qgLEOn0I5QvMy6kpZN8K1NKGyilLb93wA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10712,8 +10810,8 @@
       "identity": "glob@13.0.6",
       "lockIntegrity": "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10721,8 +10819,8 @@
       "identity": "has-flag@4.0.0",
       "lockIntegrity": "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10747,8 +10845,8 @@
       "identity": "http-cache-semantics@4.2.0",
       "lockIntegrity": "sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10756,8 +10854,8 @@
       "identity": "http-proxy-agent@7.0.2",
       "lockIntegrity": "sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10765,8 +10863,8 @@
       "identity": "https-proxy-agent@7.0.6",
       "lockIntegrity": "sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10774,8 +10872,8 @@
       "identity": "iconv-lite@0.7.3",
       "lockIntegrity": "sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10783,8 +10881,8 @@
       "identity": "ieee754@1.2.1",
       "lockIntegrity": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10792,8 +10890,8 @@
       "identity": "inherits@2.0.4",
       "lockIntegrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10801,8 +10899,8 @@
       "identity": "inquirer@12.11.1",
       "lockIntegrity": "sha512-9VF7mrY+3OmsAfjH3yKz/pLbJ5z22E23hENKw3/LNSaA/sAt3v49bDRY+Ygct1xwuKT+U+cBfTzjCPySna69Qw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10810,8 +10908,8 @@
       "identity": "inquirer@13.3.0",
       "lockIntegrity": "sha512-APTrZe9IhrsshL0u2PgmEMLP3CXDBjZ99xh5dR2+sryOt5R+JGL0KNuaTTT2lW54B9eNQDMutPR05UYTL7Xb1Q==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10819,8 +10917,8 @@
       "identity": "ip-address@10.2.0",
       "lockIntegrity": "sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -10830,8 +10928,8 @@
       "identity": "is-fullwidth-code-point@3.0.0",
       "lockIntegrity": "sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10839,8 +10937,8 @@
       "identity": "is-interactive@1.0.0",
       "lockIntegrity": "sha512-2HvIEKRoqS62guEC+qBjpvRubdX910WCMuJTZ+I9yvqKU2/12eSL549HMwtabb4oupdj2sMP50k+XJfB/8JE6w==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10857,8 +10955,8 @@
       "identity": "is-unicode-supported@0.1.0",
       "lockIntegrity": "sha512-knxG2q4UC3u8stRGyAVJCOdxFmv5DZiRcdlIaAQXAbSfJya+OhopNotLQrstBhququ4ZpuKbDc/8S6mgXgPFPw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10911,8 +11009,8 @@
       "identity": "log-symbols@4.1.0",
       "lockIntegrity": "sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10920,8 +11018,8 @@
       "identity": "lru-cache@11.5.2",
       "lockIntegrity": "sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10938,8 +11036,8 @@
       "identity": "make-fetch-happen@15.0.6",
       "lockIntegrity": "sha512-Je0fLJ0F5atA7F+eIlLzk+Wkcl57JDf4kf+EW8xiP5E31xOQxkIxTbgf1Oi1Lw9tRI9UEMRdI5Vz2xTzoNU1Jw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10965,8 +11063,8 @@
       "identity": "mimic-fn@2.1.0",
       "lockIntegrity": "sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10974,8 +11072,8 @@
       "identity": "minimatch@10.2.5",
       "lockIntegrity": "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -10992,8 +11090,8 @@
       "identity": "minipass-collect@2.0.1",
       "lockIntegrity": "sha512-D7V8PO9oaz7PWGLbCACuI1qEOsq7UKfLotx/C0Aet43fCUB/wfQ7DYeq2oR/svFJGYDHPr38SHATeaj/ZoKHKw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11001,8 +11099,8 @@
       "identity": "minipass-fetch@5.0.2",
       "lockIntegrity": "sha512-2d0q2a8eCi2IRg/IGubCNRJoYbA1+YPXAzQVRFmB45gdGZafyivnZ5YSEfo3JikbjGxOdntGFvBQGqaSMXlAFQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11010,8 +11108,8 @@
       "identity": "minipass-flush@1.0.7",
       "lockIntegrity": "sha512-TbqTz9cUwWyHS2Dy89P3ocAGUGxKjjLuR9z8w4WUTGAVgEj17/4nhgo2Du56i0Fm3Pm30g4iA8Lcqctc76jCzA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11019,8 +11117,8 @@
       "identity": "minipass-pipeline@1.2.4",
       "lockIntegrity": "sha512-xuIq7cIOt09RPRJ19gdi4b+RiNvDFYe5JH+ggNvBqGqpQXcru3PcRmOZuHBKWK1Txf9+cQ+HMVN4d6z46LZP7A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11028,8 +11126,8 @@
       "identity": "minipass-sized@2.0.0",
       "lockIntegrity": "sha512-zSsHhto5BcUVM2m1LurnXY6M//cGhVaegT71OfOXoprxT6o780GZd792ea6FfrQkuU4usHZIUczAQMRUE2plzA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11037,8 +11135,8 @@
       "identity": "minipass@3.3.6",
       "lockIntegrity": "sha512-DxiNidxSEK+tHG6zOIklvNOwm3hvCrbUrdtzY74U6HKTJxvIDfOUL5W5P2Ghd3DTkhhKPYGqeNUIh5qcM4YBfw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11046,8 +11144,8 @@
       "identity": "minipass@7.1.3",
       "lockIntegrity": "sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11055,8 +11153,8 @@
       "identity": "minizlib@3.1.0",
       "lockIntegrity": "sha512-KZxYo1BUkWD2TVFLr0MQoM8vUUigWD3LlD83a/75BqC+4qE0Hb1Vo5v1FgcfaNXvfXzr+5EhQ6ing/CaBijTlw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11118,8 +11216,8 @@
       "identity": "ms@2.1.3",
       "lockIntegrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11129,8 +11227,8 @@
       "identity": "mute-stream@2.0.0",
       "lockIntegrity": "sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11138,14 +11236,14 @@
       "identity": "mute-stream@3.0.0",
       "lockIntegrity": "sha512-dkEJPVvun4FryqBmZ5KhDo0K9iDXAwn08tMLDinNdRBNPcYEDiWYysLcc6k3mjTMlbP9KyylvRpd4wFtwrT9rw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
       "classification": "third-party",
-      "identity": "nanoid@3.3.15",
-      "lockIntegrity": "sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==",
+      "identity": "nanoid@3.3.16",
+      "lockIntegrity": "sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==",
       "surfaces": [
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
@@ -11156,8 +11254,8 @@
       "identity": "negotiator@1.0.0",
       "lockIntegrity": "sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11192,8 +11290,8 @@
       "identity": "onetime@5.1.2",
       "lockIntegrity": "sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11201,8 +11299,8 @@
       "identity": "ora@5.4.1",
       "lockIntegrity": "sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11210,8 +11308,8 @@
       "identity": "p-map@7.0.5",
       "lockIntegrity": "sha512-e8vJF4XdVkzqqSHguEMz41mQO1wKwxKm5ENrUJQUu9kLDCtn83cxbyHZcszr4QC5zEA7WffRRC4gsTecC7J9oA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11219,8 +11317,8 @@
       "identity": "path-scurry@2.0.2",
       "lockIntegrity": "sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11228,6 +11326,8 @@
       "identity": "pg-cloudflare@1.4.0",
       "lockIntegrity": "sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11237,6 +11337,8 @@
       "identity": "pg-connection-string@2.14.0",
       "lockIntegrity": "sha512-XwWDGcLRGCXAR8F/AM5bG7Q+A3Wm2s6QeEjlOKZLlH3UYcguiqCWKyWXVag5TLTIjR7oOJUY8kcADaZgWPyLeg==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11246,6 +11348,8 @@
       "identity": "pg-int8@1.0.1",
       "lockIntegrity": "sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11255,6 +11359,8 @@
       "identity": "pg-pool@3.14.0",
       "lockIntegrity": "sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11264,6 +11370,8 @@
       "identity": "pg-protocol@1.15.0",
       "lockIntegrity": "sha512-cq9sECI5s0+uPUXjbz8ioyPJni6RzsRib0US67i5IoTZKw8fNeYlVE7u8F4dG7vEJJtc5wdD1K189lCCUwqWTQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11273,6 +11381,8 @@
       "identity": "pg-types@2.2.0",
       "lockIntegrity": "sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11282,6 +11392,8 @@
       "identity": "pg@8.20.0",
       "lockIntegrity": "sha512-ldhMxz2r8fl/6QkXnBD3CR9/xg694oT6DZQ2s6c/RI28OjtSOpxnPrUCGOBJ46RCUxcWdx3p6kw/xnDHjKvaRA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11291,6 +11403,8 @@
       "identity": "pgpass@1.0.5",
       "lockIntegrity": "sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11360,8 +11474,8 @@
     },
     {
       "classification": "third-party",
-      "identity": "postcss@8.5.17",
-      "lockIntegrity": "sha512-J7EF+8X+CzRPaJPOv9Ck2wNWJvGnnl3PcNPAdGg6GTLjyVpyQ0yATMSXRFRV01BviT/9Gwuc3rjEyJbDJG9a4w==",
+      "identity": "postcss@8.5.19",
+      "lockIntegrity": "sha512-Mz8SaolMd8nB+G13WkORcxQKHZ/NE4xXevtkJHVuG+guo9/wYKlIMTKAqGdEmYOXR2ijPjTYNHssizdaVSUNdQ==",
       "surfaces": [
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
@@ -11372,6 +11486,8 @@
       "identity": "postgres-array@2.0.0",
       "lockIntegrity": "sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11381,6 +11497,8 @@
       "identity": "postgres-bytea@1.0.1",
       "lockIntegrity": "sha512-5+5HqXnsZPE65IJZSMkZtURARZelel2oXUEO8rH83VS/hxH5vv1uHquPg5wZs8yMAfdv971IU+kcPUczi7NVBQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11390,6 +11508,8 @@
       "identity": "postgres-date@1.0.7",
       "lockIntegrity": "sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11399,6 +11519,8 @@
       "identity": "postgres-interval@1.2.0",
       "lockIntegrity": "sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11408,8 +11530,8 @@
       "identity": "proc-log@6.1.0",
       "lockIntegrity": "sha512-iG+GYldRf2BQ0UDUAd6JQ/RwzaQy6mXmsk/IzlYyal4A4SNFw54MeH4/tLkF4I5WoWG9SQwuqWzS99jaFQHBuQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11478,8 +11600,8 @@
       "identity": "readable-stream@3.6.2",
       "lockIntegrity": "sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11523,6 +11645,8 @@
       "identity": "resolve-pkg-maps@1.0.0",
       "lockIntegrity": "sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11532,8 +11656,8 @@
       "identity": "restore-cursor@3.1.0",
       "lockIntegrity": "sha512-l+sSefzHpj5qimhFSE5a8nufZYAM3sBSVMAPtYkmC+4EH2anSGaEMXSD0izRQbu9nfyQ9y5JrVmp7E8oZrUjvA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11550,8 +11674,8 @@
       "identity": "run-async@4.0.6",
       "lockIntegrity": "sha512-IoDlSLTs3Yq593mb3ZoKWKXMNu3UpObxhgA/Xuid5p4bbfi2jdY1Hj0m1K+0/tEuQTxIGMhQDqGjKb7RuxGpAQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11559,8 +11683,8 @@
       "identity": "rxjs@7.8.2",
       "lockIntegrity": "sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11568,8 +11692,8 @@
       "identity": "safe-buffer@5.2.1",
       "lockIntegrity": "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11586,8 +11710,8 @@
       "identity": "safer-buffer@2.1.2",
       "lockIntegrity": "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11612,8 +11736,8 @@
       "identity": "semver@7.8.5",
       "lockIntegrity": "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11639,8 +11763,8 @@
       "identity": "signal-exit@3.0.7",
       "lockIntegrity": "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11648,8 +11772,8 @@
       "identity": "signal-exit@4.1.0",
       "lockIntegrity": "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11657,8 +11781,8 @@
       "identity": "sigstore@4.1.1",
       "lockIntegrity": "sha512-endqECJkfhozrXMK5ngu/UAA0xVcVEFdnHJCElGaExypjW+HK5i6zu3NteLoaX/iFbRUbC3+DjttQs0GARr+5w==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11675,8 +11799,8 @@
       "identity": "smart-buffer@4.2.0",
       "lockIntegrity": "sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11686,8 +11810,8 @@
       "identity": "socks-proxy-agent@8.0.5",
       "lockIntegrity": "sha512-HehCEsotFqbPW9sJ8WVYB6UbmIMv7kUUORIF2Nncq4VQvBfNBLibW9YZR5dlYCSUhwcD628pRllm7n+E+YTzJw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11695,8 +11819,8 @@
       "identity": "socks@2.8.9",
       "lockIntegrity": "sha512-LJhUYUvItdQ0LkJTmPeaEObWXAqFyfmP85x0tch/ez9cahmhlBBLbIqDFnvBnUJGagb0JbIQrkBs1wJ+yRYpEw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11724,6 +11848,8 @@
       "identity": "source-map-support@0.5.21",
       "lockIntegrity": "sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11733,6 +11859,8 @@
       "identity": "source-map@0.6.1",
       "lockIntegrity": "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11751,6 +11879,8 @@
       "identity": "split2@4.2.0",
       "lockIntegrity": "sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11760,8 +11890,8 @@
       "identity": "ssri@13.0.1",
       "lockIntegrity": "sha512-QUiRf1+u9wPTL/76GTYlKttDEBWV1ga9ZXW8BG6kfdeyyM8LGPix9gROyg9V2+P0xNyF3X2Go526xKFdMZrHSQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11769,8 +11899,8 @@
       "identity": "string-width@4.2.3",
       "lockIntegrity": "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11778,8 +11908,8 @@
       "identity": "string_decoder@1.3.0",
       "lockIntegrity": "sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11787,8 +11917,8 @@
       "identity": "strip-ansi@6.0.1",
       "lockIntegrity": "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11805,8 +11935,8 @@
       "identity": "supports-color@7.2.0",
       "lockIntegrity": "sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11859,17 +11989,19 @@
       "identity": "tslib@2.8.1",
       "lockIntegrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
     },
     {
       "classification": "third-party",
-      "identity": "tsx@4.23.0",
-      "lockIntegrity": "sha512-eUdUIaCr963q2h5u3+QwvYp0+eqPvn+egeqZUm0hwERCqqx1E3kK5ehbGCvqSE5MQAULr67ww0cA3jKc3YkM1w==",
+      "identity": "tsx@4.23.1",
+      "lockIntegrity": "sha512-GQHnkIfxyx1wYCOS/wonik5MVRZU9hi1TEZmzGZSCJB1y9YgoZ8H6itNE/u4suE+yLmOzuE4E5S4TZ/ZX2wcWQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11879,8 +12011,8 @@
       "identity": "tuf-js@4.1.0",
       "lockIntegrity": "sha512-50QV99kCKH5P/Vs4E2Gzp7BopNV+KzTXqWeaxrfu5IQJBOULRsTIS9seSsOVT8ZnGXzCyx55nYWAi4qJzpZKEQ==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11906,8 +12038,8 @@
       "identity": "undici-types@7.18.2",
       "lockIntegrity": "sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64",
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -11917,8 +12049,8 @@
       "identity": "util-deprecate@1.0.2",
       "lockIntegrity": "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11953,8 +12085,8 @@
       "identity": "wcwidth@1.0.1",
       "lockIntegrity": "sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11980,8 +12112,8 @@
       "identity": "wrap-ansi@6.2.0",
       "lockIntegrity": "sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -11998,6 +12130,8 @@
       "identity": "xtend@4.0.2",
       "lockIntegrity": "sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==",
       "surfaces": [
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64",
         "server-prod-deploy:linux/amd64",
         "server-prod-deploy:linux/arm64"
       ]
@@ -12007,8 +12141,8 @@
       "identity": "yallist@4.0.0",
       "lockIntegrity": "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -12016,8 +12150,8 @@
       "identity": "yoctocolors-cjs@2.1.3",
       "lockIntegrity": "sha512-U/PBtDf35ff0D8X8D0jfdzHYEPFxAI7jJlxZXwCSez5M3190m+QobIfh+sWDWSHMCWWJN2AWamkegn6vr6YBTw==",
       "surfaces": [
-        "image-cli-prod-deploy:linux/amd64",
-        "image-cli-prod-deploy:linux/arm64"
+        "cli-artifact-prod-deploy:linux/amd64",
+        "cli-artifact-prod-deploy:linux/arm64"
       ]
     },
     {
@@ -12055,17 +12189,24 @@
         "runtime-first-party-package:@aopslab/xf-cli-ui@0.1.13:@aopslab/xf-cli-ui@0.1.13(@types/node@25.3.1)",
         "runtime-source:@aops/aops-cli@0.1.0:apps/aops-cli:apps/aops-cli",
         "runtime-source:@aops/host-registration@0.0.1:apps/aops/packages/aops-host-registration:apps/aops/packages/aops-host-registration",
+        "runtime-source:@aops/pg-bootstrap@0.0.1:apps/aops/packages/aops-pg-bootstrap:apps/aops/packages/aops-pg-bootstrap",
         "runtime-source:@aops/runtime-config@0.0.1:apps/aops/packages/aops-runtime-config:apps/aops/packages/aops-runtime-config",
         "runtime-source:@aopslab/api-client@0.0.15:apps/aops/packages/aops-api-client:apps/aops/packages/aops-api-client",
         "runtime-source:@aopslab/domain-product-client-chatv3@0.1.0:domains/chatv3/chatv3-product-client:domains/chatv3/chatv3-product-client",
         "runtime-source:@aopslab/light-client-core@0.1.0:domains/chatv3/light-client-core:domains/chatv3/light-client-core"
       ],
       "importerKey": "apps/aops-cli",
-      "packageMapProjectionSha256": "sha256:02d9c41239448843de19dbe986b0d72b4cbad6c6c272ae38e71bfe9a6b48334f",
+      "packageMapProjectionSha256": "sha256:a0ad7243cc193aed708817fc8c309608797a6ff8684649b166476fd1abd5bf82",
       "platform": "linux/amd64",
-      "runtimeInventorySha256": "sha256:1b6c17573545c954a69be04ba8e51a2b1de2029160e8b4ac914e8e85e414e3ca",
-      "surface": "image-cli-prod-deploy",
+      "runtimeInventorySha256": "sha256:c67a5610bd82abb741e6a0ac20685d23a78dd00e92951620c6da42541f2383fa",
+      "surface": "cli-artifact-prod-deploy",
       "thirdPartyLocators": [
+        "@drizzle-team/brocli@0.10.2",
+        "@esbuild-kit/core-utils@3.3.2",
+        "@esbuild-kit/esm-loader@2.6.5",
+        "@esbuild/linux-x64@0.18.20",
+        "@esbuild/linux-x64@0.25.12",
+        "@esbuild/linux-x64@0.28.1",
         "@gar/promise-retry@1.0.3",
         "@inquirer/ansi@1.0.2",
         "@inquirer/ansi@2.0.7",
@@ -12118,6 +12259,7 @@
         "base64-js@1.5.1",
         "bl@4.1.0",
         "brace-expansion@5.0.7",
+        "buffer-from@1.1.2",
         "buffer@5.7.1",
         "cacache@20.0.4",
         "chalk@4.1.2",
@@ -12131,11 +12273,17 @@
         "commander@14.0.3",
         "debug@4.4.3",
         "defaults@1.0.4",
+        "dotenv@17.4.2",
+        "drizzle-kit@0.31.10",
         "emoji-regex@8.0.0",
+        "esbuild@0.18.20",
+        "esbuild@0.25.12",
+        "esbuild@0.28.1",
         "fast-string-truncated-width@3.0.3",
         "fast-string-width@3.0.2",
         "fast-wrap-ansi@0.2.2",
         "fs-minipass@3.0.3",
+        "get-tsconfig@4.14.0",
         "glob@13.0.6",
         "has-flag@4.0.0",
         "http-cache-semantics@4.2.0",
@@ -12171,8 +12319,21 @@
         "ora@5.4.1",
         "p-map@7.0.5",
         "path-scurry@2.0.2",
+        "pg-cloudflare@1.4.0",
+        "pg-connection-string@2.14.0",
+        "pg-int8@1.0.1",
+        "pg-pool@3.14.0(pg@8.20.0)",
+        "pg-protocol@1.15.0",
+        "pg-types@2.2.0",
+        "pg@8.20.0",
+        "pgpass@1.0.5",
+        "postgres-array@2.0.0",
+        "postgres-bytea@1.0.1",
+        "postgres-date@1.0.7",
+        "postgres-interval@1.2.0",
         "proc-log@6.1.0",
         "readable-stream@3.6.2",
+        "resolve-pkg-maps@1.0.0",
         "restore-cursor@3.1.0",
         "run-async@4.0.6",
         "rxjs@7.8.2",
@@ -12185,17 +12346,22 @@
         "smart-buffer@4.2.0",
         "socks-proxy-agent@8.0.5",
         "socks@2.8.9",
+        "source-map-support@0.5.21",
+        "source-map@0.6.1",
+        "split2@4.2.0",
         "ssri@13.0.1",
         "string-width@4.2.3",
         "string_decoder@1.3.0",
         "strip-ansi@6.0.1",
         "supports-color@7.2.0",
         "tslib@2.8.1",
+        "tsx@4.23.1",
         "tuf-js@4.1.0",
         "undici-types@7.18.2",
         "util-deprecate@1.0.2",
         "wcwidth@1.0.1",
         "wrap-ansi@6.2.0",
+        "xtend@4.0.2",
         "yallist@4.0.0",
         "yoctocolors-cjs@2.1.3"
       ]
@@ -12207,17 +12373,24 @@
         "runtime-first-party-package:@aopslab/xf-cli-ui@0.1.13:@aopslab/xf-cli-ui@0.1.13(@types/node@25.3.1)",
         "runtime-source:@aops/aops-cli@0.1.0:apps/aops-cli:apps/aops-cli",
         "runtime-source:@aops/host-registration@0.0.1:apps/aops/packages/aops-host-registration:apps/aops/packages/aops-host-registration",
+        "runtime-source:@aops/pg-bootstrap@0.0.1:apps/aops/packages/aops-pg-bootstrap:apps/aops/packages/aops-pg-bootstrap",
         "runtime-source:@aops/runtime-config@0.0.1:apps/aops/packages/aops-runtime-config:apps/aops/packages/aops-runtime-config",
         "runtime-source:@aopslab/api-client@0.0.15:apps/aops/packages/aops-api-client:apps/aops/packages/aops-api-client",
         "runtime-source:@aopslab/domain-product-client-chatv3@0.1.0:domains/chatv3/chatv3-product-client:domains/chatv3/chatv3-product-client",
         "runtime-source:@aopslab/light-client-core@0.1.0:domains/chatv3/light-client-core:domains/chatv3/light-client-core"
       ],
       "importerKey": "apps/aops-cli",
-      "packageMapProjectionSha256": "sha256:a27cb249fee236884f41d1e4f5e5c77ce1e14e4f346a36c50917f768a3c59c30",
+      "packageMapProjectionSha256": "sha256:f7fc58a00b55e8056298294e0fc80f2628120dbb06f07780f99e82041de0c458",
       "platform": "linux/arm64",
-      "runtimeInventorySha256": "sha256:52560411bf46b8e9ec9832f20b59330d86b7ce4cf4e33661082e4bcda2ac1a43",
-      "surface": "image-cli-prod-deploy",
+      "runtimeInventorySha256": "sha256:bde4b6fa13d0cbae7933f4db6393014930dcd973b11b86a8b98d74946dc534a2",
+      "surface": "cli-artifact-prod-deploy",
       "thirdPartyLocators": [
+        "@drizzle-team/brocli@0.10.2",
+        "@esbuild-kit/core-utils@3.3.2",
+        "@esbuild-kit/esm-loader@2.6.5",
+        "@esbuild/linux-arm64@0.18.20",
+        "@esbuild/linux-arm64@0.25.12",
+        "@esbuild/linux-arm64@0.28.1",
         "@gar/promise-retry@1.0.3",
         "@inquirer/ansi@1.0.2",
         "@inquirer/ansi@2.0.7",
@@ -12270,6 +12443,7 @@
         "base64-js@1.5.1",
         "bl@4.1.0",
         "brace-expansion@5.0.7",
+        "buffer-from@1.1.2",
         "buffer@5.7.1",
         "cacache@20.0.4",
         "chalk@4.1.2",
@@ -12283,11 +12457,17 @@
         "commander@14.0.3",
         "debug@4.4.3",
         "defaults@1.0.4",
+        "dotenv@17.4.2",
+        "drizzle-kit@0.31.10",
         "emoji-regex@8.0.0",
+        "esbuild@0.18.20",
+        "esbuild@0.25.12",
+        "esbuild@0.28.1",
         "fast-string-truncated-width@3.0.3",
         "fast-string-width@3.0.2",
         "fast-wrap-ansi@0.2.2",
         "fs-minipass@3.0.3",
+        "get-tsconfig@4.14.0",
         "glob@13.0.6",
         "has-flag@4.0.0",
         "http-cache-semantics@4.2.0",
@@ -12323,8 +12503,21 @@
         "ora@5.4.1",
         "p-map@7.0.5",
         "path-scurry@2.0.2",
+        "pg-cloudflare@1.4.0",
+        "pg-connection-string@2.14.0",
+        "pg-int8@1.0.1",
+        "pg-pool@3.14.0(pg@8.20.0)",
+        "pg-protocol@1.15.0",
+        "pg-types@2.2.0",
+        "pg@8.20.0",
+        "pgpass@1.0.5",
+        "postgres-array@2.0.0",
+        "postgres-bytea@1.0.1",
+        "postgres-date@1.0.7",
+        "postgres-interval@1.2.0",
         "proc-log@6.1.0",
         "readable-stream@3.6.2",
+        "resolve-pkg-maps@1.0.0",
         "restore-cursor@3.1.0",
         "run-async@4.0.6",
         "rxjs@7.8.2",
@@ -12337,24 +12530,29 @@
         "smart-buffer@4.2.0",
         "socks-proxy-agent@8.0.5",
         "socks@2.8.9",
+        "source-map-support@0.5.21",
+        "source-map@0.6.1",
+        "split2@4.2.0",
         "ssri@13.0.1",
         "string-width@4.2.3",
         "string_decoder@1.3.0",
         "strip-ansi@6.0.1",
         "supports-color@7.2.0",
         "tslib@2.8.1",
+        "tsx@4.23.1",
         "tuf-js@4.1.0",
         "undici-types@7.18.2",
         "util-deprecate@1.0.2",
         "wcwidth@1.0.1",
         "wrap-ansi@6.2.0",
+        "xtend@4.0.2",
         "yallist@4.0.0",
         "yoctocolors-cjs@2.1.3"
       ]
     },
     {
       "firstPartyRefs": [
-        "runtime-first-party-package:@aopslab/host-adapter-sveltekit@0.1.1:@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))",
+        "runtime-first-party-package:@aopslab/host-adapter-sveltekit@0.1.1:@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))",
         "runtime-first-party-package:@aopslab/host-core@0.1.1:@aopslab/host-core@0.1.1",
         "runtime-first-party-package:@aopslab/host-registration@0.1.1:@aopslab/host-registration@0.1.1",
         "runtime-first-party-package:@aopslab/manifest@0.1.3:@aopslab/manifest@0.1.3",
@@ -12397,9 +12595,9 @@
         "runtime-source:@aopslab/domain-runtime-config-projectman@0.1.0:domains/projectman/projectman-runtime-config:domains/projectman/projectman-runtime-config"
       ],
       "importerKey": "apps/aops-server",
-      "packageMapProjectionSha256": "sha256:a8be4a0cf9baffd4c50d28cb449279a79600fdb34536d30d29411d749e002415",
+      "packageMapProjectionSha256": "sha256:423c56ec92c16a7f79ad7bdc22bdc4cd29799cb4e778a7ca66d1410b83716f19",
       "platform": "linux/amd64",
-      "runtimeInventorySha256": "sha256:0c30f57b3a3a57d0f5ba9c320b21f7aadc9bd1f50703e17ff6ecb9d1277f4389",
+      "runtimeInventorySha256": "sha256:dc987ca4bb1036e3e10b41f3b7aa1e3a0cec8e8468d85c8d326bf9e0854cf950",
       "surface": "server-prod-deploy",
       "thirdPartyLocators": [
         "@drizzle-team/brocli@0.10.2",
@@ -12425,9 +12623,9 @@
         "@rollup/rollup-linux-x64-gnu@4.62.2",
         "@standard-schema/spec@1.1.0",
         "@sveltejs/acorn-typescript@1.0.11(acorn@8.17.0)",
-        "@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
-        "@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
-        "@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
+        "@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
+        "@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
+        "@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
         "@types/cookie@0.6.0",
         "@types/estree@1.0.9",
         "@types/node@25.3.1",
@@ -12489,7 +12687,7 @@
         "mquery@5.0.0",
         "mrmime@2.0.1",
         "ms@2.1.3",
-        "nanoid@3.3.15",
+        "nanoid@3.3.16",
         "obug@2.1.3",
         "on-exit-leak-free@2.1.2",
         "once@1.4.0",
@@ -12508,7 +12706,7 @@
         "pino-pretty@13.1.3",
         "pino-std-serializers@7.1.0",
         "pino@10.3.1",
-        "postcss@8.5.17",
+        "postcss@8.5.19",
         "postgres-array@2.0.0",
         "postgres-bytea@1.0.1",
         "postgres-date@1.0.7",
@@ -12544,13 +12742,13 @@
         "totalist@3.0.1",
         "tr46@5.1.1",
         "tslib@2.8.1",
-        "tsx@4.23.0",
+        "tsx@4.23.1",
         "typescript@5.9.3",
         "uncrypto@0.1.3",
         "undici-types@7.18.2",
         "uuid@11.1.1",
-        "vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)",
-        "vitefu@1.1.3(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
+        "vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)",
+        "vitefu@1.1.3(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
         "webidl-conversions@7.0.0",
         "whatwg-url@14.2.0",
         "wrappy@1.0.2",
@@ -12561,7 +12759,7 @@
     },
     {
       "firstPartyRefs": [
-        "runtime-first-party-package:@aopslab/host-adapter-sveltekit@0.1.1:@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))",
+        "runtime-first-party-package:@aopslab/host-adapter-sveltekit@0.1.1:@aopslab/host-adapter-sveltekit@0.1.1(@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))",
         "runtime-first-party-package:@aopslab/host-core@0.1.1:@aopslab/host-core@0.1.1",
         "runtime-first-party-package:@aopslab/host-registration@0.1.1:@aopslab/host-registration@0.1.1",
         "runtime-first-party-package:@aopslab/manifest@0.1.3:@aopslab/manifest@0.1.3",
@@ -12604,9 +12802,9 @@
         "runtime-source:@aopslab/domain-runtime-config-projectman@0.1.0:domains/projectman/projectman-runtime-config:domains/projectman/projectman-runtime-config"
       ],
       "importerKey": "apps/aops-server",
-      "packageMapProjectionSha256": "sha256:e7a3e1b2e3fb027d177bde58ab8042528a0c0c172bc935fb280ddfdee442e30e",
+      "packageMapProjectionSha256": "sha256:5af6a947d64b75d0cd2b749e549ed365aff595ba2a027b02e550a264235f9154",
       "platform": "linux/arm64",
-      "runtimeInventorySha256": "sha256:d3c7849a352610f57d295b0d903a4e0d589eca5cede41cfca445da5679f02a56",
+      "runtimeInventorySha256": "sha256:ac98cbcf7f4cd8d9d78b938759165afbeab9f1c7d17fe3634fdcb92fa0cc8940",
       "surface": "server-prod-deploy",
       "thirdPartyLocators": [
         "@drizzle-team/brocli@0.10.2",
@@ -12632,9 +12830,9 @@
         "@rollup/rollup-linux-arm64-gnu@4.62.2",
         "@standard-schema/spec@1.1.0",
         "@sveltejs/acorn-typescript@1.0.11(acorn@8.17.0)",
-        "@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
-        "@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
-        "@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
+        "@sveltejs/kit@2.53.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
+        "@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)))(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
+        "@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.5)(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
         "@types/cookie@0.6.0",
         "@types/estree@1.0.9",
         "@types/node@25.3.1",
@@ -12696,7 +12894,7 @@
         "mquery@5.0.0",
         "mrmime@2.0.1",
         "ms@2.1.3",
-        "nanoid@3.3.15",
+        "nanoid@3.3.16",
         "obug@2.1.3",
         "on-exit-leak-free@2.1.2",
         "once@1.4.0",
@@ -12715,7 +12913,7 @@
         "pino-pretty@13.1.3",
         "pino-std-serializers@7.1.0",
         "pino@10.3.1",
-        "postcss@8.5.17",
+        "postcss@8.5.19",
         "postgres-array@2.0.0",
         "postgres-bytea@1.0.1",
         "postgres-date@1.0.7",
@@ -12751,13 +12949,13 @@
         "totalist@3.0.1",
         "tr46@5.1.1",
         "tslib@2.8.1",
-        "tsx@4.23.0",
+        "tsx@4.23.1",
         "typescript@5.9.3",
         "uncrypto@0.1.3",
         "undici-types@7.18.2",
         "uuid@11.1.1",
-        "vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0)",
-        "vitefu@1.1.3(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.0))",
+        "vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1)",
+        "vitefu@1.1.3(vite@7.3.1(@types/node@25.3.1)(tsx@4.23.1))",
         "webidl-conversions@7.0.0",
         "whatwg-url@14.2.0",
         "wrappy@1.0.2",

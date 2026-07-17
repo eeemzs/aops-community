@@ -21,4 +21,3 @@ export class SectionDrizzleRepo extends DraBase<IbmSection, IdbSectionDrizzle, t
   // }
   //<==//
 }
-

@@ -1,4 +1,5 @@
 import {
+  existsSync,
   lstatSync,
   mkdirSync,
   readdirSync,
@@ -67,12 +68,58 @@ import {
   resolveCommunityRepo,
 } from '../lib/community-repo-discovery.js'
 import { verifyCommunityReleaseBundle } from '../lib/community-release-verifier.js'
+import {
+  resolveCommunityOfflineRelease,
+  resolveCommunityPublishedRelease,
+} from '../lib/community-release-resolver.js'
 import { inspectCommunityDoctor } from './community-doctor.js'
+import {
+  buildCommunityInstanceContract,
+  type CommunityPostgresMode,
+  type CommunityPostgresTlsPolicy,
+  type CommunityServerRuntime,
+} from '../lib/community-instance-contract.js'
+import {
+  assertCommunityNativePathLayout,
+  attestCommunityNativeExternalSnapshot,
+  inspectCommunityNativeInstall,
+  inspectCommunityNativeRuntime,
+  planCommunityNativeInstalledMigration,
+  readCommunityNativeLogs,
+  rollbackCommunityNativeApplication,
+  resolveCommunityNativeLaunchMode,
+  resolveCommunityNativePaths,
+  setupCommunityNativeInstall,
+  startCommunityNativeInstall,
+  stopCommunityNativeInstall,
+  type CommunityNativeInspection,
+} from '../lib/community-native-lifecycle.js'
+import type { CommunityNativeMigrationReceiptV1 } from '../lib/community-native-migration.js'
+import { inspectCommunityNativeApplicationRecoveryStatus } from '../lib/community-native-application-recovery.js'
+import {
+  inspectCommunityNativeDatabaseRecoveryStatus,
+  restoreCommunityNativeDatabaseForUpdate,
+} from '../lib/community-native-database-recovery.js'
+import {
+  inspectCommunityNativePostgres,
+  removeCommunityNativePostgresContainerForReset,
+} from '../lib/community-native-postgres.js'
 
 export type CommunityServerOptions = {
   instance?: string
   dataRoot?: string
   repo?: string
+  releaseDir?: string
+  releaseDescriptor?: string
+  runtime?: CommunityServerRuntime
+  postgres?: CommunityPostgresMode
+  postgresConfig?: string
+  postgresTls?: CommunityPostgresTlsPolicy
+  sourceRoot?: string
+  foreground?: boolean
+  detach?: boolean
+  apply?: boolean
+  preview?: boolean
   port?: string | number
   certificateIdentity?: string
   certificateOidcIssuer?: string
@@ -95,17 +142,33 @@ export type CommunityServerOptions = {
   confirmDataRewind?: boolean
   confirmDataLoss?: boolean
   confirmInstance?: string
+  expectedPlanSha256?: string
+  provider?: string
+  snapshotRef?: string
+  snapshotDigest?: string
+  attestedBy?: string
+  restoreInstructionsRef?: string
+  confirmExternalRecoveryOwner?: boolean
+  confirmExternalRestoreComplete?: boolean
   json?: boolean
 }
 
 export type CommunityServerDependencies = Readonly<{
   verifyReleaseBundle?: typeof verifyCommunityReleaseBundle
+  resolvePublishedRelease?: typeof resolveCommunityPublishedRelease
+  resolveOfflineRelease?: typeof resolveCommunityOfflineRelease
   inspectDoctor?: typeof inspectCommunityDoctor
   createAdapter?: typeof createCommunityDockerAdapter
   processRuntime?: typeof communityProcessRuntime
   withOperationLock?: typeof withCommunityOperationLock
   inspectOperationLock?: typeof inspectCommunityOperationLock
   recoverStaleOperationLock?: typeof recoverStaleCommunityOperationLock
+  removeNativePostgresContainerForReset?: typeof removeCommunityNativePostgresContainerForReset
+  planNativeMigration?: typeof planCommunityNativeInstalledMigration
+  attestNativeExternalSnapshot?: typeof attestCommunityNativeExternalSnapshot
+  setupNativeInstall?: typeof setupCommunityNativeInstall
+  rollbackNativeApplication?: typeof rollbackCommunityNativeApplication
+  restoreNativeDatabase?: typeof restoreCommunityNativeDatabaseForUpdate
   ensureInstanceDirectory?: (instanceRoot: string) => void
   commandAbortRuntime?: CommunityCommandAbortRuntime
   cliVersion?: string
@@ -148,6 +211,26 @@ function assertInstanceDirectory(instanceRoot: string): string {
     throw new Error('community_instance_root_alias_refused')
   }
   return canonical
+}
+
+type CommunityInstanceDirectoryIdentity = Readonly<{
+  path: string
+  device: string
+  inode: string
+}>
+
+function captureInstanceDirectoryIdentity(instanceRoot: string): CommunityInstanceDirectoryIdentity {
+  const canonical = assertInstanceDirectory(instanceRoot)
+  const stat = lstatSync(canonical, { bigint: true })
+  return Object.freeze({ path: canonical, device: stat.dev.toString(), inode: stat.ino.toString() })
+}
+
+function assertInstanceDirectoryIdentity(identity: CommunityInstanceDirectoryIdentity): void {
+  const canonical = assertInstanceDirectory(identity.path)
+  const stat = lstatSync(canonical, { bigint: true })
+  if (stat.dev.toString() !== identity.device || stat.ino.toString() !== identity.inode) {
+    throw new Error('community_instance_root_identity_changed')
+  }
 }
 
 function ensureInstanceDirectory(instanceRoot: string): void {
@@ -250,17 +333,53 @@ function removeInstanceContentsExceptLock(instanceRoot: string): void {
   }
 }
 
+function removeNativeInstanceContentsPreservingPostgres(instanceRoot: string): void {
+  const canonicalRoot = assertInstanceDirectory(instanceRoot)
+  const runtimeRoot = path.join(canonicalRoot, 'runtime')
+  const postgresSecretName = 'native-postgres.env'
+  for (const entry of readdirSync(canonicalRoot, { withFileTypes: true })) {
+    if (entry.name === COMMUNITY_OPERATION_LOCK_DIRECTORY_NAME) continue
+    const target = path.join(canonicalRoot, entry.name)
+    if (entry.name !== 'runtime') {
+      const stat = lstatSync(target)
+      rmSync(target, { recursive: stat.isDirectory() && !stat.isSymbolicLink(), force: true })
+      continue
+    }
+    const runtimeStat = lstatSync(target)
+    if (!runtimeStat.isDirectory() || runtimeStat.isSymbolicLink() ||
+        !isSamePhysicalPath(realpathSync.native(target), runtimeRoot)) {
+      throw new Error('community_native_runtime_root_unsafe')
+    }
+    for (const runtimeEntry of readdirSync(runtimeRoot, { withFileTypes: true })) {
+      if (runtimeEntry.name === postgresSecretName) continue
+      const runtimeTarget = path.join(runtimeRoot, runtimeEntry.name)
+      const stat = lstatSync(runtimeTarget)
+      rmSync(runtimeTarget, { recursive: stat.isDirectory() && !stat.isSymbolicLink(), force: true })
+    }
+  }
+}
+
 function resolveDependencies(
   dependencies: CommunityServerDependencies = {},
 ): ResolvedCommunityServerDependencies {
   return {
     verifyReleaseBundle: dependencies.verifyReleaseBundle ?? verifyCommunityReleaseBundle,
+    resolvePublishedRelease: dependencies.resolvePublishedRelease ?? resolveCommunityPublishedRelease,
+    resolveOfflineRelease: dependencies.resolveOfflineRelease ?? resolveCommunityOfflineRelease,
     inspectDoctor: dependencies.inspectDoctor ?? inspectCommunityDoctor,
     createAdapter: dependencies.createAdapter ?? createCommunityDockerAdapter,
     processRuntime: dependencies.processRuntime ?? communityProcessRuntime,
     withOperationLock: dependencies.withOperationLock ?? withCommunityOperationLock,
     inspectOperationLock: dependencies.inspectOperationLock ?? inspectCommunityOperationLock,
     recoverStaleOperationLock: dependencies.recoverStaleOperationLock ?? recoverStaleCommunityOperationLock,
+    removeNativePostgresContainerForReset:
+      dependencies.removeNativePostgresContainerForReset ?? removeCommunityNativePostgresContainerForReset,
+    planNativeMigration: dependencies.planNativeMigration ?? planCommunityNativeInstalledMigration,
+    attestNativeExternalSnapshot:
+      dependencies.attestNativeExternalSnapshot ?? attestCommunityNativeExternalSnapshot,
+    setupNativeInstall: dependencies.setupNativeInstall ?? setupCommunityNativeInstall,
+    rollbackNativeApplication: dependencies.rollbackNativeApplication ?? rollbackCommunityNativeApplication,
+    restoreNativeDatabase: dependencies.restoreNativeDatabase ?? restoreCommunityNativeDatabaseForUpdate,
     ensureInstanceDirectory: dependencies.ensureInstanceDirectory ?? ensureInstanceDirectory,
     commandAbortRuntime: dependencies.commandAbortRuntime ?? communityCommandAbortRuntime,
     cliVersion: dependencies.cliVersion ?? DEFAULT_COMMUNITY_CLI_VERSION,
@@ -277,8 +396,34 @@ function pathsFrom(options: CommunityServerOptions) {
   return resolveCommunityInstallPaths(installSelection(options))
 }
 
+function nativeJournalPathsFrom(options: CommunityServerOptions): CommunityInstallPaths {
+  const selection = installSelection(options)
+  const base = resolveCommunityInstallPaths(selection)
+  const native = resolveCommunityNativePaths(selection)
+  if (!isSamePhysicalPath(base.instanceRoot, native.instanceRoot)) {
+    throw new Error('community_native_journal_instance_path_mismatch')
+  }
+  return {
+    ...base,
+    statePath: native.statePath,
+    envPath: native.secretPath,
+    ledgerPath: native.processPath,
+  }
+}
+
+function journalPathsForMode(
+  options: CommunityServerOptions,
+  runtimeMode: 'oci' | 'native',
+): CommunityInstallPaths {
+  return runtimeMode === 'native' ? nativeJournalPathsFrom(options) : pathsFrom(options)
+}
+
 function inspectFrom(options: CommunityServerOptions) {
   return inspectCommunityInstall(installSelection(options))
+}
+
+function inspectNativeFrom(options: CommunityServerOptions): CommunityNativeInspection {
+  return inspectCommunityNativeInstall(installSelection(options))
 }
 
 function writeResult(result: unknown, json = false): void {
@@ -287,15 +432,73 @@ function writeResult(result: unknown, json = false): void {
   else console.log(JSON.stringify(result, null, 2))
 }
 
+function nativeMigrationSummary(receipt: CommunityNativeMigrationReceiptV1): Record<string, unknown> {
+  return {
+    status: receipt.status,
+    completedAt: receipt.completedAt,
+    action: receipt.action,
+    policyId: receipt.policyId,
+    targetLineageId: receipt.targetLineageId,
+    resultLineageId: receipt.resultLineageId,
+    pendingMigrationCount: receipt.pendingMigrationCount,
+    acceptedPlanSha256: receipt.acceptedPlanSha256,
+    sourceMigrationStateFingerprintSha256: receipt.sourceMigrationStateFingerprintSha256,
+    resultSchemaFingerprintSha256: receipt.resultSchemaFingerprintSha256,
+    resultReceiptFingerprintSha256: receipt.resultReceiptFingerprintSha256,
+    resultMigrationStateFingerprintSha256: receipt.resultMigrationStateFingerprintSha256,
+  }
+}
+
 async function releaseBundle(
   options: CommunityServerOptions,
   dependencies: ResolvedCommunityServerDependencies,
+  signal?: AbortSignal,
 ) {
-  const candidate = resolveCommunityRepo({ repo: options.repo })
+  const sourceSelection = selectCommunityReleaseSource(options)
+  if (sourceSelection === 'published-version-tag') {
+    const verified = await dependencies.resolvePublishedRelease({
+      releaseVersion: dependencies.cliVersion,
+      certificateIdentity: options.certificateIdentity,
+      certificateOidcIssuer: options.certificateOidcIssuer,
+      signal,
+    })
+    return {
+      verified,
+      assertCurrent: () => {},
+      descriptorSource: verified.descriptorSource,
+    }
+  }
+  if (sourceSelection === 'offline-descriptor') {
+    const resolved = await dependencies.resolveOfflineRelease({
+      descriptorPath: options.releaseDescriptor!,
+      releaseVersion: dependencies.cliVersion,
+      certificateIdentity: options.certificateIdentity,
+      certificateOidcIssuer: options.certificateOidcIssuer,
+      signal,
+    })
+    return {
+      verified: resolved.verified,
+      assertCurrent: resolved.assertCurrent,
+      descriptorSource: resolved.descriptorSource,
+    }
+  }
+  let repo = options.repo
+  let expectedReleaseDir: string | undefined
+  if (options.releaseDir) {
+    const requested = path.resolve(options.releaseDir)
+    const directManifest = tryLstat(path.join(requested, 'release.json'))
+    repo = directManifest?.isFile() ? path.dirname(requested) : requested
+    expectedReleaseDir = directManifest?.isFile() ? requested : path.join(requested, 'release')
+  }
+  const candidate = resolveCommunityRepo({ repo })
+  if (expectedReleaseDir && !isSamePhysicalPath(realpathSync.native(expectedReleaseDir), candidate.releaseDir)) {
+    throw new Error('community_release_dir_repo_mismatch')
+  }
   const verified = await dependencies.verifyReleaseBundle({
     releaseRoot: candidate.releaseDir,
     certificateIdentity: options.certificateIdentity,
     certificateOidcIssuer: options.certificateOidcIssuer,
+    verificationMode: options.releaseDir !== undefined ? 'offline' : 'online',
   })
   assertCommunityRepoCandidateCurrent(candidate)
   if (verified.identity.releaseVersion !== candidate.releaseIdentity.releaseVersion) {
@@ -306,7 +509,30 @@ async function releaseBundle(
       `community_cli_release_version_mismatch:cli=${dependencies.cliVersion}:release=${verified.identity.releaseVersion}`,
     )
   }
-  return { candidate, verified }
+  return {
+    verified,
+    assertCurrent: () => assertCommunityRepoCandidateCurrent(candidate),
+    descriptorSource: Object.freeze({
+      kind: 'local-bundle' as const,
+      repository: candidate.repoRoot,
+      releaseDirectory: candidate.releaseDir,
+    }),
+  }
+}
+
+export function selectCommunityReleaseSource(
+  options: Pick<CommunityServerOptions, 'repo' | 'releaseDir' | 'releaseDescriptor'>,
+): 'published-version-tag' | 'local-bundle' | 'offline-descriptor' {
+  const selectors = [
+    options.repo !== undefined ? '--repo' : null,
+    options.releaseDir !== undefined ? '--release-dir' : null,
+    options.releaseDescriptor !== undefined ? '--release-descriptor' : null,
+  ].filter((value): value is string => value !== null)
+  if (selectors.length > 1) {
+    throw new Error(`community_release_selector_conflict:choose_only_one_of_${selectors.join('_')}`)
+  }
+  if (options.releaseDescriptor !== undefined) return 'offline-descriptor'
+  return options.repo !== undefined || options.releaseDir !== undefined ? 'local-bundle' : 'published-version-tag'
 }
 
 function adapter(
@@ -371,6 +597,7 @@ async function runWithOperationJournal<T>(params: {
   receipt: CommunityOperationLockReceipt
   signal: AbortSignal
   runtime: ResolvedCommunityServerDependencies
+  runtimeMode?: 'oci' | 'native'
   callback: (context: CommunityJournaledCommandContext) => Promise<T>
 }): Promise<T> {
   const journal = createCommunityOperationJournal({
@@ -378,6 +605,7 @@ async function runWithOperationJournal<T>(params: {
     operation: params.operation,
     receipt: params.receipt,
     sourceState: params.state,
+    runtimeMode: params.runtimeMode,
   })
   let lifecycle: CommunityLifecycleAdapter | undefined
   const context: CommunityJournaledCommandContext = {
@@ -407,6 +635,10 @@ async function runWithOperationJournal<T>(params: {
 }
 
 function requireInstalled(options: CommunityServerOptions) {
+  const native = inspectNativeFrom(options)
+  if (native.status !== 'not-installed') {
+    throw new Error(`community_oci_operation_refused:native_${native.status}:${native.error ?? 'use_native_lifecycle_command'}`)
+  }
   const inspection = inspectFrom(options)
   if (inspection.status === 'not-installed') throw new Error('community_not_installed:run_aops-cli_server_setup')
   if (inspection.status === 'partial') throw new Error(`community_install_partial:${inspection.error ?? 'unknown'}:run_aops-cli_doctor`)
@@ -492,29 +724,200 @@ async function withInstalledOperation<T>(
   )
 }
 
+async function withNativeOperation<T>(
+  options: CommunityServerOptions,
+  operation: 'start' | 'stop' | 'restart' | 'update' | 'rollback' | 'backup' | 'restore',
+  runtime: ResolvedCommunityServerDependencies,
+  signal: AbortSignal,
+  callback: (inspection: CommunityNativeInspection) => Promise<T>,
+): Promise<T> {
+  const initial = inspectNativeFrom(options)
+  if (initial.status !== 'installed' || !initial.state) {
+    throw new Error(`community_native_not_installed:${initial.status}:${initial.error ?? 'run_server_setup'}`)
+  }
+  const initialRoot = assertInstanceDirectory(initial.paths.instanceRoot)
+  const instanceIdentity = captureInstanceDirectoryIdentity(initialRoot)
+  return runtime.withOperationLock(
+    { instanceDirectory: initialRoot, operation, signal },
+    async ({ receipt }) => {
+      throwIfCommunityCommandAborted(signal)
+      assertInstanceDirectoryIdentity(instanceIdentity)
+      const locked = inspectNativeFrom(options)
+      if (locked.status !== 'installed' || !locked.state) {
+        throw new Error(`community_native_install_changed:${locked.status}:${locked.error ?? 'unknown'}`)
+      }
+      if (!isSamePhysicalPath(initialRoot, path.resolve(locked.paths.instanceRoot))) {
+        throw new Error('community_instance_path_changed_before_operation')
+      }
+      const oci = inspectFrom(options)
+      if (oci.status !== 'not-installed') {
+        throw new Error(`community_instance_runtime_conflict:oci_${oci.status}:run_aops-cli_doctor`)
+      }
+      const basePaths = pathsFrom(options)
+      assertOwnedInstancePaths(basePaths, 'allow-missing')
+      assertCommunityNativePathLayout(locked.paths, { requireInstanceRoot: true })
+      const journalPaths = nativeJournalPathsFrom(options)
+      assertCommunityOperationJournalFence(journalPaths)
+      return runWithOperationJournal({
+        paths: journalPaths,
+        state: null,
+        operation,
+        receipt,
+        signal,
+        runtime,
+        runtimeMode: 'native',
+        callback: ({ journal }) => runCommunityJournaledSideEffect({
+          handle: journal,
+          step: `native-${operation}`,
+          signal,
+          effect: async () => {
+            assertInstanceDirectoryIdentity(instanceIdentity)
+            const result = await callback(locked)
+            assertInstanceDirectoryIdentity(instanceIdentity)
+            return result
+          },
+        }),
+      })
+    },
+  )
+}
+
 export async function runCommunityServerSetup(
   options: CommunityServerOptions,
   dependencies: CommunityServerDependencies = {},
 ): Promise<void> {
+  const contract = buildCommunityInstanceContract({
+    runtime: options.runtime,
+    postgres: options.postgres,
+    postgresConfig: options.postgresConfig,
+    postgresTls: options.postgresTls,
+    instance: options.instance,
+    port: options.port,
+  })
+  if (contract.runtime === 'oci' && (options.sourceRoot || options.foreground === true || options.detach === true)) {
+    throw new Error('community_setup_oci_native_options_refused')
+  }
+  if (options.preview === true && options.apply === true) {
+    throw new Error('community_setup_mode_conflict:choose_--preview_or_--apply')
+  }
+  if (options.preview === true) {
+    writeResult({
+      status: 'community-server-setup-preview',
+      mutationFree: true,
+      contract,
+      next: contract.runtime === 'native'
+        ? 'Re-run with --apply to install dependencies, build the public checkout, and start the loopback native host.'
+        : 'Re-run with --apply to verify the signed release and start the OCI stack.',
+    }, options.json)
+    return
+  }
+  if (options.apply !== true) {
+    throw new Error('community_setup_apply_required:use_--preview_or_--apply')
+  }
+
+  if (contract.runtime === 'native') {
+    await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+      const selection = installSelection({ ...options, instance: contract.instanceId })
+      const paths = resolveCommunityInstallPaths(selection)
+      runtime.ensureInstanceDirectory(paths.instanceRoot)
+      assertOwnedInstancePaths(paths, 'allow-missing')
+      const instanceIdentity = captureInstanceDirectoryIdentity(paths.instanceRoot)
+      const setup = await runtime.withOperationLock(
+        { instanceDirectory: paths.instanceRoot, operation: 'setup', signal },
+        async ({ receipt }) => {
+          throwIfCommunityCommandAborted(signal)
+          assertInstanceDirectoryIdentity(instanceIdentity)
+          assertOwnedInstancePaths(paths, 'allow-missing')
+          const nativePaths = resolveCommunityNativePaths(selection)
+          assertCommunityNativePathLayout(nativePaths, { requireInstanceRoot: true })
+          const ociInspection = inspectFrom({ ...options, instance: contract.instanceId })
+          if (ociInspection.status !== 'not-installed') {
+            throw new Error(`community_instance_runtime_conflict:oci_${ociInspection.status}:run_aops-cli_doctor`)
+          }
+          const nativeInspection = inspectNativeFrom({ ...options, instance: contract.instanceId })
+          if (nativeInspection.status === 'partial' || nativeInspection.status === 'runtime-conflict') {
+            throw new Error(`community_native_install_${nativeInspection.status}:${nativeInspection.error ?? 'unknown'}:run_doctor`)
+          }
+          const journalPaths = nativeJournalPathsFrom({ ...options, instance: contract.instanceId })
+          assertCommunityOperationJournalFence(journalPaths)
+          return runWithOperationJournal({
+            paths: journalPaths,
+            state: null,
+            operation: 'setup',
+            receipt,
+            signal,
+            runtime,
+            runtimeMode: 'native',
+            callback: ({ journal }) => runCommunityJournaledSideEffect({
+              handle: journal,
+              step: 'native-setup',
+              signal,
+              effect: async () => {
+                assertInstanceDirectoryIdentity(instanceIdentity)
+                const result = await runtime.setupNativeInstall({
+                  contract,
+                  sourceRoot: options.sourceRoot,
+                  dataRoot: selection.dataRoot,
+                  mode: resolveCommunityNativeLaunchMode(options),
+                  signal,
+                })
+                assertInstanceDirectoryIdentity(instanceIdentity)
+                return result
+              },
+            }),
+          })
+        },
+      )
+      throwIfCommunityCommandAborted(signal)
+      writeResult({
+        status: setup.status === 'created'
+          ? 'community-server-installed-and-running'
+          : 'community-server-refreshed-and-running',
+        runtime: 'native',
+        profile: setup.state.profile,
+        instance: setup.state.instanceName,
+        mode: setup.launch.mode,
+        pid: setup.launch.process.pid,
+        origin: `http://127.0.0.1:${setup.state.server.port}`,
+        dataRoot: setup.paths.dataRoot,
+        sourceRoot: setup.state.source.root,
+        sourceFingerprint: setup.state.source.sourceFingerprint,
+        buildFingerprint: setup.state.build.buildFingerprint,
+        migration: nativeMigrationSummary(setup.launch.migration),
+        applicationUpdateId: setup.applicationUpdate?.prepared.updateId ?? null,
+      }, options.json)
+      if (setup.launch.waitForExit) await setup.launch.waitForExit()
+    })
+    return
+  }
+
   await withMutatingCommandScope(dependencies, async (runtime, signal) => {
     const selection = installSelection(options)
+    const nativeExisting = inspectNativeFrom(options)
+    if (nativeExisting.status !== 'not-installed') {
+      throw new Error(`community_instance_runtime_conflict:native_${nativeExisting.status}:run_aops-cli_doctor`)
+    }
     const existing = inspectFrom(options)
     if (existing.status === 'partial') {
       throw new Error(`community_install_partial:${existing.error ?? 'unknown'}:run_aops-cli_doctor_or_server_reset`)
     }
     throwIfCommunityCommandAborted(signal)
-    const { candidate, verified } = await releaseBundle(options, runtime)
+    const { assertCurrent, descriptorSource, verified } = await releaseBundle(options, runtime, signal)
     throwIfCommunityCommandAborted(signal)
     await requireHealthyPreflight('setup', options, runtime)
     throwIfCommunityCommandAborted(signal)
-    const port = Number(options.port ?? 5900)
+    const port = contract.server.port
     const paths = resolveCommunityInstallPaths(selection)
     runtime.ensureInstanceDirectory(paths.instanceRoot)
     assertOwnedInstancePaths(paths, 'allow-missing')
     const result = await runtime.withOperationLock({ instanceDirectory: paths.instanceRoot, operation: 'setup', signal }, async ({ receipt }) => {
-      assertCommunityRepoCandidateCurrent(candidate)
+      assertCurrent()
       assertOwnedInstancePaths(paths, 'create-missing')
       const lockedInspection = inspectFrom(options)
+      const lockedNativeInspection = inspectNativeFrom(options)
+      if (lockedNativeInspection.status !== 'not-installed') {
+        throw new Error(`community_instance_runtime_conflict:native_${lockedNativeInspection.status}:run_aops-cli_doctor`)
+      }
       if (lockedInspection.status === 'partial') {
         throw new Error(`community_install_partial:${lockedInspection.error ?? 'unknown'}:run_aops-cli_doctor_or_server_reset`)
       }
@@ -565,7 +968,7 @@ export async function runCommunityServerSetup(
             releaseVersion: setup.state.activeRelease.releaseVersion,
             imageRef: setup.state.activeRelease.imageRef,
             dataRoot: setup.paths.dataRoot,
-            repository: candidate.repoRoot,
+            releaseDescriptorSource: descriptorSource,
             certificateIdentity: verified.certificateIdentity,
             verifiedArtifactCount: verified.verifiedArtifactCount,
           }
@@ -582,6 +985,34 @@ export async function runCommunityServerStart(
   dependencies: CommunityServerDependencies = {},
 ): Promise<void> {
   await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+    const native = inspectNativeFrom(options)
+    if (native.status === 'installed') {
+      const launch = await withNativeOperation(options, 'start', runtime, signal, () => startCommunityNativeInstall({
+        ...installSelection(options),
+        mode: resolveCommunityNativeLaunchMode(options),
+        signal,
+      }))
+      writeResult({
+        status: 'community-server-running',
+        runtime: 'native',
+        profile: launch.state.profile,
+        instance: launch.state.instanceName,
+        mode: launch.mode,
+        pid: launch.process.pid,
+        origin: `http://127.0.0.1:${launch.state.server.port}`,
+        sourceFingerprint: launch.state.source.sourceFingerprint,
+        buildFingerprint: launch.state.build.buildFingerprint,
+        migration: nativeMigrationSummary(launch.migration),
+      }, options.json)
+      if (launch.waitForExit) await launch.waitForExit()
+      return
+    }
+    if (native.status !== 'not-installed') {
+      throw new Error(`community_native_start_refused:${native.status}:${native.error ?? 'run_doctor'}`)
+    }
+    if (options.foreground === true || options.detach === true) {
+      throw new Error('community_oci_native_options_refused')
+    }
     const result = await withInstalledOperation(options, 'start', runtime, signal, async ({ paths, state }, { lifecycle }) => {
       await lifecycle.verifyRelease(state.activeRelease)
       await lifecycle.pull({ paths, state, release: state.activeRelease })
@@ -600,6 +1031,23 @@ export async function runCommunityServerStop(
   dependencies: CommunityServerDependencies = {},
 ): Promise<void> {
   await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+    const native = inspectNativeFrom(options)
+    if (native.status === 'installed') {
+      const stopped = await withNativeOperation(options, 'stop', runtime, signal, () => stopCommunityNativeInstall(
+        { ...installSelection(options), signal },
+      ))
+      writeResult({
+        status: stopped.status === 'stopped' ? 'community-server-stopped' : 'community-server-already-stopped',
+        runtime: 'native',
+        profile: stopped.state.profile,
+        instance: stopped.state.instanceName,
+        processStatus: stopped.process?.status ?? null,
+      }, options.json)
+      return
+    }
+    if (native.status !== 'not-installed') {
+      throw new Error(`community_native_stop_refused:${native.status}:${native.error ?? 'run_doctor'}`)
+    }
     const result = await withInstalledOperation(options, 'stop', runtime, signal, async ({ paths, state }, { lifecycle }) => {
       await lifecycle.stop({ paths, state })
       return { status: 'community-server-stopped', instance: state.instanceName }
@@ -614,6 +1062,36 @@ export async function runCommunityServerRestart(
   dependencies: CommunityServerDependencies = {},
 ): Promise<void> {
   await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+    const native = inspectNativeFrom(options)
+    if (native.status === 'installed') {
+      const launch = await withNativeOperation(options, 'restart', runtime, signal, async () => {
+        await stopCommunityNativeInstall({ ...installSelection(options), signal })
+        return startCommunityNativeInstall({
+          ...installSelection(options),
+          mode: resolveCommunityNativeLaunchMode(options),
+          signal,
+        })
+      })
+      writeResult({
+        status: 'community-server-restarted',
+        runtime: 'native',
+        profile: launch.state.profile,
+        instance: launch.state.instanceName,
+        mode: launch.mode,
+        pid: launch.process.pid,
+        hostPid: launch.process.hostPid ?? null,
+        origin: `http://127.0.0.1:${launch.state.server.port}`,
+        migration: nativeMigrationSummary(launch.migration),
+      }, options.json)
+      if (launch.waitForExit) await launch.waitForExit()
+      return
+    }
+    if (native.status !== 'not-installed') {
+      throw new Error(`community_native_restart_refused:${native.status}:${native.error ?? 'run_doctor'}`)
+    }
+    if (options.foreground === true || options.detach === true) {
+      throw new Error('community_oci_native_options_refused')
+    }
     const output = await withInstalledOperation(options, 'restart', runtime, signal, async ({ paths, state }, { journal, lifecycle }) => {
       const invocation = buildCommunityComposeInvocation({ paths, state, action: 'restart' })
       const result = await runCommunityJournaledSideEffect({
@@ -633,6 +1111,70 @@ export async function runCommunityServerRestart(
 }
 
 export async function runCommunityServerStatus(options: CommunityServerOptions): Promise<void> {
+  const native = inspectNativeFrom(options)
+  if (native.status !== 'not-installed') {
+    const recoveryErrors: string[] = []
+    let applicationRecovery: ReturnType<typeof inspectCommunityNativeApplicationRecoveryStatus> = null
+    let databaseRecovery: ReturnType<typeof inspectCommunityNativeDatabaseRecoveryStatus> = null
+    try {
+      applicationRecovery = inspectCommunityNativeApplicationRecoveryStatus(native.paths)
+    } catch (error) {
+      recoveryErrors.push(error instanceof Error ? error.message : String(error))
+    }
+    try {
+      databaseRecovery = inspectCommunityNativeDatabaseRecoveryStatus(native.paths)
+    } catch (error) {
+      recoveryErrors.push(error instanceof Error ? error.message : String(error))
+    }
+    const runtime = native.status === 'installed'
+      ? await inspectCommunityNativeRuntime(installSelection(options))
+      : null
+    const postgres = native.status === 'installed' && native.state?.postgres.mode === 'container'
+      ? await inspectCommunityNativePostgres({
+          state: native.state.postgres,
+          instanceName: native.state.instanceName,
+          instanceRoot: native.paths.instanceRoot,
+        })
+      : null
+    writeResult({
+      status: native.status,
+      runtime: 'native',
+      profile: native.state?.profile ?? null,
+      instanceRoot: native.paths.instanceRoot,
+      instance: native.state?.instanceName ?? options.instance ?? 'default',
+      origin: native.state ? `http://127.0.0.1:${native.state.server.port}` : null,
+      processRecord: runtime?.process ? {
+        status: runtime.process.status,
+        mode: runtime.process.mode,
+        pid: runtime.process.pid,
+        hostPid: runtime.process.hostPid ?? null,
+        startedAt: runtime.process.startedAt,
+        logPath: runtime.process.logPath,
+      } : null,
+      runtimeState: runtime?.runtimeState ?? null,
+      postgres,
+      migration: native.migration ? nativeMigrationSummary(native.migration) : null,
+      applicationRecovery,
+      databaseRecovery,
+      recoveryErrors,
+      liveness: runtime ? {
+        supervisor: runtime.supervisorAlive,
+        host: runtime.hostAlive,
+        health: runtime.health,
+        identityBound: runtime.identity !== null,
+        recoverable: runtime.recoverable,
+      } : null,
+      error: recoveryErrors[0] ?? runtime?.reason ?? native.error ?? null,
+      presentFiles: native.presentFiles,
+      missingFiles: native.missingFiles,
+    }, options.json)
+    if (
+      native.status !== 'installed' ||
+      recoveryErrors.length > 0 ||
+      (runtime && ['unhealthy', 'crashed', 'identity-conflict', 'orphaned'].includes(runtime.runtimeState))
+    ) process.exitCode = 1
+    return
+  }
   const inspection = inspectFrom(options)
   if (inspection.status !== 'installed') {
     writeResult({
@@ -660,7 +1202,71 @@ export async function runCommunityServerStatus(options: CommunityServerOptions):
   if (result.exitCode !== 0) process.exitCode = 1
 }
 
+export async function runCommunityServerMigrationPlan(
+  options: CommunityServerOptions,
+  dependencies: CommunityServerDependencies = {},
+): Promise<void> {
+  const runtime = resolveDependencies(dependencies)
+  await withCommunityCommandAbortScope(runtime.commandAbortRuntime, async (signal) => {
+    throwIfCommunityCommandAborted(signal)
+    const result = await runtime.planNativeMigration({ ...installSelection(options), signal })
+    throwIfCommunityCommandAborted(signal)
+    writeResult({
+      surface: 'community-native-migration-plan',
+      mutationFree: true,
+      ...result,
+    }, options.json)
+  })
+}
+
+export async function runCommunityServerAttestExternalSnapshot(
+  options: CommunityServerOptions,
+  dependencies: CommunityServerDependencies = {},
+): Promise<void> {
+  await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+    const result = await runtime.attestNativeExternalSnapshot({
+      ...installSelection(options),
+      expectedPlanSha256: String(options.expectedPlanSha256 ?? ''),
+      provider: String(options.provider ?? ''),
+      snapshotRef: String(options.snapshotRef ?? ''),
+      snapshotDigest: options.snapshotDigest,
+      attestedBy: String(options.attestedBy ?? ''),
+      restoreInstructionsRef: String(options.restoreInstructionsRef ?? ''),
+      preview: options.preview,
+      apply: options.apply,
+      confirmExternalRecoveryOwner: options.confirmExternalRecoveryOwner,
+      signal,
+    })
+    throwIfCommunityCommandAborted(signal)
+    writeResult({
+      surface: 'community-native-external-snapshot-attestation',
+      mutationFree: !result.applied,
+      ...result,
+      next: result.applied
+        ? 'Run aops-cli server start; migration will re-plan under the database lock and consume only this exact attestation.'
+        : 'Review this exact plan-bound attestation, then re-run with --apply --confirm-external-recovery-owner.',
+    }, options.json)
+  })
+}
+
 export async function runCommunityServerLogs(options: CommunityServerOptions): Promise<void> {
+  const native = inspectNativeFrom(options)
+  if (native.status === 'installed') {
+    const tail = Number(options.tail ?? 100)
+    const logs = readCommunityNativeLogs({ ...installSelection(options), tail })
+    if (options.json) writeResult({
+      status: 'community-native-logs',
+      lineCount: logs.lineCount,
+      truncated: logs.truncated,
+      logPath: logs.logPath,
+      content: logs.content,
+    }, true)
+    else writeResult(logs.content || 'No detached native server logs are available.')
+    return
+  }
+  if (native.status !== 'not-installed') {
+    throw new Error(`community_native_logs_refused:${native.status}:${native.error ?? 'run_doctor'}`)
+  }
   const { paths, state } = requireInstalled(options)
   const tail = Number(options.tail ?? 100)
   if (!Number.isSafeInteger(tail) || tail < 1 || tail > 10_000) throw new Error('community_logs_tail_invalid')
@@ -675,9 +1281,51 @@ export async function runCommunityServerUpdate(
   dependencies: CommunityServerDependencies = {},
 ): Promise<void> {
   await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+    const nativeInitial = inspectNativeFrom(options)
+    if (nativeInitial.status === 'installed' && nativeInitial.state) {
+      if (!options.sourceRoot) {
+        throw new Error('community_native_update_source_root_required')
+      }
+      const setup = await withNativeOperation(options, 'update', runtime, signal, async (locked) => {
+        const state = locked.state!
+        const contract = buildCommunityInstanceContract({
+          runtime: 'native',
+          postgres: state.postgres.mode,
+          postgresConfig: state.postgres.mode === 'external' ? state.postgres.configRef : undefined,
+          postgresTls: state.postgres.mode === 'external' ? state.postgres.tlsPolicy : undefined,
+          instance: state.instanceName,
+          port: state.server.port,
+        })
+        return runtime.setupNativeInstall({
+          contract,
+          sourceRoot: options.sourceRoot,
+          dataRoot: locked.paths.dataRoot,
+          mode: resolveCommunityNativeLaunchMode(options),
+          requireApplicationUpdate: true,
+          signal,
+        })
+      })
+      if (!setup.applicationUpdate) throw new Error('community_native_application_update_record_missing')
+      throwIfCommunityCommandAborted(signal)
+      writeResult({
+        status: 'community-native-application-updated',
+        updateId: setup.applicationUpdate.prepared.updateId,
+        priorReleaseVersion: setup.applicationUpdate.prepared.prior.content.releaseVersion,
+        releaseVersion: setup.applicationUpdate.prepared.target.content.releaseVersion,
+        applicationContentSha256: setup.applicationUpdate.prepared.target.content.applicationContentSha256,
+        databaseAction: setup.launch.migration.action,
+        databasePlanSha256: setup.launch.migration.acceptedPlanSha256,
+        databaseRewound: false,
+      }, options.json)
+      if (setup.launch.waitForExit) await setup.launch.waitForExit()
+      return
+    }
+    if (nativeInitial.status !== 'not-installed') {
+      throw new Error(`community_native_update_refused:${nativeInitial.status}:${nativeInitial.error ?? 'run_doctor'}`)
+    }
     const initial = requireInstalled(options)
     assertOwnedInstancePaths(initial.paths, 'require-existing')
-    const { candidate, verified } = await releaseBundle(options, runtime)
+    const { assertCurrent, descriptorSource, verified } = await releaseBundle(options, runtime, signal)
     throwIfCommunityCommandAborted(signal)
     await requireHealthyPreflight('update', options, runtime)
     throwIfCommunityCommandAborted(signal)
@@ -688,7 +1336,7 @@ export async function runCommunityServerUpdate(
         assertSameInstancePaths(initial.paths, locked.paths)
         assertOwnedInstancePaths(locked.paths, 'require-existing')
         assertCommunityRecoveryMutationFence(locked.paths)
-        assertCommunityRepoCandidateCurrent(candidate)
+        assertCurrent()
         await requireHealthyPreflight('update', options, runtime)
         throwIfCommunityCommandAborted(signal)
         assertOwnedInstancePaths(locked.paths, 'require-existing')
@@ -731,6 +1379,9 @@ export async function runCommunityServerUpdate(
       updateId: record.id,
       releaseVersion: record.targetRelease.releaseVersion,
       imageRef: record.targetRelease.imageRef,
+      releaseDescriptorSource: descriptorSource,
+      certificateIdentity: verified.certificateIdentity,
+      verifiedArtifactCount: verified.verifiedArtifactCount,
       backup: { path: record.backup.path, sha256: record.backup.sha256, byteLength: record.backup.byteLength },
     }, options.json)
   })
@@ -861,6 +1512,108 @@ export async function runCommunityServerReconcileRecovery(
   })
 }
 
+export async function runCommunityServerRollbackApplication(
+  options: CommunityServerOptions,
+  dependencies: CommunityServerDependencies = {},
+): Promise<void> {
+  if (!options.updateId) throw new Error('community_native_application_rollback_update_id_required')
+  if (!options.sourceRoot) throw new Error('community_native_application_rollback_source_root_required')
+  if (options.confirmDataRewind === true) {
+    throw new Error('community_native_application_rollback_data_rewind_option_refused')
+  }
+  await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+    const result = await withNativeOperation(options, 'rollback', runtime, signal, async (locked) =>
+      runtime.rollbackNativeApplication({
+        instanceName: locked.state!.instanceName,
+        dataRoot: locked.paths.dataRoot,
+        updateId: options.updateId!,
+        sourceRoot: options.sourceRoot!,
+        mode: resolveCommunityNativeLaunchMode(options),
+        signal,
+      }))
+    throwIfCommunityCommandAborted(signal)
+    const rollback = result.applicationUpdate.rollbackOutcome
+    if (!rollback || rollback.status !== 'community-native-application-rolled-back') {
+      throw new Error('community_native_application_rollback_receipt_missing')
+    }
+    writeResult({
+      status: rollback.status,
+      updateId: result.applicationUpdate.prepared.updateId,
+      rollbackId: rollback.rollbackId,
+      releaseVersion: result.state.source.releaseVersion,
+      applicationContentSha256:
+        result.applicationUpdate.prepared.prior.content.applicationContentSha256,
+      databaseAction: rollback.migration?.action,
+      databasePlanSha256: rollback.migration?.acceptedPlanSha256,
+      databaseRewound: false,
+    }, options.json)
+    if (result.launch.waitForExit) await result.launch.waitForExit()
+  })
+}
+
+export async function runCommunityServerRestoreDatabase(
+  options: CommunityServerOptions,
+  dependencies: CommunityServerDependencies = {},
+): Promise<void> {
+  if (!options.updateId) throw new Error('community_native_database_restore_update_id_required')
+  if (!options.sourceRoot) throw new Error('community_native_database_restore_source_root_required')
+  if (options.confirmDataRewind !== true) {
+    throw new Error('community_native_database_restore_confirmation_required')
+  }
+  await withMutatingCommandScope(dependencies, async (runtime, signal) => {
+    const result = await withNativeOperation(options, 'restore', runtime, signal, async (locked) => {
+      const observed = await inspectCommunityNativeRuntime({
+        instanceName: locked.state!.instanceName,
+        dataRoot: locked.paths.dataRoot,
+      })
+      if (observed.runtimeState !== 'stopped' && observed.runtimeState !== 'crashed') {
+        throw new Error(`community_native_process_active:${observed.runtimeState}:run_server_stop_before_database_restore`)
+      }
+      return runtime.restoreNativeDatabase({
+        paths: locked.paths,
+        state: locked.state!,
+        updateId: options.updateId!,
+        sourceRoot: path.resolve(options.sourceRoot!),
+        confirmDataRewind: true,
+        confirmExternalRestoreComplete: options.confirmExternalRestoreComplete === true,
+        signal,
+      })
+    })
+    throwIfCommunityCommandAborted(signal)
+    if (result.actionRequired) {
+      writeResult({
+        status: 'community-native-database-restore-external-action-required',
+        restoreId: result.prepared.restoreId,
+        updateId: result.prepared.updateId,
+        recoveryOwner: result.prepared.recoveryOwner,
+        evidenceKind: result.prepared.evidenceKind,
+        evidenceSha256: result.prepared.evidenceSha256,
+        provider: result.externalAction?.provider,
+        snapshotRef: result.externalAction?.snapshotRef,
+        snapshotDigest: result.externalAction?.snapshotDigest,
+        restoreInstructionsRef: result.externalAction?.restoreInstructionsRef,
+        nextCommand: 'Repeat server restore db with the same arguments plus --confirm-external-restore-complete after the external restore is complete',
+        dataRewound: false,
+      }, options.json)
+      return
+    }
+    if (!result.completed) throw new Error('community_native_database_restore_receipt_missing')
+    writeResult({
+      status: result.completed.status,
+      restoreId: result.completed.restoreId,
+      updateId: result.completed.updateId,
+      recoveryOwner: result.completed.recoveryOwner,
+      evidenceKind: result.completed.evidenceKind,
+      evidenceSha256: result.completed.evidenceSha256,
+      restoredLineageId: result.completed.restoredLineageId,
+      restoredStateFingerprintSha256: result.completed.restoredStateFingerprintSha256,
+      dataRewound: result.dataRewound,
+      applicationChanged: false,
+      nextCommand: 'Run server rollback app with the exact update ID and prior source checkout',
+    }, options.json)
+  })
+}
+
 export async function runCommunityServerRollback(
   options: CommunityServerOptions,
   dependencies: CommunityServerDependencies = {},
@@ -967,10 +1720,12 @@ export async function runCommunityServerRestore(
 
 const COMMUNITY_OPERATION_RECONCILIATION_ACTIONS = new Set<CommunityOperationReconciliationAction>([
   'acknowledge-no-side-effect',
+  'acknowledge-native-runtime-state',
   'restore-source-runtime',
   'acknowledge-artifact-preserved',
   'acknowledge-partial-install-preserved',
   'complete-reset-preserving-volumes',
+  'complete-native-reset-preserving-volume',
 ])
 
 function requireOperationReconciliationSelection(options: CommunityServerOptions): {
@@ -995,14 +1750,16 @@ function requireOperationReconciliationSelection(options: CommunityServerOptions
 
 export async function runCommunityServerOperationStatus(options: CommunityServerOptions): Promise<void> {
   if (!options.operationId) throw new Error('community_operation_status_id_required')
-  const paths = pathsFrom(options)
-  const inspection = inspectCommunityOperationJournalFile(paths, options.operationId)
+  const basePaths = pathsFrom(options)
+  const inspection = inspectCommunityOperationJournalFile(basePaths, options.operationId)
+  const paths = journalPathsForMode(options, inspection.record.runtimeMode)
   const currentDigests = captureCommunityOperationDigests(paths)
   writeResult({
     surface: 'community-operation-status',
     instance: options.instance ?? 'default',
     operationId: inspection.record.id,
     operation: inspection.record.operation,
+    runtimeMode: inspection.record.runtimeMode,
     integrity: inspection.integrity,
     validBytes: inspection.validBytes,
     journalSha256: inspection.fileSha256,
@@ -1017,7 +1774,7 @@ export async function runCommunityServerOperationStatus(options: CommunityServer
     currentDigests,
     currentMatchesPre: digestsEqual(currentDigests, inspection.record.preDigests),
     sourceState: inspection.record.sourceState,
-    recoveryCommitPending: Boolean(tryLstat(paths.recoveryJournalPath)),
+    recoveryCommitPending: inspection.record.runtimeMode === 'oci' && Boolean(tryLstat(paths.recoveryJournalPath)),
   }, options.json)
 }
 
@@ -1037,9 +1794,34 @@ async function applyCommunityOperationReconciliation(params: {
         !digestsEqual(currentDigests, record.preDigests)) {
       throw new Error('community_operation_reconciliation_not_pre_effect')
     }
-    assertNoCommunityRecoveryCommitJournal(paths)
-    assertCommunityLedgerHasNoNonterminalOperation(paths)
+    if (record.runtimeMode === 'oci') {
+      assertNoCommunityRecoveryCommitJournal(paths)
+      assertCommunityLedgerHasNoNonterminalOperation(paths)
+    }
     return { action, sideEffectAcknowledged: false }
+  }
+  if (action === 'acknowledge-native-runtime-state') {
+    if (record.runtimeMode !== 'native') {
+      throw new Error('community_native_operation_reconciliation_mode_mismatch')
+    }
+    const native = inspectNativeFrom(options)
+    if (native.status !== 'installed' || !native.state) {
+      throw new Error(`community_native_operation_reconciliation_requires_install:${native.status}`)
+    }
+    assertCommunityNativePathLayout(native.paths, { requireInstanceRoot: true })
+    const observed = await inspectCommunityNativeRuntime({
+      ...installSelection(options),
+    })
+    if (observed.runtimeState === 'identity-conflict' || observed.runtimeState === 'orphaned') {
+      throw new Error(`community_native_operation_reconciliation_runtime_unsafe:${observed.runtimeState}`)
+    }
+    return {
+      action,
+      nativeProfile: native.state.profile,
+      runtimeState: observed.runtimeState,
+      health: observed.health,
+      statePreserved: true,
+    }
   }
   if (action === 'acknowledge-artifact-preserved') {
     if (record.operation !== 'backup' || !digestsEqual(currentDigests, record.preDigests) ||
@@ -1078,6 +1860,51 @@ async function applyCommunityOperationReconciliation(params: {
     removeInstanceContentsExceptLock(paths.instanceRoot)
     return { action, instance, rootPreserved: true, dockerVolumesPreserved: true }
   }
+  if (action === 'complete-native-reset-preserving-volume') {
+    const instance = (options.instance ?? 'default').trim().toLowerCase()
+    if (record.runtimeMode !== 'native' ||
+        options.confirmDataLoss !== true || options.confirmInstance !== instance) {
+      throw new Error('community_native_operation_reset_reconciliation_confirmation_required')
+    }
+    const native = inspectNativeFrom({ ...options, instance })
+    if (native.status === 'runtime-conflict') {
+      throw new Error('community_native_operation_reset_reconciliation_runtime_conflict')
+    }
+    if (native.status === 'installed') {
+      const observed = await inspectCommunityNativeRuntime({ ...installSelection({ ...options, instance }) })
+      if (observed.supervisorAlive || observed.hostAlive) {
+        if (observed.runtimeState === 'running' || observed.runtimeState === 'starting' || observed.runtimeState === 'unhealthy') {
+          await stopCommunityNativeInstall({ ...installSelection({ ...options, instance }), signal })
+        } else {
+          throw new Error(`community_native_operation_reset_live_process_refused:${observed.runtimeState}`)
+        }
+      }
+    }
+    throwIfCommunityCommandAborted(signal)
+    const hasManagedPostgres =
+      (native.status === 'installed' && native.state?.profile === 'native-container-postgres') ||
+      existsSync(path.join(paths.runtimeRoot, 'native-postgres.env'))
+    const postgres = hasManagedPostgres
+      ? await runtime.removeNativePostgresContainerForReset({
+          instanceName: instance,
+          instanceRoot: paths.instanceRoot,
+          signal,
+        })
+      : null
+    throwIfCommunityCommandAborted(signal)
+    removeNativeInstanceContentsPreservingPostgres(paths.instanceRoot)
+    return {
+      action,
+      instance,
+      rootPreserved: true,
+      postgresContainerPreserved: false,
+      postgresContainer: postgres?.container ?? 'not-managed',
+      postgresContainerName: postgres?.containerName ?? null,
+      postgresVolumePreserved: true,
+      postgresVolumeName: postgres?.volumeName ?? null,
+      postgresSecretPreserved: hasManagedPostgres,
+    }
+  }
   if (action === 'restore-source-runtime') {
     if (!record.sourceState) throw new Error('community_operation_source_state_missing')
     const restored = await restoreCommunitySourceRuntime({
@@ -1109,9 +1936,10 @@ export async function runCommunityServerReconcileOperation(
     throw new Error('community_operation_reconciliation_confirmation_required')
   }
   await withMutatingCommandScope(dependencies, async (runtime, signal) => {
-    const paths = pathsFrom(options)
-    assertInstanceDirectory(paths.instanceRoot)
-    const initial = inspectCommunityOperationJournalFile(paths, selection.operationId)
+    const basePaths = pathsFrom(options)
+    assertInstanceDirectory(basePaths.instanceRoot)
+    const initial = inspectCommunityOperationJournalFile(basePaths, selection.operationId)
+    const paths = journalPathsForMode(options, initial.record.runtimeMode)
     if (initial.record.operation !== selection.expectedOperation ||
         !initial.record.permittedActions.includes(selection.action) ||
         ['succeeded', 'reconciled'].includes(initial.record.status)) {
@@ -1120,9 +1948,10 @@ export async function runCommunityServerReconcileOperation(
     const output = await runtime.withOperationLock(
       { instanceDirectory: paths.instanceRoot, operation: selection.expectedOperation, signal },
       async () => {
-        const lockedPaths = pathsFrom(options)
+        const lockedPaths = journalPathsForMode(options, initial.record.runtimeMode)
         assertSameInstancePaths(paths, lockedPaths)
-        assertNoCommunityRecoveryCommitJournal(lockedPaths)
+        if (initial.record.runtimeMode === 'oci') assertNoCommunityRecoveryCommitJournal(lockedPaths)
+        else assertCommunityNativePathLayout(resolveCommunityNativePaths(installSelection(options)), { requireInstanceRoot: true })
         const lockedInspection = inspectCommunityOperationJournalFile(lockedPaths, selection.operationId)
         if (lockedInspection.record.sequence !== initial.record.sequence ||
             lockedInspection.lastHash !== initial.lastHash ||
@@ -1229,6 +2058,42 @@ export async function runCommunityServerReset(
   }
   await withMutatingCommandScope(dependencies, async (runtime, signal) => {
     const resetOptions = { ...options, instance }
+    const native = inspectNativeFrom(resetOptions)
+    if (native.status === 'installed' && native.state) {
+      if (native.state.profile === 'native-container-postgres') {
+        throw new Error('community_native_container_reset_refused:preserve_credentials_and_volume_use_future_migration_safe_reset')
+      }
+      const expectedRoot = pathsFrom(resetOptions).instanceRoot
+      if (!isSamePhysicalPath(path.resolve(expectedRoot), path.resolve(native.paths.instanceRoot))) {
+        throw new Error('community_reset_path_mismatch')
+      }
+      assertInstanceDirectory(expectedRoot)
+      const output = await runtime.withOperationLock(
+        { instanceDirectory: expectedRoot, operation: 'reset', signal },
+        async () => {
+          const lockedNative = inspectNativeFrom(resetOptions)
+          if (lockedNative.status !== 'installed' || !lockedNative.state) {
+            throw new Error(`community_native_install_changed:${lockedNative.status}:${lockedNative.error ?? 'unknown'}`)
+          }
+          if (lockedNative.state.profile !== 'native-external-postgres') {
+            throw new Error('community_native_container_reset_refused:preserve_credentials_and_volume_use_future_migration_safe_reset')
+          }
+          const lockedOci = inspectFrom(resetOptions)
+          if (lockedOci.status !== 'not-installed') {
+            throw new Error(`community_instance_runtime_conflict:oci_${lockedOci.status}:run_aops-cli_doctor`)
+          }
+          await stopCommunityNativeInstall(installSelection(resetOptions))
+          throwIfCommunityCommandAborted(signal)
+          removeInstanceContentsExceptLock(expectedRoot)
+          return { status: 'community-install-reset', runtime: 'native', instance, instanceRoot: expectedRoot, rootPreserved: true }
+        },
+      )
+      writeResult(output, options.json)
+      return
+    }
+    if (native.status !== 'not-installed') {
+      throw new Error(`community_native_reset_refused:${native.status}:${native.error ?? 'run_doctor'}`)
+    }
     const inspection = inspectFrom(resetOptions)
     const expectedRoot = pathsFrom(resetOptions).instanceRoot
     if (path.resolve(expectedRoot) !== path.resolve(inspection.paths.instanceRoot)) throw new Error('community_reset_path_mismatch')
@@ -1281,9 +2146,21 @@ function common(command: Command): Command {
     .option('--json', 'Output JSON')
 }
 
+function mergeCommunityCommandOptions(
+  options: CommunityServerOptions,
+  command: Command,
+): CommunityServerOptions {
+  return {
+    ...(typeof command.optsWithGlobals === 'function' ? command.optsWithGlobals() : {}),
+    ...options,
+  }
+}
+
 function releaseOptions(command: Command): Command {
   return command
-    .option('--repo <path>', 'Tagged aops-community clone root; otherwise discover upward from cwd')
+    .option('--repo <path>', 'Local tagged aops-community clone override; default is the exact published CLI version tag')
+    .option('--release-dir <path>', 'Local complete signed release-bundle override')
+    .option('--release-descriptor <path>', 'Offline release.json path; verifies only adjacent signature and Compose files without fetching release metadata')
     .option('--certificate-identity <identity>', 'Trusted GitHub Actions certificate identity')
     .option('--certificate-oidc-issuer <url>', 'Trusted certificate OIDC issuer')
 }
@@ -1292,21 +2169,50 @@ export type CommunityServerCommandIdentity = Readonly<Pick<CommunityServerDepend
 
 export function makeCommunityServerCommand(identity: CommunityServerCommandIdentity = {}): Command {
   const dependencies: CommunityServerDependencies = { cliVersion: identity.cliVersion }
-  const command = new Command('server').description('Install and operate the pull-only AOPS Community server')
-  common(releaseOptions(command.command('setup').description('Verify a release, install it, and start the server')))
+  const command = new Command('server').description('Configure and operate a named AOPS Community server instance')
+  common(releaseOptions(command.command('setup').description('Configure, build, and start an explicit native or OCI setup profile')))
+    .requiredOption('--runtime <native|oci>', 'Application runtime; no implicit default')
+    .option('--postgres <external|container>', 'PostgreSQL owner for --runtime native')
+    .option('--postgres-config <path>', 'Env/config file reference for external PostgreSQL; never pass a credential URL in argv')
+    .option('--postgres-tls <disable|require|verify-full>', 'Explicit external PostgreSQL TLS policy')
+    .option('--source-root <path>', 'Public aops-community checkout root; defaults to the current directory')
     .option('--port <number>', 'Host port', '5900')
+    .option('--foreground', 'Keep the native server attached to this terminal')
+    .option('--detach', 'Start the native server in the background (default)')
+    .option('--preview', 'Validate and print the setup contract without mutation')
+    .option('--apply', 'Apply the selected setup contract')
     .action((options) => runCommunityServerSetup(options, dependencies))
-  common(command.command('start').alias('up').description('Pull the installed digest and start the server'))
+  common(command.command('start').alias('up').description('Start the installed native source host or OCI stack'))
+    .option('--foreground', 'Keep the native server attached to this terminal')
+    .option('--detach', 'Start the native server in the background (default)')
     .action((options) => runCommunityServerStart(options, dependencies))
   common(command.command('stop').alias('down').description('Stop the server without deleting data'))
     .action((options) => runCommunityServerStop(options, dependencies))
   common(command.command('restart').description('Restart the installed server'))
+    .option('--foreground', 'Keep the restarted native server attached to this terminal')
+    .option('--detach', 'Restart the native server in the background (default)')
     .action((options) => runCommunityServerRestart(options, dependencies))
-  common(command.command('status').description('Show install and container status')).action(runCommunityServerStatus)
+  common(command.command('status').description('Show install and runtime status')).action(runCommunityServerStatus)
+  common(command.command('migration-plan').description('Read the exact pending native database migration plan without mutation'))
+    .action((options) => runCommunityServerMigrationPlan(options, dependencies))
+  common(command.command('attest-external-snapshot').description('Bind an operator-owned external PostgreSQL snapshot to one exact migration plan'))
+    .requiredOption('--expected-plan-sha256 <digest>', 'Exact raw plan SHA-256 returned by server migration-plan')
+    .requiredOption('--provider <name>', 'External snapshot provider or platform')
+    .requiredOption('--snapshot-ref <reference>', 'Immutable external snapshot reference')
+    .option('--snapshot-digest <sha256:digest>', 'Optional immutable snapshot content digest')
+    .requiredOption('--attested-by <identity>', 'Operator identity accepting external recovery ownership')
+    .requiredOption('--restore-instructions-ref <reference>', 'Durable runbook or restore-instructions reference')
+    .option('--preview', 'Validate and print the exact attestation without writing it')
+    .option('--apply', 'Write the immutable plan-bound attestation')
+    .option('--confirm-external-recovery-owner', 'Confirm that restore execution remains externally owned')
+    .action((options) => runCommunityServerAttestExternalSnapshot(options, dependencies))
   common(command.command('logs').description('Show recent server logs'))
     .option('--tail <number>', 'Number of log lines', '100')
     .action(runCommunityServerLogs)
-  common(releaseOptions(command.command('update').description('Verify, back up, and update to a signed release')))
+  common(releaseOptions(command.command('update').description('Update an installed native application or OCI stack')))
+    .option('--source-root <path>', 'Distinct exact public checkout for a native application update')
+    .option('--foreground', 'Keep the updated native server attached to this terminal')
+    .option('--detach', 'Start the updated native server in the background (default)')
     .action((options) => runCommunityServerUpdate(options, dependencies))
   common(command.command('recover').description('Recover one exact failed or unhealthy update from its verified backup'))
     .requiredOption('--update-id <id>', 'Exact update ID recorded by the failed or unhealthy update')
@@ -1320,15 +2226,29 @@ export function makeCommunityServerCommand(identity: CommunityServerCommandIdent
     .option('--confirm-recovery-reconciliation', 'Confirm this exact fail-closed reconciliation')
     .option('--confirm-data-rewind', 'Confirm switching back to the exact recorded source data volume')
     .action((options) => runCommunityServerReconcileRecovery(options, dependencies))
-  common(command.command('rollback').description('Restore the verified pre-update backup into a fresh data volume'))
+  const rollback = common(command.command('rollback').description('Rollback application code; legacy flat form remains OCI-only until P4'))
     .option('--confirm-data-rewind', 'Confirm that data will be rewound to the pre-update backup')
     .action((options) => runCommunityServerRollback(options, dependencies))
+  common(rollback.command('app').description('Rollback only native application code; never restore or rewind PostgreSQL'))
+    .requiredOption('--update-id <id>', 'Exact native application update ID')
+    .requiredOption('--source-root <path>', 'Exact prior public release checkout; the CLI never downloads or changes it')
+    .option('--foreground', 'Keep the rolled-back native server attached to this terminal')
+    .option('--detach', 'Start the rolled-back native server in the background (default)')
+    .action((options: CommunityServerOptions, child: Command) =>
+      runCommunityServerRollbackApplication(mergeCommunityCommandOptions(options, child), dependencies))
   common(command.command('backup').description('Create and verify a custom-format PostgreSQL backup plus receipt'))
     .action((options) => runCommunityServerBackup(options, dependencies))
-  common(command.command('restore').description('Restore a verified manual backup into a fresh data volume'))
-    .requiredOption('--backup <path>', 'Backup dump path; its JSON receipt must exist beside it')
+  const restore = common(command.command('restore').description('Restore database data; legacy flat form remains OCI-only until P4'))
+    .option('--backup <path>', 'Backup dump path; its JSON receipt must exist beside it')
     .option('--confirm-data-rewind', 'Confirm that data will be rewound to the selected backup')
     .action((options) => runCommunityServerRestore(options, dependencies))
+  common(restore.command('db').description('Restore only PostgreSQL for one exact native application update'))
+    .requiredOption('--update-id <id>', 'Exact native application update ID whose snapshot evidence will be used')
+    .requiredOption('--source-root <path>', 'Exact prior public release checkout used to verify the restored database')
+    .option('--confirm-data-rewind', 'Confirm that PostgreSQL data may rewind to the exact pre-update snapshot')
+    .option('--confirm-external-restore-complete', 'Confirm an externally owned restore is complete and request strict verification')
+    .action((options: CommunityServerOptions, child: Command) =>
+      runCommunityServerRestoreDatabase(mergeCommunityCommandOptions(options, child), dependencies))
   common(command.command('operation-status').description('Inspect one exact durable operation journal without changing it'))
     .requiredOption('--operation-id <id>', 'Exact operation journal ID')
     .action((options) => runCommunityServerOperationStatus(options))

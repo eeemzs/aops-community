@@ -15,5 +15,3 @@ export interface IRepositoryPortKanbanColumn extends IRepositoryPortBaseCrud<Ibm
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmKanbanColumn>): import('effect').Effect<IbmKanbanColumn | null, RepositoryError>
   //<==//
 }
-
-

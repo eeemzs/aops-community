@@ -8,7 +8,7 @@ import {
   WorkbenchThinBar,
   type NavigatorTreeRow
 } from "@aopslab/xf-ui-composition-react";
-import { NavigatorSettingsGear } from "./navigatorGear";
+import { CockpitPanelCloseIcon } from "../components/CockpitViewIconSwitch";
 import type { AopsCockpitTranslationKey } from "./i18n";
 import type { ChatChannelRef, ChatRoomRef, ChatSession } from "./chat";
 import { avatarColor } from "../components/chat/avatar";
@@ -576,13 +576,6 @@ export function useChatNavigator(
     nav.setLeftMenuWidth(nextLeftWidth);
     nav.setNavigatorWidth(nextNavigatorWidth);
   }, [nav]);
-  const handleModeChange = useCallback(
-    (next: string) => {
-      if (next === "left-menu") nav.switchToLeftMenu();
-      else nav.switchToNavigator();
-    },
-    [nav]
-  );
   const openNavigator = useCallback(() => nav.openNavigator(), [nav]);
 
   const tNavigatorTools = useCallback((_key: string, fallback = "") => fallback, []);
@@ -590,15 +583,16 @@ export function useChatNavigator(
   const iconBar = (
     <NavigatorCategoryIconBar
       settingsSlot={
-        <NavigatorSettingsGear
-          mode={nav.mode}
-          onModeChange={handleModeChange}
-          title={t("chatNavSettings")}
-          modeLabel={t("chatNavMode")}
-          navigatorLabel={t("chatNavModeNavigator")}
-          leftMenuLabel={t("chatNavModeLeftMenu")}
-          testIdPrefix="aops-v2-chat"
-        />
+        <button
+          type="button"
+          className="inv-iv3-cattree-tool-btn aops-v2-tree-close"
+          aria-label={t("navSidePanelClose")}
+          title={t("navSidePanelClose")}
+          onClick={() => nav.setOpen(false)}
+          data-testid="aops-v2-chat-tree-close"
+        >
+          <CockpitPanelCloseIcon />
+        </button>
       }
       onExpandAll={handleExpandAll}
       onCollapseAll={handleCollapseAll}

@@ -5,4 +5,3 @@ import { buildDocmanKitStaticConfig } from './unified.js'
 export function createDocmanKitStaticConfigFromEnv(envConfig: DocmanKitEnvConfig): DocmanKitStaticConfig {
   return buildDocmanKitStaticConfig(envConfig)
 }
-

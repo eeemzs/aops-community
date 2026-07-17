@@ -20,4 +20,3 @@ export interface ICodexChatMessageServicePort {
   ): Effect.Effect<IbmCodexChatMessage[], CodexChatMessageServiceError>
   removeMessage(id: string): Effect.Effect<void, CodexChatMessageServiceError>
 }
-

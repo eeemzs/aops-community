@@ -19,4 +19,3 @@ export type ICodexChatThreadZodCtx = I18nZodContextWithChain<
   IbmCodexChatThread,
   ICodexChatThreadTranslationKeys
 >
-

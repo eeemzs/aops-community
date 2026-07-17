@@ -19,4 +19,3 @@ export const PromptErrorTag = {
 export class PromptDomainError extends Data.TaggedError(PromptErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type PromptServiceError = PromptDomainError | XfError | RepositoryError | XfUpsertError
-

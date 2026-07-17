@@ -21,4 +21,3 @@ export class ResourceDrizzleRepo extends DraBase<IbmResource, IdbResourceDrizzle
   // }
   //<==//
 }
-

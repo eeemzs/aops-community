@@ -16,4 +16,3 @@ export const ServiceFactoryPage = {
     return ServiceBuilderPage.create()
   },
 }
-

@@ -19,4 +19,3 @@ export const AgentSessionErrorTag = {
 export class AgentSessionDomainError extends Data.TaggedError(AgentSessionErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type AgentSessionServiceError = AgentSessionDomainError | XfError | RepositoryError | XfUpsertError
-

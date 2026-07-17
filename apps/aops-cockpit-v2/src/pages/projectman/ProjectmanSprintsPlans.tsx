@@ -18,12 +18,10 @@ import {
 } from "./sprintDetailBody";
 import { ProjectmanSprintCards } from "./ProjectmanSprintCards";
 import {
-  byRecordUpdatedDesc,
+  buildSprintPlanItems,
   detailProgressLabel,
   issueSprintId,
-  normalizePlanDetail,
-  planItemFromImplementationPlan,
-  planItemFromSprint
+  normalizePlanDetail
 } from "./helpers";
 import type { NormalizedPlanDetail, PlanRecordItem, ProjectmanSprintsProps, TFn } from "./types";
 
@@ -32,14 +30,10 @@ export function ProjectmanSprintsPlans({ model, navigator, selectedKey, locale, 
   // based today (no dates) — S0.2 rollup keeps it that way.
   const [activeTab, setActiveTab] = useState<SprintTabId>("phases");
   const [openPhases, setOpenPhases] = useState<Record<string, boolean>>({});
-  const [phaseView, setPhaseView] = useState<SprintPhaseView>("accordion");
+  const [phaseView, setPhaseView] = useState<SprintPhaseView>("timeline");
   const taskById = useMemo(() => new Map(model.tasks.map((task) => [task.id, task])), [model.tasks]);
   const items = useMemo(
-    () =>
-      [
-        ...model.sprints.map((sprint) => planItemFromSprint(sprint)),
-        ...model.implementationPlans.map((plan) => planItemFromImplementationPlan(plan))
-      ].sort(byRecordUpdatedDesc),
+    () => buildSprintPlanItems(model.sprints, model.implementationPlans),
     [model.implementationPlans, model.sprints]
   );
 

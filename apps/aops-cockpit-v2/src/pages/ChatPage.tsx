@@ -19,6 +19,7 @@ import { useCockpitViewport } from "../lib/viewport";
 import { MessageTimeline } from "../components/chat/MessageTimeline";
 import { MessageComposer } from "../components/chat/MessageComposer";
 import { avatarColor, initials } from "../components/chat/avatar";
+import { CockpitPanelCloseIcon, CockpitViewIcon } from "../components/CockpitViewIconSwitch";
 
 export type { ChatSession } from "../lib/chat";
 
@@ -202,6 +203,7 @@ export function ChatPage({ model, navigator, locale, t }: ChatPageProps): ReactN
     <div
       className="aops-v2-chat-console-page"
       data-mobile-navigator-open={mobileNavigatorOpen ? "true" : "false"}
+      data-side-panel-open={navigator.controller.open ? "true" : "false"}
     >
       {model.error ? (
         <p className="aops-v2-chat-error" role="alert">
@@ -216,6 +218,8 @@ export function ChatPage({ model, navigator, locale, t }: ChatPageProps): ReactN
         onCreateChannel={() => openConnect("create")}
         onCreateRoom={() => setCreateRoomOpen(true)}
         onOpenNavigator={openMobileNavigator}
+        sidePanelOpen={navigator.controller.open}
+        onToggleSidePanel={() => navigator.controller.setOpen((current) => !current)}
         navigatorTriggerRef={mobileNavigatorTriggerRef}
         t={t}
       />
@@ -234,6 +238,10 @@ export function ChatPage({ model, navigator, locale, t }: ChatPageProps): ReactN
           t={t}
           onCreateChannel={() => openConnect("create")}
           onJoinChannel={() => openConnect("join")}
+          onClose={() => {
+            if (isMobileViewport) closeMobileNavigator();
+            else navigator.controller.setOpen(false);
+          }}
           onSelectRoom={(roomId, channelId) => {
             void model.selectRoom(roomId, channelId);
             if (isMobileViewport) {
@@ -283,6 +291,8 @@ function ChatConsoleToolbar({
   onCreateChannel,
   onCreateRoom,
   onOpenNavigator,
+  sidePanelOpen,
+  onToggleSidePanel,
   navigatorTriggerRef,
   t
 }: {
@@ -293,11 +303,25 @@ function ChatConsoleToolbar({
   onCreateChannel: () => void;
   onCreateRoom: () => void;
   onOpenNavigator: () => void;
+  sidePanelOpen: boolean;
+  onToggleSidePanel: () => void;
   navigatorTriggerRef: RefObject<HTMLButtonElement | null>;
   t: (key: AopsCockpitTranslationKey) => string;
 }): ReactNode {
   return (
     <div className="aops-v2-chat-console-toolbar">
+      <button
+        type="button"
+        className="aops-v2-chat-side-nav-trigger"
+        onClick={onToggleSidePanel}
+        aria-label={sidePanelOpen ? t("navSidePanelHide") : t("navSidePanelShow")}
+        title={sidePanelOpen ? t("navSidePanelHide") : t("navSidePanelShow")}
+        aria-pressed={sidePanelOpen}
+        aria-expanded={sidePanelOpen}
+        data-testid="aops-v2-chat-side-panel-toggle"
+      >
+        <CockpitViewIcon kind="side-panel" panelOpen={sidePanelOpen} />
+      </button>
       <button
         ref={navigatorTriggerRef}
         type="button"
@@ -339,6 +363,7 @@ function ChatConsoleNavigator({
   t,
   onCreateChannel,
   onJoinChannel,
+  onClose,
   onSelectRoom
 }: {
   model: ChatSession;
@@ -346,6 +371,7 @@ function ChatConsoleNavigator({
   t: (key: AopsCockpitTranslationKey) => string;
   onCreateChannel: () => void;
   onJoinChannel: () => void;
+  onClose: () => void;
   onSelectRoom: (roomId: string, channelId: string) => void;
 }): ReactNode {
   const query = navigator.searchValue.trim().toLocaleLowerCase();
@@ -367,11 +393,15 @@ function ChatConsoleNavigator({
         <span>
           {t("chatChannelsLabel")} <b>{model.channels.length}</b>
         </span>
-        <button type="button" className="aops-v2-chat-console-navgear" aria-label={t("chatNavSettings")} title={t("chatNavSettings")}>
-          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-            <path d="M6.8 2.2h2.4l.4 1.5 1.3.6 1.4-.7 1.2 2-1.1 1 .1 1.4 1.1 1-1.2 2-1.4-.7-1.3.6-.4 1.5H6.8l-.4-1.5-1.3-.6-1.4.7-1.2-2 1.1-1-.1-1.4-1.1-1 1.2-2 1.4.7 1.3-.6.4-1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-            <circle cx="8" cy="8" r="1.7" stroke="currentColor" strokeWidth="1.2" />
-          </svg>
+        <button
+          type="button"
+          className="aops-v2-chat-console-navgear"
+          aria-label={t("navSidePanelClose")}
+          title={t("navSidePanelClose")}
+          onClick={onClose}
+          data-testid="aops-v2-chat-console-nav-close"
+        >
+          <CockpitPanelCloseIcon />
         </button>
       </div>
       <label className="aops-v2-chat-console-search">

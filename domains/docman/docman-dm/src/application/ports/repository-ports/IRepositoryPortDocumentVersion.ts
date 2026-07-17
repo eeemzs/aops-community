@@ -14,4 +14,3 @@ export interface IRepositoryPortDocumentVersion extends IRepositoryBaseCrud<IbmD
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmDocumentVersion>): import('effect').Effect<IbmDocumentVersion | null, RepositoryError>
   //<==//
 }
-

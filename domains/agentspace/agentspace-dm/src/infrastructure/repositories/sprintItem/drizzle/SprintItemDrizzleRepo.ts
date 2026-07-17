@@ -21,4 +21,3 @@ export class SprintItemDrizzleRepo extends DraBase<IbmSprintItem, IdbSprintItemD
   // }
   //<==//
 }
-

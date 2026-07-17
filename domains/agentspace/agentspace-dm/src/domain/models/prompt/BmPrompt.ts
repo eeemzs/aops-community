@@ -17,4 +17,3 @@ export class BmPrompt extends BmBase<IbmPrompt, IPromptMlgTags> {
     }
   }
 }
-

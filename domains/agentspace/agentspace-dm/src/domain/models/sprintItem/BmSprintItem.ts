@@ -17,4 +17,3 @@ export class BmSprintItem extends BmBase<IbmSprintItem, ISprintItemMlgTags> {
     }
   }
 }
-

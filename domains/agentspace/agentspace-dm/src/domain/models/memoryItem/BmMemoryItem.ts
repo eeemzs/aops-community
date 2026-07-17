@@ -17,4 +17,3 @@ export class BmMemoryItem extends BmBase<IbmMemoryItem, IMemoryItemMlgTags> {
     }
   }
 }
-

@@ -19,4 +19,3 @@ export const TaskCommentErrorTag = {
 export class TaskCommentDomainError extends Data.TaggedError(TaskCommentErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type TaskCommentServiceError = TaskCommentDomainError | XfError | RepositoryError | XfUpsertError
-

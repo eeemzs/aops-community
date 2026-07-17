@@ -30,6 +30,7 @@ import type { CommunityOperation, CommunityOperationLockReceipt } from './commun
 
 const SHA256 = /^sha256:[a-f0-9]{64}$/
 const INSTANCE_NAME = /^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/
+const RELEASE_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 
 export type CommunityRelease = {
@@ -564,7 +565,7 @@ function assertReleaseIdentity(value: unknown): asserts value is CommunityReleas
     throw new Error('community_installed_release_invalid')
   }
   const release = value as Partial<CommunityInstalledRelease>
-  if (typeof release.releaseVersion !== 'string' || !release.releaseVersion) {
+  if (typeof release.releaseVersion !== 'string' || !RELEASE_VERSION.test(release.releaseVersion)) {
     throw new Error('community_installed_release_version_invalid')
   }
   assertDigest(release.imageIndexDigest, 'community_installed_release_index_digest_invalid')
@@ -953,6 +954,7 @@ function renderRuntimeEnv(params: {
     `COMPOSE_PROJECT_NAME=${params.state.composeProjectName}`,
     `AOPS_INSTALL_ID=${params.state.installId}`,
     `AOPS_IMAGE_REF=${params.state.activeRelease.imageRef}`,
+    `AOPS_RELEASE_VERSION=${params.state.activeRelease.releaseVersion}`,
     `AOPS_POSTGRES_VOLUME_NAME=${params.state.postgresVolumeName}`,
     'AOPS_POSTGRES_DB=aops',
     'AOPS_POSTGRES_USER=aops',
@@ -969,6 +971,7 @@ function renderUpdatedRuntimeEnvBindings(content: string, state: CommunityInstal
     ['COMPOSE_PROJECT_NAME', state.composeProjectName],
     ['AOPS_INSTALL_ID', state.installId],
     ['AOPS_IMAGE_REF', state.activeRelease.imageRef],
+    ['AOPS_RELEASE_VERSION', state.activeRelease.releaseVersion],
     ['AOPS_POSTGRES_VOLUME_NAME', state.postgresVolumeName],
   ])
   const seen = new Set<string>()
@@ -1555,10 +1558,11 @@ export function buildCommunityComposeBaseInvocation(params: {
   return {
     command: 'docker',
     args,
-    env: {
-      AOPS_IMAGE_REF: release.imageRef,
-      AOPS_POSTGRES_VOLUME_NAME: postgresVolumeName,
-      COMPOSE_PROJECT_NAME: params.state.composeProjectName,
+      env: {
+        AOPS_IMAGE_REF: release.imageRef,
+        AOPS_RELEASE_VERSION: release.releaseVersion,
+        AOPS_POSTGRES_VOLUME_NAME: postgresVolumeName,
+        COMPOSE_PROJECT_NAME: params.state.composeProjectName,
     },
   }
 }

@@ -17,4 +17,3 @@ export class BmTask extends BmBase<IbmTask, ITaskMlgTags> {
     }
   }
 }
-

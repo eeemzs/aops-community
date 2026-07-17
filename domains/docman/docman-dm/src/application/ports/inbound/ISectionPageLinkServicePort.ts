@@ -17,4 +17,3 @@ export interface ISectionPageLinkServicePort {
 export interface ISectionPageLinkLookupPort {
   getById(id: string): Effect.Effect<IbmSectionPageLink | null, SectionPageLinkServiceError>
 }
-

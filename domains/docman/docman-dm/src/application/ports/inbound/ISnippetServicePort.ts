@@ -17,4 +17,3 @@ export interface ISnippetServicePort {
 export interface ISnippetLookupPort {
   getById(id: string): Effect.Effect<IbmSnippet | null, SnippetServiceError>
 }
-

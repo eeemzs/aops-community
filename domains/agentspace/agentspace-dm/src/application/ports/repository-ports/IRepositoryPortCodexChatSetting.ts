@@ -12,5 +12,3 @@ export interface IRepositoryPortCodexChatSetting
   // Add domain-specific methods here.
   //<==//
 }
-
-

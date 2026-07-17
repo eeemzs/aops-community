@@ -21,4 +21,3 @@ export class SkillVersionDrizzleRepo extends DraBase<IbmSkillVersion, IdbSkillVe
   // }
   //<==//
 }
-

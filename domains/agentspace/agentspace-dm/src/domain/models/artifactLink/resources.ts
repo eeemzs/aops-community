@@ -13,4 +13,3 @@ export const artifactLinkResources: BmResourceInline<IbmArtifactLink, IArtifactL
 
 export type IArtifactLinkTranslationKeys = I18nBmValidKeys<IbmArtifactLink, ValidationResourceType, IArtifactLinkMlgTags>
 export type IArtifactLinkZodCtx = I18nZodContextWithChain<IbmArtifactLink, IArtifactLinkTranslationKeys>
-

@@ -122,9 +122,10 @@ jobs:
               --checkout-root "$GITHUB_WORKSPACE/previous" \
               --expected-tag "$PREVIOUS_RELEASE_REF" \
               --json
-            (cd previous && ./aops server setup --data-root "$DATA_ROOT" --json)
+            (cd previous && ./aops server setup \
+              --runtime oci --release-dir ./release --data-root "$DATA_ROOT" --apply --json)
           else
-            target_cli server setup --data-root "$DATA_ROOT" --json
+            target_cli server setup --runtime oci --release-dir ./release --data-root "$DATA_ROOT" --apply --json
           fi
 
           STATE="$DATA_ROOT/instances/default/install-state.json"
@@ -147,7 +148,7 @@ jobs:
 
           if [[ -n "$PREVIOUS_RELEASE_REF" ]]; then
             assert_legal_matches previous/release
-            target_cli server update --data-root "$DATA_ROOT" --json
+            target_cli server update --release-dir ./release --data-root "$DATA_ROOT" --json
             target_cli server status --data-root "$DATA_ROOT" --json
             [[ "$(marker)" == "persists" ]]
             assert_legal_matches release
@@ -165,46 +166,76 @@ jobs:
           assert_legal_matches "$ACTIVE_RELEASE_ROOT"
           [[ "$(marker)" == "persists" ]]
 
-  windows-cli-contract:
-    name: Windows clone and local CLI contract
+  native-source-lifecycle:
+    name: Docker-free native N1 (${{ matrix.runner }})
     needs: tag-contract
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - ubuntu-24.04
+          - windows-2025
+          - macos-15
+    runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v6
+      - name: Clone the public release tag without credentials
+        uses: actions/checkout@v6
         with:
           repository: eeemzs/aops-community
           ref: ${{ inputs.release_ref }}
           fetch-depth: 2
           fetch-tags: true
           persist-credentials: false
-      - uses: actions/setup-node@v6
+
+      - name: Pin Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
-      - name: Run the bundled CLI without a workspace install
+
+      - name: Preserve the bundled release CLI contract on Windows
+        if: ${{ runner.os == 'Windows' }}
         shell: pwsh
         run: |
           .\aops.ps1 server --help
 
-  macos-cli-contract:
-    name: macOS hosted clone and local CLI contract (no Docker claim)
-    needs: tag-contract
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          repository: eeemzs/aops-community
-          ref: ${{ inputs.release_ref }}
-          fetch-depth: 2
-          fetch-tags: true
-          persist-credentials: false
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-      - name: Run the bundled CLI without a workspace install
+      - name: Preserve the bundled release CLI contract on Unix
+        if: ${{ runner.os != 'Windows' }}
         shell: bash
         run: |
           set -euo pipefail
           ./aops server --help
+
+      - name: Pin pnpm 11
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 11.9.0
+          run_install: false
+
+      - name: Install a clean PostgreSQL 17 service without Docker
+        id: postgres
+        uses: ikalnytskyi/action-setup-postgres@c4dda34aae1c821e3a771b68b73b13af3198a7ee # v8
+        with:
+          username: aops_clean
+          password: ${{ format('AopsN1_{0}_{1}', github.run_id, github.run_attempt) }}
+          database: aops_clean
+          port: '55432'
+          postgres-version: '17'
+          ssl: false
+
+      - name: Install and build the source-local CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile
+          pnpm --filter @aops/aops-cli... run build
+
+      - name: Prove native setup, health, restart, logs and stop
+        shell: bash
+        env:
+          AOPS_CLEAN_MACHINE_POSTGRES_URL: ${{ steps.postgres.outputs.connection-uri }}
+        run: |
+          set -euo pipefail
+          pnpm exec node scripts/community-export/community-native-clean-machine.mjs --json
 
   macos-docker-lifecycle:
     name: macOS real-machine Docker lifecycle
@@ -229,7 +260,7 @@ jobs:
           DATA_ROOT="${RUNNER_TEMP}/aops-community-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           docker version
           cli() { ./aops "$@"; }
-          cli server setup --data-root "$DATA_ROOT" --json
+          cli server setup --runtime oci --release-dir ./release --data-root "$DATA_ROOT" --apply --json
           cli server backup --data-root "$DATA_ROOT" --json
           cli server stop --data-root "$DATA_ROOT" --json
           cli server start --data-root "$DATA_ROOT" --json

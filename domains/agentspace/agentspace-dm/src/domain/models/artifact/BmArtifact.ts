@@ -17,4 +17,3 @@ export class BmArtifact extends BmBase<IbmArtifact, IArtifactMlgTags> {
     }
   }
 }
-

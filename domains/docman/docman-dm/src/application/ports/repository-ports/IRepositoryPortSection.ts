@@ -14,4 +14,3 @@ export interface IRepositoryPortSection extends IRepositoryBaseCrud<IbmSection, 
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmSection>): import('effect').Effect<IbmSection | null, RepositoryError>
   //<==//
 }
-

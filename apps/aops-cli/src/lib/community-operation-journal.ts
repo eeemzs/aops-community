@@ -45,13 +45,16 @@ export type CommunityOperationJournalDigestSet = Readonly<{
 
 export type CommunityOperationReconciliationAction =
   | 'acknowledge-no-side-effect'
+  | 'acknowledge-native-runtime-state'
   | 'restore-source-runtime'
   | 'acknowledge-artifact-preserved'
   | 'acknowledge-partial-install-preserved'
   | 'complete-reset-preserving-volumes'
+  | 'complete-native-reset-preserving-volume'
 
 export type CommunityOperationJournalRecord = Readonly<{
   schemaVersion: 1
+  runtimeMode: 'oci' | 'native'
   id: string
   operation: CommunityOperation
   status: CommunityOperationJournalStatus
@@ -307,9 +310,10 @@ function assertRecord(value: unknown): asserts value is CommunityOperationJourna
   const record = value as Partial<CommunityOperationJournalRecord>
   const allowedKeys = [
     'createdAt', 'id', 'operation', 'outcome', 'permittedActions', 'phase', 'postDigests', 'preDigests',
-    'receipt', 'schemaVersion', 'sequence', 'sourceState', 'status', 'step', 'updatedAt',
+    'receipt', 'runtimeMode', 'schemaVersion', 'sequence', 'sourceState', 'status', 'step', 'updatedAt',
   ]
   if (Object.keys(value).some((key) => !allowedKeys.includes(key)) || record.schemaVersion !== 1 ||
+      !['oci', 'native'].includes(String(record.runtimeMode)) ||
       typeof record.id !== 'string' || !UUID.test(record.id) ||
       !['setup', 'update', 'recover', 'rollback', 'start', 'stop', 'restart', 'backup', 'restore', 'reset'].includes(String(record.operation)) ||
       !['running', 'aborted', 'failed', 'succeeded', 'reconciled'].includes(String(record.status)) ||
@@ -318,8 +322,9 @@ function assertRecord(value: unknown): asserts value is CommunityOperationJourna
       !Number.isSafeInteger(record.sequence) || Number(record.sequence) < 0 ||
       !record.receipt || typeof record.receipt !== 'object' ||
       !Array.isArray(record.permittedActions) || record.permittedActions.some((action) =>
-        !['acknowledge-no-side-effect', 'restore-source-runtime', 'acknowledge-artifact-preserved', 'acknowledge-partial-install-preserved',
-          'complete-reset-preserving-volumes'].includes(action))) {
+        !['acknowledge-no-side-effect', 'acknowledge-native-runtime-state', 'restore-source-runtime',
+          'acknowledge-artifact-preserved', 'acknowledge-partial-install-preserved',
+          'complete-reset-preserving-volumes', 'complete-native-reset-preserving-volume'].includes(action))) {
     throw new Error('community_operation_journal_record_invalid')
   }
   assertIso(record.createdAt)
@@ -333,7 +338,10 @@ function assertRecord(value: unknown): asserts value is CommunityOperationJourna
     throw new Error('community_operation_journal_record_invalid')
   }
   assertIso(record.receipt.startedAt)
-  if (record.sourceState !== null) assertSourceState(record.sourceState)
+  if (record.runtimeMode === 'native' && record.sourceState !== null) {
+    throw new Error('community_operation_journal_record_invalid')
+  }
+  if (record.runtimeMode === 'oci' && record.sourceState !== null) assertSourceState(record.sourceState)
   if (record.outcome !== undefined && !['aborted', 'operation-failed', 'completed', 'operator-reconciled'].includes(record.outcome)) {
     throw new Error('community_operation_journal_record_invalid')
   }
@@ -375,7 +383,7 @@ function assertInitialRecord(record: CommunityOperationJournalRecord): void {
   if (record.sequence !== 0 || record.status !== 'running' || record.phase !== 'prepared' ||
       record.step !== 'prepared' || record.outcome !== undefined || record.postDigests !== null ||
       record.updatedAt !== record.createdAt ||
-      !sameJson(record.permittedActions, permittedActions(record.operation, record.sourceState))) {
+      !sameJson(record.permittedActions, permittedActions(record.operation, record.sourceState, record.runtimeMode))) {
     throw new Error('community_operation_journal_semantic_chain_invalid')
   }
 }
@@ -384,7 +392,7 @@ function assertSemanticTransition(
   previous: CommunityOperationJournalRecord,
   next: CommunityOperationJournalRecord,
 ): void {
-  for (const key of ['id', 'operation', 'createdAt', 'receipt', 'preDigests', 'sourceState', 'permittedActions'] as const) {
+  for (const key of ['id', 'operation', 'runtimeMode', 'createdAt', 'receipt', 'preDigests', 'sourceState', 'permittedActions'] as const) {
     if (!sameJson(previous[key], next[key])) throw new Error('community_operation_journal_semantic_chain_invalid')
   }
   if (next.sequence !== previous.sequence + 1 || Date.parse(next.updatedAt) < Date.parse(previous.updatedAt)) {
@@ -525,7 +533,14 @@ export function inspectCommunityOperationJournalFile(
   return inspection
 }
 
-function permittedActions(operation: CommunityOperation, sourceState: CommunityInstallState | null): CommunityOperationReconciliationAction[] {
+function permittedActions(
+  operation: CommunityOperation,
+  sourceState: CommunityInstallState | null,
+  runtimeMode: 'oci' | 'native',
+): CommunityOperationReconciliationAction[] {
+  if (runtimeMode === 'native') {
+    return ['acknowledge-no-side-effect', 'acknowledge-native-runtime-state', 'complete-native-reset-preserving-volume']
+  }
   if (operation === 'setup') {
     return sourceState
       ? ['acknowledge-no-side-effect', 'restore-source-runtime']
@@ -680,6 +695,7 @@ export function createCommunityOperationJournal(params: {
   operation: CommunityOperation
   receipt: CommunityOperationLockReceipt
   sourceState: CommunityInstallState | null
+  runtimeMode?: 'oci' | 'native'
   createId?: () => string
   now?: () => Date
 }): CommunityOperationJournalHandle {
@@ -687,6 +703,12 @@ export function createCommunityOperationJournal(params: {
   if (!UUID.test(id) || params.receipt.operation !== params.operation || params.receipt.schemaVersion !== 2) {
     throw new Error('community_operation_journal_create_invalid')
   }
+  const runtimeMode = params.runtimeMode ?? 'oci'
+  if (runtimeMode === 'native' && params.sourceState !== null) {
+    throw new Error('community_operation_journal_native_source_state_refused')
+  }
+  const sourceState = params.sourceState ? deepFreeze(structuredClone(params.sourceState)) : null
+  if (runtimeMode === 'oci' && sourceState) assertSourceState(sourceState)
   const journalRoot = ensureCanonicalDirectoryChain(params.paths.operationJournalRoot)
   const journalParent = path.dirname(journalRoot)
   const rootOriginal = lstatSync(journalRoot, { bigint: true })
@@ -697,10 +719,9 @@ export function createCommunityOperationJournal(params: {
   const fd = openSync(journalPath, constants.O_CREAT | constants.O_EXCL | constants.O_RDWR | noFollow | syncFlag, 0o600)
   try {
     const createdAt = (params.now ?? (() => new Date()))().toISOString()
-    const sourceState = params.sourceState ? deepFreeze(structuredClone(params.sourceState)) : null
-    if (sourceState) assertSourceState(sourceState)
     const initial: CommunityOperationJournalRecord = deepFreeze({
       schemaVersion: 1,
+      runtimeMode,
       id,
       operation: params.operation,
       status: 'running',
@@ -713,7 +734,7 @@ export function createCommunityOperationJournal(params: {
       preDigests: captureCommunityOperationDigests(params.paths),
       postDigests: null,
       sourceState,
-      permittedActions: permittedActions(params.operation, sourceState),
+      permittedActions: permittedActions(params.operation, sourceState, runtimeMode),
     })
     const encoded = encodeFrame(initial, ZERO_HASH)
     const written = writeSync(fd, encoded.content, 0, encoded.content.byteLength, 0)

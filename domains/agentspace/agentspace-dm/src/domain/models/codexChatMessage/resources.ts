@@ -19,4 +19,3 @@ export type ICodexChatMessageZodCtx = I18nZodContextWithChain<
   IbmCodexChatMessage,
   ICodexChatMessageTranslationKeys
 >
-

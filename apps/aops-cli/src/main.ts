@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
 import { logError } from '@aopslab/xf-cli-ui'
+import { resolveCommunityCliIdentity } from './lib/community-client-contract.js'
 import { makeInitCommand } from './commands/init.js'
 import { makeStartCommand } from './commands/start.js'
 import { makePlanCommand } from './commands/plan.js'
@@ -11,6 +12,7 @@ import { makeArchiveCommand } from './commands/archive.js'
 import { makeViewCommand } from './commands/view.js'
 import { makeHostCommand } from './commands/host.js'
 import { makeApiCommand } from './commands/api.js'
+import { guardCommunitySecretArgv, makeCommunityAuthCommand } from './commands/community-auth.js'
 import { makeMemoryCommand } from './commands/memory.js'
 import { makeCheckpointCommand } from './commands/checkpoint.js'
 import { makeExperienceCommand } from './commands/experience.js'
@@ -31,6 +33,8 @@ import { makePmCommand } from './commands/pm/index.js'
 import { makeCommunityServerCommand } from './commands/community-server.js'
 import { makeCommunityDoctorCommand } from './commands/community-doctor.js'
 import { makeCommunityConsoleCommand } from './commands/community-console.js'
+import { makeTargetCommand } from './commands/target.js'
+import { makeVersionCommand } from './commands/version.js'
 
 for (const stream of [process.stdout, process.stderr]) {
   stream.on('error', (error: NodeJS.ErrnoException) => {
@@ -46,7 +50,7 @@ export function buildCommunityProgram(): Command {
   program
     .name('aops-cli')
     .description('AOPS Community operator CLI for local-trusted, self-hosted workflows')
-    .version("0.0.1", '-V, --cli-version', 'output the CLI version')
+    .version(resolveCommunityCliIdentity().version, '-V, --cli-version', 'output the CLI version')
 
   program.addCommand(makeInitCommand()) // community-family:init
   program.addCommand(makeStartCommand()) // community-family:start
@@ -58,6 +62,7 @@ export function buildCommunityProgram(): Command {
   program.addCommand(makeViewCommand()) // community-family:view
   program.addCommand(makeHostCommand()) // community-family:host
   program.addCommand(makeApiCommand()) // community-family:api
+  program.addCommand(makeCommunityAuthCommand()) // community-family:auth
   program.addCommand(makeMemoryCommand()) // community-family:mem
   program.addCommand(makeCheckpointCommand()) // community-family:checkpoint
   program.addCommand(makeExperienceCommand()) // community-family:exp
@@ -75,9 +80,11 @@ export function buildCommunityProgram(): Command {
   program.addCommand(makeSkillCommand()) // community-family:skill
   program.addCommand(makeDocCommand()) // community-family:doc
   program.addCommand(makePmCommand()) // community-family:pm
-  program.addCommand(makeCommunityServerCommand({ cliVersion: "0.0.1" })) // community-family:server
+  program.addCommand(makeCommunityServerCommand()) // community-family:server
   program.addCommand(makeCommunityDoctorCommand()) // community-family:doctor
-  program.addCommand(makeCommunityConsoleCommand({ cliVersion: "0.0.1" })) // community-family:console
+  program.addCommand(makeCommunityConsoleCommand()) // community-family:console
+  program.addCommand(makeTargetCommand()) // community-family:target
+  program.addCommand(makeVersionCommand()) // community-family:version
   program.addHelpText('after', `
 AOPS Community is a single-user, self-hosted/local-trusted distribution.
 Canonical writes go to the local AOPS server; .aops/** remains a read-only cache.
@@ -101,6 +108,7 @@ async function main(): Promise<void> {
       ? [process.argv[0], process.argv[1], ...process.argv.slice(3)]
       : process.argv
     guardChatv3UnknownSubcommand(argv)
+    guardCommunitySecretArgv(argv)
     await program.parseAsync(argv)
   } catch (error) {
     logError(String((error as any)?.message ?? error))

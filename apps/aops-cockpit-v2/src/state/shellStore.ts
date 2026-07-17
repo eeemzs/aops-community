@@ -83,7 +83,7 @@ export const useShellStore = create<ShellState>()(
       navPopoverEnabled: false,
       section: "projects",
       activePageId: "projects",
-      locale: "tr",
+      locale: "en",
       selectedProjectKey: null,
       dockPinned: true,
 
@@ -122,6 +122,12 @@ export const useShellStore = create<ShellState>()(
     {
       name: SHELL_STORE_KEY,
       storage: createJSONStorage(() => window.localStorage),
+      version: 2,
+      migrate: (persistedState) =>
+        ({
+          ...(persistedState as Partial<ShellState>),
+          locale: "en"
+        }) as ShellState,
       // Persist only durable UI preferences (not transient selection).
       partialize: (state) => ({
         theme: state.theme,

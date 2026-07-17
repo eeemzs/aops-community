@@ -17,4 +17,3 @@ export class BmTag extends BmBase<IbmTag, ITagMlgTags> {
     }
   }
 }
-

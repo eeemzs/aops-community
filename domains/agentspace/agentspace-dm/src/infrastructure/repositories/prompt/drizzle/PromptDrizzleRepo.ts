@@ -21,4 +21,3 @@ export class PromptDrizzleRepo extends DraBase<IbmPrompt, IdbPromptDrizzle, type
   // }
   //<==//
 }
-

@@ -8,4 +8,3 @@ const conversions: FieldConversionLookup<IbmPageVersion, PageVersionColumnsDrizz
 }
 
 export const mapperPageVersionDrizzle = createBmDbMapper<IbmPageVersion, IdbPageVersionDrizzle, PageVersionColumnsDrizzle>(conversions);
-

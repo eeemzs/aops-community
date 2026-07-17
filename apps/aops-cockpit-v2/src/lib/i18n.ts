@@ -156,7 +156,11 @@ interface AopsCockpitTags {
   navModeDropdown: string;
   navModeCards: string;
   navPaneReopen: string;
+  navSidePanelShow: string;
+  navSidePanelHide: string;
+  navSidePanelClose: string;
   navArchivedGroup: string;
+  navActiveGroup: string;
   // Boards navigator
   pmNavActiveBoards: string;
   pmNavUntitledBoard: string;
@@ -254,6 +258,9 @@ interface AopsCockpitTags {
   docsCardsOpen: string;
   pmRecordViewList: string;
   pmRecordViewSidePanel: string;
+  pmSprintSidePanelShow: string;
+  pmSprintSidePanelHide: string;
+  pmSprintSidePanelClose: string;
   pmRecordViewLabel: string;
   pmRecordDelete: string;
   pmRecordDeleteTitle: string;
@@ -441,8 +448,26 @@ interface AopsCockpitTags {
   pmReferencesTab: string;
   pmTasksTab: string;
   pmPhaseView: string;
+  pmPhaseTimeline: string;
   pmPhaseAccordion: string;
   pmPhaseTable: string;
+  pmTimelineEyebrow: string;
+  pmTimelineTitle: string;
+  pmTimelineSubtitle: string;
+  pmTimelineProgress: string;
+  pmTimelineCurrent: string;
+  pmTimelineNext: string;
+  pmTimelineComplete: string;
+  pmTimelineUpcoming: string;
+  pmTimelineBlocked: string;
+  pmTimelineUnplanned: string;
+  pmTimelineFinished: string;
+  pmTimelineFinishLine: string;
+  pmTimelineCompletedTasks: string;
+  pmTimelineCompletedPhases: string;
+  pmTimelinePhase: string;
+  pmTimelineTasks: string;
+  pmTimelineNoTasks: string;
   pmPhaseChecklistItem: string;
   pmPhaseNotes: string;
   pmSeverity: string;
@@ -940,10 +965,17 @@ const resources = {
     navModeDropdown: { en: "Dropdown", tr: "Açılır liste" },
     navModeCards: { en: "Cards", tr: "Kartlar" },
     navPaneReopen: { en: "Show navigator", tr: "Navigatörü göster" },
+    navSidePanelShow: { en: "Show side panel", tr: "Yan paneli göster" },
+    navSidePanelHide: { en: "Hide side panel", tr: "Yan paneli gizle" },
+    navSidePanelClose: { en: "Close side panel", tr: "Yan paneli kapat" },
     navArchivedGroup: { en: "Archived", tr: "Arşiv" },
+    navActiveGroup: { en: "Active", tr: "Aktif" },
     pmNavActiveBoards: { en: "Active boards", tr: "Aktif panolar" },
     pmNavUntitledBoard: { en: "Untitled board", tr: "Adsız pano" },
-    pmNavSearchBoards: { en: "Search boards", tr: "Panolarda ara" },
+    pmNavSearchBoards: {
+      en: "Search boards, TASK-92 or task content",
+      tr: "Pano, TASK-92 veya görev içeriği ara"
+    },
     pmNavFilterBoards: { en: "Filter boards", tr: "Panoları filtrele" },
     pmNavBoardTools: { en: "Board navigator tools", tr: "Pano navigatör araçları" },
     pmNavBoardsPane: { en: "Boards navigator", tr: "Panolar navigatörü" },
@@ -1073,6 +1105,9 @@ const resources = {
     docsCardsOpen: { en: "Open document", tr: "Dokümanı aç" },
     pmRecordViewList: { en: "List", tr: "Liste" },
     pmRecordViewSidePanel: { en: "Side panel", tr: "Yan panel" },
+    pmSprintSidePanelShow: { en: "Show sprint side panel", tr: "Sprint yan panelini göster" },
+    pmSprintSidePanelHide: { en: "Hide sprint side panel", tr: "Sprint yan panelini gizle" },
+    pmSprintSidePanelClose: { en: "Close sprint side panel", tr: "Sprint yan panelini kapat" },
     pmRecordViewLabel: { en: "View", tr: "Görünüm" },
     pmRecordDelete: { en: "Delete record", tr: "Kaydı sil" },
     pmRecordDeleteTitle: { en: "Delete Record", tr: "Kaydı Sil" },
@@ -1265,8 +1300,32 @@ const resources = {
     pmReferencesTab: { en: "References", tr: "Referanslar" },
     pmTasksTab: { en: "Tasks", tr: "Görevler" },
     pmPhaseView: { en: "Phase view", tr: "Faz görünümü" },
+    pmPhaseTimeline: { en: "Timeline", tr: "Zaman akışı" },
     pmPhaseAccordion: { en: "Accordion", tr: "Akordeon" },
     pmPhaseTable: { en: "Table", tr: "Tablo" },
+    pmTimelineEyebrow: { en: "Execution map", tr: "Yürütme haritası" },
+    pmTimelineTitle: { en: "Plan timeline", tr: "Plan akışı" },
+    pmTimelineSubtitle: {
+      en: "Follow completed work, the active boundary and what comes next.",
+      tr: "Tamamlanan işleri, aktif sınırı ve sırada ne olduğunu tek akışta izle."
+    },
+    pmTimelineProgress: { en: "Plan progress", tr: "Plan ilerlemesi" },
+    pmTimelineCurrent: { en: "Current phase", tr: "Aktif faz" },
+    pmTimelineNext: { en: "Up next", tr: "Sıradaki" },
+    pmTimelineComplete: { en: "Complete", tr: "Tamamlandı" },
+    pmTimelineUpcoming: { en: "Upcoming", tr: "Sırada" },
+    pmTimelineBlocked: { en: "Blocked", tr: "Engelli" },
+    pmTimelineUnplanned: { en: "No checklist", tr: "Checklist yok" },
+    pmTimelineFinished: { en: "All phases complete", tr: "Tüm fazlar tamamlandı" },
+    pmTimelineFinishLine: { en: "Finish line", tr: "Bitiş çizgisi" },
+    pmTimelineCompletedTasks: { en: "tasks complete", tr: "iş tamamlandı" },
+    pmTimelineCompletedPhases: { en: "phases complete", tr: "faz tamamlandı" },
+    pmTimelinePhase: { en: "Phase", tr: "Faz" },
+    pmTimelineTasks: { en: "items", tr: "iş" },
+    pmTimelineNoTasks: {
+      en: "This phase has no checklist items yet.",
+      tr: "Bu faz için henüz checklist maddesi yok."
+    },
     pmPhaseChecklistItem: { en: "Checklist item", tr: "Kontrol öğesi" },
     pmPhaseNotes: { en: "Notes", tr: "Notlar" },
     pmSeverity: { en: "Severity", tr: "Önem" },

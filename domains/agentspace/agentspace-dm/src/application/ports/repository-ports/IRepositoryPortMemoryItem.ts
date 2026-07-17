@@ -15,5 +15,3 @@ export interface IRepositoryPortMemoryItem extends IRepositoryPortBaseCrud<IbmMe
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmMemoryItem>): import('effect').Effect<IbmMemoryItem | null, RepositoryError>
   //<==//
 }
-
-

@@ -1,12 +1,19 @@
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import {
-  createReadStream,
+  closeSync,
+  constants,
   existsSync,
+  fstatSync,
+  fsyncSync,
+  linkSync,
   lstatSync,
+  openSync,
+  readSync,
   readFileSync,
   readdirSync,
   realpathSync,
-  statSync,
+  rmSync,
+  writeSync,
 } from 'node:fs'
 import path from 'node:path'
 
@@ -15,6 +22,10 @@ import { Client } from 'pg'
 const STATEMENT_BREAKPOINT = '--> statement-breakpoint'
 const STRICT_RECEIPT_TABLE = 'aops_community_migration_receipts_v1'
 const STRICT_STATE_TABLE = 'aops_community_migration_state_v1'
+const STRICT_AUDIT_SCHEMA = 'aops_community_meta'
+const STRICT_PLAN_ACCEPTANCE_TABLE = 'migration_plan_acceptances_v1'
+const MAX_SNAPSHOT_EVIDENCE_BYTES = 262_144
+const SNAPSHOT_HASH_BUFFER_BYTES = 1024 * 1024
 const RAW_SHA256 = /^[a-f0-9]{64}$/
 const PREFIXED_SHA256 = /^sha256:[a-f0-9]{64}$/
 const SAFE_ID = /^[a-z][a-z0-9-]*$/
@@ -131,18 +142,94 @@ export type CommunityStrictStateReceiptV1 = Readonly<{
   stateFingerprintSha256: string
 }>
 
-export type CommunityStrictBackupEvidenceV1 = Readonly<{
+export type CommunityStrictMigrationPlanAppliedPrefixV1 = Readonly<{
+  rootId: string
+  rootOrdinal: number
+  migrationTablePresent: boolean
+  appliedCount: number
+  migrations: readonly Readonly<{
+    migrationIdx: number
+    tag: string
+    sqlSha256: string
+  }>[]
+}>
+
+export type CommunityStrictMigrationPlanSourceV1 = Readonly<{
+  postgresMajor: number
+  lineageId: 'empty-v1' | string
+  schemaFingerprintSha256: string
+  receiptFingerprintSha256: string
+  strictReceiptRowsSha256: string | null
+  appliedPrefixes: readonly CommunityStrictMigrationPlanAppliedPrefixV1[]
+}>
+
+export type CommunityStrictMigrationPlanPendingMigrationV1 = Readonly<{
+  order: number
+  rootId: string
+  rootOrdinal: number
+  migrationIdx: number
+  tag: string
+  sqlSha256: string
+  risk: CommunityStrictMigrationRiskV1
+}>
+
+export type CommunityStrictMigrationPlanV1 = Readonly<{
   schemaVersion: 1
-  backupPath: string
-  sha256: string
-  byteLength: number
-  verified: true
+  policyId: string
+  policySha256: string
+  inventorySha256: string
+  bundleSha256: string
+  target: Readonly<{
+    lineageId: string
+    postgresMajor: number
+    relationCount: number
+    schemaFingerprintSha256: string
+    appliedCounts: readonly number[]
+    policyId: string
+    inventorySha256: string
+    convergenceSha256: string
+  }>
+  source: CommunityStrictMigrationPlanSourceV1
+  sourceFingerprintSha256: string
+  pendingMigrations: readonly CommunityStrictMigrationPlanPendingMigrationV1[]
+  convergenceSha256: string
+  action: 'migrate' | 'verify-only'
+}>
+
+export type CommunityStrictMigrationPlanBindingV1 = Readonly<{
+  plan: CommunityStrictMigrationPlanV1
+  planSha256: string
+  sourceFingerprintSha256: string
+}>
+
+export type CommunityStrictMigrationApplyResultV1 = CommunityStrictStateReceiptV1 & Readonly<{
+  migrationPlan: CommunityStrictMigrationPlanV1
+  acceptedPlanSha256: string
+  sourceFingerprintSha256: string
+  durableAcceptance: CommunityStrictMigrationPlanAcceptanceV1
+  latestAppliedPlanSha256: string | null
+  latestAppliedAcceptance: CommunityStrictMigrationPlanAcceptanceV1 | null
+}>
+
+type CommunityStrictSnapshotEvidenceSourceV1 = Readonly<{
+  acceptedPlanSha256: string
+  sourceMigrationStateFingerprintSha256: string
   sourceLineageId: string
   sourceSchemaFingerprintSha256: string
   sourceReceiptFingerprintSha256: string
   sourceDataFingerprintSha256: string
   sourceStateFingerprintSha256: string
   targetInventorySha256: string
+}>
+
+export type CommunityStrictVerifiedBackupEvidenceV1 = CommunityStrictSnapshotEvidenceSourceV1 & Readonly<{
+  schemaVersion: 1
+  kind: 'managed-verified-backup'
+  evidencePolicy: 'managed-restore-verified-v1'
+  createdAt: string
+  backupPath: string
+  sha256: string
+  byteLength: number
   restoreProof: Readonly<{
     method: 'pg-restore-disposable-v1'
     backupSha256: string
@@ -152,6 +239,61 @@ export type CommunityStrictBackupEvidenceV1 = Readonly<{
     restoredDataFingerprintSha256: string
     restoredStateFingerprintSha256: string
   }>
+}>
+
+export type CommunityStrictExternalSnapshotEvidenceV1 = CommunityStrictSnapshotEvidenceSourceV1 & Readonly<{
+  schemaVersion: 1
+  kind: 'external-snapshot-attestation'
+  evidencePolicy: 'external-recovery-owner-attested-v1'
+  createdAt: string
+  recoveryOwner: 'external'
+  provider: string
+  snapshotRef: string
+  snapshotDigest: string | null
+  attestedBy: string
+  restoreInstructionsRef: string
+}>
+
+export type CommunityStrictSnapshotEvidenceV1 =
+  | CommunityStrictVerifiedBackupEvidenceV1
+  | CommunityStrictExternalSnapshotEvidenceV1
+
+/** @deprecated Use CommunityStrictVerifiedBackupEvidenceV1. */
+export type CommunityStrictBackupEvidenceV1 = CommunityStrictVerifiedBackupEvidenceV1
+
+export type CommunityStrictSnapshotPolicyV1 =
+  | 'managed-verified-only-v1'
+  | 'managed-or-external-attested-v1'
+
+export type CommunityStrictMigrationPlanAcceptanceV1 = Readonly<{
+  schemaVersion: 1
+  acceptedPlanSha256: string
+  action: 'migrate' | 'verify-only'
+  sourceFingerprintSha256: string
+  targetLineageId: string
+  resultLineageId: string
+  resultSchemaFingerprintSha256: string
+  resultReceiptFingerprintSha256: string
+  resultStateFingerprintSha256: string
+  evidenceKind: CommunityStrictSnapshotEvidenceV1['kind'] | null
+  evidenceSha256: string | null
+  acceptedAt: string
+}>
+
+export type CommunityStrictMigrationPlanningResultV1 = CommunityStrictStateReceiptV1 & Readonly<{
+  migrationPlan: CommunityStrictMigrationPlanV1
+  acceptedPlanSha256: string
+  sourceFingerprintSha256: string
+  requiresSnapshotEvidence: boolean
+}>
+
+export type CommunityStrictMigrationPlanAcceptedContextV1 = Readonly<{
+  migrationPlan: CommunityStrictMigrationPlanV1
+  acceptedPlanSha256: string
+  sourceFingerprintSha256: string
+  preflight: CommunityStrictStateReceiptV1
+  snapshotEvidenceKind: CommunityStrictSnapshotEvidenceV1['kind'] | null
+  snapshotEvidenceSha256: string | null
 }>
 
 export type CommunityStrictPgClient = Readonly<{
@@ -288,6 +430,14 @@ function splitMigrationStatements(sql: string): string[] {
 function isWithin(root: string, candidate: string): boolean {
   const relative = path.relative(path.resolve(root), path.resolve(candidate))
   return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative))
+}
+
+function sameResolvedPath(left: string, right: string): boolean {
+  const resolvedLeft = path.resolve(left)
+  const resolvedRight = path.resolve(right)
+  return process.platform === 'win32'
+    ? resolvedLeft.toLowerCase() === resolvedRight.toLowerCase()
+    : resolvedLeft === resolvedRight
 }
 
 function resolvePlainContainedDirectory(workspaceRoot: string, relativePath: string): string {
@@ -490,16 +640,6 @@ export function validateCommunityStrictMigrationPolicyV1(
     lineageIds.add(rawLineage.id)
   }
   const validatedLineages = policy.lineages as unknown as CommunityStrictLineageV1[]
-  for (const lineage of validatedLineages) {
-    const pendingRisky = validatedRoots.some((root, index) =>
-      root.migrations
-        .slice(lineage.appliedCounts[index])
-        .some((migration) => migration.risk === 'destructive-or-dynamic'),
-    )
-    if (pendingRisky) {
-      throw new Error(`community_strict_policy_risky_nonempty_lineage_unsupported_v1:${lineage.id}`)
-    }
-  }
   const target = validatedLineages.find((lineage) => lineage.id === policy.targetLineageId)
   if (!target || target.kind !== 'strict' ||
       target.policyId !== policy.id || target.inventorySha256 !== policy.inventorySha256 ||
@@ -562,6 +702,226 @@ export function inspectCommunityStrictMigrationBundle(params: {
     return { root, migrationsDir, migrations }
   })
   return { workspaceRoot, roots }
+}
+
+function canonicalPolicyBinding(policy: CommunityStrictMigrationPolicyV1): Record<string, unknown> {
+  return {
+    schemaVersion: policy.schemaVersion,
+    id: policy.id,
+    inventorySha256: policy.inventorySha256,
+    sourceArtifacts: {
+      convergenceFileSha256: policy.sourceArtifacts.convergenceFileSha256,
+      lineagesFileSha256: policy.sourceArtifacts.lineagesFileSha256,
+    },
+    lock: {
+      classId: policy.lock.classId,
+      objectId: policy.lock.objectId,
+    },
+    roots: policy.roots.map((root) => ({
+      id: root.id,
+      ordinal: root.ordinal,
+      migrationsDir: root.migrationsDir,
+      migrationTable: root.migrationTable,
+      legacyHashColumn: root.legacyHashColumn,
+      journalSha256: root.journalSha256,
+      journalSha256History: [...root.journalSha256History],
+      migrations: root.migrations.map((migration) => ({
+        idx: migration.idx,
+        tag: migration.tag,
+        sha256: migration.sha256,
+        risk: migration.risk,
+      })),
+    })),
+    convergence: policy.convergence.map((operation) => ({
+      id: operation.id,
+      ownerRootId: operation.ownerRootId,
+      kind: operation.kind,
+      table: operation.table,
+      column: operation.column,
+      dataType: operation.dataType,
+      sha256: operation.sha256,
+      risk: operation.risk,
+    })),
+    convergenceSha256: policy.convergenceSha256,
+    lineages: policy.lineages.map((lineage) => ({
+      id: lineage.id,
+      kind: lineage.kind,
+      postgresMajor: lineage.postgresMajor,
+      relationCount: lineage.relationCount,
+      schemaFingerprintSha256: lineage.schemaFingerprintSha256,
+      appliedCounts: [...lineage.appliedCounts],
+      policyId: lineage.policyId,
+      inventorySha256: lineage.inventorySha256,
+      convergenceSha256: lineage.convergenceSha256,
+    })),
+    targetLineageId: policy.targetLineageId,
+  }
+}
+
+function canonicalBundleBinding(params: {
+  policy: CommunityStrictMigrationPolicyV1
+  bundle: CommunityStrictMigrationBundleV1
+}): readonly Record<string, unknown>[] {
+  if (params.bundle.roots.length !== params.policy.roots.length) {
+    throw new Error('community_strict_plan_bundle_root_count_mismatch')
+  }
+  return params.policy.roots.map((root, rootOrdinal) => {
+    const loadedRoot = params.bundle.roots[rootOrdinal]
+    if (!loadedRoot || loadedRoot.root.id !== root.id || loadedRoot.root.ordinal !== rootOrdinal ||
+        loadedRoot.root.journalSha256 !== root.journalSha256 ||
+        loadedRoot.migrations.length !== root.migrations.length) {
+      throw new Error(`community_strict_plan_bundle_root_mismatch:${root.id}`)
+    }
+    const migrations = root.migrations.map((migration, migrationIdx) => {
+      const loaded = loadedRoot.migrations[migrationIdx]
+      if (!loaded || loaded.root.id !== root.id || loaded.migration.idx !== migrationIdx ||
+          loaded.migration.tag !== migration.tag || loaded.migration.sha256 !== migration.sha256 ||
+          loaded.migration.risk !== migration.risk || sha256(Buffer.from(loaded.sql, 'utf8')) !== migration.sha256) {
+        throw new Error(`community_strict_plan_bundle_migration_mismatch:${root.id}:${migrationIdx}`)
+      }
+      return {
+        migrationIdx,
+        tag: migration.tag,
+        sqlSha256: migration.sha256,
+        risk: migration.risk,
+      }
+    })
+    return {
+      rootId: root.id,
+      rootOrdinal,
+      journalSha256: root.journalSha256,
+      migrations,
+    }
+  })
+}
+
+export function buildCommunityStrictMigrationPlanV1(params: {
+  policy: CommunityStrictMigrationPolicyV1
+  bundle: CommunityStrictMigrationBundleV1
+  postgresMajor: number
+  sourceLineageId: 'empty-v1' | string
+  sourceSchemaFingerprintSha256: string
+  sourceStrictReceiptRowsSha256: string | null
+  sourceRoots: readonly CommunityStrictRootState[]
+}): CommunityStrictMigrationPlanBindingV1 {
+  validateCommunityStrictMigrationPolicyV1(params.policy)
+  if (!Number.isSafeInteger(params.postgresMajor) || params.postgresMajor < 12) {
+    throw new Error('community_strict_plan_source_postgres_major_invalid')
+  }
+  if (!RAW_SHA256.test(params.sourceSchemaFingerprintSha256) ||
+      (params.sourceStrictReceiptRowsSha256 !== null && !RAW_SHA256.test(params.sourceStrictReceiptRowsSha256))) {
+    throw new Error('community_strict_plan_source_fingerprint_invalid')
+  }
+  if (params.sourceRoots.length !== params.policy.roots.length) {
+    throw new Error('community_strict_plan_source_root_count_mismatch')
+  }
+
+  const bundleBinding = canonicalBundleBinding({ policy: params.policy, bundle: params.bundle })
+  const sourceLineage = params.sourceLineageId === 'empty-v1'
+    ? null
+    : params.policy.lineages.find((lineage) => lineage.id === params.sourceLineageId)
+  if (params.sourceLineageId !== 'empty-v1' && !sourceLineage) {
+    throw new Error(`community_strict_plan_source_lineage_invalid:${params.sourceLineageId}`)
+  }
+  if (sourceLineage && (sourceLineage.postgresMajor !== params.postgresMajor ||
+      sourceLineage.schemaFingerprintSha256 !== params.sourceSchemaFingerprintSha256)) {
+    throw new Error(`community_strict_plan_source_lineage_mismatch:${params.sourceLineageId}`)
+  }
+  if ((sourceLineage?.kind === 'strict') !== (params.sourceStrictReceiptRowsSha256 !== null)) {
+    throw new Error('community_strict_plan_source_strict_receipts_mismatch')
+  }
+
+  const appliedPrefixes: CommunityStrictMigrationPlanAppliedPrefixV1[] = params.policy.roots.map(
+    (root, rootOrdinal) => {
+      const observed = params.sourceRoots[rootOrdinal]
+      if (!observed || observed.rootId !== root.id || observed.rows.length > root.migrations.length ||
+          typeof observed.migrationTablePresent !== 'boolean') {
+        throw new Error(`community_strict_plan_source_root_mismatch:${root.id}`)
+      }
+      const migrations = observed.rows.map((row, migrationIdx) => {
+        const migration = root.migrations[migrationIdx]
+        if (!migration || row.tag !== migration.tag ||
+            (row.sha256 !== null && row.sha256 !== migration.sha256)) {
+          throw new Error(`community_strict_plan_source_prefix_mismatch:${root.id}:${migrationIdx}`)
+        }
+        return {
+          migrationIdx,
+          tag: migration.tag,
+          sqlSha256: migration.sha256,
+        }
+      })
+      return {
+        rootId: root.id,
+        rootOrdinal,
+        migrationTablePresent: observed.migrationTablePresent,
+        appliedCount: migrations.length,
+        migrations,
+      }
+    },
+  )
+  const appliedCounts = appliedPrefixes.map((prefix) => prefix.appliedCount)
+  if (sourceLineage && !sourceLineage.appliedCounts.every((count, index) => count === appliedCounts[index])) {
+    throw new Error(`community_strict_plan_source_counts_mismatch:${sourceLineage.id}`)
+  }
+  if (!sourceLineage && appliedCounts.some((count) => count !== 0)) {
+    throw new Error('community_strict_plan_empty_source_not_empty')
+  }
+
+  const receiptFingerprintSha256 = fingerprintCommunityStrictReceipts(params.policy, params.sourceRoots)
+  const source: CommunityStrictMigrationPlanSourceV1 = {
+    postgresMajor: params.postgresMajor,
+    lineageId: params.sourceLineageId,
+    schemaFingerprintSha256: params.sourceSchemaFingerprintSha256,
+    receiptFingerprintSha256,
+    strictReceiptRowsSha256: params.sourceStrictReceiptRowsSha256,
+    appliedPrefixes,
+  }
+  const sourceFingerprintSha256 = sha256Json(source)
+  const pendingMigrations: CommunityStrictMigrationPlanPendingMigrationV1[] = []
+  for (const [rootOrdinal, loadedRoot] of params.bundle.roots.entries()) {
+    for (const loaded of loadedRoot.migrations.slice(appliedCounts[rootOrdinal])) {
+      pendingMigrations.push({
+        order: pendingMigrations.length,
+        rootId: loadedRoot.root.id,
+        rootOrdinal,
+        migrationIdx: loaded.migration.idx,
+        tag: loaded.migration.tag,
+        sqlSha256: loaded.migration.sha256,
+        risk: loaded.migration.risk,
+      })
+    }
+  }
+  const target = params.policy.lineages.find((lineage) => lineage.id === params.policy.targetLineageId)
+  if (!target) throw new Error('community_strict_target_missing')
+  const plan: CommunityStrictMigrationPlanV1 = {
+    schemaVersion: 1,
+    policyId: params.policy.id,
+    policySha256: sha256Json(canonicalPolicyBinding(params.policy)),
+    inventorySha256: params.policy.inventorySha256,
+    bundleSha256: sha256Json(bundleBinding),
+    target: {
+      lineageId: target.id,
+      postgresMajor: target.postgresMajor,
+      relationCount: target.relationCount,
+      schemaFingerprintSha256: target.schemaFingerprintSha256,
+      appliedCounts: [...target.appliedCounts],
+      policyId: target.policyId,
+      inventorySha256: target.inventorySha256,
+      convergenceSha256: target.convergenceSha256,
+    },
+    source,
+    sourceFingerprintSha256,
+    pendingMigrations,
+    convergenceSha256: params.policy.convergenceSha256,
+    action: params.sourceLineageId === target.id && pendingMigrations.length === 0
+      ? 'verify-only'
+      : 'migrate',
+  }
+  return {
+    plan,
+    planSha256: sha256Json(plan),
+    sourceFingerprintSha256,
+  }
 }
 
 export async function readCommunityStrictCatalogProjection(
@@ -1216,76 +1576,348 @@ function createStateReceipt(params: {
   return { ...base, stateFingerprintSha256: sha256Json(base) }
 }
 
-async function hashFile(filePath: string): Promise<string> {
+type CommunityStrictManagedBackupGuard = Readonly<{
+  fd: number
+  path: string
+  parentPath: string
+  device: bigint
+  inode: bigint
+  size: bigint
+  parentDevice: bigint
+  parentInode: bigint
+  sha256: string
+}>
+
+type CommunityStrictManagedBackupRescue = {
+  fd: number
+  closed: boolean
+  path: string
+  device: bigint
+  inode: bigint
+  size: bigint
+  sha256: string
+}
+
+function hashHeldFile(fd: number, size: bigint): string {
+  if (size < 1n || size > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new Error('community_strict_backup_file_invalid')
+  }
   const hash = createHash('sha256')
-  for await (const chunk of createReadStream(filePath)) hash.update(chunk)
+  const buffer = Buffer.allocUnsafe(SNAPSHOT_HASH_BUFFER_BYTES)
+  let position = 0
+  while (position < Number(size)) {
+    const count = readSync(fd, buffer, 0, Math.min(buffer.length, Number(size) - position), position)
+    if (count < 1) throw new Error('community_strict_backup_file_short_read')
+    hash.update(buffer.subarray(0, count))
+    position += count
+  }
   return `sha256:${hash.digest('hex')}`
 }
 
-async function verifyBackupEvidence(params: {
+function openManagedBackupGuard(
+  backupPath: string,
+  expectedByteLength: number,
+  expectedSha256: string,
+): CommunityStrictManagedBackupGuard {
+  const parentPath = path.dirname(backupPath)
+  const parentStats = lstatSync(parentPath, { bigint: true })
+  if (!parentStats.isDirectory() || parentStats.isSymbolicLink() ||
+      !sameResolvedPath(realpathSync.native(parentPath), parentPath)) {
+    throw new Error('community_strict_backup_root_invalid')
+  }
+  const noFollow = typeof constants.O_NOFOLLOW === 'number' ? constants.O_NOFOLLOW : 0
+  const fd = openSync(backupPath, constants.O_RDONLY | noFollow)
+  try {
+    const pathStats = lstatSync(backupPath, { bigint: true })
+    const heldStats = fstatSync(fd, { bigint: true })
+    if (!pathStats.isFile() || pathStats.isSymbolicLink() || heldStats.nlink !== 1n ||
+        pathStats.dev !== heldStats.dev || pathStats.ino !== heldStats.ino ||
+        heldStats.size !== BigInt(expectedByteLength) ||
+        !sameResolvedPath(realpathSync.native(backupPath), backupPath) ||
+        hashHeldFile(fd, heldStats.size) !== expectedSha256) {
+      throw new Error('community_strict_backup_file_mismatch')
+    }
+    return {
+      fd,
+      path: backupPath,
+      parentPath,
+      device: heldStats.dev,
+      inode: heldStats.ino,
+      size: heldStats.size,
+      parentDevice: parentStats.dev,
+      parentInode: parentStats.ino,
+      sha256: expectedSha256,
+    }
+  } catch (error) {
+    closeSync(fd)
+    throw error
+  }
+}
+
+function assertManagedBackupGuard(guard: CommunityStrictManagedBackupGuard): void {
+  const parentStats = lstatSync(guard.parentPath, { bigint: true })
+  const pathStats = lstatSync(guard.path, { bigint: true })
+  const heldStats = fstatSync(guard.fd, { bigint: true })
+  if (!parentStats.isDirectory() || parentStats.isSymbolicLink() ||
+      parentStats.dev !== guard.parentDevice || parentStats.ino !== guard.parentInode ||
+      !sameResolvedPath(realpathSync.native(guard.parentPath), guard.parentPath) ||
+      !pathStats.isFile() || pathStats.isSymbolicLink() ||
+      pathStats.dev !== guard.device || pathStats.ino !== guard.inode ||
+      heldStats.dev !== guard.device || heldStats.ino !== guard.inode ||
+      heldStats.size !== guard.size || heldStats.nlink !== 1n ||
+      !sameResolvedPath(realpathSync.native(guard.path), guard.path) ||
+      hashHeldFile(guard.fd, guard.size) !== guard.sha256) {
+    throw new Error('community_strict_backup_guard_changed')
+  }
+}
+
+function fsyncDirectoryBestEffortOnWindows(directory: string): void {
+  let descriptor: number | undefined
+  try {
+    descriptor = openSync(directory, 'r')
+    fsyncSync(descriptor)
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code
+    if (process.platform !== 'win32' || !['EACCES', 'EBADF', 'EINVAL', 'EISDIR', 'EPERM'].includes(String(code))) {
+      throw error
+    }
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor)
+  }
+}
+
+function assertManagedBackupRescue(
+  guard: CommunityStrictManagedBackupGuard,
+  rescue: CommunityStrictManagedBackupRescue,
+): void {
+  if (rescue.closed) throw new Error('community_strict_backup_rescue_closed')
+  const parentStats = lstatSync(guard.parentPath, { bigint: true })
+  const pathStats = lstatSync(rescue.path, { bigint: true })
+  const heldStats = fstatSync(rescue.fd, { bigint: true })
+  if (!parentStats.isDirectory() || parentStats.isSymbolicLink() ||
+      parentStats.dev !== guard.parentDevice || parentStats.ino !== guard.parentInode ||
+      !sameResolvedPath(realpathSync.native(guard.parentPath), guard.parentPath) ||
+      !pathStats.isFile() || pathStats.isSymbolicLink() ||
+      pathStats.dev !== rescue.device || pathStats.ino !== rescue.inode ||
+      heldStats.dev !== rescue.device || heldStats.ino !== rescue.inode ||
+      heldStats.size !== rescue.size || heldStats.nlink !== 1n ||
+      !sameResolvedPath(realpathSync.native(rescue.path), rescue.path) ||
+      hashHeldFile(rescue.fd, rescue.size) !== rescue.sha256) {
+    throw new Error('community_strict_backup_rescue_changed')
+  }
+}
+
+function closeManagedBackupRescue(rescue: CommunityStrictManagedBackupRescue): void {
+  if (!rescue.closed) {
+    closeSync(rescue.fd)
+    rescue.closed = true
+  }
+}
+
+function stageManagedBackupRescue(
+  guard: CommunityStrictManagedBackupGuard,
+): CommunityStrictManagedBackupRescue {
+  assertManagedBackupGuard(guard)
+  const rescuePath = path.join(
+    guard.parentPath,
+    `.${path.basename(guard.path)}.${process.pid}.${randomBytes(8).toString('hex')}.commit-rescue`,
+  )
+  const noFollow = typeof constants.O_NOFOLLOW === 'number' ? constants.O_NOFOLLOW : 0
+  const fd = openSync(
+    rescuePath,
+    constants.O_CREAT | constants.O_EXCL | constants.O_RDWR | noFollow,
+    0o600,
+  )
+  let keep = false
+  try {
+    const buffer = Buffer.allocUnsafe(SNAPSHOT_HASH_BUFFER_BYTES)
+    let position = 0
+    while (position < Number(guard.size)) {
+      const count = readSync(
+        guard.fd,
+        buffer,
+        0,
+        Math.min(buffer.length, Number(guard.size) - position),
+        position,
+      )
+      if (count < 1) throw new Error('community_strict_backup_rescue_short_read')
+      let written = 0
+      while (written < count) {
+        const writeCount = writeSync(fd, buffer, written, count - written, position + written)
+        if (writeCount < 1) throw new Error('community_strict_backup_rescue_short_write')
+        written += writeCount
+      }
+      position += count
+    }
+    fsyncSync(fd)
+    const stats = fstatSync(fd, { bigint: true })
+    if (stats.size !== guard.size || hashHeldFile(fd, stats.size) !== guard.sha256) {
+      throw new Error('community_strict_backup_rescue_mismatch')
+    }
+    const rescue: CommunityStrictManagedBackupRescue = {
+      fd,
+      closed: false,
+      path: rescuePath,
+      device: stats.dev,
+      inode: stats.ino,
+      size: stats.size,
+      sha256: guard.sha256,
+    }
+    fsyncDirectoryBestEffortOnWindows(guard.parentPath)
+    assertManagedBackupRescue(guard, rescue)
+    keep = true
+    return rescue
+  } finally {
+    if (!keep) {
+      closeSync(fd)
+      rmSync(rescuePath, { force: true })
+      fsyncDirectoryBestEffortOnWindows(guard.parentPath)
+    }
+  }
+}
+
+function discardManagedBackupRescue(
+  guard: CommunityStrictManagedBackupGuard,
+  rescue: CommunityStrictManagedBackupRescue,
+): void {
+  assertManagedBackupRescue(guard, rescue)
+  closeManagedBackupRescue(rescue)
+  rmSync(rescue.path, { force: true })
+  fsyncDirectoryBestEffortOnWindows(guard.parentPath)
+}
+
+function preserveManagedBackupAfterCommit(
+  guard: CommunityStrictManagedBackupGuard,
+  rescue: CommunityStrictManagedBackupRescue,
+): { preservedPath: string; consumed: boolean } {
+  assertManagedBackupRescue(guard, rescue)
+  if (!existsSync(guard.path)) {
+    try {
+      linkSync(rescue.path, guard.path)
+      fsyncDirectoryBestEffortOnWindows(guard.parentPath)
+      closeManagedBackupRescue(rescue)
+      rmSync(rescue.path, { force: true })
+      fsyncDirectoryBestEffortOnWindows(guard.parentPath)
+      return { preservedPath: guard.path, consumed: true }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+    }
+  }
+  return { preservedPath: rescue.path, consumed: false }
+}
+
+function validEvidenceText(value: unknown, maximumLength: number): value is string {
+  return typeof value === 'string' && value.trim() === value && value.length > 0 && value.length <= maximumLength &&
+    !/[\u0000-\u001f\u007f]/.test(value)
+}
+
+function validEvidenceReference(value: unknown, maximumLength: number): value is string {
+  return validEvidenceText(value, maximumLength) && !value.includes('?') &&
+    !/^(?:[a-z][a-z0-9+.-]*:)?\/\/[^/\s]*@/i.test(value) &&
+    !/(?:token|secret|password|signature|credential|sig)\s*=/i.test(value)
+}
+
+async function verifySnapshotEvidence(params: {
   evidencePath: string | undefined
   preflight: CommunityStrictStateReceiptV1
   policy: CommunityStrictMigrationPolicyV1
-}): Promise<void> {
-  if (!params.evidencePath) throw new Error('community_strict_backup_evidence_required')
+  plan: CommunityStrictMigrationPlanBindingV1
+  snapshotPolicy: CommunityStrictSnapshotPolicyV1
+}): Promise<{
+  evidence: CommunityStrictSnapshotEvidenceV1
+  evidenceSha256: string
+  managedBackupGuard: CommunityStrictManagedBackupGuard | null
+}> {
+  if (!params.evidencePath) throw new Error('community_strict_snapshot_evidence_required')
   const evidencePath = path.resolve(params.evidencePath)
-  if (!existsSync(evidencePath) || !lstatSync(evidencePath).isFile() || lstatSync(evidencePath).isSymbolicLink()) {
-    throw new Error('community_strict_backup_evidence_invalid')
+  if (!existsSync(evidencePath)) throw new Error('community_strict_snapshot_evidence_invalid')
+  const evidenceStats = lstatSync(evidencePath)
+  if (!evidenceStats.isFile() || evidenceStats.isSymbolicLink() || evidenceStats.size < 1 ||
+      evidenceStats.size > MAX_SNAPSHOT_EVIDENCE_BYTES ||
+      !sameResolvedPath(realpathSync.native(evidencePath), evidencePath)) {
+    throw new Error('community_strict_snapshot_evidence_invalid')
   }
-  const raw = JSON.parse(readFileSync(evidencePath, 'utf8')) as unknown
-  if (!isRecord(raw)) throw new Error('community_strict_backup_evidence_invalid')
-  assertExactKeys('community_strict_backup_evidence', raw, [
-    'schemaVersion',
-    'backupPath',
-    'sha256',
-    'byteLength',
-    'verified',
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(readFileSync(evidencePath, 'utf8')) as unknown
+  } catch {
+    throw new Error('community_strict_snapshot_evidence_invalid')
+  }
+  if (!isRecord(parsed)) throw new Error('community_strict_snapshot_evidence_invalid')
+  const commonKeys = [
+    'schemaVersion', 'kind', 'evidencePolicy', 'createdAt', 'acceptedPlanSha256',
+    'sourceMigrationStateFingerprintSha256',
     'sourceLineageId',
     'sourceSchemaFingerprintSha256',
     'sourceReceiptFingerprintSha256',
     'sourceDataFingerprintSha256',
     'sourceStateFingerprintSha256',
     'targetInventorySha256',
-    'restoreProof',
-  ])
+  ]
   const sourceDataFingerprintSha256 = sha256Json(params.preflight.dataSentinels)
-  if (raw.schemaVersion !== 1 || raw.verified !== true || typeof raw.backupPath !== 'string' ||
-      !path.isAbsolute(raw.backupPath) || typeof raw.sha256 !== 'string' || !PREFIXED_SHA256.test(raw.sha256) ||
-      !Number.isSafeInteger(raw.byteLength) || Number(raw.byteLength) < 1 ||
-      raw.sourceLineageId !== params.preflight.lineageId ||
-      raw.sourceSchemaFingerprintSha256 !== params.preflight.schemaFingerprintSha256 ||
-      raw.sourceReceiptFingerprintSha256 !== params.preflight.receiptFingerprintSha256 ||
-      raw.sourceDataFingerprintSha256 !== sourceDataFingerprintSha256 ||
-      raw.sourceStateFingerprintSha256 !== params.preflight.stateFingerprintSha256 ||
-      raw.targetInventorySha256 !== params.policy.inventorySha256 || !isRecord(raw.restoreProof)) {
-    throw new Error('community_strict_backup_evidence_mismatch')
+  if (parsed.schemaVersion !== 1 || Number.isNaN(Date.parse(String(parsed.createdAt))) ||
+      parsed.acceptedPlanSha256 !== params.plan.planSha256 ||
+      parsed.sourceMigrationStateFingerprintSha256 !== params.plan.sourceFingerprintSha256 ||
+      parsed.sourceLineageId !== params.preflight.lineageId ||
+      parsed.sourceSchemaFingerprintSha256 !== params.preflight.schemaFingerprintSha256 ||
+      parsed.sourceReceiptFingerprintSha256 !== params.preflight.receiptFingerprintSha256 ||
+      parsed.sourceDataFingerprintSha256 !== sourceDataFingerprintSha256 ||
+      parsed.sourceStateFingerprintSha256 !== params.preflight.stateFingerprintSha256 ||
+      parsed.targetInventorySha256 !== params.policy.inventorySha256) {
+    throw new Error('community_strict_snapshot_evidence_mismatch')
   }
-  assertExactKeys('community_strict_backup_restore_proof', raw.restoreProof, [
-    'method',
-    'backupSha256',
-    'backupByteLength',
-    'restoredSchemaFingerprintSha256',
-    'restoredReceiptFingerprintSha256',
-    'restoredDataFingerprintSha256',
-    'restoredStateFingerprintSha256',
-  ])
-  if (raw.restoreProof.method !== 'pg-restore-disposable-v1' ||
-      raw.restoreProof.backupSha256 !== raw.sha256 ||
-      raw.restoreProof.backupByteLength !== raw.byteLength ||
-      raw.restoreProof.restoredSchemaFingerprintSha256 !== params.preflight.schemaFingerprintSha256 ||
-      raw.restoreProof.restoredReceiptFingerprintSha256 !== params.preflight.receiptFingerprintSha256 ||
-      raw.restoreProof.restoredDataFingerprintSha256 !== sourceDataFingerprintSha256 ||
-      raw.restoreProof.restoredStateFingerprintSha256 !== params.preflight.stateFingerprintSha256) {
-    throw new Error('community_strict_backup_restore_proof_mismatch')
+
+  let managedBackupGuard: CommunityStrictManagedBackupGuard | null = null
+  if (parsed.kind === 'managed-verified-backup') {
+    assertExactKeys('community_strict_verified_backup_evidence', parsed, [
+      ...commonKeys, 'backupPath', 'sha256', 'byteLength', 'restoreProof',
+    ])
+    if (parsed.evidencePolicy !== 'managed-restore-verified-v1' ||
+        typeof parsed.backupPath !== 'string' || !path.isAbsolute(parsed.backupPath) ||
+        typeof parsed.sha256 !== 'string' || !PREFIXED_SHA256.test(parsed.sha256) ||
+        !Number.isSafeInteger(parsed.byteLength) || Number(parsed.byteLength) < 1 ||
+        !isRecord(parsed.restoreProof)) {
+      throw new Error('community_strict_verified_backup_evidence_invalid')
+    }
+    assertExactKeys('community_strict_backup_restore_proof', parsed.restoreProof, [
+      'method', 'backupSha256', 'backupByteLength', 'restoredSchemaFingerprintSha256',
+      'restoredReceiptFingerprintSha256', 'restoredDataFingerprintSha256',
+      'restoredStateFingerprintSha256',
+    ])
+    if (parsed.restoreProof.method !== 'pg-restore-disposable-v1' ||
+        parsed.restoreProof.backupSha256 !== parsed.sha256 ||
+        parsed.restoreProof.backupByteLength !== parsed.byteLength ||
+        parsed.restoreProof.restoredSchemaFingerprintSha256 !== params.preflight.schemaFingerprintSha256 ||
+        parsed.restoreProof.restoredReceiptFingerprintSha256 !== params.preflight.receiptFingerprintSha256 ||
+        parsed.restoreProof.restoredDataFingerprintSha256 !== sourceDataFingerprintSha256 ||
+        parsed.restoreProof.restoredStateFingerprintSha256 !== params.preflight.stateFingerprintSha256) {
+      throw new Error('community_strict_backup_restore_proof_mismatch')
+    }
+    const backupPath = path.resolve(parsed.backupPath)
+    if (!existsSync(backupPath)) throw new Error('community_strict_backup_file_invalid')
+    managedBackupGuard = openManagedBackupGuard(backupPath, Number(parsed.byteLength), String(parsed.sha256))
+  } else if (parsed.kind === 'external-snapshot-attestation') {
+    assertExactKeys('community_strict_external_snapshot_evidence', parsed, [
+      ...commonKeys, 'recoveryOwner', 'provider', 'snapshotRef', 'snapshotDigest',
+      'attestedBy', 'restoreInstructionsRef',
+    ])
+    if (params.snapshotPolicy !== 'managed-or-external-attested-v1') {
+      throw new Error('community_strict_external_snapshot_policy_not_accepted')
+    }
+    if (parsed.evidencePolicy !== 'external-recovery-owner-attested-v1' ||
+        parsed.recoveryOwner !== 'external' || !validEvidenceText(parsed.provider, 128) ||
+        !validEvidenceReference(parsed.snapshotRef, 1_024) ||
+        (parsed.snapshotDigest !== null &&
+          (typeof parsed.snapshotDigest !== 'string' || !PREFIXED_SHA256.test(parsed.snapshotDigest))) ||
+        !validEvidenceText(parsed.attestedBy, 256) ||
+        !validEvidenceReference(parsed.restoreInstructionsRef, 2_048)) {
+      throw new Error('community_strict_external_snapshot_evidence_invalid')
+    }
+  } else {
+    throw new Error('community_strict_snapshot_evidence_kind_invalid')
   }
-  const backupPath = path.resolve(raw.backupPath)
-  if (!existsSync(backupPath) || !lstatSync(backupPath).isFile() || lstatSync(backupPath).isSymbolicLink()) {
-    throw new Error('community_strict_backup_file_invalid')
-  }
-  const stat = statSync(backupPath)
-  if (stat.size !== raw.byteLength || await hashFile(backupPath) !== raw.sha256) {
-    throw new Error('community_strict_backup_file_mismatch')
-  }
+  const evidence = parsed as unknown as CommunityStrictSnapshotEvidenceV1
+  return { evidence, evidenceSha256: sha256Json(evidence), managedBackupGuard }
 }
 
 async function ensureLegacyMigrationTable(
@@ -1465,6 +2097,166 @@ async function writeStrictState(params: {
   if (updated.rows.length !== 1) throw new Error('community_strict_state_compare_and_swap_failed')
 }
 
+async function ensureMigrationPlanAcceptanceTableV1(client: CommunityStrictPgClient): Promise<void> {
+  await client.query(`CREATE SCHEMA IF NOT EXISTS ${STRICT_AUDIT_SCHEMA}`)
+  await client.query(
+    `CREATE TABLE IF NOT EXISTS ${STRICT_AUDIT_SCHEMA}.${STRICT_PLAN_ACCEPTANCE_TABLE} (
+       accepted_plan_sha256 text PRIMARY KEY,
+       action text NOT NULL CHECK (action IN ('migrate', 'verify-only')),
+       source_fingerprint_sha256 text NOT NULL,
+       target_lineage_id text NOT NULL,
+       result_lineage_id text NOT NULL,
+       result_schema_fingerprint_sha256 text NOT NULL,
+       result_receipt_fingerprint_sha256 text NOT NULL,
+       result_state_fingerprint_sha256 text NOT NULL,
+       evidence_kind text NULL CHECK (evidence_kind IS NULL OR evidence_kind IN
+         ('managed-verified-backup', 'external-snapshot-attestation')),
+       evidence_sha256 text NULL,
+       plan_json jsonb NOT NULL,
+       accepted_at timestamp with time zone NOT NULL,
+       CHECK ((evidence_kind IS NULL) = (evidence_sha256 IS NULL))
+     )`,
+  )
+}
+
+function parseMigrationPlanAcceptanceRowUnbound(
+  row: Record<string, unknown>,
+): { acceptance: CommunityStrictMigrationPlanAcceptanceV1; planJson: unknown } {
+  const planJson = typeof row.planJson === 'string' ? JSON.parse(row.planJson) as unknown : row.planJson
+  const evidenceKind = row.evidenceKind === null || row.evidenceKind === undefined
+    ? null
+    : String(row.evidenceKind) as CommunityStrictSnapshotEvidenceV1['kind']
+  const evidenceSha256 = row.evidenceSha256 === null || row.evidenceSha256 === undefined
+    ? null
+    : String(row.evidenceSha256)
+  const acceptance: CommunityStrictMigrationPlanAcceptanceV1 = {
+    schemaVersion: 1,
+    acceptedPlanSha256: String(row.acceptedPlanSha256),
+    action: String(row.action) as CommunityStrictMigrationPlanAcceptanceV1['action'],
+    sourceFingerprintSha256: String(row.sourceFingerprintSha256),
+    targetLineageId: String(row.targetLineageId),
+    resultLineageId: String(row.resultLineageId),
+    resultSchemaFingerprintSha256: String(row.resultSchemaFingerprintSha256),
+    resultReceiptFingerprintSha256: String(row.resultReceiptFingerprintSha256),
+    resultStateFingerprintSha256: String(row.resultStateFingerprintSha256),
+    evidenceKind,
+    evidenceSha256,
+    acceptedAt: String(row.acceptedAt),
+  }
+  if (!RAW_SHA256.test(acceptance.acceptedPlanSha256) ||
+      !['migrate', 'verify-only'].includes(acceptance.action) ||
+      !RAW_SHA256.test(acceptance.sourceFingerprintSha256) ||
+      !validEvidenceText(acceptance.targetLineageId, 256) ||
+      !validEvidenceText(acceptance.resultLineageId, 256) ||
+      !RAW_SHA256.test(acceptance.resultSchemaFingerprintSha256) ||
+      !RAW_SHA256.test(acceptance.resultReceiptFingerprintSha256) ||
+      !RAW_SHA256.test(acceptance.resultStateFingerprintSha256) ||
+      (acceptance.evidenceSha256 !== null && !RAW_SHA256.test(acceptance.evidenceSha256)) ||
+      (acceptance.evidenceKind === null) !== (acceptance.evidenceSha256 === null) ||
+      !['managed-verified-backup', 'external-snapshot-attestation', null].includes(acceptance.evidenceKind) ||
+      Number.isNaN(Date.parse(acceptance.acceptedAt)) || sha256Json(planJson) !== acceptance.acceptedPlanSha256) {
+    throw new Error('community_strict_plan_acceptance_corrupt')
+  }
+  return { acceptance, planJson }
+}
+
+function parseMigrationPlanAcceptanceRow(
+  row: Record<string, unknown>,
+  expectedPlan: CommunityStrictMigrationPlanBindingV1,
+): CommunityStrictMigrationPlanAcceptanceV1 {
+  const { acceptance } = parseMigrationPlanAcceptanceRowUnbound(row)
+  if (acceptance.acceptedPlanSha256 !== expectedPlan.planSha256 ||
+      acceptance.action !== expectedPlan.plan.action ||
+      acceptance.sourceFingerprintSha256 !== expectedPlan.sourceFingerprintSha256 ||
+      acceptance.targetLineageId !== expectedPlan.plan.target.lineageId) {
+    throw new Error('community_strict_plan_acceptance_conflict')
+  }
+  return acceptance
+}
+
+async function writeMigrationPlanAcceptanceV1(params: {
+  client: CommunityStrictPgClient
+  plan: CommunityStrictMigrationPlanBindingV1
+  result: CommunityStrictStateReceiptV1
+  evidence: { evidence: CommunityStrictSnapshotEvidenceV1; evidenceSha256: string } | null
+  acceptedAt: string
+}): Promise<CommunityStrictMigrationPlanAcceptanceV1> {
+  await ensureMigrationPlanAcceptanceTableV1(params.client)
+  await params.client.query(
+    `INSERT INTO ${STRICT_AUDIT_SCHEMA}.${STRICT_PLAN_ACCEPTANCE_TABLE}
+       (accepted_plan_sha256, action, source_fingerprint_sha256, target_lineage_id,
+        result_lineage_id, result_schema_fingerprint_sha256, result_receipt_fingerprint_sha256,
+        result_state_fingerprint_sha256, evidence_kind, evidence_sha256, plan_json, accepted_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12::timestamptz)
+     ON CONFLICT (accepted_plan_sha256) DO NOTHING`,
+    [
+      params.plan.planSha256,
+      params.plan.plan.action,
+      params.plan.sourceFingerprintSha256,
+      params.plan.plan.target.lineageId,
+      params.result.lineageId,
+      params.result.schemaFingerprintSha256,
+      params.result.receiptFingerprintSha256,
+      params.result.stateFingerprintSha256,
+      params.evidence?.evidence.kind ?? null,
+      params.evidence?.evidenceSha256 ?? null,
+      JSON.stringify(params.plan.plan),
+      params.acceptedAt,
+    ],
+  )
+  const selected = await params.client.query<Record<string, unknown>>(
+    `SELECT accepted_plan_sha256 AS "acceptedPlanSha256", action,
+            source_fingerprint_sha256 AS "sourceFingerprintSha256",
+            target_lineage_id AS "targetLineageId",
+            result_lineage_id AS "resultLineageId",
+            result_schema_fingerprint_sha256 AS "resultSchemaFingerprintSha256",
+            result_receipt_fingerprint_sha256 AS "resultReceiptFingerprintSha256",
+            result_state_fingerprint_sha256 AS "resultStateFingerprintSha256",
+            evidence_kind AS "evidenceKind", evidence_sha256 AS "evidenceSha256",
+            plan_json AS "planJson",
+            to_char(accepted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US') || 'Z' AS "acceptedAt"
+       FROM ${STRICT_AUDIT_SCHEMA}.${STRICT_PLAN_ACCEPTANCE_TABLE}
+      WHERE accepted_plan_sha256 = $1`,
+    [params.plan.planSha256],
+  )
+  if (selected.rows.length !== 1) throw new Error('community_strict_plan_acceptance_missing')
+  const acceptance = parseMigrationPlanAcceptanceRow(selected.rows[0], params.plan)
+  if (acceptance.resultStateFingerprintSha256 !== params.result.stateFingerprintSha256 ||
+      acceptance.resultLineageId !== params.result.lineageId ||
+      acceptance.resultSchemaFingerprintSha256 !== params.result.schemaFingerprintSha256 ||
+      acceptance.resultReceiptFingerprintSha256 !== params.result.receiptFingerprintSha256 ||
+      acceptance.evidenceKind !== (params.evidence?.evidence.kind ?? null) ||
+      acceptance.evidenceSha256 !== (params.evidence?.evidenceSha256 ?? null)) {
+    throw new Error('community_strict_plan_acceptance_conflict')
+  }
+  return acceptance
+}
+
+async function readLatestAppliedPlanAcceptance(
+  client: CommunityStrictPgClient,
+  result: CommunityStrictStateReceiptV1,
+): Promise<CommunityStrictMigrationPlanAcceptanceV1 | null> {
+  const selected = await client.query<Record<string, unknown>>(
+    `SELECT accepted_plan_sha256 AS "acceptedPlanSha256", action,
+            source_fingerprint_sha256 AS "sourceFingerprintSha256",
+            target_lineage_id AS "targetLineageId", result_lineage_id AS "resultLineageId",
+            result_schema_fingerprint_sha256 AS "resultSchemaFingerprintSha256",
+            result_receipt_fingerprint_sha256 AS "resultReceiptFingerprintSha256",
+            result_state_fingerprint_sha256 AS "resultStateFingerprintSha256",
+            evidence_kind AS "evidenceKind", evidence_sha256 AS "evidenceSha256",
+            plan_json AS "planJson",
+            to_char(accepted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US') || 'Z' AS "acceptedAt"
+       FROM ${STRICT_AUDIT_SCHEMA}.${STRICT_PLAN_ACCEPTANCE_TABLE}
+      WHERE action = 'migrate' AND result_lineage_id = $1
+        AND result_schema_fingerprint_sha256 = $2 AND result_receipt_fingerprint_sha256 = $3
+      ORDER BY accepted_at DESC, accepted_plan_sha256 DESC
+      LIMIT 1`,
+    [result.lineageId, result.schemaFingerprintSha256, result.receiptFingerprintSha256],
+  )
+  if (selected.rows.length === 0) return null
+  return parseMigrationPlanAcceptanceRowUnbound(selected.rows[0]).acceptance
+}
+
 function pendingRiskyMigrations(
   policy: CommunityStrictMigrationPolicyV1,
   roots: readonly CommunityStrictRootState[],
@@ -1481,6 +2273,56 @@ function assertSameSentinels(
   if (JSON.stringify(before) !== JSON.stringify(after.filter((entry) =>
     before.some((candidate) => candidate.table === entry.table)))) {
     throw new Error('community_strict_data_sentinel_mismatch')
+  }
+}
+
+function buildPlanFromObservedState(params: {
+  policy: CommunityStrictMigrationPolicyV1
+  bundle: CommunityStrictMigrationBundleV1
+  postgresMajor: number
+  classification: 'empty-v1' | CommunityStrictLineageV1
+  observed: ObservedState
+}): CommunityStrictMigrationPlanBindingV1 {
+  return buildCommunityStrictMigrationPlanV1({
+    policy: params.policy,
+    bundle: params.bundle,
+    postgresMajor: params.postgresMajor,
+    sourceLineageId: params.classification === 'empty-v1'
+      ? params.classification
+      : params.classification.id,
+    sourceSchemaFingerprintSha256: params.observed.schemaFingerprintSha256,
+    sourceStrictReceiptRowsSha256: params.observed.strictReceipts === null
+      ? null
+      : fingerprintStrictReceiptRows(params.observed.strictReceipts),
+    sourceRoots: params.observed.roots,
+  })
+}
+
+function assertExpectedPlanSha256(
+  expectedPlanSha256: string | undefined,
+  binding: CommunityStrictMigrationPlanBindingV1,
+): void {
+  if (expectedPlanSha256 !== undefined && expectedPlanSha256 !== binding.planSha256) {
+    throw new Error(
+      `community_strict_migration_plan_mismatch:expected=${expectedPlanSha256}:actual=${binding.planSha256}`,
+    )
+  }
+}
+
+function attachAcceptedPlan(
+  receipt: CommunityStrictStateReceiptV1,
+  binding: CommunityStrictMigrationPlanBindingV1,
+  durableAcceptance: CommunityStrictMigrationPlanAcceptanceV1,
+  latestAppliedAcceptance: CommunityStrictMigrationPlanAcceptanceV1 | null,
+): CommunityStrictMigrationApplyResultV1 {
+  return {
+    ...receipt,
+    migrationPlan: binding.plan,
+    acceptedPlanSha256: binding.planSha256,
+    sourceFingerprintSha256: binding.sourceFingerprintSha256,
+    durableAcceptance,
+    latestAppliedPlanSha256: latestAppliedAcceptance?.acceptedPlanSha256 ?? null,
+    latestAppliedAcceptance,
   }
 }
 
@@ -1519,15 +2361,93 @@ export async function inspectCommunityStrictPgSchema(params: {
   }
 }
 
+export async function planCommunityStrictPgSchema(params: {
+  repoUrl: string
+  workspaceRoot: string
+  policy: CommunityStrictMigrationPolicyV1
+  clientFactory?: (repoUrl: string) => CommunityStrictPgClient
+}): Promise<CommunityStrictMigrationPlanningResultV1> {
+  if (!params.repoUrl) throw new Error('community_strict_repo_url_required')
+  validateCommunityStrictMigrationPolicyV1(params.policy)
+  const bundle = inspectCommunityStrictMigrationBundle({
+    policy: params.policy,
+    workspaceRoot: params.workspaceRoot,
+  })
+  const client = params.clientFactory?.(params.repoUrl) ?? new Client({ connectionString: params.repoUrl })
+  await client.connect()
+  let transactionOpen = false
+  try {
+    await configureCanonicalSession(client)
+    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY')
+    transactionOpen = true
+    await client.query('SELECT pg_advisory_xact_lock($1, $2)', [
+      params.policy.lock.classId,
+      params.policy.lock.objectId,
+    ])
+    const postgresMajor = await readPostgresMajor(client)
+    const observed = await observeState({ client, policy: params.policy })
+    const classification = classifyObservedState({ policy: params.policy, observed, postgresMajor })
+    const dataSentinels = classification === 'empty-v1'
+      ? []
+      : await captureDataSentinels(client, observed.projection, params.policy)
+    const receipt = createStateReceipt({
+      policy: params.policy,
+      lineageId: classification === 'empty-v1' ? classification : classification.id,
+      observed,
+      dataSentinels,
+    })
+    const binding = buildPlanFromObservedState({
+      policy: params.policy,
+      bundle,
+      postgresMajor,
+      classification,
+      observed,
+    })
+    await client.query('COMMIT')
+    transactionOpen = false
+    return {
+      ...receipt,
+      migrationPlan: binding.plan,
+      acceptedPlanSha256: binding.planSha256,
+      sourceFingerprintSha256: binding.sourceFingerprintSha256,
+      requiresSnapshotEvidence: classification !== 'empty-v1' &&
+        binding.plan.pendingMigrations.some((migration) => migration.risk === 'destructive-or-dynamic'),
+    }
+  } catch (error) {
+    if (transactionOpen) await client.query('ROLLBACK').catch(() => undefined)
+    throw error
+  } finally {
+    await client.end().catch(() => undefined)
+  }
+}
+
 export async function applyCommunityStrictPgSchema(params: {
   repoUrl: string
   workspaceRoot: string
   policy: CommunityStrictMigrationPolicyV1
+  snapshotEvidencePath?: string
+  snapshotPolicy?: CommunityStrictSnapshotPolicyV1
+  /** @deprecated Use snapshotEvidencePath. */
   backupEvidencePath?: string
+  expectedPlanSha256?: string
   logs?: string[]
   clientFactory?: (repoUrl: string) => CommunityStrictPgClient
-}): Promise<CommunityStrictStateReceiptV1> {
+  now?: () => Date
+  onPlanAccepted?: (context: CommunityStrictMigrationPlanAcceptedContextV1) => void | Promise<void>
+}): Promise<CommunityStrictMigrationApplyResultV1> {
   if (!params.repoUrl) throw new Error('community_strict_repo_url_required')
+  if (params.expectedPlanSha256 !== undefined && !RAW_SHA256.test(params.expectedPlanSha256)) {
+    throw new Error('community_strict_expected_plan_sha256_invalid')
+  }
+  if (params.snapshotEvidencePath && params.backupEvidencePath &&
+      !sameResolvedPath(params.snapshotEvidencePath, params.backupEvidencePath)) {
+    throw new Error('community_strict_snapshot_evidence_path_conflict')
+  }
+  const snapshotPolicy = params.snapshotPolicy ?? 'managed-verified-only-v1'
+  if (!['managed-verified-only-v1', 'managed-or-external-attested-v1'].includes(snapshotPolicy)) {
+    throw new Error('community_strict_snapshot_policy_invalid')
+  }
+  const snapshotEvidencePath = params.snapshotEvidencePath ?? params.backupEvidencePath
   validateCommunityStrictMigrationPolicyV1(params.policy)
   const bundle = inspectCommunityStrictMigrationBundle({
     policy: params.policy,
@@ -1539,6 +2459,22 @@ export async function applyCommunityStrictPgSchema(params: {
   let locked = false
   let transactionOpen = false
   let committed = false
+  let managedBackupGuard: CommunityStrictManagedBackupGuard | null = null
+  let managedBackupRescue: CommunityStrictManagedBackupRescue | null = null
+  const assertPostCommitManagedBackup = (): void => {
+    const guard = managedBackupGuard
+    const rescue = managedBackupRescue
+    if (!guard || !rescue) return
+    try {
+      assertManagedBackupGuard(guard)
+    } catch {
+      const preserved = preserveManagedBackupAfterCommit(guard, rescue)
+      if (preserved.consumed) managedBackupRescue = null
+      throw new Error(
+        `community_strict_backup_guard_changed_after_commit:backup_preserved=${preserved.preservedPath}`,
+      )
+    }
+  }
   try {
     const lock = await client.query<{ acquired: unknown }>(
       'SELECT pg_try_advisory_lock($1, $2) AS acquired',
@@ -1559,6 +2495,14 @@ export async function applyCommunityStrictPgSchema(params: {
     const target = params.policy.lineages.find((lineage) => lineage.id === params.policy.targetLineageId)
     if (!target) throw new Error('community_strict_target_missing')
     if (discoveredClassification !== 'empty-v1' && discoveredClassification.id === target.id) {
+      const acceptedPlan = buildPlanFromObservedState({
+        policy: params.policy,
+        bundle,
+        postgresMajor,
+        classification: discoveredClassification,
+        observed: discovered,
+      })
+      assertExpectedPlanSha256(params.expectedPlanSha256, acceptedPlan)
       logs.push(`Community PostgreSQL lineage ${target.id} is already exact; no DDL applied.`)
       const exactReceipt = createStateReceipt({
         policy: params.policy,
@@ -1568,8 +2512,23 @@ export async function applyCommunityStrictPgSchema(params: {
       })
       await client.query('COMMIT')
       transactionOpen = false
+      await client.query('BEGIN')
+      transactionOpen = true
+      const durableAcceptance = await writeMigrationPlanAcceptanceV1({
+        client,
+        plan: acceptedPlan,
+        result: exactReceipt,
+        evidence: null,
+        acceptedAt: (params.now ?? (() => new Date()))().toISOString(),
+      })
+      await client.query('COMMIT')
+      transactionOpen = false
       committed = true
-      return exactReceipt
+      const latestAppliedAcceptance = await readLatestAppliedPlanAcceptance(
+        client,
+        exactReceipt,
+      )
+      return attachAcceptedPlan(exactReceipt, acceptedPlan, durableAcceptance, latestAppliedAcceptance)
     }
 
     await client.query('COMMIT')
@@ -1581,6 +2540,14 @@ export async function applyCommunityStrictPgSchema(params: {
     await lockObservedRelations(client, mutationDiscovery.projection)
     const before = await observeState({ client, policy: params.policy })
     const classification = classifyObservedState({ policy: params.policy, observed: before, postgresMajor })
+    const acceptedPlan = buildPlanFromObservedState({
+      policy: params.policy,
+      bundle,
+      postgresMajor,
+      classification,
+      observed: before,
+    })
+    assertExpectedPlanSha256(params.expectedPlanSha256, acceptedPlan)
     if (classification !== 'empty-v1' && classification.id === target.id) {
       logs.push(`Community PostgreSQL lineage ${target.id} became exact before table locking; no DDL applied.`)
       const exactReceipt = createStateReceipt({
@@ -1589,10 +2556,21 @@ export async function applyCommunityStrictPgSchema(params: {
         observed: before,
         dataSentinels: [],
       })
+      const durableAcceptance = await writeMigrationPlanAcceptanceV1({
+        client,
+        plan: acceptedPlan,
+        result: exactReceipt,
+        evidence: null,
+        acceptedAt: (params.now ?? (() => new Date()))().toISOString(),
+      })
       await client.query('COMMIT')
       transactionOpen = false
       committed = true
-      return exactReceipt
+      const latestAppliedAcceptance = await readLatestAppliedPlanAcceptance(
+        client,
+        exactReceipt,
+      )
+      return attachAcceptedPlan(exactReceipt, acceptedPlan, durableAcceptance, latestAppliedAcceptance)
     }
     const beforeSentinels = classification === 'empty-v1'
       ? []
@@ -1604,13 +2582,30 @@ export async function applyCommunityStrictPgSchema(params: {
       dataSentinels: beforeSentinels,
     })
     const risky = pendingRiskyMigrations(params.policy, before.roots)
+    let snapshotEvidence: { evidence: CommunityStrictSnapshotEvidenceV1; evidenceSha256: string } | null = null
     if (classification !== 'empty-v1' && risky.length > 0) {
-      await verifyBackupEvidence({
-        evidencePath: params.backupEvidencePath,
+      const verifiedSnapshot = await verifySnapshotEvidence({
+        evidencePath: snapshotEvidencePath,
         preflight,
         policy: params.policy,
+        plan: acceptedPlan,
+        snapshotPolicy,
       })
+      snapshotEvidence = {
+        evidence: verifiedSnapshot.evidence,
+        evidenceSha256: verifiedSnapshot.evidenceSha256,
+      }
+      managedBackupGuard = verifiedSnapshot.managedBackupGuard
     }
+    await params.onPlanAccepted?.({
+      migrationPlan: acceptedPlan.plan,
+      acceptedPlanSha256: acceptedPlan.planSha256,
+      sourceFingerprintSha256: acceptedPlan.sourceFingerprintSha256,
+      preflight,
+      snapshotEvidenceKind: snapshotEvidence?.evidence.kind ?? null,
+      snapshotEvidenceSha256: snapshotEvidence?.evidenceSha256 ?? null,
+    })
+    if (managedBackupGuard) assertManagedBackupGuard(managedBackupGuard)
 
     const preflightCounts = before.roots.map((root) => root.rows.length)
     if (params.policy.roots.some((root, index) => root.migrations.length > preflightCounts[index])) {
@@ -1675,10 +2670,25 @@ export async function applyCommunityStrictPgSchema(params: {
       observed: finalInTransaction,
       dataSentinels: afterSentinels,
     })
+    if (managedBackupGuard) assertManagedBackupGuard(managedBackupGuard)
+    const durableAcceptance = await writeMigrationPlanAcceptanceV1({
+      client,
+      plan: acceptedPlan,
+      result: finalReceipt,
+      evidence: snapshotEvidence,
+      acceptedAt: (params.now ?? (() => new Date()))().toISOString(),
+    })
+
+    if (managedBackupGuard) {
+      assertManagedBackupGuard(managedBackupGuard)
+      managedBackupRescue = stageManagedBackupRescue(managedBackupGuard)
+      assertManagedBackupGuard(managedBackupGuard)
+    }
 
     await client.query('COMMIT')
     transactionOpen = false
     committed = true
+    assertPostCommitManagedBackup()
     const postCommit = await observeState({ client, policy: params.policy })
     const postClassification = classifyObservedState({ policy: params.policy, observed: postCommit, postgresMajor })
     const postReceipt = createStateReceipt({
@@ -1690,18 +2700,40 @@ export async function applyCommunityStrictPgSchema(params: {
     if (postReceipt.stateFingerprintSha256 !== finalReceipt.stateFingerprintSha256) {
       throw new Error('community_strict_post_commit_verification_mismatch')
     }
+    const latestAppliedAcceptance = await readLatestAppliedPlanAcceptance(
+      client,
+      postReceipt,
+    )
+    if (acceptedPlan.plan.action === 'migrate' &&
+        latestAppliedAcceptance?.acceptedPlanSha256 !== acceptedPlan.planSha256) {
+      throw new Error('community_strict_plan_acceptance_post_commit_mismatch')
+    }
+    assertPostCommitManagedBackup()
+    if (managedBackupGuard && managedBackupRescue) {
+      discardManagedBackupRescue(managedBackupGuard, managedBackupRescue)
+      managedBackupRescue = null
+    }
     logs.push(`Community PostgreSQL strict lineage ${target.id} verified under the shared lock.`)
-    return postReceipt
+    return attachAcceptedPlan(postReceipt, acceptedPlan, durableAcceptance, latestAppliedAcceptance)
   } catch (error) {
     if (transactionOpen && !committed) await client.query('ROLLBACK').catch(() => undefined)
     throw error
   } finally {
+    if (managedBackupRescue) {
+      if (!committed && managedBackupGuard) {
+        discardManagedBackupRescue(managedBackupGuard, managedBackupRescue)
+      } else {
+        closeManagedBackupRescue(managedBackupRescue)
+      }
+      managedBackupRescue = null
+    }
     if (locked) {
       await client.query('SELECT pg_advisory_unlock($1, $2)', [
         params.policy.lock.classId,
         params.policy.lock.objectId,
       ]).catch(() => undefined)
     }
+    if (managedBackupGuard) closeSync(managedBackupGuard.fd)
     await client.end().catch(() => undefined)
   }
 }

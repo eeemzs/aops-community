@@ -14,4 +14,3 @@ export interface IRepositoryPortSnippet extends IRepositoryBaseCrud<IbmSnippet, 
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmSnippet>): import('effect').Effect<IbmSnippet | null, RepositoryError>
   //<==//
 }
-

@@ -1,27 +1,20 @@
 import { apiErrorMessage } from "../lib/aopsApi";
-import type {
-  AopsCockpitLocale,
-  AopsCockpitTranslationKey
-} from "../lib/i18n";
+import type { AopsCockpitTranslationKey } from "../lib/i18n";
 
 interface AuthGateProps {
   error: unknown;
-  locale: AopsCockpitLocale;
   mode: "loading" | "error";
   serverBaseUrl: string;
   t: (key: AopsCockpitTranslationKey) => string;
   onRetry: () => void;
-  onToggleLocale: () => void;
 }
 
 export function AuthGate({
   error,
-  locale,
   mode,
   serverBaseUrl,
   t,
-  onRetry,
-  onToggleLocale
+  onRetry
 }: AuthGateProps) {
   const errorMessage = apiErrorMessage(error, "trusted_local_auth_failed");
   return (
@@ -38,14 +31,6 @@ export function AuthGate({
             <h1>{t("appTitle")}</h1>
             <p>{serverBaseUrl}</p>
           </div>
-          <button
-            type="button"
-            className="aops-v2-icon-button aops-v2-locale-button"
-            title={t("localeToggle")}
-            onClick={onToggleLocale}
-          >
-            {locale.toUpperCase()}
-          </button>
         </div>
         {mode === "loading" ? (
           <div className="aops-auth-state">

@@ -15,5 +15,3 @@ export interface IRepositoryPortSkill extends IRepositoryPortBaseCrud<IbmSkill, 
   // findByDummyString(dummyString: string, options?: import('@aopslab/xf-db').DbQueryOptions<IbmSkill>): import('effect').Effect<IbmSkill | null, RepositoryError>
   //<==//
 }
-
-

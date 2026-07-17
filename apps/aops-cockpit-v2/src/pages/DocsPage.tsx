@@ -16,7 +16,7 @@ import { RecordCardsRegister } from "./projectman/record-cards/RecordCardsRegist
 import { MarkdownLite, markdownAnchorSlug } from "../components/MarkdownLite";
 import { toneForStatus } from "../lib/projectman";
 import { formatPmDate } from "./projectman/helpers";
-import { SegmentedControl } from "./projectman/components";
+import { CockpitViewIconSwitch } from "../components/CockpitViewIconSwitch";
 import { CopyContentButton } from "../components/CopyContentButton";
 import type { AopsCockpitLocale, AopsCockpitTranslationKey } from "../lib/i18n";
 
@@ -89,22 +89,35 @@ export function DocsPage({
     <WorkbenchStatePanel variant="empty" title={t("docsTitle")} message={t("docsNavEmpty")} />
   );
   const viewMode = navigator.isCardsMode ? "cards" : navigator.isDropdownMode ? "dropdown" : "side-panel";
+  const sidePanelVisible = viewMode === "side-panel" && navigator.controller.open;
   const viewSwitch = (
-    <div className="aops-pm-section-view-switch aops-docs-view-switch">
-      <SegmentedControl
-        compact
-        ariaLabel={`${t("pmRecordViewLabel")}: ${t("docsTitle")}`}
-        value={viewMode}
-        items={[
-          { value: "side-panel", label: t("pmRecordViewSidePanel") },
-          { value: "cards", label: t("navModeCards") },
-          { value: "dropdown", label: t("navModeDropdown") }
-        ]}
-        onChange={(next) =>
-          navigator.switchMode(next === "cards" ? "cards" : next === "dropdown" ? "dropdown" : "left-menu")
-        }
-      />
-    </div>
+    <CockpitViewIconSwitch
+      className="aops-docs-view-switch"
+      ariaLabel={`${t("pmRecordViewLabel")}: ${t("docsTitle")}`}
+      value={viewMode}
+      items={[
+        {
+          value: "side-panel",
+          label: sidePanelVisible ? t("navSidePanelHide") : t("navSidePanelShow"),
+          icon: "side-panel",
+          expanded: sidePanelVisible,
+          onSelect: () => {
+            if (viewMode === "side-panel") {
+              navigator.controller.setOpen((current) => !current);
+              return;
+            }
+            navigator.controller.setOpen(true);
+            navigator.switchMode("left-menu");
+          },
+          testId: "aops-docs-view-side-panel"
+        },
+        { value: "cards", label: t("navModeCards"), icon: "cards", testId: "aops-docs-view-cards" },
+        { value: "dropdown", label: t("navModeDropdown"), icon: "dropdown", testId: "aops-docs-view-dropdown" }
+      ]}
+      onChange={(next) =>
+        navigator.switchMode(next === "cards" ? "cards" : next === "dropdown" ? "dropdown" : "left-menu")
+      }
+    />
   );
 
   // Cards mode: the whole document set as a paged register (record-cards

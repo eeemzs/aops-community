@@ -17,4 +17,3 @@ export class BmCodexChatSetting extends BmBase<IbmCodexChatSetting, ICodexChatSe
     }
   }
 }
-

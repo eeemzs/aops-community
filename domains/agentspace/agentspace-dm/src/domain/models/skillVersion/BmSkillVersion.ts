@@ -17,4 +17,3 @@ export class BmSkillVersion extends BmBase<IbmSkillVersion, ISkillVersionMlgTags
     }
   }
 }
-

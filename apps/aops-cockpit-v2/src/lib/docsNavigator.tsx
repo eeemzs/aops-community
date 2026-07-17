@@ -57,6 +57,8 @@ export function useDocsNavigator(model: DocsNavigatorModel, t: NavT): DocsNaviga
       enableCardsMode: true,
       showDropdownSettings: false,
       showModeShortcuts: false,
+      showTreeSettings: false,
+      showTreeClose: true,
       showNavigatorSetting: false,
       leftMenuModeLabel: "pmRecordViewSidePanel",
       settingsModeOrder: ["left-menu", "cards", "dropdown"],

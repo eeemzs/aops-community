@@ -19,4 +19,3 @@ export const SnippetErrorTag = {
 export class SnippetDomainError extends Data.TaggedError(SnippetErrorTag.Domain)<WithBaseErrorFields<{ id?: string }>> {}
 
 export type SnippetServiceError = SnippetDomainError | XfError | RepositoryError | XfUpsertError
-

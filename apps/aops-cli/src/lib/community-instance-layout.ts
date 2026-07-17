@@ -2,7 +2,7 @@ import { homedir } from 'node:os'
 import path from 'node:path'
 
 const DEFAULT_INSTANCE_ID = 'default'
-const INSTANCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/
+const INSTANCE_ID = /^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/
 const PORTABLE_RESERVED_NAME = /^(?:con|prn|aux|nul|clock\$|com[1-9]|lpt[1-9])$/i
 const POSIX_PLATFORMS = new Set<NodeJS.Platform>([
   'aix',

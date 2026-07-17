@@ -8,7 +8,7 @@
     "dev": "vite dev --host 127.0.0.1",
     "build": "svelte-kit sync && vite build",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "start": "node ./scripts/start.mjs"
+    "start": "node ./scripts/community-host.mjs"
   },
   "dependencies": {
     "@aops/error-catalog": "workspace:*",

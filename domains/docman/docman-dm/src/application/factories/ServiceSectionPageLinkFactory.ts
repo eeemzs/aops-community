@@ -16,4 +16,3 @@ export const ServiceFactorySectionPageLink = {
     return ServiceBuilderSectionPageLink.create()
   },
 }
-
