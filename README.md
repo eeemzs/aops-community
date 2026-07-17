@@ -8,7 +8,7 @@ For AOPS introduction please visit [aopslab.com](https://www.aopslab.com)
 
 ## Installation and Getting Started
 
-Choose one path. Docker is optional: N1 and C1 do not need it, N2 uses it only for PostgreSQL, and D1 uses it to run the ready Community stack. Normal users never build an AOPS application image.
+Choose one path. Docker is optional: N1 and C1 do not need it, N2 uses it only for PostgreSQL, and D1 uses it to run the ready Community stack. The ready D1 path does not require building an AOPS application image.
 
 | Path | Use this when | Clone | Docker | PostgreSQL |
 | --- | --- | --- | --- | --- |
@@ -130,6 +130,6 @@ aops-cli server start --json
 
 N1 database backup and restore remain the external PostgreSQL operator's responsibility. N2 and D1 keep managed database data in named volumes and expose explicit CLI backup, update, recovery, and reset commands; inspect `aops-cli server --help` before a destructive action.
 
-## Contributing and release engineering
+## Contributing
 
-Normal installation ends above. Application-image builds, source validation, generated evidence, and release-factory operations are maintainer/contributor work, not user setup. See [CONTRIBUTING.md](CONTRIBUTING.md) for contributor and release-engineering guidance. Do not hand-edit generated SBOM, checksum, provenance, or release-descriptor evidence.
+Normal installation ends above. See [CONTRIBUTING.md](CONTRIBUTING.md) for the source contribution workflow.
