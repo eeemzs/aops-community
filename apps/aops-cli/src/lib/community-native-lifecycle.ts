@@ -1103,12 +1103,20 @@ function pnpmScriptCandidates(env: NodeJS.ProcessEnv): string[] {
     .filter((entry): entry is string => Boolean(entry?.trim()))
   for (const root of roots) {
     const resolved = path.resolve(root)
-    candidates.push(
-      path.join(resolved, 'node_modules', 'pnpm', 'bin', 'pnpm.mjs'),
-      path.join(resolved, 'node_modules', 'pnpm', 'bin', 'pnpm.cjs'),
-      path.resolve(resolved, '..', 'lib', 'node_modules', 'pnpm', 'bin', 'pnpm.mjs'),
-      path.resolve(resolved, '..', 'lib', 'node_modules', 'pnpm', 'bin', 'pnpm.cjs'),
-    )
+    const packageRoots = [
+      path.join(resolved, 'node_modules', 'pnpm'),
+      path.resolve(resolved, '..', 'lib', 'node_modules', 'pnpm'),
+    ]
+    // pnpm/action-setup exports PNPM_HOME as its node_modules/.bin directory.
+    if (path.basename(resolved).toLowerCase() === '.bin') {
+      packageRoots.push(path.resolve(resolved, '..', 'pnpm'))
+    }
+    for (const packageRoot of packageRoots) {
+      candidates.push(
+        path.join(packageRoot, 'bin', 'pnpm.mjs'),
+        path.join(packageRoot, 'bin', 'pnpm.cjs'),
+      )
+    }
     if (process.platform !== 'win32') {
       for (const name of ['pnpm', 'pnpm.cjs', 'pnpm.mjs']) {
         const executable = path.join(resolved, name)
