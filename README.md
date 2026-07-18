@@ -12,18 +12,27 @@ The server stores its data in PostgreSQL 17 and can run on the same computer as 
 
 ## Getting Started
 
-Choose the setup that matches how you want to run AOPS:
+Choose one of these independent alternatives:
 
-1. **Clone the repository and use your own PostgreSQL** — no Docker required.
-2. **Clone the repository and use the ready PostgreSQL container** — Docker is used only for PostgreSQL.
-3. **Run the ready AOPS stack with Docker** — no source clone or application build.
-4. **Install only the CLI and connect to an existing server** — no local server, PostgreSQL, or Docker required.
+- **Alternative A1 — Clone the repository and use your own PostgreSQL.** No Docker required.
+- **Alternative A2 — Clone the repository and use the ready PostgreSQL container.** Docker is used only for PostgreSQL.
+- **Alternative A3 — Run the ready AOPS stack with Docker.** No source clone or application build.
+- **Alternative A4 — Connect to an existing AOPS server.** No local server, PostgreSQL, or Docker required.
 
 The examples below use release `0.1.0`. Use one matching version for the source, CLI, and server. Local server installations should have at least 4 GB of free memory and 2 GB of free disk space.
 
-> The Docker-only and CLI-only paths require `@aopslab/aops-cli` to be available on npm. Until that package is published, use one of the source-clone paths.
+### Install the AOPS CLI
 
-### 1. Clone and use your own PostgreSQL
+Every alternative uses the public CLI package from npm. Install the version that matches the AOPS source or server release:
+
+```sh
+npm install --global @aopslab/aops-cli@0.1.0
+aops-cli --version
+```
+
+> `@aopslab/aops-cli@0.1.0` is not published yet. The normal installation commands below become available after the npm package is published. The repository-local source invocation described at the end is for CLI development, not the normal user installation path.
+
+### Alternative A1 — Clone and use your own PostgreSQL
 
 Use this option when PostgreSQL 17 is already available locally, on your network, or through a managed database service.
 
@@ -48,14 +57,14 @@ AOPS_PG_URL=postgresql://USER:PASSWORD@HOST:5432/aops
 Keep this file private. Preview the setup, apply it, and check the server:
 
 ```sh
-pnpm run aops-cli server setup --runtime native --postgres external --postgres-config ./aops.server.env --postgres-tls verify-full --source-root . --port 5900 --detach --preview --json
-pnpm run aops-cli server setup --runtime native --postgres external --postgres-config ./aops.server.env --postgres-tls verify-full --source-root . --port 5900 --detach --apply --json
-pnpm run aops-cli server status --json
+aops-cli server setup --runtime native --postgres external --postgres-config ./aops.server.env --postgres-tls verify-full --source-root . --port 5900 --detach --preview --json
+aops-cli server setup --runtime native --postgres external --postgres-config ./aops.server.env --postgres-tls verify-full --source-root . --port 5900 --detach --apply --json
+aops-cli server status --json
 ```
 
 Use `--postgres-tls disable` only for PostgreSQL running on the same computer. For a remote database, keep hostname verification enabled.
 
-### 2. Clone and use the ready PostgreSQL container
+### Alternative A2 — Clone and use the ready PostgreSQL container
 
 Use this option when you want to run AOPS from source but do not want to install PostgreSQL yourself. Docker runs PostgreSQL only; Cockpit and the AOPS server run directly from the cloned repository.
 
@@ -67,23 +76,22 @@ cd aops-community
 corepack enable
 corepack install --global pnpm@11.9.0
 pnpm install --frozen-lockfile
-pnpm run aops-cli server setup --runtime native --postgres container --source-root . --port 5900 --detach --preview --json
-pnpm run aops-cli server setup --runtime native --postgres container --source-root . --port 5900 --detach --apply --json
-pnpm run aops-cli server status --json
+aops-cli server setup --runtime native --postgres container --source-root . --port 5900 --detach --preview --json
+aops-cli server setup --runtime native --postgres container --source-root . --port 5900 --detach --apply --json
+aops-cli server status --json
 ```
 
 The CLI creates the database secret, starts the pinned PostgreSQL 17 container, and keeps its data in a persistent Docker volume. It does not build or run an AOPS application image.
 
-Inside the repository, always use `pnpm run aops-cli`. This selects the clone-local CLI even when another version is installed globally.
+The source clone contains the CLI implementation for transparency and contribution, but normal setup still uses the npm-installed `aops-cli` command.
 
-### 3. Run the ready Docker stack
+### Alternative A3 — Run the ready Docker stack
 
 Use this option for the shortest full local installation. A source clone, pnpm workspace install, registry login, and application image build are not required.
 
 Requirements: Node.js 22.9.0 or newer and Docker Engine or Docker Desktop with Docker Compose v2.
 
 ```sh
-npm install --global @aopslab/aops-cli@0.1.0
 aops-cli server setup --runtime oci --preview --json
 aops-cli server setup --runtime oci --apply --json
 aops-cli server status --json
@@ -91,14 +99,13 @@ aops-cli server status --json
 
 The CLI pulls the matching ready AOPS image, creates local secrets and persistent PostgreSQL storage, starts the stack, and verifies server health.
 
-### 4. Install only the CLI
+### Alternative A4 — Connect to an existing server
 
 Use this option when an AOPS server already runs on this computer, another computer, or a hosted environment. The client computer does not need a source clone, PostgreSQL, or Docker.
 
 Requirements: Node.js 22.9.0 or newer and the HTTPS address of the existing server.
 
 ```sh
-npm install --global @aopslab/aops-cli@0.1.0
 aops-cli target add --name team --api-base-url https://aops.example.test --auth-provider authv2-jwt-session --tls-policy system-ca --use --json
 aops-cli target add --name team --api-base-url https://aops.example.test --auth-provider authv2-jwt-session --tls-policy system-ca --use --apply --json
 aops-cli auth login --target team
@@ -111,17 +118,7 @@ Replace `https://aops.example.test` with the real server address. Login credenti
 
 For a local installation, open <http://127.0.0.1:5900>. The same address serves Cockpit and the AOPS API.
 
-From a cloned repository:
-
-```sh
-pnpm run aops-cli server status --json
-pnpm run aops-cli server logs --tail 100 --json
-pnpm run aops-cli server restart --detach --json
-pnpm run aops-cli server stop --json
-pnpm run aops-cli server start --detach --json
-```
-
-With an independently installed CLI:
+Use the npm-installed CLI for both source-clone and ready-image installations:
 
 ```sh
 aops-cli server status --json
@@ -130,3 +127,14 @@ aops-cli server restart --json
 aops-cli server stop --json
 aops-cli server start --json
 ```
+
+### Develop the CLI from source
+
+The repository includes the CLI source so the open-source Community tree is complete and contributors can inspect, test, and change it. This is not the normal installation path. After installing the workspace dependencies, the built CLI can be invoked directly with Node.js:
+
+```sh
+node ./apps/aops-cli/dist/main.js --help
+node ./apps/aops-cli/dist/main.js server status --json
+```
+
+Use the npm-installed `aops-cli` command for normal operation. Use the direct Node.js form only while developing or testing the repository copy of the CLI.
