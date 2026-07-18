@@ -4,8 +4,6 @@ Local, three-application AOPS distribution: Cockpit, CLI, and the AOPS server on
 
 For AOPS introduction please visit [aopslab.com](https://www.aopslab.com)
 
-> Release status: Apache-2.0 source candidate. Public release remains gated on reviewed attribution, SBOM/provenance, migration safety, and independent release validation.
-
 ## Installation and Getting Started
 
 Choose one path. Docker is optional: N1 and C1 do not need it, N2 uses it only for PostgreSQL, and D1 uses it to run the ready Community stack. The ready D1 path does not require building an AOPS application image.
@@ -70,7 +68,7 @@ The CLI creates a private database secret, pulls the pinned PostgreSQL 17 image,
 
 Inside a clone, `pnpm run aops-cli` always executes the clone-local CLI entry even if another `aops-cli` is installed globally.
 
-### D1 — No clone, ready signed OCI stack
+### D1 — No clone, ready OCI stack
 
 Requirements: Node.js 22.9.0 or newer and Docker Engine or Docker Desktop with Docker Compose v2. No Git clone, pnpm workspace install, registry login, or application image build is required.
 
@@ -81,7 +79,7 @@ aops-cli server setup --runtime oci --apply --json
 aops-cli server status --json
 ```
 
-The CLI version selects the matching immutable release tag. Setup verifies the signed release descriptor, binds the exact OCI digest, anonymously pulls the ready image, creates local secrets and persistent PostgreSQL storage, starts the stack, and verifies health. Mutable `latest` resolution is not an authorization path.
+The CLI version selects the matching release, pulls the ready image, creates local secrets and persistent PostgreSQL storage, starts the stack, and verifies health.
 
 For a one-off command without a global install:
 
