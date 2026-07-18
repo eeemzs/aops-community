@@ -8,7 +8,9 @@ import { pathToFileURL } from 'node:url';
 import { codepointCompare } from './community-codepoint-compare.mjs';
 
 const HASH = /^sha256:[a-f0-9]{64}$/;
-const REQUIRED_SURFACES = Object.freeze(['image-cli-prod-deploy', 'server-prod-deploy']);
+export const COMMUNITY_PRODUCT_PAYLOAD_REQUIRED_SURFACES = Object.freeze(
+  ['cli-artifact-prod-deploy', 'server-prod-deploy'].sort(codepointCompare),
+);
 
 function fail(code, detail = '') {
   throw new Error(detail ? `${code}:${detail}` : code);
@@ -49,7 +51,7 @@ function validateRuntimeInventory(value, { lockSha256, platform }) {
   if (
     value?.schemaVersion !== 1 || value.status !== 'community-runtime-deploy-inventory-valid' ||
     value.platform !== platform || value.lockSha256 !== lockSha256 ||
-    !REQUIRED_SURFACES.includes(value.surface) || !HASH.test(String(value.inventorySha256)) ||
+    !COMMUNITY_PRODUCT_PAYLOAD_REQUIRED_SURFACES.includes(value.surface) || !HASH.test(String(value.inventorySha256)) ||
     !HASH.test(String(value.packageMapProjectionSha256))
   ) fail('community_product_payload_runtime_inventory_invalid', String(value?.surface ?? 'missing'));
   const unsealed = { ...value };
@@ -102,7 +104,10 @@ export function verifyCommunityProductPayload({
       packageMapProjectionSha256: actual.packageMapProjectionSha256,
     };
   }).sort((left, right) => codepointCompare(left.surface, right.surface));
-  if (JSON.stringify(runtimeProof.map((entry) => entry.surface)) !== JSON.stringify(REQUIRED_SURFACES)) {
+  if (
+    JSON.stringify(runtimeProof.map((entry) => entry.surface))
+    !== JSON.stringify(COMMUNITY_PRODUCT_PAYLOAD_REQUIRED_SURFACES)
+  ) {
     fail('community_product_payload_runtime_matrix_incomplete');
   }
   const cockpit = parseJson(cockpitInventoryContent, 'community_product_payload_cockpit_inventory');
