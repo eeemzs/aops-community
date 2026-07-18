@@ -33,7 +33,15 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          git diff --check "$BASE_SHA...$HEAD_SHA"
+          git diff --check "$BASE_SHA...$HEAD_SHA" -- . ':(exclude)release/THIRD_PARTY_NOTICES'
+
+          if git diff --name-only "$BASE_SHA...$HEAD_SHA" | grep -q '^release/'; then
+            release_checkout="$RUNNER_TEMP/aops-community-release-head"
+            git worktree add --detach "$release_checkout" "$HEAD_SHA"
+            node "$release_checkout/scripts/community-export/community-release-packaging.mjs" verify-commit \
+              --checkout-root "$release_checkout" \
+              --json
+          fi
 
       - name: Verify committed source checksums
         shell: bash
