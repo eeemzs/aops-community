@@ -245,7 +245,7 @@ export function createCommunityImageContractOverlay() {
     files,
     planDigest: sha256(JSON.stringify(digestPayload)),
     blockers: [
-      'community-multiarch-double-build-digest-proof-pending',
+      'community-tested-platform-digests-and-index-promotion-pending',
       'community-registry-push-and-signature-pending',
       'community-runtime-legal-files-proof-pending',
     ],

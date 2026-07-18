@@ -26,7 +26,7 @@
     "community": {
       "repository": "https://github.com/eeemzs/aops-community",
       "commitBinding": "release.json#/source/commit",
-      "rawFileInventoryDigest": "sha256:f3f8a34740d02dd0cb670e7eb67a7abe220272f354b2f051bf4c956000d0d73c"
+      "rawFileInventoryDigest": "sha256:33a0b320b99a6cc5dc847ad42221f8679bf99b00083bac23b02ba913aa0fcc19"
     }
   },
   "cleanBuildRequirement": {
