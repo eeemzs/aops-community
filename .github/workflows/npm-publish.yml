@@ -3,34 +3,17 @@ name: Publish AOPS Community CLI to npm
 on:
   workflow_dispatch:
     inputs:
-      operation:
-        description: "Publish once, or verify-published to reconcile an already accepted release without republishing."
-        required: true
-        default: publish
-        type: choice
-        options:
-          - publish
-          - verify-published
       version:
-        description: "Exact signed release version; the workflow checks out and verifies the matching v<version> tag."
+        description: "Release version to publish, without the v prefix."
         required: true
         type: string
-      auth_mode:
-        description: "Use bootstrap-token only for the one-time first publish; use trusted-publishing afterwards."
-        required: true
-        default: trusted-publishing
-        type: choice
-        options:
-          - trusted-publishing
-          - bootstrap-token
       confirm:
-        description: "Enter publish-v<version>, bootstrap-publish-v<version>, or verify-v<version> for reconciliation."
+        description: "Enter publish-v<version>."
         required: true
         type: string
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: npm-publish-aopslab-aops-cli
@@ -38,76 +21,54 @@ concurrency:
 
 jobs:
   publish:
-    if: github.repository == 'eeemzs/aops-community'
-    # Mandatory trust boundary: protect main; npm-production selected deployment branches = main only; no tags.
-    # Strongly recommended when a second GitHub maintainer exists: required reviewer and prevent self-review.
-    # Strongly recommended: administrator bypass disabled. Typed confirmation remains mandatory in all cases.
-    # Required npm trusted publisher: repository eeemzs/aops-community, workflow npm-publish.yml,
-    # environment npm-production, and allowed action = npm publish only (never npm stage publish).
+    if: github.repository == 'eeemzs/aops-community' && github.ref == 'refs/heads/main'
     environment: npm-production
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
-      - name: Check out protected publishing tooling
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          ref: ${{ github.sha }}
-          path: tooling
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Check out the exact release candidate tag as data
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          ref: refs/tags/v${{ inputs.version }}
-          path: candidate
-          fetch-depth: 2
-          fetch-tags: true
-          persist-credentials: false
-
-      - name: Set up Node.js and the public npm registry
+      - name: Set up Node.js and npm
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
           registry-url: https://registry.npmjs.org/
 
-      - name: Pin the trusted-publishing-capable npm client
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm install --global npm@11.18.0
-          test "$(npm --version)" = "11.18.0"
-
-      - name: Install Cosign for private-factory signature verification
-        uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
-        with:
-          cosign-release: v3.0.6
-
-      - name: Bind protected tooling to the workflow commit
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$(git -C "$GITHUB_WORKSPACE/tooling" rev-parse HEAD)" = "$GITHUB_SHA"
-          test -z "$(git -C "$GITHUB_WORKSPACE/tooling" status --porcelain)"
-
-      - name: Verify and publish the exact signed CLI archive
+      - name: Download the CLI archive from the GitHub Release
+        id: release_asset
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          AOPS_NPM_ENVIRONMENT: npm-production
-          INPUT_OPERATION: ${{ inputs.operation }}
-          INPUT_VERSION: ${{ inputs.version }}
-          INPUT_AUTH_MODE: ${{ inputs.auth_mode }}
-          INPUT_CONFIRM: ${{ inputs.confirm }}
-          # NPM_TOKEN is a temporary granular token used only to create the package once.
-          # After configuring npm trusted publishing, remove the environment secret and revoke the token.
-          NODE_AUTH_TOKEN: ${{ inputs.operation == 'publish' && inputs.auth_mode == 'bootstrap-token' && secrets.NPM_TOKEN || '' }}
-        run: >-
-          node "$GITHUB_WORKSPACE/tooling/scripts/community-export/community-npm-publish-gate.mjs" "$INPUT_OPERATION"
-          --tooling-root "$GITHUB_WORKSPACE/tooling"
-          --checkout-root "$GITHUB_WORKSPACE/candidate"
-          --version "$INPUT_VERSION"
-          --tag "v$INPUT_VERSION"
-          --auth-mode "$INPUT_AUTH_MODE"
-          --confirm "$INPUT_CONFIRM"
-          --json
+          VERSION: ${{ inputs.version }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          test "$CONFIRM" = "publish-v$VERSION"
+
+          asset="aopslab-aops-cli-$VERSION.tgz"
+          destination="$RUNNER_TEMP/aops-cli-release"
+          mkdir -p "$destination"
+          gh release download "v$VERSION" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$asset" \
+            --dir "$destination"
+
+          test -s "$destination/$asset"
+          echo "tgz=$destination/$asset" >> "$GITHUB_OUTPUT"
+
+      - name: Publish the exact release archive
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$NODE_AUTH_TOKEN"
+          npm publish "${{ steps.release_asset.outputs.tgz }}" --access public
+
+      - name: Verify the published package
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          published="$(npm view "@aopslab/aops-cli@$VERSION" version)"
+          test "$published" = "$VERSION"
+          npm view "@aopslab/aops-cli@$VERSION" name version dist-tags.latest --json
