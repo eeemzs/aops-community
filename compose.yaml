@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: ${AOPS_POSTGRES_DB:-aops}
       POSTGRES_USER: ${AOPS_POSTGRES_USER:-aops}
-      POSTGRES_PASSWORD: ${AOPS_POSTGRES_PASSWORD:?run node deploy/community/init-env.mjs first}
+      POSTGRES_PASSWORD: ${AOPS_POSTGRES_PASSWORD:?set AOPS_POSTGRES_PASSWORD in .env}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -35,7 +35,7 @@ services:
       AOPS_DB_BOOTSTRAP_MODE: explicit
       AOPS_PG_URL: postgresql://${AOPS_POSTGRES_USER:-aops}:${AOPS_POSTGRES_PASSWORD}@127.0.0.1:5432/${AOPS_POSTGRES_DB:-aops}
       CHATV3_SERVER_KEY_ID: k1
-      CHATV3_SERVER_KEY_SECRET: ${CHATV3_SERVER_KEY_SECRET:?run node deploy/community/init-env.mjs first}
+      CHATV3_SERVER_KEY_SECRET: ${CHATV3_SERVER_KEY_SECRET:?set CHATV3_SERVER_KEY_SECRET in .env}
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5900/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 10s

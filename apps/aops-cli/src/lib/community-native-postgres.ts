@@ -20,7 +20,7 @@ import {
   throwIfCommunityCommandAborted,
 } from './community-command-abort.js'
 
-export const COMMUNITY_NATIVE_POSTGRES_CONTRACT_PATH = 'deploy/community/postgres-container-profile.json'
+export const COMMUNITY_NATIVE_POSTGRES_CONTRACT_PATH = 'community-postgres.json'
 
 const SHA256 = /^sha256:[a-f0-9]{64}$/
 const IMAGE_REF = /^ghcr\.io\/eeemzs\/aops-community-base-postgres:17-bookworm@(sha256:[a-f0-9]{64})$/
