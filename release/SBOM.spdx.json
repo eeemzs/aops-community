@@ -1,0 +1,1722 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "AOPS Community deterministic source distribution",
+  "documentNamespace": "https://aops.local/spdx/community/ac48c1fec00e11111f6e897847955b7877700aeddce331d4a8c0c0b8be29d4f7",
+  "creationInfo": {
+    "created": "1970-01-01T00:00:00Z",
+    "creators": [
+      "Tool: aops-community-export"
+    ],
+    "comment": "Deterministic epoch; 55 preferred-source packages are bound by community-sources.lock.json. Apache-2.0 is declared for 33 Community source packages and 22 public XF packages; root, server and cockpit manifests intentionally remain NOASSERTION package metadata."
+  },
+  "documentDescribes": [
+    "SPDXRef-Package-2a3e558ecddee7f4fc4c",
+    "SPDXRef-Package-360f410300408f04c05b",
+    "SPDXRef-Package-f4585bd4d9df15393769",
+    "SPDXRef-Package-bdfd139b5fc224a374a5",
+    "SPDXRef-Package-d1ea98253eda2c588ba8",
+    "SPDXRef-Package-9483670118a0218a3921",
+    "SPDXRef-Package-257b002db0c7fea6d185",
+    "SPDXRef-Package-d405165c09db1ab55613",
+    "SPDXRef-Package-3822c31e1a20d1712ceb",
+    "SPDXRef-Package-5a3e6985ab7174570fdc",
+    "SPDXRef-Package-365036b450ca3da9a22e",
+    "SPDXRef-Package-1f871159c0668c7d803d",
+    "SPDXRef-Package-8b68b6ffb2379dbc8f75",
+    "SPDXRef-Package-e6afe9868e395b8e95c2",
+    "SPDXRef-Package-48016539cf7f82107f77",
+    "SPDXRef-Package-cf3578bf041f780312ae",
+    "SPDXRef-Package-f4a4d5ca01445d358aa8",
+    "SPDXRef-Package-3638f1dd8a8c364266e7",
+    "SPDXRef-Package-d1d8a0be350358a80392",
+    "SPDXRef-Package-f6b28a7e250154fdae27",
+    "SPDXRef-Package-84043e622b9548aecea8",
+    "SPDXRef-Package-1c190f00ce34c26271fd",
+    "SPDXRef-Package-1fa9f6afa84dda933468",
+    "SPDXRef-Package-4395f7c89d4b9eec0066",
+    "SPDXRef-Package-3d083421a936e27e78c3",
+    "SPDXRef-Package-2d20ce934dc1db47f9b3",
+    "SPDXRef-Package-b2b2d1661ce921ac6141",
+    "SPDXRef-Package-d69c1afb01d04a64b340",
+    "SPDXRef-Package-d5c03d8f3d7089a60e62",
+    "SPDXRef-Package-0d80fbc199f955c43cf0",
+    "SPDXRef-Package-7212354eb6d3323e8e95",
+    "SPDXRef-Package-7e6cea63b4e5d6412069",
+    "SPDXRef-Package-41410cc6d78dba28125b",
+    "SPDXRef-Package-e02773631edeb71c4970",
+    "SPDXRef-Package-62c33c5bcd02355163e8",
+    "SPDXRef-Package-a73d0550f76cbe7a3220",
+    "SPDXRef-Package-4a526954bed626507b64",
+    "SPDXRef-Package-a89fe2773fd6a0076b57",
+    "SPDXRef-Package-862527b424072af4038c",
+    "SPDXRef-Package-7f318d9d46bcf33c751f",
+    "SPDXRef-Package-ad8a9a2bcef0908917d3",
+    "SPDXRef-Package-9cc79f9f8d15a63d5d3e",
+    "SPDXRef-Package-af45bb8ca77a093dd762",
+    "SPDXRef-Package-ec480f51d07563277448",
+    "SPDXRef-Package-8a3690e71314130694fe",
+    "SPDXRef-Package-b833057b56444a69277f",
+    "SPDXRef-Package-2b8e0f1d10cfcdfef958",
+    "SPDXRef-Package-0ae77d053019441db19e",
+    "SPDXRef-Package-9494d85623ee758dcdb7",
+    "SPDXRef-Package-98957e797a86cb2474d4",
+    "SPDXRef-Package-1bbb8d60f39243684843",
+    "SPDXRef-Package-ba402c97288551398368",
+    "SPDXRef-Package-8c040b9c15f2930d7122",
+    "SPDXRef-Package-9f2aadf2079500331c92",
+    "SPDXRef-Package-c03f95dc5f419b66428d",
+    "SPDXRef-Package-97292b4e175232fba0ce",
+    "SPDXRef-Package-8e49210e86a09a060d9b",
+    "SPDXRef-Package-732e1cec6398e0002138"
+  ],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-2a3e558ecddee7f4fc4c",
+      "name": "@aops/aops-cli",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops-cli/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:a2fb0676d1d067f69f342653f025858117ad9423f52b6d65589f9890973d9579"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-360f410300408f04c05b",
+      "name": "@aops/aops-server",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops-server/package.json"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-f4585bd4d9df15393769",
+      "name": "@aops/error-catalog",
+      "versionInfo": "0.0.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops/packages/aops-error-catalog/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:a90b33235414faf4e91922b2be3831c4ca341ed0f59d4b10e98a574d0ed6dcb1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-bdfd139b5fc224a374a5",
+      "name": "@aops/host-registration",
+      "versionInfo": "0.0.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops/packages/aops-host-registration/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:ffde9b6f29cf0e3e1575a0446acdaa3fe76920650d4747aa4689be07458c9f8d"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-d1ea98253eda2c588ba8",
+      "name": "@aops/pg-bootstrap",
+      "versionInfo": "0.0.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops/packages/aops-pg-bootstrap/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:3a9138d39c8ce4419ffce9f9c4c11bb51876a9bd392fadceebefd05cc1bee168"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-9483670118a0218a3921",
+      "name": "@aops/runtime-config",
+      "versionInfo": "0.0.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops/packages/aops-runtime-config/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:377146c39379f5235cb751768980f5142d790f7460744926f49efa0ee9c5c182"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-257b002db0c7fea6d185",
+      "name": "@aopslab/aops-cockpit-v2",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops-cockpit-v2/package.json"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-d405165c09db1ab55613",
+      "name": "@aopslab/api-client",
+      "versionInfo": "0.0.15",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "apps/aops/packages/aops-api-client/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:7068008611f47b30414f57df3c3fce11f049f79ce54bfdf654516543aee1efdf"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-3822c31e1a20d1712ceb",
+      "name": "@aopslab/domain-core-docman",
+      "versionInfo": "0.0.15",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/docman/docman-core/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:129338b5081f3f951ff987b99813eb0d4965201f336c9765e3ac3e1059916092"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-5a3e6985ab7174570fdc",
+      "name": "@aopslab/domain-dm-agentspace",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/agentspace/agentspace-dm/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:988b88bbe1f6829db5913b34cadd3f31fa2a097848dbdb59536aa15a96a6feef"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-365036b450ca3da9a22e",
+      "name": "@aopslab/domain-dm-chatv3",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/chatv3/chatv3-dm/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:60519f5bb081ee63ce147e7e74fae18081730e33a45f9451583d9df9efe74d9d"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-1f871159c0668c7d803d",
+      "name": "@aopslab/domain-dm-docman",
+      "versionInfo": "0.1.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/docman/docman-dm/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:2432a18ad471b1eb0060598fb9b34270f3268fd6d0383dbf935a51960d58af6b"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-8b68b6ffb2379dbc8f75",
+      "name": "@aopslab/domain-dm-projectman",
+      "versionInfo": "0.1.4",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/projectman/projectman-dm/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:995edd65baaa23fe0d68e2daea7ba823ee8dd575c7e472e46555fd629d600e63"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-e6afe9868e395b8e95c2",
+      "name": "@aopslab/domain-dm-sys",
+      "versionInfo": "0.1.86",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/sys/sys-dm/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:a426bd3f1f06c79cfc9495c499f5800772e7dba7e83b90704206520554d7feba"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-48016539cf7f82107f77",
+      "name": "@aopslab/domain-host-plugin-agentspace",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/agentspace/agentspace-host-plugin/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:ea00feba1061e0df2f7f603d289af3d06d9230967bb2a918d3871cffc512c1b6"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-cf3578bf041f780312ae",
+      "name": "@aopslab/domain-host-plugin-chatv3",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/chatv3/chatv3-host-plugin/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:30441cea29045ecb5ff3568a33c4da56777e97cb2ec0de99682c7202168731b5"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-f4a4d5ca01445d358aa8",
+      "name": "@aopslab/domain-host-plugin-docman",
+      "versionInfo": "0.1.4",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/docman/docman-host-plugin/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:b27befc4f43788b5649ef938eb88725d84ef8bc02c2e9de7e17dff05118a69bb"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-3638f1dd8a8c364266e7",
+      "name": "@aopslab/domain-host-plugin-projectman",
+      "versionInfo": "0.0.4",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/projectman/projectman-host-plugin/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:f1605d4fbb9f93f997bee8b4218b864f2d721bb621b9c42071852c7c66c951dd"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-d1d8a0be350358a80392",
+      "name": "@aopslab/domain-host-plugin-sys",
+      "versionInfo": "0.0.6",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/sys/sys-host-plugin/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:f1ece367740514dea264fc47ab8c7390a8bd5f430ba4604457f1479fe1aef1e1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-f6b28a7e250154fdae27",
+      "name": "@aopslab/domain-kit-agentspace",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/agentspace/agentspace-kit/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:b4b5f699ded51814107aca09ca18d0982090888d5874b23c8a8f29d5ccad98ae"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-84043e622b9548aecea8",
+      "name": "@aopslab/domain-kit-chatv3",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/chatv3/chatv3-kit/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:aae69b091ca7675dd96c83bc3e325f07adbd110f2e276545a80a50606e239a11"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-1c190f00ce34c26271fd",
+      "name": "@aopslab/domain-kit-docman",
+      "versionInfo": "0.1.4",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/docman/docman-kit/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:7b7bd9b5c641e801335dba50b10db40a3f0fab1c45ce4aa59d846469234f493f"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-1fa9f6afa84dda933468",
+      "name": "@aopslab/domain-kit-projectman",
+      "versionInfo": "0.1.5",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/projectman/projectman-kit/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:be74d86a4b0f8bfee5323c2e66b4f5172198de91eae66b6ff5e5c15f221550a0"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-4395f7c89d4b9eec0066",
+      "name": "@aopslab/domain-kit-sys",
+      "versionInfo": "0.0.5",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/sys/sys-kit/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:b331a0c1452413999a20e210d8fc0afb4e6fa51a7b1ea314c50eab3f1de06c72"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-3d083421a936e27e78c3",
+      "name": "@aopslab/domain-pg-bootstrap-chatv3",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/chatv3/chatv3-pg-bootstrap/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:62fcdf19db69430c67aed496b51e8abb4793dcab2a4683f0dd67c7706c6d2d6b"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-2d20ce934dc1db47f9b3",
+      "name": "@aopslab/domain-pg-bootstrap-docman",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/docman/docman-pg-bootstrap/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:ac30d5266309b712f2b5297e2c99dc028f4ec56660b480525dee63efae3838e2"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-b2b2d1661ce921ac6141",
+      "name": "@aopslab/domain-pg-bootstrap-projectman",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/projectman/projectman-pg-bootstrap/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:79c89a06aaa6338fca0a2074c6da1d12e85e2e0e39730ec7439b7de6d21eb14a"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-d69c1afb01d04a64b340",
+      "name": "@aopslab/domain-pg-bootstrap-sys",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/sys/sys-pg-bootstrap/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:77f4928e6876292bcc058ad746edc6527125b0964212e5a724c486e32f65d810"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-d5c03d8f3d7089a60e62",
+      "name": "@aopslab/domain-product-client-chatv3",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/chatv3/chatv3-product-client/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:a03e9f1215de163a47aaea2ec84b1fcef1f7fdcc513f0abaa76f4953704e7551"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-0d80fbc199f955c43cf0",
+      "name": "@aopslab/domain-product-docman",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/docman/docman-product/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:44acda89933ccd75626ae13e8498c0966e1afd0d86e83932e949b10b41c216e1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-7212354eb6d3323e8e95",
+      "name": "@aopslab/domain-product-projectman",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/projectman/projectman-product/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:ea1acca4ffc8fced21089749626d229b8d475291e6111f29302edf375f9d46de"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-7e6cea63b4e5d6412069",
+      "name": "@aopslab/domain-runtime-config-docman",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/docman/docman-runtime-config/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:e399936ae1a7c1a867f1e9b2db3e11f63fd1df2b1f040fe6e3d495e1091a169d"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-41410cc6d78dba28125b",
+      "name": "@aopslab/domain-runtime-config-projectman",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/projectman/projectman-runtime-config/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:4539f2a69de56f2dc0d9581204599c0ef1e9d37469a61292c7eb4b57ec1fc0eb"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-e02773631edeb71c4970",
+      "name": "@aopslab/host-adapter-sveltekit",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/host-adapter-sveltekit/-/host-adapter-sveltekit-0.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/host-adapter-sveltekit@0.1.1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-h+OILsjXIX3+G9xtWDGwOeh6x533MlA3s7I49NGKY5zkMkB78HdgpUQiCHZNCZT6qLuPt6J+HfUdPmOovEDIOg=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-host-adapter-sveltekit"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fhost-adapter-sveltekit@0.1.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-62c33c5bcd02355163e8",
+      "name": "@aopslab/host-core",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/host-core/-/host-core-0.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/host-core@0.1.1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-skAI9ZWrj3+Wvldh/d0CiSteH+10mOZKQ+4hdh47XtVLhi50ntINM5k8dr0NyXNq4fy1zrhcgTwhulsMO0gomA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-host-core"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fhost-core@0.1.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-a73d0550f76cbe7a3220",
+      "name": "@aopslab/host-registration",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/host-registration/-/host-registration-0.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/host-registration@0.1.1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-oF5XclsIo9qtX5o5710HgNmhgckfRzLxMptQ3E5zf7uWd+icHdv0xcdE3RCfslnIr2fj/iswWlN4yWaDD/f8hA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-host-registration"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fhost-registration@0.1.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-4a526954bed626507b64",
+      "name": "@aopslab/light-client-core",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/chatv3/light-client-core/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:3926de53e09260d7a40fafff2319748b2f7893ea0a861626ba74f9183c04e90a"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-a89fe2773fd6a0076b57",
+      "name": "@aopslab/manifest",
+      "versionInfo": "0.1.3",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/manifest/-/manifest-0.1.3.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/manifest@0.1.3"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-qop926fs/ihKPVZKhvmQU9D+nok1FeZK3BZASJTRjEUJ7Zzuo3LwX8oiUGMrPQ8L9ZjecVnC8DyZe6+lCg51gA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-manifest"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fmanifest@0.1.3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-862527b424072af4038c",
+      "name": "@aopslab/projectman-cockpit-client",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "domains/projectman/projectman-cockpit-client/package.json"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-tree",
+          "referenceLocator": "sha256:496c03e9edee4c0cb483e99e49319de6117098e14069b7995f094a6c8f8f68ca"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-commit-binding",
+          "referenceLocator": "release.json#/source/commit"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-7f318d9d46bcf33c751f",
+      "name": "@aopslab/xf-bm",
+      "versionInfo": "0.1.88",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-bm/-/xf-bm-0.1.88.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-bm@0.1.88"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-nm9+SfTSEzl5ViIW6Drq5WcyOBDwBd3rzr0DmIo1i500CocU0QDDGKrg/SjmuPDH9QQOnivmW9BCCmenlzsjzQ=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-bm"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-bm@0.1.88"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-ad8a9a2bcef0908917d3",
+      "name": "@aopslab/xf-cli-operator",
+      "versionInfo": "0.0.2",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-cli-operator/-/xf-cli-operator-0.0.2.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-cli-operator@0.0.2"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-VPuQF7EpY7rTzMWp838nABnbdFJU5e38KPYgHaHEtWzOnRkaxoeBV8sdO/a35HbBS6qoQb6EWSerMf/I02ba8g=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-cli-operator"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-cli-operator@0.0.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-9cc79f9f8d15a63d5d3e",
+      "name": "@aopslab/xf-cli-ui",
+      "versionInfo": "0.1.13",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-cli-ui/-/xf-cli-ui-0.1.13.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-cli-ui@0.1.13"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-QI5N04/ifKo3wSi2gbTJ+jaDyQWZyAP0BTiRkJ9e6aK2mtVI28BrL6KIouQRBqxBE0yBO28wXWZ3m3EOfVVy9g=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-cli-ui"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-cli-ui@0.1.13"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-af45bb8ca77a093dd762",
+      "name": "@aopslab/xf-core",
+      "versionInfo": "0.1.68",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-core/-/xf-core-0.1.68.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-core@0.1.68"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-X6ZKoqrcdhq4dMc/BDc1zycrsxL6AuxBEt0DBpLQaXVKWSIkLOiayOp67bEha1ToM4fCbWWCJvnQLXY/YovThA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-core"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-core@0.1.68"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-ec480f51d07563277448",
+      "name": "@aopslab/xf-db",
+      "versionInfo": "0.1.74",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-db/-/xf-db-0.1.74.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-db@0.1.74"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-1Nt3bavzaAVMfhBoHiwqV917IuJhlsPeCrgyziVGV/E9RKSK11s+P2GhJN4U+ebwsRuqeAzxROTS3CaDV0YzjQ=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-db"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db@0.1.74"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-8a3690e71314130694fe",
+      "name": "@aopslab/xf-db-drizzle",
+      "versionInfo": "0.1.80",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-db-drizzle/-/xf-db-drizzle-0.1.80.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-db-drizzle@0.1.80"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-0AczRnkpbopyjoFT4X71WVACvpZaUOwSXT/a9d+dMAOEhFT2aSu8JOg5bz9Ty4J7RosT4Uq9CNAWVhLPhHvRsQ=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-db-drizzle"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db-drizzle@0.1.80"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-b833057b56444a69277f",
+      "name": "@aopslab/xf-db-mongoose",
+      "versionInfo": "0.1.78",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-db-mongoose/-/xf-db-mongoose-0.1.78.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-db-mongoose@0.1.78"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-2CkquaHQYjlxao9BQ1njfkChAycddMDarECN2IpN/4UrpfmFkTuy0w8SMwQdm30N9XzVKItDgwNho4gEFN8EoA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-db-mongoose"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db-mongoose@0.1.78"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-2b8e0f1d10cfcdfef958",
+      "name": "@aopslab/xf-db-redis",
+      "versionInfo": "0.1.75",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-db-redis/-/xf-db-redis-0.1.75.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-db-redis@0.1.75"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-tkmj3gNgJjkCuRxMI0P7kvtFW4jnD5NXBBBGUpEkWBPzvWT3cnt/l9qgcY7uTst+2QVRFClmr4n0ms++55lA7g=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-db-redis"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-db-redis@0.1.75"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-0ae77d053019441db19e",
+      "name": "@aopslab/xf-dm",
+      "versionInfo": "0.1.83",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-dm/-/xf-dm-0.1.83.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-dm@0.1.83"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-5xZeM0Ic7pUBfFvPIQzGY88IJmHbwVuYclPm/7PTn72+wrHwLJ8XFLKisktyZdV6Dh4ekl0naUTMfL4VlAjdGA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-dm"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-dm@0.1.83"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-9494d85623ee758dcdb7",
+      "name": "@aopslab/xf-dm-kits",
+      "versionInfo": "0.1.13",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-dm-kits/-/xf-dm-kits-0.1.13.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-dm-kits@0.1.13"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-9vA7ylOIuMddaXoHq9ipU7SK/SkLq/Bbl8mbzxr744A4MAJdD5Ot0GFqaQuh4Xb2SNfZaOghxkco7z+TONirHg=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-dm-kits"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-dm-kits@0.1.13"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-98957e797a86cb2474d4",
+      "name": "@aopslab/xf-i18n",
+      "versionInfo": "0.1.73",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-i18n/-/xf-i18n-0.1.73.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-i18n@0.1.73"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-0tOZSxfr2ft2pHEA98zX2EpkZHzAvhBTbn7Z/E2d4cwE1R64NeLYrSK9GmTSiC+1F63aBqlgLZ7pGc31OaNjFQ=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-i18n"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-i18n@0.1.73"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-1bbb8d60f39243684843",
+      "name": "@aopslab/xf-logger",
+      "versionInfo": "0.1.61",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-logger/-/xf-logger-0.1.61.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-logger@0.1.61"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-LCEqKkUw5kIwUdvuxxwvZPu5CmaC60oE9kZycS8PUZlthVoD3Y6PsBfxKMHsywTptEWVEdhJXJ5VcGowmrDvXQ=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-logger"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-logger@0.1.61"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-ba402c97288551398368",
+      "name": "@aopslab/xf-secure-store",
+      "versionInfo": "0.1.27",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-secure-store/-/xf-secure-store-0.1.27.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-secure-store@0.1.27"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-urUfhNOTFowy3I+vDEK9EearPmsxZkx7saA9QgrFKGtwGFZ7EJneD318qt4PBcx2ey2UwpQONcxhuoXwjnPnpA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-secure-store"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-secure-store@0.1.27"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-8c040b9c15f2930d7122",
+      "name": "@aopslab/xf-ui-composition-react",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-ui-composition-react/-/xf-ui-composition-react-0.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-ui-composition-react@0.1.1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-VpM4YsajBjQO6KwM6PjxYqOcS0WNBzndCngov2y/5xZO1BE+HPL6kb1jmZDojw0Aw5jpnisCxM82/LwBX1uhxA=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-ui-composition-react"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-composition-react@0.1.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-9f2aadf2079500331c92",
+      "name": "@aopslab/xf-ui-foundation",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-ui-foundation/-/xf-ui-foundation-0.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-ui-foundation@0.1.1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-plgrAnSZvdhEAx3zTtDVum0IIz2FSZeaqMjLm/MlxK4D/0XERSas2WKszse+AtTIc/pBgB+KVsOx58NFDc9Eag=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-ui-foundation"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-foundation@0.1.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-c03f95dc5f419b66428d",
+      "name": "@aopslab/xf-ui-plugin",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-ui-plugin/-/xf-ui-plugin-0.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-ui-plugin@0.1.1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-9X9R+ogk/NoLmtoEfwdG4B46RDwfWo8i81he+vdcyVegpNjt0R0YQj0ivvxHu/M/1XLuqWtb+HDQDj1rIIZfUQ=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-ui-plugin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-plugin@0.1.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-97292b4e175232fba0ce",
+      "name": "@aopslab/xf-ui-shell-react",
+      "versionInfo": "0.1.1",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-ui-shell-react/-/xf-ui-shell-react-0.1.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-ui-shell-react@0.1.1"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-KSUktoT6DYZauUAWNgbOz/KiWteslt5W8F/L5wXM9FSCmBMmdL5HjGS9v4dXMDUXYFRyfNFyM/5z4vYDD9afbw=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-ui-shell-react"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-ui-shell-react@0.1.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-8e49210e86a09a060d9b",
+      "name": "@aopslab/xf-validation",
+      "versionInfo": "0.1.79",
+      "downloadLocation": "https://registry.npmjs.org/@aopslab/xf-validation/-/xf-validation-0.1.79.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Mehmet Zeki Sönmez",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40aopslab/xf-validation@0.1.79"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "npm-integrity",
+          "referenceLocator": "sha512-17iBiOBWIEFUfIkZ+CarZtVLneDHraBCubkJsJpJkhXyOqcJiGYCe/9IPtFhp6JZSR1i2pYLCC9ejgMpX3J0oQ=="
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "https://github.com/eeemzs/xf-packages/tree/59fb78a0090bde99b108803b65dc8a7712f01188/xf-validation"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "slsa-provenance",
+          "referenceLocator": "https://registry.npmjs.org/-/npm/v1/attestations/@aopslab%2fxf-validation@0.1.79"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-732e1cec6398e0002138",
+      "name": "aops-community-distribution",
+      "versionInfo": "0.1.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "aops-community-source-path",
+          "referenceLocator": "package.json"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "ghcr.io/eeemzs/aops-community@sha256:bb135e407f75865bc56db9ea0bba15c79c84890e5ab97369e3de39255d97e5ad",
+      "digest": {
+        "sha256": "bb135e407f75865bc56db9ea0bba15c79c84890e5ab97369e3de39255d97e5ad"
+      }
+    },
+    {
+      "name": "aopslab-aops-cli-0.1.0.tgz",
+      "digest": {
+        "sha256": "7833830cc545a620335b5d4d126e0a05d28708ce268ca78c9b5d3e7800e600c3"
+      }
+    },
+    {
+      "name": "compose.yaml",
+      "digest": {
+        "sha256": "ea1c2c3487ac1e68aabcf8f774bb715d7de1c17f5f291560c3ac2fe9bc5de0b8"
+      }
+    },
+    {
+      "name": "source.SHA256SUMS",
+      "digest": {
+        "sha256": "f7f10736ee344c84c332bea58be7d43825c0a1d1cc3e3fa3c6bea0ab93a76582"
+      }
+    },
+    {
+      "name": "LICENSE",
+      "digest": {
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    },
+    {
+      "name": "NOTICE",
+      "digest": {
+        "sha256": "6c5b36ad1db0a613784333ff499e02f76be378a19d0c8768b7bb06e2ad446845"
+      }
+    },
+    {
+      "name": "THIRD_PARTY_NOTICES",
+      "digest": {
+        "sha256": "341ad4a11e0c1325e7b67382508f4ed929ecfc2890133f550d1f3e2c66e51859"
+      }
+    },
+    {
+      "name": "THIRD_PARTY_NOTICES.inventory.json",
+      "digest": {
+        "sha256": "7272bec2dafe389ecbd1713c89eca4b07f17b77e09c79aa358ee4d07bfcadf9d"
+      }
+    },
+    {
+      "name": "SBOM.spdx.json",
+      "digest": {
+        "sha256": "196a16d50e0a8468f87ee19bcda1f30fb53cbacc15fa6bc9118da85416fca810"
+      }
+    }
+  ],
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://aops.dev/buildtypes/community-release/v1",
+      "externalParameters": {
+        "releaseVersion": "0.1.0",
+        "image": {
+          "repository": "ghcr.io/eeemzs/aops-community",
+          "tag": "v0.1.0",
+          "platforms": [
+            "linux/amd64",
+            "linux/arm64"
+          ]
+        },
+        "migrationTags": [
+          "0000_curvy_valeria_richards",
+          "0000_dry_ego",
+          "0000_loose_praxagora",
+          "0000_smooth_klaw",
+          "0000_thin_carlie_cooper",
+          "0001_awesome_ronan",
+          "0001_massive_risque",
+          "0001_nosy_obadiah_stane",
+          "0001_worthless_zodiak",
+          "0002_board_rename",
+          "0002_narrow_darkhawk",
+          "0002_simple_logan",
+          "0002_steady_maximus",
+          "0003_damp_zarek",
+          "0003_escalating_rate_limiter",
+          "0003_quick_index",
+          "0003_review_request",
+          "0004_known_summary",
+          "0004_nervous_martin_li",
+          "0004_rate_limiter_timestamptz",
+          "0004_review_request_idempotency",
+          "0005_allow_multi_sprint_per_task",
+          "0005_chatv3_server_encrypted_mode",
+          "0005_sys_counters",
+          "0005_vector_signal",
+          "0006_document_version_current_invariant"
+        ]
+      },
+      "resolvedDependencies": [
+        {
+          "uri": "git+https://github.com/eeemzs/aops-community",
+          "digest": {
+            "gitCommit": "e3de6149c5ffe1b546f8e6a867cee1f92787b293",
+            "sha256": "f7f10736ee344c84c332bea58be7d43825c0a1d1cc3e3fa3c6bea0ab93a76582"
+          }
+        }
+      ]
+    },
+    "runDetails": {
+      "builder": {
+        "id": "https://github.com/actions/runner/github-hosted"
+      },
+      "metadata": {
+        "invocationId": "https://github.com/eeemzs/aops/actions/runs/29654886713/attempts/1"
+      }
+    }
+  }
+}

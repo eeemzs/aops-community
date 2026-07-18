@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "releaseVersion": "0.1.0",
+  "source": {
+    "repository": "git+https://github.com/eeemzs/aops-community",
+    "commit": "e3de6149c5ffe1b546f8e6a867cee1f92787b293",
+    "treeRef": "source.SHA256SUMS",
+    "treeDigest": "sha256:f7f10736ee344c84c332bea58be7d43825c0a1d1cc3e3fa3c6bea0ab93a76582"
+  },
+  "image": {
+    "repository": "ghcr.io/eeemzs/aops-community",
+    "tag": "v0.1.0",
+    "indexDigest": "sha256:bb135e407f75865bc56db9ea0bba15c79c84890e5ab97369e3de39255d97e5ad",
+    "platforms": [
+      {
+        "platform": "linux/amd64",
+        "digest": "sha256:958170ebb6316aabf00c1efbe1b07e422f9dc3148bbfd2df37f3d70b124699cd"
+      },
+      {
+        "platform": "linux/arm64",
+        "digest": "sha256:f8587d3f83e8b133cfda5eb3ca4ca983015ca13c83221763e85cfd814abefcf0"
+      }
+    ]
+  },
+  "cli": {
+    "packageName": "@aopslab/aops-cli",
+    "version": "0.1.0",
+    "commandSchemaVersion": 1,
+    "bundleSha256": "sha256:3b8dc85dc4516312b81172332901941d98c00fbdb305726bc062f1a4b2a48b3d",
+    "bundleByteLength": 5245384,
+    "npmDistTag": "latest",
+    "artifactRef": "aopslab-aops-cli-0.1.0.tgz",
+    "artifactSha256": "sha256:7833830cc545a620335b5d4d126e0a05d28708ce268ca78c9b5d3e7800e600c3",
+    "npmIntegrity": "sha512-a4KOYhmH1T58Dn2VSeIDfafXb7iVA3oCpgzxHRm4u1dwsGsCRbxyiHaDQyESRPuBhgv9JWQdgNiVPFAX5+yBKw=="
+  },
+  "compose": {
+    "ref": "compose.yaml",
+    "sha256": "sha256:ea1c2c3487ac1e68aabcf8f774bb715d7de1c17f5f291560c3ac2fe9bc5de0b8"
+  },
+  "migrations": {
+    "setDigest": "sha256:b2eaffd2bffad06fe8b063d1f235346528bd1f80a8e8455ae18a7778f9e79a95",
+    "tags": [
+      "0000_curvy_valeria_richards",
+      "0000_dry_ego",
+      "0000_loose_praxagora",
+      "0000_smooth_klaw",
+      "0000_thin_carlie_cooper",
+      "0001_awesome_ronan",
+      "0001_massive_risque",
+      "0001_nosy_obadiah_stane",
+      "0001_worthless_zodiak",
+      "0002_board_rename",
+      "0002_narrow_darkhawk",
+      "0002_simple_logan",
+      "0002_steady_maximus",
+      "0003_damp_zarek",
+      "0003_escalating_rate_limiter",
+      "0003_quick_index",
+      "0003_review_request",
+      "0004_known_summary",
+      "0004_nervous_martin_li",
+      "0004_rate_limiter_timestamptz",
+      "0004_review_request_idempotency",
+      "0005_allow_multi_sprint_per_task",
+      "0005_chatv3_server_encrypted_mode",
+      "0005_sys_counters",
+      "0005_vector_signal",
+      "0006_document_version_current_invariant"
+    ],
+    "files": [
+      {
+        "ref": "migrations/aops-community-migrations-0.1.0.tgz",
+        "sha256": "sha256:8d0b1b32a447a27ee0b8bc213147053ff917ea6f01df6809c0aa806dcbf768a3"
+      }
+    ]
+  },
+  "legal": {
+    "license": {
+      "ref": "LICENSE",
+      "sha256": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "notice": {
+      "ref": "NOTICE",
+      "sha256": "sha256:6c5b36ad1db0a613784333ff499e02f76be378a19d0c8768b7bb06e2ad446845"
+    },
+    "thirdPartyNotices": {
+      "ref": "THIRD_PARTY_NOTICES",
+      "sha256": "sha256:341ad4a11e0c1325e7b67382508f4ed929ecfc2890133f550d1f3e2c66e51859"
+    },
+    "thirdPartyInventory": {
+      "ref": "THIRD_PARTY_NOTICES.inventory.json",
+      "sha256": "sha256:7272bec2dafe389ecbd1713c89eca4b07f17b77e09c79aa358ee4d07bfcadf9d"
+    }
+  },
+  "evidence": {
+    "sbom": {
+      "ref": "SBOM.spdx.json",
+      "sha256": "sha256:196a16d50e0a8468f87ee19bcda1f30fb53cbacc15fa6bc9118da85416fca810"
+    },
+    "provenance": {
+      "ref": "release.provenance.json",
+      "sha256": "sha256:d9fcff5b4a8dcc6332b6c710b72f303c92401b3bc002ba80cc391de68f25c89a"
+    },
+    "signature": {
+      "bundleRef": "release.sigstore.json"
+    }
+  }
+}
