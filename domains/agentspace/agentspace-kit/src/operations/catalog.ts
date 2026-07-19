@@ -90,6 +90,7 @@ function buildOperationsInternal(): AgentspaceOperationSpec[] {
       methodName: row.methodName,
       kind: row.kind,
       ...('sideEffect' in row && row.sideEffect ? { sideEffect: row.sideEffect } : {}),
+      ...('policy' in row && row.policy ? { policy: { ...row.policy } } : {}),
       args: cloneArgs(row.args),
       summary: row.summary,
       tags,

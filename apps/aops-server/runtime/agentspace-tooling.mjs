@@ -21,6 +21,7 @@ export const COMMUNITY_AGENTSPACE_ALLOWED_RESOURCE_IDS = Object.freeze([
   "experience-item",
   "memory-item",
   "mission",
+  "official-catalog",
   "playbook",
   "project",
   "prompt",
@@ -53,9 +54,16 @@ export const COMMUNITY_AGENTSPACE_REVIEWED_UNCLASSIFIED_RESOURCE_IDS = Object.fr
 ]);
 export const COMMUNITY_AGENTSPACE_DENIED_OPERATION_IDS = Object.freeze([
   "project.delete-cascade",
-  "skill-version.export-skill-package",
   "skill-version.import-skill-package",
   "skill-version.materialize-skill-package"
+]);
+export const COMMUNITY_AGENTSPACE_AGENT_ASSET_OPERATION_IDS = Object.freeze([
+  "skill.ask",
+  "skill.search",
+  "skill-version.export-skill-package",
+  "official-catalog.inspect",
+  "official-catalog.reconcile",
+  "official-catalog.rollback"
 ]);
 export const COMMUNITY_AGENTSPACE_ALLOWED_OPERATION_IDS = Object.freeze([
   "activity-item.add-activity-item",
@@ -126,6 +134,9 @@ export const COMMUNITY_AGENTSPACE_ALLOWED_OPERATION_IDS = Object.freeze([
   "mission.list",
   "mission.resume",
   "mission.update",
+  "official-catalog.inspect",
+  "official-catalog.reconcile",
+  "official-catalog.rollback",
   "playbook.list",
   "project.archive-project",
   "project.create",
@@ -157,17 +168,20 @@ export const COMMUNITY_AGENTSPACE_ALLOWED_OPERATION_IDS = Object.freeze([
   "resource.remove-resource",
   "resource.update-resource",
   "skill-version.create",
+  "skill-version.export-skill-package",
   "skill-version.get-by-id",
   "skill-version.get-skill-version",
   "skill-version.list-skill-versions",
   "skill-version.publish-skill-version",
   "skill-version.remove-skill-version",
   "skill-version.update-skill-version",
+  "skill.ask",
   "skill.create",
   "skill.get-by-id",
   "skill.get-skill",
   "skill.list-skills",
   "skill.remove-skill",
+  "skill.search",
   "skill.update-skill",
   "tag.create",
   "tag.ensure-tags",
@@ -176,13 +190,13 @@ export const COMMUNITY_AGENTSPACE_ALLOWED_OPERATION_IDS = Object.freeze([
   "tag.search-tags"
 ]);
 
-const EXPECTED_SOURCE_OPERATION_COUNT = 173;
+const EXPECTED_SOURCE_OPERATION_COUNT = 178;
 const ALLOWED_RESOURCE_SET = new Set(COMMUNITY_AGENTSPACE_ALLOWED_RESOURCE_IDS);
 const DENIED_RESOURCE_SET = new Set(COMMUNITY_AGENTSPACE_DENIED_RESOURCE_IDS);
 const DENIED_OPERATION_SET = new Set(COMMUNITY_AGENTSPACE_DENIED_OPERATION_IDS);
 const ALLOWED_OPERATION_SET = new Set(COMMUNITY_AGENTSPACE_ALLOWED_OPERATION_IDS);
 const COMMUNITY_DOMAIN_DESCRIPTION = "Community context services for projects, prompts, skills, memory, rooms, discussions, missions, playbooks, experiences, resources, artifacts, profiles, tags, and activity items.";
-const COMMUNITY_DOMAIN_DOCS = Object.freeze({"summary":"Manage the reviewed Community Agentspace surface for projects, reusable context, coordination rooms, discussions, missions, and activity records.","notes":["This Community projection is an exact operation and schema allowlist.","Filesystem skill package import, export, and materialization are not exposed.","Project cascade deletion and private runtime/session records are not exposed."]});
+const COMMUNITY_DOMAIN_DOCS = Object.freeze({"summary":"Manage the reviewed Community Agentspace surface for projects, reusable context, coordination rooms, discussions, missions, and activity records.","notes":["This Community projection is an exact operation and schema allowlist.","Skill discovery and immutable published-package export are read-only; package import and server filesystem materialization are not exposed.","Project cascade deletion and private runtime/session records are not exposed."]});
 const normalizeId = (value) => String(value ?? '').trim().toLowerCase();
 const codepointCompare = (left, right) => left < right ? -1 : left > right ? 1 : 0;
 const sorted = (values) => [...values].sort(codepointCompare);

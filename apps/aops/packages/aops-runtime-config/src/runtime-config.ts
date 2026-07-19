@@ -1,4 +1,18 @@
-import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import {
+  chmodSync,
+  closeSync,
+  existsSync,
+  fsyncSync,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  realpathSync,
+  renameSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs'
+import { randomUUID } from 'node:crypto'
 import { dirname, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -7,6 +21,12 @@ import { resolveAopsConfigDir } from '@aops/host-registration'
 export type AopsRepoDialect = 'sqlite' | 'pg'
 export type AopsRuntimeValueSource = 'option' | 'env' | 'default' | 'missing'
 export type AopsHostLogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal'
+export type AopsServerEnvPathSource = 'explicit' | 'config-dir' | 'home-default'
+
+export type ResolvedAopsServerEnvPath = {
+  path: string
+  source: AopsServerEnvPathSource
+}
 
 export type LoadedAopsServerEnvConfig = {
   path: string
@@ -34,6 +54,7 @@ export type ResolvedAopsRuntimeConfig = {
 
 const AOPS_SQLITE_FILENAME = 'aops.aops.sqlite'
 const AOPS_SERVER_ENV_FILENAME = 'aops.server.env'
+const AOPS_SERVER_ENV_MAX_BYTES = 64 * 1024
 const AOPS_HOST_LOG_LEVELS = ['debug', 'info', 'warn', 'error', 'fatal'] as const
 const AOPS_HOST_ENV_REPO_KEYS = ['AOPS_REPO_URL', 'AOPS_SQLITE_URL', 'AOPS_PG_URL'] as const
 
@@ -81,13 +102,16 @@ function quoteEnvValue(value: string): string {
   return JSON.stringify(value)
 }
 
-function redactRepoUrl(repoUrl: string): string {
+export function redactAopsRepoUrl(repoUrl: string): string {
   try {
     const parsed = new URL(repoUrl)
+    if (!['postgres:', 'postgresql:', 'file:', 'sqlite:'].includes(parsed.protocol)) {
+      return '<invalid_repo_url>'
+    }
     if (parsed.password) parsed.password = '***'
     return parsed.toString()
   } catch {
-    return repoUrl
+    return '<invalid_repo_url>'
   }
 }
 
@@ -124,16 +148,102 @@ export function getAopsRuntimeConfigDir(processEnv: NodeJS.ProcessEnv = process.
   return resolveAopsConfigDir(processEnv)
 }
 
+export function resolveAopsServerEnvPath(
+  options: { explicitPath?: string } = {},
+  processEnv: NodeJS.ProcessEnv = process.env,
+): ResolvedAopsServerEnvPath {
+  const explicitPath = normalizeNonEmpty(options.explicitPath)
+  if (explicitPath) {
+    return { path: resolve(explicitPath), source: 'explicit' }
+  }
+
+  const configPath =
+    normalizeNonEmpty(processEnv.AOPS_CLI_CONFIG_PATH) ?? normalizeNonEmpty(processEnv.AGENT_OPS_CONFIG_PATH)
+  return {
+    path: resolve(getAopsRuntimeConfigDir(processEnv), AOPS_SERVER_ENV_FILENAME),
+    source: configPath ? 'config-dir' : 'home-default',
+  }
+}
+
 export function getAopsServerEnvPath(processEnv: NodeJS.ProcessEnv = process.env): string {
-  return resolve(getAopsRuntimeConfigDir(processEnv), AOPS_SERVER_ENV_FILENAME)
+  return resolveAopsServerEnvPath({}, processEnv).path
+}
+
+function assertSafeServerEnvPath(envPath: string): void {
+  const parentPath = dirname(envPath)
+  if (existsSync(parentPath)) {
+    const parentStats = lstatSync(parentPath)
+    if (!parentStats.isDirectory() || parentStats.isSymbolicLink()) {
+      throw new Error('aops_server_env_parent_unsafe')
+    }
+    const resolvedParent = resolve(parentPath)
+    const physicalParent = realpathSync(parentPath)
+    const comparable = (value: string) => process.platform === 'win32' ? value.toLowerCase() : value
+    if (comparable(resolvedParent) !== comparable(physicalParent)) {
+      throw new Error('aops_server_env_parent_unsafe')
+    }
+  }
+  if (!existsSync(envPath)) return
+  const stats = lstatSync(envPath)
+  if (!stats.isFile() || stats.isSymbolicLink()) {
+    throw new Error('aops_server_env_file_unsafe')
+  }
+  if (stats.size > AOPS_SERVER_ENV_MAX_BYTES) {
+    throw new Error('aops_server_env_file_too_large')
+  }
+}
+
+export function readAopsServerEnvFileContent(
+  processEnv: NodeJS.ProcessEnv = process.env,
+  explicitPath?: string,
+): { path: string; exists: boolean; content: string } {
+  const envPath = resolveAopsServerEnvPath({ explicitPath }, processEnv).path
+  assertSafeServerEnvPath(envPath)
+  if (!existsSync(envPath)) return { path: envPath, exists: false, content: '' }
+  return { path: envPath, exists: true, content: readFileSync(envPath, 'utf8') }
+}
+
+export function writeAopsServerEnvFileContent(
+  content: string,
+  processEnv: NodeJS.ProcessEnv = process.env,
+  explicitPath?: string,
+): string {
+  const envPath = resolveAopsServerEnvPath({ explicitPath }, processEnv).path
+  if (Buffer.byteLength(content, 'utf8') > AOPS_SERVER_ENV_MAX_BYTES) {
+    throw new Error('aops_server_env_content_too_large')
+  }
+
+  const parentPath = dirname(envPath)
+  mkdirSync(parentPath, { recursive: true, mode: 0o700 })
+  assertSafeServerEnvPath(envPath)
+
+  const temporaryPath = `${envPath}.${process.pid}.${randomUUID()}.tmp`
+  let fd: number | undefined
+  try {
+    fd = openSync(temporaryPath, 'wx', 0o600)
+    writeFileSync(fd, content, 'utf8')
+    fsyncSync(fd)
+    closeSync(fd)
+    fd = undefined
+    renameSync(temporaryPath, envPath)
+    chmodSync(envPath, 0o600)
+  } catch (error) {
+    if (fd !== undefined) {
+      try { closeSync(fd) } catch { /* best effort cleanup */ }
+    }
+    try { unlinkSync(temporaryPath) } catch { /* best effort cleanup */ }
+    throw error
+  }
+  return envPath
 }
 
 export function readAopsServerEnvConfig(
   processEnv: NodeJS.ProcessEnv = process.env,
   explicitPath?: string,
 ): LoadedAopsServerEnvConfig {
-  const envPath = explicitPath ? resolve(explicitPath) : getAopsServerEnvPath(processEnv)
-  if (!existsSync(envPath)) {
+  const envFile = readAopsServerEnvFileContent(processEnv, explicitPath)
+  const envPath = envFile.path
+  if (!envFile.exists) {
     return {
       path: envPath,
       exists: false,
@@ -147,7 +257,7 @@ export function readAopsServerEnvConfig(
     }
   }
 
-  const assignments = parseDotEnvAssignments(readFileSync(envPath, 'utf8'))
+  const assignments = parseDotEnvAssignments(envFile.content)
   // Resolution order tightened (Codex turn-5 sweep #5 + operator
   // "no fallback" directive): when AOPS_REPO_URL is absent, prefer
   // AOPS_PG_URL over AOPS_SQLITE_URL so legacy env states with both
@@ -170,7 +280,7 @@ export function readAopsServerEnvConfig(
     assignments,
     repoUrl,
     repoDialect: repoUrl ? inferAopsRepoDialect(repoUrl) : null,
-    redactedRepoUrl: repoUrl ? redactRepoUrl(repoUrl) : null,
+    redactedRepoUrl: repoUrl ? redactAopsRepoUrl(repoUrl) : null,
     hostSettings: {
       logLevel,
     },
@@ -246,13 +356,7 @@ export function writeAopsServerEnvConfig(
     .join('\n')
     .trimEnd()
 
-  mkdirSync(dirname(envPath), { recursive: true })
-  writeFileSync(envPath, `${compacted}\n`, 'utf8')
-  try {
-    chmodSync(envPath, 0o600)
-  } catch {
-    // Best effort only; some platforms do not support POSIX file modes.
-  }
+  writeAopsServerEnvFileContent(`${compacted}\n`, processEnv, envPath)
 
   return readAopsServerEnvConfig(processEnv, envPath)
 }

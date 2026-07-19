@@ -151,6 +151,10 @@ export type CommunityServerOptions = {
   confirmExternalRecoveryOwner?: boolean
   confirmExternalRestoreComplete?: boolean
   json?: boolean
+  /** Internal composition seam used by setup/init; never exposed as a CLI flag. */
+  resultSink?: (result: unknown) => void
+  /** Internal composition seam used to preserve a single parent JSON envelope. */
+  silent?: boolean
 }
 
 export type CommunityServerDependencies = Readonly<{
@@ -426,7 +430,13 @@ function inspectNativeFrom(options: CommunityServerOptions): CommunityNativeInsp
   return inspectCommunityNativeInstall(installSelection(options))
 }
 
-function writeResult(result: unknown, json = false): void {
+function writeResult(
+  result: unknown,
+  json = false,
+  composition: Pick<CommunityServerOptions, 'resultSink' | 'silent'> = {},
+): void {
+  composition.resultSink?.(result)
+  if (composition.silent) return
   if (json) console.log(JSON.stringify(result, null, 2))
   else if (typeof result === 'string') process.stdout.write(result.endsWith('\n') ? result : `${result}\n`)
   else console.log(JSON.stringify(result, null, 2))
@@ -808,7 +818,7 @@ export async function runCommunityServerSetup(
       next: contract.runtime === 'native'
         ? 'Re-run with --apply to install dependencies, build the public checkout, and start the loopback native host.'
         : 'Re-run with --apply to verify the signed release and start the OCI stack.',
-    }, options.json)
+    }, options.json, options)
     return
   }
   if (options.apply !== true) {
@@ -885,7 +895,7 @@ export async function runCommunityServerSetup(
         buildFingerprint: setup.state.build.buildFingerprint,
         migration: nativeMigrationSummary(setup.launch.migration),
         applicationUpdateId: setup.applicationUpdate?.prepared.updateId ?? null,
-      }, options.json)
+      }, options.json, options)
       if (setup.launch.waitForExit) await setup.launch.waitForExit()
     })
     return
@@ -976,7 +986,7 @@ export async function runCommunityServerSetup(
       })
     })
     throwIfCommunityCommandAborted(signal)
-    writeResult(result, options.json)
+    writeResult(result, options.json, options)
   })
 }
 
@@ -2173,7 +2183,7 @@ export function makeCommunityServerCommand(identity: CommunityServerCommandIdent
   common(releaseOptions(command.command('setup').description('Configure, build, and start an explicit native or OCI setup profile')))
     .requiredOption('--runtime <native|oci>', 'Application runtime; no implicit default')
     .option('--postgres <external|container>', 'PostgreSQL owner for --runtime native')
-    .option('--postgres-config <path>', 'Env/config file reference for external PostgreSQL; never pass a credential URL in argv')
+    .option('--postgres-config <path>', 'Explicit external PostgreSQL env-file override; default: ~/.aops/aops.server.env (or AOPS_CLI_CONFIG_PATH directory)')
     .option('--postgres-tls <disable|require|verify-full>', 'Explicit external PostgreSQL TLS policy')
     .option('--source-root <path>', 'Public aops-community checkout root; defaults to the current directory')
     .option('--port <number>', 'Host port', '5900')

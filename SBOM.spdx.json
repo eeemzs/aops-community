@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "AOPS Community deterministic source distribution",
-  "documentNamespace": "https://aops.local/spdx/community/1cc41eeee4e5be09d9c767a105509ff1867abc4fecad76bcb56b77cdddad5e98",
+  "documentNamespace": "https://aops.local/spdx/community/d43827cfeac98a781423ecc60a1d611165fb35b71196a049561091ed7ae2d5a7",
   "creationInfo": {
     "created": "1970-01-01T00:00:00Z",
     "creators": [
@@ -90,7 +90,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-tree",
-          "referenceLocator": "sha256:174055b4949b462208d3a78bb56581ce4dc902dbee95c13b08b3f976af8daf79"
+          "referenceLocator": "sha256:677e1b677bf4fb81b6d3042305526bccd8adc0d392ad99458051f8009501d8e0"
         },
         {
           "referenceCategory": "OTHER",
@@ -215,7 +215,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-tree",
-          "referenceLocator": "sha256:377146c39379f5235cb751768980f5142d790f7460744926f49efa0ee9c5c182"
+          "referenceLocator": "sha256:b9cf1aa3745994fe35451add3880ff13f9aa11e3c9bd8a110867914debbea129"
         },
         {
           "referenceCategory": "OTHER",
@@ -313,7 +313,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-tree",
-          "referenceLocator": "sha256:988b88bbe1f6829db5913b34cadd3f31fa2a097848dbdb59536aa15a96a6feef"
+          "referenceLocator": "sha256:a10ba08bc4d711994e41bde2a90fced5a487a48651d4634bcb4fbe5110a40903"
         },
         {
           "referenceCategory": "OTHER",
@@ -583,7 +583,7 @@
         {
           "referenceCategory": "OTHER",
           "referenceType": "aops-community-source-tree",
-          "referenceLocator": "sha256:b4b5f699ded51814107aca09ca18d0982090888d5874b23c8a8f29d5ccad98ae"
+          "referenceLocator": "sha256:97ac56ea393f481fe4025c72712b8abd22724b54abdff6e4cec661309ac46f1c"
         },
         {
           "referenceCategory": "OTHER",

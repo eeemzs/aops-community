@@ -22,6 +22,7 @@ import type {
   MaterializeSkillPackageInput,
   MaterializeSkillPackageResult,
   SkillPackageFileInput,
+  SkillPackageManifestV1,
   SkillPackageMetadata,
 } from '../ports/inbound/index.js'
 import { SkillVersionServiceError } from '../errors/SkillVersionServiceError.js'
@@ -47,6 +48,10 @@ const SKILL_PACKAGE_TAG = 'skill-package'
 const SKILL_PACKAGE_FILE_LIMIT = 256
 const SKILL_PACKAGE_FILE_MAX_BYTES = 512 * 1024
 const SKILL_PACKAGE_TOTAL_MAX_BYTES = 4 * 1024 * 1024
+const SKILL_PACKAGE_MIN_CLI_VERSION = '0.1.0'
+const SKILL_PACKAGE_MANIFEST_META_KEY = 'packageManifestV1'
+const CLIENT_METADATA_FORBIDDEN_KEY = /(?:^|_)(?:source)?path$|(?:^|_)(?:full)?path$|(?:^|_)(?:output)?dir(?:ectory)?$|(?:^|_)(?:server)?root$/i
+const CLIENT_METADATA_PATH_VALUE = /^(?:[a-zA-Z]:[\\/]|\\\\|\/)/
 
 type NormalizedSkillPackageFile = SkillPackageFileInput & {
   sizeBytes: number
@@ -72,6 +77,140 @@ function normalizeNonEmpty(value: unknown): string | undefined {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function compareUnsignedUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'))
+}
+
+function sha256Text(value: string): string {
+  return createHash('sha256').update(Buffer.from(value, 'utf8')).digest('hex')
+}
+
+function packageSha256(files: ReadonlyArray<{ path: string; sha256: string }>): string {
+  const records = files
+    .map((file) => ({ path: file.path.normalize('NFC'), sha256: file.sha256.toLowerCase() }))
+    .sort((left, right) => compareUnsignedUtf8(left.path, right.path))
+  return createHash('sha256')
+    .update(Buffer.concat(records.map((file) => Buffer.from(`${file.path}\0${file.sha256}\n`, 'utf8'))))
+    .digest('hex')
+}
+
+function sanitizeClientMetadata(value: unknown, depth = 0): unknown {
+  if (depth > 4) return undefined
+  if (typeof value === 'string') {
+    if (CLIENT_METADATA_PATH_VALUE.test(value.trim())) return undefined
+    return value
+  }
+  if (typeof value === 'number' || typeof value === 'boolean' || value === null) return value
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => sanitizeClientMetadata(item, depth + 1))
+      .filter((item) => item !== undefined)
+  }
+  if (!isRecord(value)) return undefined
+
+  const out: Record<string, unknown> = {}
+  for (const [key, raw] of Object.entries(value).sort(([left], [right]) => compareUnsignedUtf8(left, right))) {
+    if (CLIENT_METADATA_FORBIDDEN_KEY.test(key)) continue
+    const sanitized = sanitizeClientMetadata(raw, depth + 1)
+    if (sanitized !== undefined) out[key] = sanitized
+  }
+  return out
+}
+
+function buildSkillPackageManifest(params: {
+  skill: IbmSkill
+  version: IbmSkillVersion
+  files: NormalizedSkillPackageFile[]
+}): SkillPackageManifestV1 {
+  const skillName = normalizeNonEmpty(params.skill.name)
+  const versionId = normalizeNonEmpty(params.version.id)
+  if (!skillName || !versionId) {
+    throw XfErrorFactory.createFailed({
+      stage: 'SkillVersionService::buildSkillPackageManifest',
+      message: 'skill_or_version_identity_missing',
+    })
+  }
+
+  const digests = params.files
+    .map((file) => ({ path: file.path.normalize('NFC'), sha256: file.sha256.toLowerCase(), byteLength: file.sizeBytes }))
+    .sort((left, right) => compareUnsignedUtf8(left.path, right.path))
+  return {
+    schemaVersion: 1,
+    assetKind: 'skill-package',
+    name: skillName,
+    version: String(params.version.version),
+    versionId,
+    entryFile: SKILL_PACKAGE_ENTRY_FILE,
+    standard: SKILL_PACKAGE_STANDARD,
+    packageSha256: packageSha256(digests),
+    files: digests,
+    compatibility: {
+      minCliVersion: SKILL_PACKAGE_MIN_CLI_VERSION,
+      maxSchemaVersion: 1,
+    },
+    provenance: {
+      trustClass: 'verified-hosted-package',
+      expectedDigestSource: 'immutable-hosted-metadata',
+      reference: `skill-version:${versionId}`,
+    },
+  }
+}
+
+function parsePersistedSkillPackageManifest(value: unknown): SkillPackageManifestV1 | null {
+  if (!isRecord(value)) return null
+  if (
+    value.schemaVersion !== 1 ||
+    value.assetKind !== 'skill-package' ||
+    value.entryFile !== SKILL_PACKAGE_ENTRY_FILE ||
+    value.standard !== SKILL_PACKAGE_STANDARD ||
+    typeof value.name !== 'string' ||
+    typeof value.version !== 'string' ||
+    typeof value.versionId !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(String(value.packageSha256 ?? '')) ||
+    !Array.isArray(value.files) ||
+    !isRecord(value.compatibility) ||
+    typeof value.compatibility.minCliVersion !== 'string' ||
+    value.compatibility.maxSchemaVersion !== 1 ||
+    !isRecord(value.provenance) ||
+    value.provenance.trustClass !== 'verified-hosted-package' ||
+    value.provenance.expectedDigestSource !== 'immutable-hosted-metadata' ||
+    typeof value.provenance.reference !== 'string'
+  ) return null
+
+  const files = value.files.map((row) => {
+    if (!isRecord(row)) return null
+    const pathValue = normalizeNonEmpty(row.path)
+    const digest = normalizeNonEmpty(row.sha256)
+    const byteLength = row.byteLength
+    if (!pathValue || !digest || !/^[a-f0-9]{64}$/.test(digest) || !Number.isInteger(byteLength) || Number(byteLength) < 0) {
+      return null
+    }
+    return { path: pathValue, sha256: digest, byteLength: Number(byteLength) }
+  })
+  if (files.some((row) => row === null)) return null
+
+  return {
+    schemaVersion: 1,
+    assetKind: 'skill-package',
+    name: value.name,
+    version: value.version,
+    versionId: value.versionId,
+    entryFile: SKILL_PACKAGE_ENTRY_FILE,
+    standard: SKILL_PACKAGE_STANDARD,
+    packageSha256: String(value.packageSha256),
+    files: files as SkillPackageManifestV1['files'],
+    compatibility: {
+      minCliVersion: String(value.compatibility.minCliVersion),
+      maxSchemaVersion: 1,
+    },
+    provenance: {
+      trustClass: 'verified-hosted-package',
+      expectedDigestSource: 'immutable-hosted-metadata',
+      reference: String(value.provenance.reference),
+    },
+  }
 }
 
 function selectHighestSkillVersion<T extends { version?: number | null }>(versions: readonly T[] | null | undefined): T | undefined {
@@ -107,6 +246,7 @@ function normalizeSkillFilePath(raw: unknown, stage: string): string {
     .replace(/\\/g, '/')
     .replace(/^\.\/+/, '')
     .replace(/\/+/g, '/')
+    .normalize('NFC')
 
   if (!normalized || normalized.startsWith('/')) {
     throw XfErrorFactory.createFailed({
@@ -116,7 +256,16 @@ function normalizeSkillFilePath(raw: unknown, stage: string): string {
   }
 
   const parts = normalized.split('/')
-  if (parts.some((part) => part === '' || part === '.' || part === '..')) {
+  const reservedDevice = /^(?:con|prn|aux|nul|conin\$|conout\$|clock\$|com[0-9¹²³]|lpt[0-9¹²³])(?:\..*)?$/i
+  if (parts.some((part) =>
+    part === '' ||
+    part === '.' ||
+    part === '..' ||
+    Buffer.byteLength(part, 'utf8') > 255 ||
+    /[<>:"|?*\u0000-\u001f\u007f-\u009f]/u.test(part) ||
+    /[ .]$/.test(part) ||
+    reservedDevice.test(part)
+  )) {
     throw XfErrorFactory.createFailed({
       stage,
       message: `invalid_skill_file_path:${value}`,
@@ -220,7 +369,7 @@ function normalizeSkillPackageBundle(data: ImportSkillPackageInput, stage: strin
       })
     }
 
-    const sha256 = createHash('sha256').update(raw.content).digest('hex')
+    const sha256 = sha256Text(raw.content)
     files.push({
       path: normalizedPath,
       content: raw.content,
@@ -241,7 +390,7 @@ function normalizeSkillPackageBundle(data: ImportSkillPackageInput, stage: strin
 
   return {
     entryFile: SKILL_PACKAGE_ENTRY_FILE,
-    files: files.sort((left, right) => left.path.localeCompare(right.path)),
+    files: files.sort((left, right) => compareUnsignedUtf8(left.path, right.path)),
   }
 }
 
@@ -306,7 +455,21 @@ function toSkillPackageFilesFromVersion(version: IbmSkillVersion): SkillPackageF
     })
   }
 
-  return [...byPath.values()].sort((left, right) => left.path.localeCompare(right.path))
+  return [...byPath.values()].sort((left, right) => compareUnsignedUtf8(left.path, right.path))
+}
+
+function normalizeSkillPackageFilesFromVersion(
+  version: IbmSkillVersion,
+  stage: string,
+): NormalizedSkillPackageBundle {
+  return normalizeSkillPackageBundle({
+    projectId: version.projectId,
+    scopeType: 'project',
+    bundle: {
+      entryFile: normalizeNonEmpty(version.entryFile) ?? SKILL_PACKAGE_ENTRY_FILE,
+      files: toSkillPackageFilesFromVersion(version),
+    },
+  }, stage)
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
@@ -376,6 +539,7 @@ export class SkillVersionService implements ISkillVersionServicePort {
 
   create(data: IbmSkillVersionInsert): Effect.Effect<IbmSkillVersion, SkillVersionServiceError> {
     const stage = 'SkillVersionService::create'
+    const self = this
     return pipe(
       validateInput(data, 'data', { stage }),
       Effect.flatMap((data) =>
@@ -387,23 +551,21 @@ export class SkillVersionService implements ISkillVersionServicePort {
           field: 'data',
         })
       ),
-      Effect.flatMap((data) =>
-        this.skillVersionRepository.create(
-          data.status === 'published' && !data.publishedAt
-            ? ({ ...data, publishedAt: new Date() } as IbmSkillVersionInsert)
-            : data
-        ).pipe(
+      Effect.flatMap((data) => {
+        const publishAfterCreate = data.status === 'published'
+        const createData: IbmSkillVersionInsert = publishAfterCreate
+          ? ({ ...data, status: 'draft', publishedAt: undefined } as IbmSkillVersionInsert)
+          : data
+        return self.skillVersionRepository.create(createData).pipe(
           Effect.mapError(mapDbError({ stage, operation: 'create', factory: XfErrorFactory.createFailed })),
           Effect.flatMap((created) => {
-            if (created?.skillId && created.status === 'published') {
-              return this.syncSkillCurrentVersion(created.skillId, created.updatedBy).pipe(
-                Effect.as(created)
-              )
-            }
-            return Effect.succeed(created)
+            if (!publishAfterCreate) return Effect.succeed(created)
+            const createdId = normalizeNonEmpty(created?.id)
+            if (!createdId) return Effect.fail(XfErrorFactory.createFailed({ stage, message: 'created_skill_version_id_missing' }))
+            return self.publishSkillVersion(createdId, created.updatedBy ?? undefined)
           })
         )
-      )
+      })
     )
   }
 
@@ -459,22 +621,23 @@ export class SkillVersionService implements ISkillVersionServicePort {
               : Effect.fail(XfErrorFactory.notFound({ stage, identifier: versionId }))
           ),
           Effect.flatMap((current) => {
-            const shouldSyncCurrentVersion =
-              typeof patch.status === 'string' && patch.status.trim().length > 0
-            const normalizedPatch: Partial<IbmSkillVersion> = { ...patch }
-            if (normalizedPatch.status === 'published' && !normalizedPatch.publishedAt) {
-              normalizedPatch.publishedAt = new Date()
+            if (current.status === 'published') {
+              return Effect.fail(XfErrorFactory.upsertFailed({
+                stage,
+                operation: 'patchById',
+                message: 'published_skill_version_is_immutable',
+              }))
             }
+            if (patch.status === 'published' || patch.publishedAt !== undefined) {
+              return Effect.fail(XfErrorFactory.upsertFailed({
+                stage,
+                operation: 'patchById',
+                message: 'use_publish_skill_version_for_published_transition',
+              }))
+            }
+            const normalizedPatch: Partial<IbmSkillVersion> = { ...patch }
             return this.skillVersionRepository.patchById(versionId, normalizedPatch).pipe(
               Effect.mapError(mapDbError({ stage, operation: 'patchById', factory: XfErrorFactory.upsertFailed })),
-              Effect.flatMap((updated) => {
-                if (shouldSyncCurrentVersion && current.skillId) {
-                  return this.syncSkillCurrentVersion(current.skillId, normalizedPatch.updatedBy).pipe(
-                    Effect.as(updated)
-                  )
-                }
-                return Effect.succeed(updated)
-              })
             )
           })
         )
@@ -520,6 +683,7 @@ export class SkillVersionService implements ISkillVersionServicePort {
 
   publishSkillVersion(id: string, updatedBy?: string): Effect.Effect<IbmSkillVersion, SkillVersionServiceError> {
     const stage = 'SkillVersionService::publishSkillVersion'
+    const self = this
     return pipe(
       validateInput(id, 'id', { stage }),
       Effect.flatMap(() =>
@@ -531,24 +695,69 @@ export class SkillVersionService implements ISkillVersionServicePort {
           )
         )
       ),
-      Effect.flatMap((version) => {
+      Effect.flatMap((version) => Effect.gen(function* (_) {
+        if (version.status === 'published') {
+          const meta = isRecord(version.meta) ? version.meta : {}
+          if (!parsePersistedSkillPackageManifest(meta[SKILL_PACKAGE_MANIFEST_META_KEY])) {
+            return yield* _(Effect.fail(XfErrorFactory.upsertFailed({
+              stage,
+              operation: 'publishSkillVersion',
+              message: 'published_skill_package_manifest_missing',
+            })))
+          }
+          yield* _(self.syncSkillCurrentVersion(version.skillId, updatedBy))
+          return version
+        }
+        if (version.status !== 'draft') {
+          return yield* _(Effect.fail(XfErrorFactory.upsertFailed({
+            stage,
+            operation: 'publishSkillVersion',
+            message: `skill_version_not_publishable:${version.status}`,
+          })))
+        }
+
+        const skill = yield* _(
+          self.skillService.getById(version.skillId).pipe(
+            Effect.mapError((cause) => XfErrorFactory.notFound({
+              stage,
+              operation: 'skillService.getById',
+              identifier: version.skillId,
+              cause,
+            }))
+          )
+        )
+        if (!skill) return yield* _(Effect.fail(XfErrorFactory.notFound({ stage, identifier: version.skillId })))
+
+        const normalizedBundle = yield* _(
+          Effect.try({
+            try: () => normalizeSkillPackageFilesFromVersion(version, stage),
+            catch: (cause) => XfErrorFactory.upsertFailed({ stage, operation: 'normalizeSkillPackageFilesFromVersion', cause }),
+          })
+        )
+        const manifest = yield* _(
+          Effect.try({
+            try: () => buildSkillPackageManifest({ skill, version, files: normalizedBundle.files }),
+            catch: (cause) => XfErrorFactory.upsertFailed({ stage, operation: 'buildSkillPackageManifest', cause }),
+          })
+        )
+        const currentMeta = isRecord(version.meta) ? version.meta : {}
         const patch: Partial<IbmSkillVersion> = {
           status: 'published',
           publishedAt: version.publishedAt ?? new Date(),
+          meta: {
+            ...currentMeta,
+            [SKILL_PACKAGE_MANIFEST_META_KEY]: manifest,
+          },
+          ...(updatedBy !== undefined ? { updatedBy } : {}),
         }
-        if (updatedBy !== undefined) {
-          patch.updatedBy = updatedBy
-        }
-        return this.skillVersionRepository.patchById(id, patch).pipe(
-          Effect.mapError(mapDbError({ stage, operation: 'patchById', factory: XfErrorFactory.upsertFailed })),
-          Effect.flatMap((updated) => {
-            if (!version.skillId) return Effect.succeed(updated)
-            return this.syncSkillCurrentVersion(version.skillId, updatedBy).pipe(
-              Effect.as(updated)
-            )
-          })
+        const updated = yield* _(
+          self.skillVersionRepository.patchById(id, patch).pipe(
+            Effect.mapError(mapDbError({ stage, operation: 'patchById', factory: XfErrorFactory.upsertFailed }))
+          )
         )
-      }),
+        yield* _(self.syncSkillCurrentVersion(version.skillId, updatedBy))
+        return updated
+      })),
       Effect.tapError((e) => Effect.sync(() => {
         const info = effectErrorInfo(e)
         this.logger?.error({ error: info.unwrapped, stage }, 'Error in publishSkillVersion')
@@ -959,13 +1168,59 @@ export class SkillVersionService implements ISkillVersionServicePort {
             })
           )
         }
+        if (version.status !== 'published') {
+          return Effect.fail(XfErrorFactory.createFailed({
+            stage,
+            message: `skill_package_export_requires_published_version:${version.status}`,
+          }))
+        }
+        if (!skill || skill.currentVersionId !== skillVersionId) {
+          return Effect.fail(XfErrorFactory.createFailed({
+            stage,
+            message: 'skill_package_export_requires_current_published_version',
+          }))
+        }
         const metadata = isRecord(version.meta) ? version.meta : {}
         const packageRecord = isRecord(metadata.package) ? metadata.package : {}
-        const packageMetadata = (isRecord(packageRecord.metadata) ? packageRecord.metadata : {}) as SkillPackageMetadata
-        const files = toSkillPackageFilesFromVersion(version)
+        const packageMetadata = (sanitizeClientMetadata(packageRecord.metadata) ?? {}) as SkillPackageMetadata
+        let normalizedBundle: NormalizedSkillPackageBundle
+        try {
+          normalizedBundle = normalizeSkillPackageFilesFromVersion(version, stage)
+        } catch (cause) {
+          return Effect.fail(XfErrorFactory.createFailed({ stage, operation: 'normalizeSkillPackageFilesFromVersion', cause }))
+        }
+        const files = toVersionFiles(normalizedBundle.files)
         const entryFile = normalizeNonEmpty(version.entryFile) ?? SKILL_PACKAGE_ENTRY_FILE
         const skillStandard = normalizeNonEmpty(version.skillStandard) ?? SKILL_PACKAGE_STANDARD
-        const packageSourcePath = normalizeNonEmpty(packageRecord.sourcePath)
+        if (entryFile !== SKILL_PACKAGE_ENTRY_FILE || skillStandard !== SKILL_PACKAGE_STANDARD) {
+          return Effect.fail(XfErrorFactory.createFailed({
+            stage,
+            message: 'skill_package_export_standard_mismatch',
+          }))
+        }
+        const manifest = parsePersistedSkillPackageManifest(metadata[SKILL_PACKAGE_MANIFEST_META_KEY])
+        if (!manifest) {
+          return Effect.fail(XfErrorFactory.createFailed({
+            stage,
+            message: 'skill_package_export_manifest_missing_or_invalid',
+          }))
+        }
+        const recomputedFiles = normalizedBundle.files
+          .map((file) => ({ path: file.path, sha256: file.sha256, byteLength: file.sizeBytes }))
+          .sort((left, right) => compareUnsignedUtf8(left.path, right.path))
+        const expectedFiles = [...manifest.files].sort((left, right) => compareUnsignedUtf8(left.path, right.path))
+        const manifestMatchesContent =
+          manifest.versionId === skillVersionId &&
+          manifest.version === String(version.version) &&
+          manifest.provenance.reference === `skill-version:${skillVersionId}` &&
+          manifest.packageSha256 === packageSha256(recomputedFiles) &&
+          JSON.stringify(expectedFiles) === JSON.stringify(recomputedFiles)
+        if (!manifestMatchesContent) {
+          return Effect.fail(XfErrorFactory.createFailed({
+            stage,
+            message: 'skill_package_export_hash_mismatch',
+          }))
+        }
         const scopeId = normalizeNonEmpty(skill?.scopeId) ?? normalizeNonEmpty(version.projectId)
         const projectId = normalizeNonEmpty(version.projectId)
         if (!projectId || !scopeId) {
@@ -979,17 +1234,18 @@ export class SkillVersionService implements ISkillVersionServicePort {
         return Effect.succeed({
           skillVersionId,
           skillId: version.skillId,
-          skillName: skill?.name,
+          skillName: manifest.name,
           projectId,
           scopeId,
           files,
           metadata: packageMetadata,
+          manifest,
           package: {
             entryFile,
             standard: skillStandard,
             format: SKILL_PACKAGE_FORMAT,
             fileCount: files.length,
-            ...(packageSourcePath ? { sourcePath: packageSourcePath } : {}),
+            compatibility: manifest.compatibility,
             ...(Object.keys(packageMetadata).length > 0 ? { metadata: packageMetadata } : {}),
           },
         } satisfies ExportSkillPackageResult)

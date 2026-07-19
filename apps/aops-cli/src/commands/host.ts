@@ -12,14 +12,15 @@ import {
   normalizeHostRegistrationManifest,
   unregisterHostRegistration,
   writeHostRegistration,
-} from '../utils/community-host-runtime.js'
+} from '@aops/host-registration'
 import {
   getAopsServerEnvPath,
   inferAopsRepoDialect,
   readAopsServerEnvConfig,
+  redactAopsRepoUrl,
   writeAopsServerEnvConfig,
   type AopsHostLogLevel,
-} from '../utils/community-host-runtime.js'
+} from '@aops/runtime-config'
 
 import { createCliApiClientFromOptions, fetchCliHealth } from '../utils/api.js'
 import { applyCommonOptions, compactPayload, type CommonOptions } from '../utils/command.js'
@@ -55,6 +56,7 @@ type HostConfigOptions = CommonOptions & {
 
 type HostConfigSetOptions = HostConfigOptions & {
   repoUrl?: string
+  repoUrlEnv?: string
   logLevel?: string
 }
 
@@ -142,6 +144,15 @@ function normalizeHostLogLevel(value: unknown): AopsHostLogLevel | undefined {
     return normalized as AopsHostLogLevel
   }
   return undefined
+}
+
+function resolveRepoUrlEnvName(value: unknown): string | undefined {
+  const normalized = normalizeNonEmpty(value)
+  if (!normalized) return undefined
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(normalized)) {
+    throw new Error('Invalid --repo-url-env name. Use a valid environment variable name.')
+  }
+  return normalized
 }
 
 function printHostConfigResult(payload: unknown, options: HostConfigOptions): void {
@@ -311,16 +322,6 @@ function resolveNativePgToolCommand(tool: 'pg_dump' | 'pg_restore', pgBinDir?: s
   return path.join(pgBinDir, executable)
 }
 
-function redactPgUrl(connectionString: string): string {
-  try {
-    const parsed = new URL(connectionString)
-    if (parsed.password) parsed.password = '***'
-    return parsed.toString()
-  } catch {
-    return '<invalid_pg_url>'
-  }
-}
-
 function redactNativePgArgs(args: string[], redactedRepoUrl: string): string[] {
   return args.map((arg) => {
     if (arg.startsWith('--dbname=')) return `--dbname=${redactedRepoUrl}`
@@ -344,7 +345,7 @@ function resolveHostPgRepoTarget(options: {
     }
     return {
       repoUrl: explicitRepoUrl,
-      redactedRepoUrl: redactPgUrl(explicitRepoUrl),
+      redactedRepoUrl: redactAopsRepoUrl(explicitRepoUrl),
       repoUrlSource: 'option',
       envPath: null,
     }
@@ -356,7 +357,7 @@ function resolveHostPgRepoTarget(options: {
   const hostEnv = readAopsServerEnvConfig(process.env, envPath)
   if (!hostEnv.repoUrl) {
     throw new Error(
-      'Missing PostgreSQL repo URL. Use --repo-url or configure host env with `aops-cli host config set --repo-url <postgresql://...>`.',
+      'Missing PostgreSQL repo URL. Configure the selected host env with `aops-cli setup server-env` first.',
     )
   }
   if (hostEnv.repoDialect !== 'pg') {
@@ -365,7 +366,7 @@ function resolveHostPgRepoTarget(options: {
 
   return {
     repoUrl: hostEnv.repoUrl,
-    redactedRepoUrl: hostEnv.redactedRepoUrl ?? redactPgUrl(hostEnv.repoUrl),
+    redactedRepoUrl: hostEnv.redactedRepoUrl ?? redactAopsRepoUrl(hostEnv.repoUrl),
     repoUrlSource: 'host-env',
     envPath: hostEnv.path,
   }
@@ -744,7 +745,7 @@ export async function runHostConfigShow(options: HostConfigOptions = {}): Promis
       redactedRepoUrl: snapshot.redactedRepoUrl,
       logLevel: snapshot.hostSettings.logLevel,
       next: {
-        setRepo: 'aops-cli host config set --repo-url <url>',
+        setRepo: 'aops-cli setup server-env',
         setLogLevel: 'aops-cli host config set --log-level <level>',
       },
     },
@@ -754,8 +755,29 @@ export async function runHostConfigShow(options: HostConfigOptions = {}): Promis
 
 export async function runHostConfigSet(options: HostConfigSetOptions = {}): Promise<void> {
   const interactive = !options.yes && !options.json
-  const repoUrl = normalizeNonEmpty(options.repoUrl)
+  let repoUrlEnv: string | undefined
+  try {
+    repoUrlEnv = resolveRepoUrlEnvName(options.repoUrlEnv)
+  } catch (error) {
+    logError(error instanceof Error ? error.message : String(error))
+    process.exitCode = 1
+    return
+  }
+  if (normalizeNonEmpty(options.repoUrl) && repoUrlEnv) {
+    logError('Provide only one internal repo URL source.')
+    process.exitCode = 1
+    return
+  }
+  const repoUrl =
+    normalizeNonEmpty(options.repoUrl) ??
+    (repoUrlEnv ? normalizeNonEmpty(process.env[repoUrlEnv]) : undefined)
   const logLevel = normalizeHostLogLevel(options.logLevel)
+
+  if (repoUrlEnv && !repoUrl) {
+    logError(`Environment variable ${repoUrlEnv} is empty or missing.`)
+    process.exitCode = 1
+    return
+  }
 
   if (!repoUrl && options.logLevel && !logLevel) {
     logError(`Invalid --log-level. Use one of: ${HOST_LOG_LEVELS.join(', ')}`)
@@ -764,7 +786,7 @@ export async function runHostConfigSet(options: HostConfigSetOptions = {}): Prom
   }
 
   if (!repoUrl && !logLevel) {
-    logError('Nothing to update. Provide --repo-url and/or --log-level.')
+    logError('Nothing to update. Provide --repo-url-env and/or --log-level.')
     process.exitCode = 1
     return
   }
@@ -773,7 +795,7 @@ export async function runHostConfigSet(options: HostConfigSetOptions = {}): Prom
   if (interactive) {
     banner('AOPS Host Config Set')
     logInfo(`Host env: ${envPath}`)
-    if (repoUrl) logInfo(`Repo: ${repoUrl}`)
+    if (repoUrl) logInfo(`Repo: ${redactAopsRepoUrl(repoUrl)}`)
     if (logLevel) logInfo(`Log level: ${logLevel}`)
   }
 
@@ -1252,7 +1274,7 @@ export function makeHostCommand(): Command {
       .command('set')
       .description('Write repo target and/or host log level into the local host env file')
       .option('--env-path <path>', 'Explicit host env file path (default: ~/.aops/aops.server.env)')
-      .option('--repo-url <url>', 'Shared host repository URL')
+      .option('--repo-url-env <name>', 'Read the shared host repository URL from this environment variable')
       .option('--log-level <level>', `Host log level (${HOST_LOG_LEVELS.join(', ')})`)
       .action(async (options: HostConfigSetOptions) => {
         await runHostConfigSet(options)
@@ -1395,7 +1417,6 @@ export function makeHostCommand(): Command {
       .command('export')
       .description('Write a native PostgreSQL custom dump file with pg_dump')
       .option('--env-path <path>', 'Path to host env file used to resolve repo URL')
-      .option('--repo-url <url>', 'Override PostgreSQL repo URL instead of reading host env')
       .option('--pg-bin-dir <path>', 'Directory containing pg_dump / pg_restore executables')
       .requiredOption('--output <path>', 'Write dump output to this file path')
       .option('--table <name>', 'Limit dump to a table', collectRepeatedOption, [])
@@ -1412,7 +1433,6 @@ export function makeHostCommand(): Command {
       .command('restore')
       .description('Restore a native PostgreSQL custom dump file with pg_restore')
       .option('--env-path <path>', 'Path to host env file used to resolve repo URL')
-      .option('--repo-url <url>', 'Override PostgreSQL repo URL instead of reading host env')
       .option('--pg-bin-dir <path>', 'Directory containing pg_dump / pg_restore executables')
       .requiredOption('--input <path>', 'Path to a native PostgreSQL dump file')
       .option('--table <name>', 'Restore only a table from the dump', collectRepeatedOption, [])
@@ -1440,8 +1460,9 @@ export function makeHostCommand(): Command {
     `
 Examples:
   aops-cli host config show
-  aops-cli host config set --repo-url file:~/.aops/aops.sqlite
-  aops-cli host config set --repo-url postgresql://user:pass@host:5432/aops --log-level info
+  aops-cli setup server-env
+  aops-cli host config set --log-level info
+  aops-cli host config set --repo-url-env AOPS_REPO_URL
   aops-cli host database status
   aops-cli host database reset --mode drop-and-recreate --preview
   aops-cli host database reset --mode drop-and-recreate --include-auth-tables --apply --confirm
@@ -1463,4 +1484,3 @@ Examples:
 
   return cmd
 }
-

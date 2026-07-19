@@ -500,7 +500,13 @@ resourceService: async (ctx, _deps, repos, logger) => {
 skillService: async (ctx, _deps, repos, logger) => {
       return new SkillService({
         skillRepository: repos.skillRepository,
+        skillVersionRepository: repos.skillVersionRepository,
         scopeRepository: repos.scopeRepository,
+        projectRepository: repos.projectRepository,
+        resourceRepository: repos.resourceRepository,
+        unitOfWork: createAgentspaceDrizzleUnitOfWork(
+          buildRepositoryConfig(options.staticConfig.skillRepository, ctx.tenantId)
+        ),
         logger,
         locale: ctx.locale,
       })

@@ -1,4 +1,4 @@
-import type { AgentspaceOperationArgument, AgentspaceOperationEffect, AgentspaceOperationKind } from './types.js'
+import type { AgentspaceOperationArgument, AgentspaceOperationEffect, AgentspaceOperationKind, AgentspaceOperationPolicy } from './types.js'
 
 export type AgentspaceOperationCatalogRow = {
   toolId: string
@@ -10,6 +10,7 @@ export type AgentspaceOperationCatalogRow = {
   methodName: string
   kind: AgentspaceOperationKind
   sideEffect?: AgentspaceOperationEffect
+  policy?: AgentspaceOperationPolicy
   args: readonly AgentspaceOperationArgument[]
 }
 
@@ -3059,6 +3060,70 @@ export const AGENTSPACE_OPERATION_CATALOG_ROWS = [
     ]
   },
   {
+    "toolId": "aops-skill-ask",
+    "operationId": "skill.ask",
+    "summary": "Project a bounded answer from the deterministic hosted skill metadata search.",
+    "serviceKey": "skillService",
+    "serviceEntity": "skill",
+    "methodName": "askSkills",
+    "kind": "custom",
+    "sideEffect": "none",
+    "examples": [
+      "{\"query\":\"project management\",\"scopeId\":\"<scope-id>\",\"limit\":3}"
+    ],
+    "args": [
+      { "name": "query", "optional": false },
+      { "name": "scopeId", "optional": true },
+      { "name": "scopeResolution", "optional": true },
+      { "name": "limit", "optional": true }
+    ]
+  },
+  {
+    "toolId": "aops-official-catalog-inspect",
+    "operationId": "official-catalog.inspect",
+    "summary": "Inspect the reserved inert AOPS official skill catalog and its append-only version graph.",
+    "serviceKey": "skillService",
+    "serviceEntity": "official-catalog",
+    "methodName": "inspectOfficialCatalog",
+    "kind": "custom",
+    "sideEffect": "none",
+    "args": [
+      { "name": "scope", "optional": false }
+    ]
+  },
+  {
+    "toolId": "aops-official-catalog-reconcile",
+    "operationId": "official-catalog.reconcile",
+    "summary": "Atomically reconcile a signature-verified Community release into the reserved inert skill catalog.",
+    "serviceKey": "skillService",
+    "serviceEntity": "official-catalog",
+    "methodName": "reconcileOfficialCatalog",
+    "kind": "custom",
+    "sideEffect": "db",
+    "args": [
+      { "name": "plan", "optional": false }
+    ]
+  },
+  {
+    "toolId": "aops-official-catalog-rollback",
+    "operationId": "official-catalog.rollback",
+    "summary": "Atomically restore the reserved catalog current map recorded before a durable receipt.",
+    "serviceKey": "skillService",
+    "serviceEntity": "official-catalog",
+    "methodName": "rollbackOfficialCatalog",
+    "kind": "custom",
+    "sideEffect": "db",
+    "policy": {
+      "scope": "tenant",
+      "auth": { "required": true },
+      "safety": { "destructive": true, "applyRequired": true, "confirmationRequired": true },
+      "rateLimit": { "bucket": "agentspace-write", "max": 100, "windowSeconds": 60 }
+    },
+    "args": [
+      { "name": "request", "optional": false }
+    ]
+  },
+  {
     "toolId": "aops-skill-create",
     "operationId": "skill.create",
     "summary": "Create skill.",
@@ -3143,6 +3208,25 @@ export const AGENTSPACE_OPERATION_CATALOG_ROWS = [
         "name": "id",
         "optional": false
       }
+    ]
+  },
+  {
+    "toolId": "aops-skill-search",
+    "operationId": "skill.search",
+    "summary": "Search current published skills using deterministic on-read raw metadata ranking.",
+    "serviceKey": "skillService",
+    "serviceEntity": "skill",
+    "methodName": "searchSkills",
+    "kind": "custom",
+    "sideEffect": "none",
+    "examples": [
+      "{\"query\":\"kanban\",\"scopeId\":\"<scope-id>\",\"limit\":5}"
+    ],
+    "args": [
+      { "name": "query", "optional": false },
+      { "name": "scopeId", "optional": true },
+      { "name": "scopeResolution", "optional": true },
+      { "name": "limit", "optional": true }
     ]
   },
   {

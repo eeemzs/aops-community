@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
-import { logError } from '@aopslab/xf-cli-ui'
+import { banner, logError, logWarn } from '@aopslab/xf-cli-ui'
 import { resolveCommunityCliIdentity } from './lib/community-client-contract.js'
+import { promptSelect } from './utils/prompts.js'
 import { makeInitCommand } from './commands/init.js'
+import { makeCommunitySetupCommand, runCommunitySetupInit } from './commands/community-setup.js'
+import { makeAssetsCommand } from './commands/assets.js'
 import { makeStartCommand } from './commands/start.js'
 import { makePlanCommand } from './commands/plan.js'
 import { makeAgentsMdCommand } from './commands/agents-md.js'
@@ -53,6 +56,8 @@ export function buildCommunityProgram(): Command {
     .version(resolveCommunityCliIdentity().version, '-V, --cli-version', 'output the CLI version')
 
   program.addCommand(makeInitCommand()) // community-family:init
+  program.addCommand(makeCommunitySetupCommand()) // community-family:setup
+  program.addCommand(makeAssetsCommand()) // community-family:assets
   program.addCommand(makeStartCommand()) // community-family:start
   program.addCommand(makePlanCommand()) // community-family:plan
   program.addCommand(makeAgentsMdCommand()) // community-family:agents-md
@@ -97,11 +102,35 @@ Quick checks:
   return program
 }
 
+async function runCommunityMenu(program: Command): Promise<void> {
+  const readiness = await runCommunitySetupInit({ yes: true, skipBanner: true })
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    logWarn('Interactive menu requires a TTY. Use `aops-cli --help` or run a command directly.')
+    program.outputHelp()
+    return
+  }
+  banner('AOPS Community CLI')
+  while (true) {
+    const action = await promptSelect({
+      message: 'Select an action:',
+      type: process.env.AOPS_CLI_MENU_STYLE?.toLowerCase() === 'list' ? 'list' : 'rawlist',
+      choices: [
+        { name: readiness.status === 'action-required' ? 'Continue setup (readiness actions remain)' : 'Setup: Check readiness', value: 'setup' },
+        { name: 'Show command help', value: 'help' },
+        { name: 'Exit', value: 'exit' },
+      ],
+    })
+    if (action === 'exit') return
+    if (action === 'help') { program.outputHelp(); continue }
+    await runCommunitySetupInit({})
+  }
+}
+
 async function main(): Promise<void> {
   const program = buildCommunityProgram()
   try {
     if (process.argv.length <= 2) {
-      program.outputHelp()
+      await runCommunityMenu(program)
       return
     }
     const argv = process.argv[2] === '--'

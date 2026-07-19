@@ -26,7 +26,7 @@
     "community": {
       "repository": "https://github.com/eeemzs/aops-community",
       "commitBinding": "release.json#/source/commit",
-      "rawFileInventoryDigest": "sha256:87212b6e6747334d2fdb9a79950e6bef0aa32e2ba0407088889d64b8d1890f15"
+      "rawFileInventoryDigest": "sha256:8db6f208f4176d8170a9750dd40f41270317ce4f97512dac98fd603b20913437"
     }
   },
   "cleanBuildRequirement": {
@@ -55,9 +55,9 @@
         "path": "apps/aops-cli",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:174055b4949b462208d3a78bb56581ce4dc902dbee95c13b08b3f976af8daf79",
-          "fileCount": 89,
-          "byteLength": 2708627
+          "digest": "sha256:677e1b677bf4fb81b6d3042305526bccd8adc0d392ad99458051f8009501d8e0",
+          "fileCount": 117,
+          "byteLength": 3196392
         }
       }
     },
@@ -143,9 +143,9 @@
         "path": "apps/aops/packages/aops-runtime-config",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:377146c39379f5235cb751768980f5142d790f7460744926f49efa0ee9c5c182",
+          "digest": "sha256:b9cf1aa3745994fe35451add3880ff13f9aa11e3c9bd8a110867914debbea129",
           "fileCount": 8,
-          "byteLength": 26391
+          "byteLength": 33994
         }
       }
     },
@@ -209,9 +209,9 @@
         "path": "domains/agentspace/agentspace-dm",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:988b88bbe1f6829db5913b34cadd3f31fa2a097848dbdb59536aa15a96a6feef",
-          "fileCount": 773,
-          "byteLength": 1345740
+          "digest": "sha256:a10ba08bc4d711994e41bde2a90fced5a487a48651d4634bcb4fbe5110a40903",
+          "fileCount": 777,
+          "byteLength": 1451559
         }
       }
     },
@@ -429,9 +429,9 @@
         "path": "domains/agentspace/agentspace-kit",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:b4b5f699ded51814107aca09ca18d0982090888d5874b23c8a8f29d5ccad98ae",
-          "fileCount": 52,
-          "byteLength": 417868
+          "digest": "sha256:97ac56ea393f481fe4025c72712b8abd22724b54abdff6e4cec661309ac46f1c",
+          "fileCount": 54,
+          "byteLength": 446231
         }
       }
     },

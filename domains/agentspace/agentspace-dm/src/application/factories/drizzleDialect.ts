@@ -60,8 +60,13 @@ export function createAgentspaceDrizzleRepositoryFactory<TPort>(params: {
 }
 
 export function createAgentspaceDrizzleUnitOfWork(
-  repositoryConfig?: Pick<RepositoryConfig, 'drizzleDialect' | 'url'>,
+  repositoryConfig?: Pick<RepositoryConfig, 'drizzleDialect' | 'drizzleSqliteDriver' | 'url'>,
 ): IUnitOfWork {
   const dialect = inferDrizzleDialectFromRepositoryConfig(repositoryConfig)
-  return dialect === 'sqlite' ? new DrizzleUnitOfWorkSqlite() : new DrizzleUnitOfWork()
+  return dialect === 'sqlite'
+    ? new DrizzleUnitOfWorkSqlite({
+      uri: repositoryConfig?.url,
+      driver: repositoryConfig?.drizzleSqliteDriver,
+    })
+    : new DrizzleUnitOfWork()
 }

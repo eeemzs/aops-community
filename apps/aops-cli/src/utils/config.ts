@@ -59,7 +59,16 @@ type AopsClientTargetConfig = {
   targets: Record<string, StoredAopsApiTarget>
 }
 
+export type AopsAgentAssetsConfig = Readonly<{
+  dataRoot?: string
+  runtimeHomes?: Readonly<{
+    codex?: string
+    claude?: string
+  }>
+}>
+
 type AopsConfig = Record<string, unknown> & {
+  agentAssets?: unknown
   clientTargets?: AopsClientTargetConfig
   apiServer?: string
   apiAccessToken?: string
@@ -144,7 +153,7 @@ function ensureConfigDirectory(configPath: string): void {
   enforceOwnerOnlyMode(dir, 0o700, 'directory')
 }
 
-function readConfig(): AopsConfig {
+function readConfigFile(): AopsConfig {
   const configPath = getAopsCliConfigFilePath()
   if (!fs.existsSync(configPath)) return {}
   assertSafeExistingPath(configPath, 'file')
@@ -159,6 +168,45 @@ function readConfig(): AopsConfig {
     throw new Error(`aops_cli_config_invalid_root:${configPath}`)
   }
   return parsed as AopsConfig
+}
+
+function readOptionalNonEmptyString(value: unknown, field: string): string | undefined {
+  if (value === undefined) return undefined
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error(`aops_cli_config_invalid_${field}`)
+  }
+  return value.trim()
+}
+
+/**
+ * Read the non-secret agent-assets root selectors from the normal user config.
+ * This deliberately reuses the config owner's link, type, and permission checks
+ * instead of making the assets client parse aops.config.json independently.
+ */
+export function getAgentAssetsConfig(): AopsAgentAssetsConfig {
+  const raw = readConfig().agentAssets
+  if (raw === undefined) return Object.freeze({})
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('aops_cli_config_invalid_agentAssets')
+  }
+
+  const record = raw as Record<string, unknown>
+  const runtimeHomesRaw = record.runtimeHomes
+  if (
+    runtimeHomesRaw !== undefined &&
+    (!runtimeHomesRaw || typeof runtimeHomesRaw !== 'object' || Array.isArray(runtimeHomesRaw))
+  ) {
+    throw new Error('aops_cli_config_invalid_agentAssets_runtimeHomes')
+  }
+  const runtimeHomes = (runtimeHomesRaw ?? {}) as Record<string, unknown>
+
+  return Object.freeze({
+    dataRoot: readOptionalNonEmptyString(record.dataRoot, 'agentAssets_dataRoot'),
+    runtimeHomes: Object.freeze({
+      codex: readOptionalNonEmptyString(runtimeHomes.codex, 'agentAssets_runtimeHomes_codex'),
+      claude: readOptionalNonEmptyString(runtimeHomes.claude, 'agentAssets_runtimeHomes_claude'),
+    }),
+  })
 }
 
 function writeConfig(config: AopsConfig): void {
@@ -281,7 +329,8 @@ function withConfigMutation<T>(mutation: (config: AopsConfig) => T): T {
   }
   if (lockFd === undefined) throw new Error('aops_cli_config_lock_busy')
   try {
-    const config = readConfig()
+    const config = readConfigFile()
+    if (hasMissingTargetCredentialRevision(config)) migrateLegacyTargetCredentialRevisions(config)
     const result = mutation(config)
     writeConfig(config)
     return result
@@ -293,6 +342,95 @@ function withConfigMutation<T>(mutation: (config: AopsConfig) => T): T {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     }
   }
+}
+
+function hasMissingTargetCredentialRevision(config: AopsConfig): boolean {
+  const raw = config.clientTargets as unknown
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false
+  const targets = (raw as { targets?: unknown }).targets
+  if (!targets || typeof targets !== 'object' || Array.isArray(targets)) return false
+  return Object.values(targets).some((target) => {
+    if (!target || typeof target !== 'object' || Array.isArray(target)) return false
+    const credentials = (target as { credentials?: unknown }).credentials
+    return Boolean(
+      credentials && typeof credentials === 'object' && !Array.isArray(credentials) &&
+      !Object.hasOwn(credentials, 'credentialRevision'),
+    )
+  })
+}
+
+function isLegacyStoredCredentialsWithoutRevision(value: unknown, endpointSha256: string): boolean {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const credentials = value as Partial<StoredTargetCredentials>
+  return credentials.schemaVersion === 1 &&
+    credentials.endpointSha256 === endpointSha256 &&
+    !Object.hasOwn(credentials, 'credentialRevision') &&
+    Boolean(normalizeNonEmpty(credentials.accessTokenEnc)) &&
+    Boolean(normalizeNonEmpty(credentials.refreshTokenEnc)) &&
+    (credentials.userId === undefined || typeof credentials.userId === 'string')
+}
+
+function migrateLegacyTargetCredentialRevisions(config: AopsConfig): boolean {
+  const raw = config.clientTargets as unknown
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('aops_target_config_schema_invalid')
+  }
+  const targetConfig = raw as Partial<AopsClientTargetConfig>
+  if (
+    targetConfig.schemaVersion !== 1 || !targetConfig.targets ||
+    typeof targetConfig.targets !== 'object' || Array.isArray(targetConfig.targets)
+  ) {
+    throw new Error('aops_target_config_schema_invalid')
+  }
+
+  const endpointOwners = new Map<string, string>()
+  const credentialsToMigrate: Array<Record<string, unknown>> = []
+  for (const [name, value] of Object.entries(targetConfig.targets)) {
+    if (normalizeApiTargetName(name) !== name || !value || typeof value !== 'object' || Array.isArray(value)) {
+      throw new Error(`aops_target_config_invalid:${name}`)
+    }
+    const target = value as Partial<StoredAopsApiTarget>
+    let validated: AopsApiTarget
+    try {
+      validated = validateApiTarget({
+        apiBaseUrl: String(target.apiBaseUrl ?? ''),
+        authProvider: target.authProvider,
+        tlsPolicy: target.tlsPolicy,
+      })
+    } catch {
+      throw new Error(`aops_target_config_invalid:${name}`)
+    }
+    if (target.schemaVersion !== 1 || target.endpointSha256 !== validated.endpointSha256) {
+      throw new Error(`aops_target_config_invalid:${name}`)
+    }
+    if (target.credentials !== undefined) {
+      if (isStoredCredentials(target.credentials, validated.endpointSha256)) {
+        // Already current.
+      } else if (isLegacyStoredCredentialsWithoutRevision(target.credentials, validated.endpointSha256)) {
+        credentialsToMigrate.push(target.credentials as unknown as Record<string, unknown>)
+      } else {
+        throw new Error(`aops_target_config_invalid:${name}`)
+      }
+    }
+    const owner = endpointOwners.get(validated.apiBaseUrl)
+    if (owner) throw new Error(`aops_target_endpoint_duplicate:${owner}:${name}`)
+    endpointOwners.set(validated.apiBaseUrl, name)
+  }
+
+  const activeTarget = normalizeNonEmpty(targetConfig.activeTarget)
+  if (activeTarget && !Object.hasOwn(targetConfig.targets, activeTarget)) {
+    throw new Error('aops_target_active_missing')
+  }
+  for (const credentials of credentialsToMigrate) {
+    credentials.credentialRevision = crypto.randomUUID()
+  }
+  return credentialsToMigrate.length > 0
+}
+
+function readConfig(): AopsConfig {
+  const config = readConfigFile()
+  if (!hasMissingTargetCredentialRevision(config)) return config
+  return withConfigMutation((latest) => structuredClone(latest))
 }
 
 function getTokenKeyFilePath(): string {
