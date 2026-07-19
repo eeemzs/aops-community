@@ -32,6 +32,19 @@ aops-cli --version
 
 > `@aopslab/aops-cli@0.1.0` is not published yet. The normal installation commands below become available after the npm package is published. The repository-local source invocation described at the end is for CLI development, not the normal user installation path.
 
+### Start with the guided setup
+
+The primary setup entry point is interactive and can be run from any directory:
+
+```sh
+aops-cli setup init
+```
+
+It inspects the computer, explains the four alternatives, asks only for missing
+choices, and shows what is required before changing anything. Choose Alternative
+A1, A2, A3, or A4 in the prompt. The explicit commands below are useful for
+repeatable or non-interactive setup, but they use the same setup engine.
+
 ## Security and remote access
 
 AOPS Community is currently a single-user, local-trusted distribution. It does
@@ -70,7 +83,16 @@ corepack install --global pnpm@11.9.0
 pnpm install --frozen-lockfile
 ```
 
-Create `aops.server.env` beside the root `package.json`:
+Create the private PostgreSQL configuration through the CLI:
+
+```sh
+aops-cli setup server-env
+```
+
+The default location is `~/.aops/aops.server.env` on macOS, Linux, and Windows.
+It belongs to the user, not to this Git repository, and should not be committed.
+The interactive command asks for the connection details without putting the
+password in the command line. Its managed content is equivalent to:
 
 ```dotenv
 AOPS_PG_URL=postgresql://USER:PASSWORD@HOST:5432/aops
@@ -78,15 +100,22 @@ AOPS_PG_URL=postgresql://USER:PASSWORD@HOST:5432/aops
 # AOPS_PG_SSL_ROOT_CERT=ca.pem
 ```
 
-Keep this file private. Preview the setup, apply it, and check the server:
+When `AOPS_PG_SSL_ROOT_CERT` is relative, it is resolved beside the global env
+file. Apply Alternative A1 and check the server:
 
 ```sh
-aops-cli server setup --runtime native --postgres external --postgres-config ./aops.server.env --postgres-tls verify-full --source-root . --port 5900 --detach --preview --json
-aops-cli server setup --runtime native --postgres external --postgres-config ./aops.server.env --postgres-tls verify-full --source-root . --port 5900 --detach --apply --json
+aops-cli setup init --path 1 --source-root . --postgres-tls verify-full --apply
 aops-cli server status --json
 ```
 
 Use `--postgres-tls disable` only for PostgreSQL running on the same computer. For a remote database, keep hostname verification enabled.
+
+If an older checkout already has `aops.server.env` beside its root
+`package.json`, re-enter or move its private values with `aops-cli setup
+server-env`. You may instead keep that file temporarily by adding
+`--postgres-config ./aops.server.env` to the Alternative A1 setup command. Delete
+the old file only after `aops-cli setup init` reports readiness and `aops-cli
+server status --json` confirms a healthy server.
 
 ### Alternative A2 — Clone and use the ready PostgreSQL container
 
@@ -100,8 +129,7 @@ cd aops-community
 corepack enable
 corepack install --global pnpm@11.9.0
 pnpm install --frozen-lockfile
-aops-cli server setup --runtime native --postgres container --source-root . --port 5900 --detach --preview --json
-aops-cli server setup --runtime native --postgres container --source-root . --port 5900 --detach --apply --json
+aops-cli setup init --path 2 --source-root . --apply
 aops-cli server status --json
 ```
 
@@ -116,8 +144,7 @@ Use this option for the shortest full local installation. A source clone, pnpm w
 Requirements: Node.js 22.9.0 or newer and Docker Engine or Docker Desktop with Docker Compose v2.
 
 ```sh
-aops-cli server setup --runtime oci --preview --json
-aops-cli server setup --runtime oci --apply --json
+aops-cli setup init --path 3 --apply
 aops-cli server status --json
 ```
 
@@ -138,8 +165,7 @@ ssh -L 5900:127.0.0.1:5900 user@aops-host
 In another terminal, register the local end of that tunnel:
 
 ```sh
-aops-cli target add --name remote-community --api-base-url http://127.0.0.1:5900 --auth-provider trusted-local --tls-policy loopback-http --use --json
-aops-cli target add --name remote-community --api-base-url http://127.0.0.1:5900 --auth-provider trusted-local --tls-policy loopback-http --use --apply --json
+aops-cli setup init --path 4 --api-base-url http://127.0.0.1:5900 --target-name remote-community --target-auth-provider trusted-local --target-tls-policy loopback-http --apply
 aops-cli target doctor remote-community --json
 ```
 
