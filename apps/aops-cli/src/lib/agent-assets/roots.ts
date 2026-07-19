@@ -74,4 +74,3 @@ export function resolveAgentAssetsRoots(options: ResolveAgentAssetsRootsOptions 
     runtimeHomes: Object.freeze({ codex, claude }),
   })
 }
-

@@ -38,4 +38,3 @@ export function resolveAgentAssetsMutationGuard(input: Readonly<{
     nextActions: Object.freeze([]),
   })
 }
-
