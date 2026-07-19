@@ -8,7 +8,7 @@ AOPS Community brings the three user-facing parts together:
 - **AOPS Server** — the API and application runtime.
 - **AOPS CLI** — setup, administration, and agent workflows from the terminal.
 
-The server stores its data in PostgreSQL 17 and can run on the same computer as the CLI or on another machine. For a broader product introduction, visit [aopslab.com](https://www.aopslab.com).
+The server stores its data in PostgreSQL 17 and can run on the same computer as the CLI or, for one trusted operator, on another machine through the SSH tunnel described below. For a broader product introduction, visit [aopslab.com](https://www.aopslab.com).
 
 ## Getting Started
 
@@ -17,7 +17,7 @@ Choose one of these independent alternatives:
 - **Alternative A1 — Clone the repository and use your own PostgreSQL.** No Docker required.
 - **Alternative A2 — Clone the repository and use the ready PostgreSQL container.** Docker is used only for PostgreSQL.
 - **Alternative A3 — Run the ready AOPS stack with Docker.** No source clone or application build.
-- **Alternative A4 — Connect to an existing AOPS server.** No local server, PostgreSQL, or Docker required.
+- **Alternative A4 — Connect to an existing Community server through SSH.** No local server, PostgreSQL, or Docker required on the client computer.
 
 The examples below use release `0.1.0`. Use one matching version for the source, CLI, and server. Local server installations should have at least 4 GB of free memory and 2 GB of free disk space.
 
@@ -31,6 +31,30 @@ aops-cli --version
 ```
 
 > `@aopslab/aops-cli@0.1.0` is not published yet. The normal installation commands below become available after the npm package is published. The repository-local source invocation described at the end is for CLI development, not the normal user installation path.
+
+## Security and remote access
+
+AOPS Community is currently a single-user, local-trusted distribution. It does
+not provide an AOPS user account, password login, or JWT session boundary. A
+request accepted from the local machine receives the built-in local operator
+identity with administrator permissions.
+
+The default installation therefore publishes AOPS only on `127.0.0.1:5900` and
+does not publish PostgreSQL. Do not change the server binding to `0.0.0.0` or
+place this release directly behind a public reverse proxy: anyone who could
+reach that endpoint would be treated as the trusted operator.
+
+| Scenario | Current support | Security boundary |
+| --- | --- | --- |
+| Cockpit and CLI on the AOPS host | Supported | The local machine is trusted |
+| AOPS on a remote host, accessed through an SSH tunnel by one operator | Supported for single-user operation | SSH authenticates and encrypts the connection; AOPS still trusts the tunneled client |
+| Direct LAN or Internet exposure | Not supported | Community has no user-login boundary |
+| Multiple authenticated users | Not available yet | Authentication-based multi-user support is under development; a limited form is planned for Community Edition |
+
+Some CLI and ChatV3 surfaces refer to tokens. ChatV3 member tokens identify room
+membership, and shared CLI transport code can understand access tokens used by
+other AOPS distributions. Neither currently adds user authentication to AOPS
+Community.
 
 ### Alternative A1 — Clone and use your own PostgreSQL
 
@@ -99,20 +123,27 @@ aops-cli server status --json
 
 The CLI pulls the matching ready AOPS image, creates local secrets and persistent PostgreSQL storage, starts the stack, and verifies server health.
 
-### Alternative A4 — Connect to an existing server
+### Alternative A4 — Connect through an SSH tunnel
 
-Use this option when an AOPS server already runs on this computer, another computer, or a hosted environment. The client computer does not need a source clone, PostgreSQL, or Docker.
+Use this option when AOPS Community already runs on another computer. The client computer does not need a source clone, PostgreSQL, or Docker, but the deployment remains single-user and local-trusted.
 
-Requirements: Node.js 22.9.0 or newer and the HTTPS address of the existing server.
+Requirements: Node.js 22.9.0 or newer, the AOPS CLI, and SSH access to the remote host.
+
+Keep AOPS bound to loopback on the remote host. From the client computer, open a tunnel and leave the SSH session running:
 
 ```sh
-aops-cli target add --name team --api-base-url https://aops.example.test --auth-provider authv2-jwt-session --tls-policy system-ca --use --json
-aops-cli target add --name team --api-base-url https://aops.example.test --auth-provider authv2-jwt-session --tls-policy system-ca --use --apply --json
-aops-cli auth login --target team
-aops-cli target doctor team --json
+ssh -L 5900:127.0.0.1:5900 user@aops-host
 ```
 
-Replace `https://aops.example.test` with the real server address. Login credentials are stored for the named target on the client computer.
+In another terminal, register the local end of that tunnel:
+
+```sh
+aops-cli target add --name remote-community --api-base-url http://127.0.0.1:5900 --auth-provider trusted-local --tls-policy loopback-http --use --json
+aops-cli target add --name remote-community --api-base-url http://127.0.0.1:5900 --auth-provider trusted-local --tls-policy loopback-http --use --apply --json
+aops-cli target doctor remote-community --json
+```
+
+The browser can use <http://127.0.0.1:5900> while the tunnel is open. SSH provides authentication and encryption; AOPS Community itself still treats the tunneled connection as the one trusted operator. Do not share the SSH account or tunnel with untrusted users.
 
 ### After the server starts
 
