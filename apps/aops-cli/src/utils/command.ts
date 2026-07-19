@@ -82,10 +82,9 @@ export function applyCommonOptions(cmd: Command, config: ApplyCommonOptionsConfi
 
   addOptionIfMissing(cmd, '--api-base-url <url>', 'API base URL (default: AOPS_API_BASE_URL or http://localhost:5900)')
 
-  if (withAuth) {
-    addOptionIfMissing(cmd, '--access-token <token>', 'API access token (default: AOPS_API_ACCESS_TOKEN)')
-    addOptionIfMissing(cmd, '--refresh-token <token>', 'API refresh token (default: AOPS_API_REFRESH_TOKEN)')
-  }
+  // Secrets are resolved from the encrypted target store or process
+  // environment. Public argv token flags are intentionally not registered.
+  void withAuth
 
   addOptionIfMissing(cmd, '--timeout-ms <ms>', 'Request timeout in milliseconds', (v) =>
     Number.parseInt(String(v), 10)

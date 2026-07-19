@@ -30,6 +30,7 @@ export async function promptInput(opts: {
 
 export async function promptPassword(opts: {
   message: string
+  default?: string
   validate?: (v: string) => true | string
 }): Promise<string> {
   const { value } = await inquirer.prompt([
@@ -37,6 +38,7 @@ export async function promptPassword(opts: {
       type: 'password',
       name: 'value',
       message: normalizePromptMessage(opts.message),
+      default: opts.default,
       mask: '*',
       validate: opts.validate,
       theme: PROMPT_THEME,

@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { resolveAopsServerEnvPath } from '@aops/runtime-config'
 
 export type CommunityServerRuntime = 'native' | 'oci'
 export type CommunityPostgresMode = 'external' | 'container'
@@ -40,6 +40,7 @@ export function buildCommunityInstanceContract(input: {
   postgresTls?: string
   instance?: string
   port?: string | number
+  processEnv?: NodeJS.ProcessEnv
 }): CommunityInstanceContract {
   if (input.runtime !== 'native' && input.runtime !== 'oci') {
     throw new Error('community_setup_runtime_required:use_--runtime_native_or_oci')
@@ -78,23 +79,25 @@ export function buildCommunityInstanceContract(input: {
       implementation: 'native-v1-supervisor',
     })
   }
-  if (!input.postgresConfig?.trim()) {
-    throw new Error('community_setup_external_postgres_config_required:use_--postgres-config')
-  }
   if (!['disable', 'require', 'verify-full'].includes(String(input.postgresTls))) {
     throw new Error('community_setup_external_postgres_tls_required:use_--postgres-tls')
   }
-  const configInput = input.postgresConfig.trim()
-  const isWindowsPath = /^[A-Za-z]:[\\/]/.test(configInput)
-  if (
-    /[\0\r\n]/.test(configInput) ||
-    (!isWindowsPath && /^[A-Za-z][A-Za-z0-9+.-]*:/.test(configInput)) ||
-    /[=@;]/.test(configInput) ||
-    /(?:^|\s)(?:host|user|password|pwd|dbname|server|data\s+source|user\s+id|uid|database|initial\s+catalog|pghost|pgport|pgdatabase|pguser|pgpassword|pgservice|pgsslmode)\s*=/i.test(configInput)
-  ) {
-    throw new Error('community_setup_external_postgres_config_must_be_file_reference')
+  const configInput = input.postgresConfig?.trim()
+  if (configInput) {
+    const isWindowsPath = /^[A-Za-z]:[\\/]/.test(configInput)
+    if (
+      /[\0\r\n]/.test(configInput) ||
+      (!isWindowsPath && /^[A-Za-z][A-Za-z0-9+.-]*:/.test(configInput)) ||
+      /[=@;]/.test(configInput) ||
+      /(?:^|\s)(?:host|user|password|pwd|dbname|server|data\s+source|user\s+id|uid|database|initial\s+catalog|pghost|pgport|pgdatabase|pguser|pgpassword|pgservice|pgsslmode)\s*=/i.test(configInput)
+    ) {
+      throw new Error('community_setup_external_postgres_config_must_be_file_reference')
+    }
   }
-  const configRef = path.resolve(configInput)
+  const configRef = resolveAopsServerEnvPath(
+    { explicitPath: configInput },
+    input.processEnv ?? process.env,
+  ).path
   return Object.freeze({
     ...base,
     profile: 'native-external-postgres',

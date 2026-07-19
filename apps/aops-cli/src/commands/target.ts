@@ -18,7 +18,12 @@ import {
   resolveCommunityCliIdentity,
 } from '../lib/community-client-contract.js'
 
-type TargetCommonOptions = { json?: boolean }
+type TargetCommonOptions = {
+  json?: boolean
+  /** Internal parent-command composition seam; not registered as a CLI flag. */
+  quiet?: boolean
+  resultSink?: (value: unknown) => void
+}
 type TargetAddOptions = TargetCommonOptions & {
   name: string
   apiBaseUrl: string
@@ -41,17 +46,21 @@ export async function runTargetAdd(options: TargetAddOptions): Promise<void> {
   const name = normalizeApiTargetName(options.name)
   const target = validateApiTarget(options)
   if (!options.apply) {
-    output({
+    const result = {
       status: 'preview',
       mutationFree: true,
       action: 'target-add',
       target: { name, ...target, active: options.use === true },
       next: 'Re-run with --apply to persist this target.',
-    }, options.json)
+    }
+    options.resultSink?.(result)
+    if (!options.quiet) output(result, options.json)
     return
   }
   const result = setApiTarget({ ...options, name, activate: options.use })
-  output({ status: 'target-saved', target: result }, options.json)
+  const payload = { status: 'target-saved', target: result }
+  options.resultSink?.(payload)
+  if (!options.quiet) output(payload, options.json)
 }
 
 export async function runTargetUse(name: string, options: TargetUseOptions): Promise<void> {

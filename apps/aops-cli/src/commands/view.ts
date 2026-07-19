@@ -285,8 +285,6 @@ function addViewOptions<T extends Command>(cmd: T): T {
     .option('--max-bytes <n>', 'Maximum markdown bytes; hard-capped at 32768', (value) => parseIntegerOption(value, 32768), 32768)
     .option('--include-archived', 'Include board and sprint records with archivedAt set')
     .option('--api-base-url <url>', 'API base URL for hosted view commands')
-    .option('--access-token <token>', 'API access token for hosted view commands')
-    .option('--refresh-token <token>', 'API refresh token for hosted view commands')
     .option('--timeout-ms <ms>', 'Request timeout for hosted view commands', (value) => parseIntegerOption(value, 0))
     .option('--tenant-id <id>', 'Hosted tenant id header')
     .option('--locale <locale>', 'Hosted locale header')

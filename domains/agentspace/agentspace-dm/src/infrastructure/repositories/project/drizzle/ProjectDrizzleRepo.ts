@@ -30,7 +30,7 @@ export class ProjectDrizzleRepo extends DraBase<IbmProject, IdbProjectDrizzle, t
       )
       const rows = yield* Effect.mapError(
         Effect.tryPromise({
-          try: async () => await (db as any).insert(self.table).values(dbData as any).returning().execute(),
+          try: async () => await ((self.tx() as any) ?? db).insert(self.table).values(dbData as any).returning().execute(),
           catch: (error) => error,
         }),
         self.mapDrizzleToDraBaseError(

@@ -238,7 +238,6 @@ export function makeAuthLoginCommand(): Command {
     .option('--target <name>', 'Named target (must match --api-base-url when both are supplied)')
     .option('--api-base-url <url>', 'API base URL (default: AOPS_API_BASE_URL or http://localhost:5900)')
     .option('--email <email>', 'User email')
-    .option('--password <password>', 'User password')
     .option('--timeout-ms <ms>', 'Request timeout in milliseconds', (v) => Number.parseInt(String(v), 10))
     .option('--yes', 'Non-interactive (fail if required args are missing)')
     .option('--json', 'Output JSON only')

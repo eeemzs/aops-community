@@ -50,7 +50,7 @@ export async function runAuthImport(options: AuthImportOptions = {}): Promise<vo
   }
 
   if (!accessToken || !refreshToken) {
-    logError('Missing tokens. Provide --access-token and --refresh-token or use --from-env with AOPS_API_ACCESS_TOKEN and AOPS_API_REFRESH_TOKEN set.')
+    logError('Missing tokens. Load AOPS_API_ACCESS_TOKEN and AOPS_API_REFRESH_TOKEN into the process environment, then use --from-env.')
     process.exitCode = 1
     return
   }
@@ -89,8 +89,6 @@ export function makeAuthImportCommand(): Command {
   const cmd = new Command('import').description('Store access/refresh tokens locally (no password)')
   cmd
     .option('--target <name>', 'Named target (must match --api-base-url when both are supplied)')
-    .option('--access-token <token>', 'API access token (or set AOPS_API_ACCESS_TOKEN)')
-    .option('--refresh-token <token>', 'API refresh token (or set AOPS_API_REFRESH_TOKEN)')
     .option('--user-id <id>', 'Optional user id for bookkeeping')
     .option('--api-base-url <url>', 'API base URL (default: AOPS_API_BASE_URL or http://localhost:5900)')
     .option('--from-env', 'Read tokens from environment variables')

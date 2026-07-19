@@ -131,9 +131,15 @@ describe('SkillVersionService', () => {
         content: '# v3',
         entryFile: 'SKILL.md',
         skillStandard: 'aops-skill-package-v1',
-        files: [],
+        files: [{ path: 'SKILL.md', content: '# v3' }],
       } as any)
     )
+    skillService.getById.mockImplementation(() => Effect.succeed({
+      id: 'skill-1',
+      name: 'skill-1',
+      scopeId: 'project-1',
+      currentVersionId: null,
+    } as any))
     repo.patchById.mockImplementation((id, patch) =>
       Effect.succeed({
         id,
@@ -225,54 +231,64 @@ describe('SkillVersionService', () => {
     )
   })
 
-  it('exports canonical package descriptor and package metadata separately', async () => {
+  it('publishes immutable digest metadata and exports only the current published package without server paths', async () => {
     const repo = makeSkillVersionRepo()
     const skillService = makeSkillService()
-
-    repo.findById.mockImplementation(() =>
-      Effect.succeed({
-        id: 'version-1',
-        projectId: 'project-1',
-        skillId: 'skill-1',
-        version: 3,
-        status: 'draft',
-        content: '# ignored',
-        entryFile: 'SKILL.md',
-        skillStandard: 'aops-skill-package-v1',
-        files: [
-          {
-            path: 'SKILL.md',
-            content: '---\nname: my-skill\ndescription: Example\n---\n',
-            kind: 'instruction',
-          },
-          {
-            path: 'references/checklist.md',
-            content: '# Checklist\n',
-            kind: 'reference',
-          },
-        ],
-        meta: {
-          packageFormat: 'filesystem-skill-package',
-          package: {
-            entryFile: 'SKILL.md',
-            standard: 'aops-skill-package-v1',
-            sourcePath: '/tmp/my-skill',
-            metadata: {
-              source: 'unit-test',
-              purpose: 'export-check',
-            },
-            fileCount: 2,
-          },
+    let currentVersion: any = {
+      id: 'version-1',
+      projectId: 'project-1',
+      skillId: 'skill-1',
+      version: 3,
+      status: 'draft',
+      content: '# ignored',
+      entryFile: 'SKILL.md',
+      skillStandard: 'aops-skill-package-v1',
+      files: [
+        {
+          path: 'SKILL.md',
+          content: '---\nname: my-skill\ndescription: Example\n---\n',
+          kind: 'instruction',
         },
-      } as any)
-    )
-    skillService.getById.mockImplementation(() => Effect.succeed({ id: 'skill-1', name: 'my-skill', scopeId: 'project-1' } as any))
+        {
+          path: 'references/checklist.md',
+          content: '# Checklist\n',
+          kind: 'reference',
+        },
+      ],
+      meta: {
+        packageFormat: 'filesystem-skill-package',
+        package: {
+          entryFile: 'SKILL.md',
+          standard: 'aops-skill-package-v1',
+          sourcePath: '/tmp/my-skill',
+          metadata: {
+            source: 'unit-test',
+            purpose: 'export-check',
+            nested: { fullPath: 'C:\\server\\secret', safe: 'kept' },
+          },
+          fileCount: 2,
+        },
+      },
+    }
+    let currentSkill: any = { id: 'skill-1', name: 'my-skill', scopeId: 'project-1', currentVersionId: null }
+    repo.findById.mockImplementation(() => Effect.succeed(currentVersion))
+    repo.patchById.mockImplementation((_id, patch) => {
+      currentVersion = { ...currentVersion, ...patch }
+      return Effect.succeed(currentVersion)
+    })
+    repo.find.mockImplementation(() => Effect.succeed([currentVersion]))
+    skillService.getById.mockImplementation(() => Effect.succeed(currentSkill))
+    skillService.updateSkill.mockImplementation((_id, patch) => {
+      currentSkill = { ...currentSkill, ...patch }
+      return Effect.succeed(currentSkill)
+    })
 
     const service = new SkillVersionService({
       skillVersionRepository: repo as any,
       skillService: skillService as any,
     })
 
+    await Effect.runPromise(service.publishSkillVersion('version-1', 'unit-test'))
     const result = await Effect.runPromise(service.exportSkillPackage('version-1'))
 
     expect(result.package).toEqual({
@@ -280,21 +296,97 @@ describe('SkillVersionService', () => {
       standard: 'aops-skill-package-v1',
       format: 'filesystem-skill-package',
       fileCount: 2,
-      sourcePath: '/tmp/my-skill',
+      compatibility: {
+        minCliVersion: '0.1.0',
+        maxSchemaVersion: 1,
+      },
       metadata: {
         source: 'unit-test',
         purpose: 'export-check',
+        nested: { safe: 'kept' },
       },
     })
     expect(result.metadata).toEqual({
       source: 'unit-test',
       purpose: 'export-check',
+      nested: { safe: 'kept' },
     })
+    expect(result.manifest).toMatchObject({
+      schemaVersion: 1,
+      assetKind: 'skill-package',
+      name: 'my-skill',
+      version: '3',
+      versionId: 'version-1',
+      entryFile: 'SKILL.md',
+      standard: 'aops-skill-package-v1',
+      provenance: {
+        trustClass: 'verified-hosted-package',
+        expectedDigestSource: 'immutable-hosted-metadata',
+        reference: 'skill-version:version-1',
+      },
+    })
+    expect(result.manifest.packageSha256).toBe('c9633336c4474d48410981a147a1f2e78914431b01dd21302c3a9ddb6c48ad88')
+    expect(result.manifest.files).toEqual([
+      {
+        path: 'SKILL.md',
+        sha256: 'cf1ebd6e097906dcc6b66f1a072f3b8a49875671fb8c0b97b3eaae966bf53967',
+        byteLength: 44,
+      },
+      {
+        path: 'references/checklist.md',
+        sha256: '3c09e7f68bcc2d75004d5bc130b7b6275819a77fdc872d8ccf90b35697d1c203',
+        byteLength: 12,
+      },
+    ])
     expect(result.files.map((file) => file.path)).toEqual(
       expect.arrayContaining(['SKILL.md', 'references/checklist.md'])
     )
     expect(result.projectId).toBe('project-1')
     expect(result.scopeId).toBe('project-1')
+    expect(JSON.stringify(result)).not.toContain('/tmp/my-skill')
+    expect(JSON.stringify(result)).not.toContain('C:\\server\\secret')
+  })
+
+  it('rejects draft, non-current, and mutated published package export', async () => {
+    const repo = makeSkillVersionRepo()
+    const skillService = makeSkillService()
+    let version: any = {
+      id: 'version-1',
+      projectId: 'project-1',
+      skillId: 'skill-1',
+      version: 1,
+      status: 'draft',
+      content: '# Skill',
+      entryFile: 'SKILL.md',
+      skillStandard: 'aops-skill-package-v1',
+      files: [{ path: 'SKILL.md', content: '# Skill' }],
+      meta: {},
+    }
+    let skill: any = { id: 'skill-1', name: 'skill', scopeId: 'project-1', currentVersionId: null }
+    repo.findById.mockImplementation(() => Effect.succeed(version))
+    repo.patchById.mockImplementation((_id, patch) => {
+      version = { ...version, ...patch }
+      return Effect.succeed(version)
+    })
+    repo.find.mockImplementation(() => Effect.succeed([version]))
+    skillService.getById.mockImplementation(() => Effect.succeed(skill))
+    skillService.updateSkill.mockImplementation((_id, patch) => {
+      skill = { ...skill, ...patch }
+      return Effect.succeed(skill)
+    })
+    const service = new SkillVersionService({
+      skillVersionRepository: repo as any,
+      skillService: skillService as any,
+    })
+
+    await expect(Effect.runPromise(service.exportSkillPackage('version-1'))).rejects.toThrow()
+    await Effect.runPromise(service.publishSkillVersion('version-1'))
+    skill = { ...skill, currentVersionId: 'another-version' }
+    await expect(Effect.runPromise(service.exportSkillPackage('version-1'))).rejects.toThrow()
+    skill = { ...skill, currentVersionId: 'version-1' }
+    version = { ...version, files: [{ path: 'SKILL.md', content: '# Mutated' }] }
+    await expect(Effect.runPromise(service.exportSkillPackage('version-1'))).rejects.toThrow()
+    await expect(Effect.runPromise(service.updateSkillVersion('version-1', { content: '# Other' } as any))).rejects.toThrow()
   })
 
   it('uses project scope when creating resource during import', async () => {

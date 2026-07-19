@@ -3,7 +3,17 @@ import { Command } from 'commander'
 import { runAuthImport } from './auth/import.js'
 import { runAuthLogin, runAuthLogout } from './auth/login.js'
 
-const SECRET_ARGV = new Set(['--password', '--access-token', '--refresh-token'])
+const SECRET_ARGV = new Set([
+  '--password',
+  '--access-token',
+  '--refresh-token',
+  '--admin-key',
+  '--repo-url',
+  '--pg-url',
+  '--webhook-secret',
+  '--jwt-secret',
+  '--jwt-enc-secret',
+])
 
 export function guardCommunitySecretArgv(argv: readonly string[]): void {
   for (const token of argv.slice(2)) {

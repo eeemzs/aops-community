@@ -20,6 +20,33 @@ export interface SkillPackageFileInput {
   mimeType?: string
 }
 
+export interface SkillPackageFileDigestV1 {
+  path: string
+  sha256: string
+  byteLength: number
+}
+
+export interface SkillPackageManifestV1 {
+  schemaVersion: 1
+  assetKind: 'skill-package'
+  name: string
+  version: string
+  versionId: string
+  entryFile: typeof CANONICAL_SKILL_PACKAGE_ENTRY_FILE
+  standard: typeof CANONICAL_SKILL_PACKAGE_STANDARD
+  packageSha256: string
+  files: SkillPackageFileDigestV1[]
+  compatibility: {
+    minCliVersion: string
+    maxSchemaVersion: 1
+  }
+  provenance: {
+    trustClass: 'verified-hosted-package'
+    expectedDigestSource: 'immutable-hosted-metadata'
+    reference: string
+  }
+}
+
 export interface SkillPackageBundleInput {
   files: SkillPackageFileInput[]
   entryFile?: string
@@ -34,6 +61,7 @@ export interface SkillPackageDescriptor {
   fileCount: number
   sourcePath?: string
   metadata?: SkillPackageMetadata
+  compatibility?: SkillPackageManifestV1['compatibility']
 }
 
 export interface ImportSkillPackageInput {
@@ -61,11 +89,12 @@ export interface ImportSkillPackageResult {
 export interface ExportSkillPackageResult {
   skillVersionId: string
   skillId: string
-  skillName?: string
+  skillName: string
   projectId: string
   scopeId: string
   files: SkillPackageFileInput[]
   metadata: SkillPackageMetadata
+  manifest: SkillPackageManifestV1
   package: SkillPackageDescriptor
 }
 

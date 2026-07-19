@@ -10,12 +10,34 @@ import { verify as verifySigstore, type Bundle } from 'sigstore'
 import { parseCommunityRelease, type CommunityReleaseIdentity } from './community-lifecycle.js'
 
 const SHA256 = /^sha256:[a-f0-9]{64}$/
+const SHA256_HEX = /^[a-f0-9]{64}$/
 const NPM_INTEGRITY_SHA512 = /^sha512-[A-Za-z0-9+/]{86}==$/
 export const COMMUNITY_GITHUB_OIDC_ISSUER = 'https://token.actions.githubusercontent.com'
 export const COMMUNITY_PUBLIC_SOURCE_REPOSITORY = 'git+https://github.com/eeemzs/aops-community'
 export const COMMUNITY_PUBLIC_CLI_PACKAGE_NAME = '@aopslab/aops-cli'
 
 type ArtifactRef = { ref: string; sha256: string; kind: string }
+export type AgentAssetsPackageRecord = {
+  name: string
+  version: string
+  versionId: string
+  packageSha256: string
+  entryFile: 'SKILL.md'
+  manifestRef: string
+  optional: boolean
+}
+export type AgentAssetsReleaseRecord = {
+  schemaVersion: 1
+  kind: 'aops-community-agent-assets-release-v1'
+  root: 'agent-assets'
+  inventory: { ref: string; sha256: string }
+  projection: { ref: string; sha256: string }
+  gateway: { name: 'aops'; ref: string; sha256: string; byteLength: number }
+  core: AgentAssetsPackageRecord & { optional: false }
+  catalog: { mode: 'optional-inert'; defaultActivation: false; packages: AgentAssetsPackageRecord[] }
+  files: Array<{ ref: string; sha256: string; byteLength: number }>
+  setSha256: string
+}
 type ReleaseManifest = {
   schemaVersion: 1
   releaseVersion: string
@@ -34,6 +56,7 @@ type ReleaseManifest = {
   }
   compose: { ref: string; sha256: string }
   migrations: { setDigest: string; tags: string[]; files: Array<{ ref: string; sha256: string }> }
+  agentAssets: AgentAssetsReleaseRecord
   legal: {
     license: { ref: 'LICENSE'; sha256: string }
     notice: { ref: 'NOTICE'; sha256: string }
@@ -54,6 +77,7 @@ export type CommunityVerifiedReleaseDescriptor = {
   certificateIdentity: string
   certificateOidcIssuer: string
   verifiedArtifactCount: number
+  agentAssets: AgentAssetsReleaseRecord
 }
 
 export type CommunityVerifiedReleaseBundle = CommunityVerifiedReleaseDescriptor & {
@@ -117,6 +141,103 @@ function assertDigest(value: unknown, code: string): asserts value is string {
   if (typeof value !== 'string' || !SHA256.test(value)) fail(code)
 }
 
+function assertHexDigest(value: unknown, code: string): asserts value is string {
+  if (typeof value !== 'string' || !SHA256_HEX.test(value)) fail(code)
+}
+
+function compareUnsignedUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, 'utf8'), Buffer.from(right, 'utf8'))
+}
+
+function agentAssetsSetSha256(files: AgentAssetsReleaseRecord['files']): string {
+  const hash = createHash('sha256')
+  for (const file of files) {
+    hash.update(Buffer.from(file.ref, 'utf8'))
+    hash.update(Buffer.from([0]))
+    hash.update(file.sha256, 'ascii')
+    hash.update(Buffer.from('\n', 'ascii'))
+  }
+  return hash.digest('hex')
+}
+
+function assertAgentAssetsPackageRecord(value: unknown, code: string): asserts value is AgentAssetsPackageRecord {
+  assertExactObject(value, ['name', 'version', 'versionId', 'packageSha256', 'entryFile', 'manifestRef', 'optional'], code)
+  const record = value as unknown as AgentAssetsPackageRecord
+  if (
+    typeof record.name !== 'string' || !record.name ||
+    typeof record.version !== 'string' || !record.version ||
+    typeof record.versionId !== 'string' || !record.versionId ||
+    record.entryFile !== 'SKILL.md' ||
+    typeof record.manifestRef !== 'string' || !record.manifestRef.startsWith('agent-assets/') ||
+    typeof record.optional !== 'boolean'
+  ) fail(code)
+  assertHexDigest(record.packageSha256, `${code}_package_digest_invalid`)
+}
+
+function assertAgentAssetsRelease(value: unknown): asserts value is AgentAssetsReleaseRecord {
+  assertExactObject(
+    value,
+    ['schemaVersion', 'kind', 'root', 'inventory', 'projection', 'gateway', 'core', 'catalog', 'files', 'setSha256'],
+    'community_release_agent_assets_invalid',
+  )
+  const record = value as unknown as AgentAssetsReleaseRecord
+  if (
+    record.schemaVersion !== 1 ||
+    record.kind !== 'aops-community-agent-assets-release-v1' ||
+    record.root !== 'agent-assets'
+  ) fail('community_release_agent_assets_identity_invalid')
+  assertExactObject(record.inventory, ['ref', 'sha256'], 'community_release_agent_assets_inventory_invalid')
+  assertExactObject(record.projection, ['ref', 'sha256'], 'community_release_agent_assets_projection_invalid')
+  assertExactObject(record.gateway, ['name', 'ref', 'sha256', 'byteLength'], 'community_release_agent_assets_gateway_invalid')
+  for (const pointer of [record.inventory, record.projection, record.gateway]) {
+    if (typeof pointer.ref !== 'string' || !pointer.ref.startsWith('agent-assets/')) {
+      fail('community_release_agent_assets_ref_invalid')
+    }
+    assertHexDigest(pointer.sha256, 'community_release_agent_assets_digest_invalid')
+  }
+  if (
+    record.gateway.name !== 'aops' ||
+    !Number.isSafeInteger(record.gateway.byteLength) || record.gateway.byteLength < 1
+  ) fail('community_release_agent_assets_gateway_invalid')
+  assertAgentAssetsPackageRecord(record.core, 'community_release_agent_assets_core_invalid')
+  if (record.core.name !== 'aops' || record.core.optional !== false) fail('community_release_agent_assets_core_invalid')
+  assertExactObject(record.catalog, ['mode', 'defaultActivation', 'packages'], 'community_release_agent_assets_catalog_invalid')
+  if (
+    record.catalog.mode !== 'optional-inert' ||
+    record.catalog.defaultActivation !== false ||
+    !Array.isArray(record.catalog.packages)
+  ) fail('community_release_agent_assets_catalog_invalid')
+  for (const packageRecord of record.catalog.packages) {
+    assertAgentAssetsPackageRecord(packageRecord, 'community_release_agent_assets_catalog_package_invalid')
+    if (packageRecord.optional !== true) fail('community_release_agent_assets_catalog_package_invalid')
+  }
+  if (!Array.isArray(record.files) || record.files.length === 0) fail('community_release_agent_assets_files_invalid')
+  const refs = record.files.map((file) => {
+    assertExactObject(file, ['ref', 'sha256', 'byteLength'], 'community_release_agent_assets_file_invalid')
+    if (
+      typeof file.ref !== 'string' || !file.ref.startsWith('agent-assets/') ||
+      !Number.isSafeInteger(file.byteLength) || file.byteLength < 0
+    ) fail('community_release_agent_assets_file_invalid')
+    assertHexDigest(file.sha256, 'community_release_agent_assets_file_digest_invalid')
+    return file.ref
+  })
+  if (JSON.stringify(refs) !== JSON.stringify([...new Set(refs)].sort(compareUnsignedUtf8))) {
+    fail('community_release_agent_assets_file_order_invalid')
+  }
+  assertHexDigest(record.setSha256, 'community_release_agent_assets_set_digest_invalid')
+  if (record.setSha256 !== agentAssetsSetSha256(record.files)) fail('community_release_agent_assets_set_digest_mismatch')
+  const closure = new Set(refs)
+  for (const ref of [
+    record.inventory.ref,
+    record.projection.ref,
+    record.gateway.ref,
+    record.core.manifestRef,
+    ...record.catalog.packages.map((entry) => entry.manifestRef),
+  ]) {
+    if (!closure.has(ref)) fail('community_release_agent_assets_pointer_not_in_closure', ref)
+  }
+}
+
 function parseManifest(content: string): ReleaseManifest {
   let value: unknown
   try {
@@ -133,7 +254,7 @@ function parseManifest(content: string): ReleaseManifest {
   ) {
     fail('community_release_manifest_invalid')
   }
-  if (!manifest.source || !manifest.cli || !manifest.compose || !manifest.migrations || !manifest.legal || !manifest.evidence) {
+  if (!manifest.source || !manifest.cli || !manifest.compose || !manifest.migrations || !manifest.agentAssets || !manifest.legal || !manifest.evidence) {
     fail('community_release_manifest_incomplete')
   }
   if (manifest.source.repository !== COMMUNITY_PUBLIC_SOURCE_REPOSITORY) {
@@ -196,6 +317,7 @@ function parseManifest(content: string): ReleaseManifest {
     fail('community_release_migration_files_invalid')
   }
   for (const entry of manifest.migrations.files) assertDigest(entry?.sha256, 'community_release_migration_file_digest_invalid')
+  assertAgentAssetsRelease(manifest.agentAssets)
   return manifest
 }
 
@@ -315,6 +437,7 @@ export async function verifyCommunityReleaseDescriptor(options: {
     identity,
     ...certificate,
     verifiedArtifactCount: 3,
+    agentAssets: manifest.agentAssets,
   }
 }
 
@@ -336,6 +459,11 @@ export async function verifyCommunityReleaseBundle(options: {
     { ref: manifest.cli.artifactRef, sha256: manifest.cli.artifactSha256, kind: 'cli' },
     { ref: manifest.compose.ref, sha256: manifest.compose.sha256, kind: 'compose' },
     ...manifest.migrations.files.map((entry) => ({ ...entry, kind: 'migration' })),
+    ...manifest.agentAssets.files.map((entry) => ({
+      ref: entry.ref,
+      sha256: `sha256:${entry.sha256}`,
+      kind: 'agent_assets',
+    })),
     { ref: manifest.legal.license.ref, sha256: manifest.legal.license.sha256, kind: 'legal_license' },
     { ref: manifest.legal.notice.ref, sha256: manifest.legal.notice.sha256, kind: 'legal_notice' },
     { ref: manifest.legal.thirdPartyNotices.ref, sha256: manifest.legal.thirdPartyNotices.sha256, kind: 'legal_third_party_notices' },

@@ -75,6 +75,59 @@ const OPERATION_DOCS_OVERRIDES = new Map<string, AgentspaceDomainCapabilityOpera
     },
   ],
   [
+    normalizeAgentspaceOperationId('skill.search'),
+    {
+      summary: 'Search current published hosted skills using deterministic metadata-only on-read ranking.',
+      notes: [
+        'Search reads raw Skill name/shortDescription/description/tags plus current published SkillVersion version/entryFile/skillStandard and approved metadata keys.',
+        'It does not read package bodies, build a persisted index, call an LLM, or use embeddings.',
+        'Each candidate includes immutable package and entry-content SHA-256, a trust class computed from validated publish-time metadata, matchedBy, and a short deterministic score rationale.',
+        'Versions without a valid immutable package manifest are excluded; results are a deterministic ranked prefix bounded to at most five candidates and 2 KiB with exact skill-version refs.',
+      ],
+    },
+  ],
+  [
+    normalizeAgentspaceOperationId('skill.ask'),
+    {
+      summary: 'Project a bounded human-readable answer from one skill.search retrieval result.',
+      notes: [
+        'Ask delegates to the same metadata-only search implementation and does not run a second retrieval.',
+        'The answer contains candidate identity, digest, trust, and ranking evidence only; package bodies are not loaded and the complete projection remains within 2 KiB.',
+      ],
+    },
+  ],
+  [
+    normalizeAgentspaceOperationId('official-catalog.inspect'),
+    {
+      summary: 'Inspect the one reserved, inert AOPS official skill catalog without reading user-owned scopes.',
+      notes: [
+        'The fixed scope slug is aops-official-catalog; a conflicting project, state record, or current pointer fails closed.',
+        'The snapshot includes append-only published SkillVersion identities and the CAS current-version map, but has no activation, mission, or policy effects.',
+      ],
+    },
+  ],
+  [
+    normalizeAgentspaceOperationId('official-catalog.reconcile'),
+    {
+      summary: 'Atomically append verified release packages and compare-and-swap the reserved catalog current map.',
+      notes: [
+        'The operation revalidates package closure, SHA-256 evidence, signed-release provenance metadata, expected revision, prior receipt, desired map, and actions.',
+        'Skill and SkillVersion history is append-only; the transaction writes one durable receipt and never activates a skill or changes mission/policy state.',
+        'This composite is the only supported write boundary; clients must not emulate it with generic Skill CRUD calls.',
+      ],
+    },
+  ],
+  [
+    normalizeAgentspaceOperationId('official-catalog.rollback'),
+    {
+      summary: 'Atomically restore the current map captured before a selected official-catalog receipt.',
+      notes: [
+        'Rollback is receipt-targeted and revision-guarded, appends a new receipt, and never deletes SkillVersion or receipt history.',
+        'It has no activation, mission, policy, or user-scope effects.',
+      ],
+    },
+  ],
+  [
     normalizeAgentspaceOperationId('skill-version.import-skill-package'),
     {
       summary: 'Import a canonical filesystem skill package into skill and skill-version records.',
@@ -91,8 +144,10 @@ const OPERATION_DOCS_OVERRIDES = new Map<string, AgentspaceDomainCapabilityOpera
     {
       summary: 'Export a canonical filesystem skill package from a skill version.',
       notes: [
-        'Returns the canonical filesystem package rooted at SKILL.md.',
-        'Export output is intended to round-trip back into import-skill-package without compatibility shims.',
+        'Exports only the skill currentVersionId when that version is published and carries immutable publish-time digest metadata.',
+        'Returns package content plus aops-skill-package-v1 per-file and package SHA-256 evidence rooted at SKILL.md.',
+        'The trusted manifest provenance is verified-hosted-package from immutable-hosted-metadata.',
+        'Client export strips server-local path fields; materialize-skill-package remains the separate server filesystem operation.',
       ],
     },
   ],

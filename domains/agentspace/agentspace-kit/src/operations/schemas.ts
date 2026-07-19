@@ -226,6 +226,254 @@ const DB_OPTIONS_SCHEMA: JsonSchema = {
   type: 'object',
   additionalProperties: true,
 }
+const SKILL_DISCOVERY_INPUT_SCHEMA: JsonSchema = objectSchema({
+  query: { type: 'string', minLength: 1, maxLength: 256 },
+  scopeId: NON_EMPTY_STRING_SCHEMA,
+  scopeResolution: { type: 'string', enum: ['explicit', 'cascade'] },
+  limit: { type: 'integer', minimum: 1, maximum: 5 },
+}, ['query'])
+const SHA256_SCHEMA: JsonSchema = { type: 'string', pattern: '^[a-f0-9]{64}$' }
+const SKILL_DISCOVERY_MATCH_FIELD_SCHEMA: JsonSchema = {
+  anyOf: [
+    { enum: ['name', 'shortDescription', 'description', 'tags', 'version', 'entryFile', 'skillStandard'] },
+    { type: 'string', pattern: '^meta\\.[A-Za-z0-9_.-]+$', maxLength: 96 },
+  ],
+}
+const SKILL_DISCOVERY_CANDIDATE_SCHEMA: JsonSchema = objectSchema({
+  skillId: NON_EMPTY_STRING_SCHEMA,
+  versionId: NON_EMPTY_STRING_SCHEMA,
+  exactRef: { type: 'string', pattern: '^skill-version:.+' },
+  name: { type: 'string', minLength: 1, maxLength: 80 },
+  shortDescription: { type: 'string', minLength: 1, maxLength: 96 },
+  version: NON_EMPTY_STRING_SCHEMA,
+  entryFile: NON_EMPTY_STRING_SCHEMA,
+  skillStandard: NON_EMPTY_STRING_SCHEMA,
+  packageSha256: SHA256_SCHEMA,
+  contentSha256: SHA256_SCHEMA,
+  origin: { const: 'hosted' },
+  computedTrustClass: { const: 'verified-hosted-package' },
+  score: { type: 'integer', minimum: 1 },
+  matchedBy: {
+    type: 'array',
+    minItems: 1,
+    maxItems: 5,
+    uniqueItems: true,
+    items: SKILL_DISCOVERY_MATCH_FIELD_SCHEMA,
+  },
+  rationale: { type: 'string', minLength: 1, maxLength: 160 },
+}, [
+  'skillId',
+  'versionId',
+  'exactRef',
+  'name',
+  'version',
+  'entryFile',
+  'skillStandard',
+  'packageSha256',
+  'contentSha256',
+  'origin',
+  'computedTrustClass',
+  'score',
+  'matchedBy',
+  'rationale',
+])
+const SKILL_SEARCH_OUTPUT_SCHEMA: JsonSchema = objectSchema({
+  query: NON_EMPTY_STRING_SCHEMA,
+  normalizedQuery: NON_EMPTY_STRING_SCHEMA,
+  count: { type: 'integer', minimum: 0, maximum: 5 },
+  candidates: { type: 'array', maxItems: 5, items: SKILL_DISCOVERY_CANDIDATE_SCHEMA },
+}, ['query', 'normalizedQuery', 'count', 'candidates'])
+const SKILL_ASK_OUTPUT_SCHEMA: JsonSchema = objectSchema({
+  query: NON_EMPTY_STRING_SCHEMA,
+  normalizedQuery: NON_EMPTY_STRING_SCHEMA,
+  count: { type: 'integer', minimum: 0, maximum: 5 },
+  candidates: { type: 'array', maxItems: 5, items: SKILL_DISCOVERY_CANDIDATE_SCHEMA },
+  answer: { type: 'string', maxLength: 1024 },
+}, ['query', 'normalizedQuery', 'count', 'candidates', 'answer'])
+const SKILL_PACKAGE_FILE_DIGEST_SCHEMA: JsonSchema = objectSchema({
+  path: NON_EMPTY_STRING_SCHEMA,
+  sha256: SHA256_SCHEMA,
+  byteLength: { type: 'integer', minimum: 0 },
+}, ['path', 'sha256', 'byteLength'])
+const SKILL_PACKAGE_COMPATIBILITY_SCHEMA: JsonSchema = objectSchema({
+  minCliVersion: NON_EMPTY_STRING_SCHEMA,
+  maxSchemaVersion: { const: 1 },
+}, ['minCliVersion', 'maxSchemaVersion'])
+const SKILL_PACKAGE_MANIFEST_SCHEMA: JsonSchema = objectSchema({
+  schemaVersion: { const: 1 },
+  assetKind: { const: 'skill-package' },
+  name: NON_EMPTY_STRING_SCHEMA,
+  version: NON_EMPTY_STRING_SCHEMA,
+  versionId: NON_EMPTY_STRING_SCHEMA,
+  entryFile: { const: 'SKILL.md' },
+  standard: { const: 'aops-skill-package-v1' },
+  packageSha256: SHA256_SCHEMA,
+  files: { type: 'array', minItems: 1, items: SKILL_PACKAGE_FILE_DIGEST_SCHEMA },
+  compatibility: SKILL_PACKAGE_COMPATIBILITY_SCHEMA,
+  provenance: objectSchema({
+    trustClass: { const: 'verified-hosted-package' },
+    expectedDigestSource: { const: 'immutable-hosted-metadata' },
+    reference: NON_EMPTY_STRING_SCHEMA,
+  }, ['trustClass', 'expectedDigestSource', 'reference']),
+}, ['schemaVersion', 'assetKind', 'name', 'version', 'versionId', 'entryFile', 'standard', 'packageSha256', 'files', 'compatibility', 'provenance'])
+const SKILL_PACKAGE_TRANSFER_FILE_SCHEMA: JsonSchema = objectSchema({
+  path: NON_EMPTY_STRING_SCHEMA,
+  content: { type: 'string' },
+  kind: { type: 'string' },
+  encoding: { type: 'string' },
+  mimeType: { type: 'string' },
+}, ['path', 'content'])
+const SKILL_PACKAGE_EXPORT_OUTPUT_SCHEMA: JsonSchema = objectSchema({
+  skillVersionId: NON_EMPTY_STRING_SCHEMA,
+  skillId: NON_EMPTY_STRING_SCHEMA,
+  skillName: NON_EMPTY_STRING_SCHEMA,
+  projectId: NON_EMPTY_STRING_SCHEMA,
+  scopeId: NON_EMPTY_STRING_SCHEMA,
+  files: { type: 'array', minItems: 1, items: SKILL_PACKAGE_TRANSFER_FILE_SCHEMA },
+  metadata: { type: 'object', additionalProperties: true },
+  manifest: SKILL_PACKAGE_MANIFEST_SCHEMA,
+  package: objectSchema({
+    entryFile: { const: 'SKILL.md' },
+    standard: { const: 'aops-skill-package-v1' },
+    format: { const: 'filesystem-skill-package' },
+    fileCount: { type: 'integer', minimum: 1 },
+    metadata: { type: 'object', additionalProperties: true },
+    compatibility: SKILL_PACKAGE_COMPATIBILITY_SCHEMA,
+  }, ['entryFile', 'standard', 'format', 'fileCount', 'compatibility']),
+}, ['skillVersionId', 'skillId', 'skillName', 'projectId', 'scopeId', 'files', 'metadata', 'manifest', 'package'])
+const OFFICIAL_CATALOG_SCOPE_SCHEMA: JsonSchema = objectSchema({
+  schemaVersion: { const: 1 },
+  slug: { const: 'aops-official-catalog' },
+  kind: { const: 'agentspace-skill-catalog' },
+  owner: { const: 'aops-community-setup' },
+  reserved: { const: true },
+}, ['schemaVersion', 'slug', 'kind', 'owner', 'reserved'])
+const OFFICIAL_CATALOG_CURRENT_MAP_SCHEMA: JsonSchema = {
+  type: 'object',
+  propertyNames: { type: 'string', minLength: 1 },
+  additionalProperties: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+}
+const OFFICIAL_CATALOG_VERSION_SCHEMA: JsonSchema = objectSchema({
+  recordId: NON_EMPTY_STRING_SCHEMA,
+  skillId: NON_EMPTY_STRING_SCHEMA,
+  name: NON_EMPTY_STRING_SCHEMA,
+  versionId: NON_EMPTY_STRING_SCHEMA,
+  packageSha256: SHA256_SCHEMA,
+  releaseSetSha256: SHA256_SCHEMA,
+  status: { const: 'published' },
+  inert: { const: true },
+}, ['recordId', 'skillId', 'name', 'versionId', 'packageSha256', 'releaseSetSha256', 'status', 'inert'])
+const OFFICIAL_CATALOG_SNAPSHOT_SCHEMA: JsonSchema = objectSchema({
+  schemaVersion: { const: 1 },
+  scopeSlug: { const: 'aops-official-catalog' },
+  state: { type: 'string', enum: ['absent', 'ready'] },
+  scopeId: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+  projectId: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+  catalogRevision: { type: 'integer', minimum: 0 },
+  currentVersionMap: OFFICIAL_CATALOG_CURRENT_MAP_SCHEMA,
+  versions: { type: 'array', items: OFFICIAL_CATALOG_VERSION_SCHEMA },
+  lastReceiptId: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+}, ['schemaVersion', 'scopeSlug', 'state', 'scopeId', 'projectId', 'catalogRevision', 'currentVersionMap', 'versions', 'lastReceiptId'])
+const OFFICIAL_CATALOG_MANIFEST_SCHEMA: JsonSchema = objectSchema({
+  schemaVersion: { const: 1 },
+  assetKind: { const: 'skill-package' },
+  name: NON_EMPTY_STRING_SCHEMA,
+  version: NON_EMPTY_STRING_SCHEMA,
+  versionId: NON_EMPTY_STRING_SCHEMA,
+  entryFile: { const: 'SKILL.md' },
+  standard: { const: 'aops-skill-package-v1' },
+  packageSha256: SHA256_SCHEMA,
+  files: { type: 'array', minItems: 1, maxItems: 256, items: SKILL_PACKAGE_FILE_DIGEST_SCHEMA },
+  compatibility: SKILL_PACKAGE_COMPATIBILITY_SCHEMA,
+  provenance: objectSchema({
+    trustClass: { const: 'verified-hosted-package' },
+    expectedDigestSource: { const: 'immutable-hosted-metadata' },
+    reference: NON_EMPTY_STRING_SCHEMA,
+    releaseSha256: SHA256_SCHEMA,
+    signatureRef: NON_EMPTY_STRING_SCHEMA,
+  }, ['trustClass', 'expectedDigestSource', 'reference']),
+}, ['schemaVersion', 'assetKind', 'name', 'version', 'versionId', 'entryFile', 'standard', 'packageSha256', 'files', 'provenance'])
+const OFFICIAL_CATALOG_FILE_SCHEMA: JsonSchema = objectSchema({
+  path: NON_EMPTY_STRING_SCHEMA,
+  sha256: SHA256_SCHEMA,
+  byteLength: { type: 'integer', minimum: 0, maximum: 524288 },
+  content: { type: 'string' },
+}, ['path', 'sha256', 'byteLength', 'content'])
+const OFFICIAL_CATALOG_PACKAGE_SCHEMA: JsonSchema = objectSchema({
+  name: NON_EMPTY_STRING_SCHEMA,
+  version: NON_EMPTY_STRING_SCHEMA,
+  versionId: NON_EMPTY_STRING_SCHEMA,
+  packageSha256: SHA256_SCHEMA,
+  manifestSha256: SHA256_SCHEMA,
+  entryFile: { const: 'SKILL.md' },
+  manifest: OFFICIAL_CATALOG_MANIFEST_SCHEMA,
+  files: { type: 'array', minItems: 1, maxItems: 256, items: OFFICIAL_CATALOG_FILE_SCHEMA },
+  meta: objectSchema({
+    aopsOfficialCatalog: objectSchema({
+      schemaVersion: { const: 1 },
+      scopeSlug: { const: 'aops-official-catalog' },
+      source: { const: 'signed-community-release' },
+      releaseSetSha256: SHA256_SCHEMA,
+      manifestSha256: SHA256_SCHEMA,
+      packageSha256: SHA256_SCHEMA,
+      inert: { const: true },
+    }, ['schemaVersion', 'scopeSlug', 'source', 'releaseSetSha256', 'manifestSha256', 'packageSha256', 'inert']),
+  }, ['aopsOfficialCatalog']),
+}, ['name', 'version', 'versionId', 'packageSha256', 'manifestSha256', 'entryFile', 'manifest', 'files', 'meta'])
+const OFFICIAL_CATALOG_ACTION_SCHEMA: JsonSchema = objectSchema({
+  name: NON_EMPTY_STRING_SCHEMA,
+  action: { type: 'string', enum: ['append-version', 'set-current', 'clear-current', 'unchanged'] },
+  versionId: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+  packageSha256: { anyOf: [SHA256_SCHEMA, { type: 'null' }] },
+  existingRecordId: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+}, ['name', 'action', 'versionId', 'packageSha256', 'existingRecordId'])
+const OFFICIAL_CATALOG_RECONCILE_PLAN_SCHEMA: JsonSchema = objectSchema({
+  schemaVersion: { const: 1 },
+  kind: { const: 'aops-official-catalog-reconcile-plan-v1' },
+  scope: OFFICIAL_CATALOG_SCOPE_SCHEMA,
+  releaseSetSha256: SHA256_SCHEMA,
+  expectedCatalogRevision: { type: 'integer', minimum: 0 },
+  expectedPreviousReceiptId: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+  expectedCurrentVersionMap: OFFICIAL_CATALOG_CURRENT_MAP_SCHEMA,
+  desiredPackageVersionMap: OFFICIAL_CATALOG_CURRENT_MAP_SCHEMA,
+  packages: { type: 'array', minItems: 1, items: OFFICIAL_CATALOG_PACKAGE_SCHEMA },
+  actions: { type: 'array', items: OFFICIAL_CATALOG_ACTION_SCHEMA },
+  mutationRequired: { type: 'boolean' },
+  activationEffects: { type: 'array', maxItems: 0 },
+  historyDeleteCount: { const: 0 },
+  idempotencyKey: NON_EMPTY_STRING_SCHEMA,
+}, ['schemaVersion', 'kind', 'scope', 'releaseSetSha256', 'expectedCatalogRevision', 'expectedPreviousReceiptId', 'expectedCurrentVersionMap', 'desiredPackageVersionMap', 'packages', 'actions', 'mutationRequired', 'activationEffects', 'historyDeleteCount', 'idempotencyKey'])
+const OFFICIAL_CATALOG_ROLLBACK_REQUEST_SCHEMA: JsonSchema = objectSchema({
+  schemaVersion: { const: 1 },
+  kind: { const: 'aops-official-catalog-rollback-request-v1' },
+  scope: OFFICIAL_CATALOG_SCOPE_SCHEMA,
+  receiptId: NON_EMPTY_STRING_SCHEMA,
+  expectedCatalogRevision: { type: 'integer', minimum: 0 },
+  idempotencyKey: NON_EMPTY_STRING_SCHEMA,
+  deleteHistory: { const: false },
+  activationEffects: { type: 'array', maxItems: 0 },
+}, ['schemaVersion', 'kind', 'scope', 'receiptId', 'expectedCatalogRevision', 'idempotencyKey', 'deleteHistory', 'activationEffects'])
+const OFFICIAL_CATALOG_RECEIPT_SCHEMA: JsonSchema = objectSchema({
+  schemaVersion: { const: 1 },
+  kind: { const: 'aops-official-catalog-receipt-v1' },
+  receiptId: NON_EMPTY_STRING_SCHEMA,
+  operation: { type: 'string', enum: ['reconcile', 'rollback'] },
+  scopeSlug: { const: 'aops-official-catalog' },
+  scopeId: NON_EMPTY_STRING_SCHEMA,
+  projectId: NON_EMPTY_STRING_SCHEMA,
+  catalogRevision: { type: 'integer', minimum: 1 },
+  releaseSetSha256: SHA256_SCHEMA,
+  priorCurrentVersionMap: OFFICIAL_CATALOG_CURRENT_MAP_SCHEMA,
+  currentVersionMap: OFFICIAL_CATALOG_CURRENT_MAP_SCHEMA,
+  packageSha256: { type: 'array', uniqueItems: true, items: SHA256_SCHEMA },
+  historyDeleteCount: { const: 0 },
+  activationEffects: { type: 'array', maxItems: 0 },
+  previousReceiptId: { anyOf: [NON_EMPTY_STRING_SCHEMA, { type: 'null' }] },
+  createdAt: NON_EMPTY_STRING_SCHEMA,
+}, ['schemaVersion', 'kind', 'receiptId', 'operation', 'scopeSlug', 'scopeId', 'projectId', 'catalogRevision', 'releaseSetSha256', 'priorCurrentVersionMap', 'currentVersionMap', 'packageSha256', 'historyDeleteCount', 'activationEffects', 'previousReceiptId', 'createdAt'])
+const OFFICIAL_CATALOG_INSPECT_INPUT_SCHEMA: JsonSchema = objectSchema({ scope: OFFICIAL_CATALOG_SCOPE_SCHEMA }, ['scope'])
+const OFFICIAL_CATALOG_RECONCILE_INPUT_SCHEMA: JsonSchema = objectSchema({ plan: OFFICIAL_CATALOG_RECONCILE_PLAN_SCHEMA }, ['plan'])
+const OFFICIAL_CATALOG_ROLLBACK_INPUT_SCHEMA: JsonSchema = objectSchema({ request: OFFICIAL_CATALOG_ROLLBACK_REQUEST_SCHEMA }, ['request'])
 const CHAT_ROOM_STATUS_SCHEMA: JsonSchema = { type: 'string', enum: ['active', 'archived'] }
 const CHAT_MEMBER_STATUS_SCHEMA: JsonSchema = { type: 'string', enum: ['active', 'left'] }
 const CHAT_MESSAGE_KIND_SCHEMA: JsonSchema = { type: 'string', enum: ['message'] }
@@ -561,6 +809,20 @@ const INPUT_SCHEMA_OVERRIDES_BY_OPERATION_ID = new Map<string, JsonSchema>([
   [normalizeAgentspaceOperationId('project-path.upsert-project-path'), PROJECT_PATH_UPSERT_INPUT_SCHEMA],
   [normalizeAgentspaceOperationId('resource.create'), RESOURCE_CREATE_INPUT_SCHEMA],
   [normalizeAgentspaceOperationId('resource.create-resource'), RESOURCE_CREATE_INPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('skill.ask'), SKILL_DISCOVERY_INPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('skill.search'), SKILL_DISCOVERY_INPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('official-catalog.inspect'), OFFICIAL_CATALOG_INSPECT_INPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('official-catalog.reconcile'), OFFICIAL_CATALOG_RECONCILE_INPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('official-catalog.rollback'), OFFICIAL_CATALOG_ROLLBACK_INPUT_SCHEMA],
+])
+
+const OUTPUT_SCHEMA_OVERRIDES_BY_OPERATION_ID = new Map<string, JsonSchema>([
+  [normalizeAgentspaceOperationId('skill.ask'), SKILL_ASK_OUTPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('skill.search'), SKILL_SEARCH_OUTPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('skill-version.export-skill-package'), SKILL_PACKAGE_EXPORT_OUTPUT_SCHEMA],
+  [normalizeAgentspaceOperationId('official-catalog.inspect'), OFFICIAL_CATALOG_SNAPSHOT_SCHEMA],
+  [normalizeAgentspaceOperationId('official-catalog.reconcile'), OFFICIAL_CATALOG_RECEIPT_SCHEMA],
+  [normalizeAgentspaceOperationId('official-catalog.rollback'), OFFICIAL_CATALOG_RECEIPT_SCHEMA],
 ])
 
 function inferOperationKind(operationId: string): AgentspaceOperationKind {
@@ -718,6 +980,9 @@ export function getAgentspaceContractSchema(ref: string): JsonSchema | null {
     const inputSchema = buildInputSchemaFromCatalog(normalizedOperationId)
     if (inputSchema) return inputSchema
   }
+
+  const outputOverride = OUTPUT_SCHEMA_OVERRIDES_BY_OPERATION_ID.get(normalizedOperationId)
+  if (parsed.direction === 'output' && outputOverride) return outputOverride
 
   const kind = inferOperationKind(normalizedOperationId)
   return getDefaultSchemaForKind(kind, parsed.direction)
