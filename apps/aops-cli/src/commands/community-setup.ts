@@ -74,8 +74,9 @@ installed Community runtime; \`--catalog-release\` is only an explicit override.
 changes the offline client core. Reconcile and rollback remain explicit under
 \`aops-cli setup catalog\`.
 `)
-    .action(async (options: SetupInitOptions) => {
-      await runCommunitySetupInit(options)
+    .action(async (commandOptions: SetupInitOptions & { catalog?: boolean }) => {
+      const { catalog, ...options } = commandOptions
+      await runCommunitySetupInit({ ...options, noCatalog: catalog === false })
     })
 
   command.command('server-env')
