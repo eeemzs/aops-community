@@ -26,7 +26,7 @@
     "community": {
       "repository": "https://github.com/eeemzs/aops-community",
       "commitBinding": "release.json#/source/commit",
-      "rawFileInventoryDigest": "sha256:43555a15b173c4bca01949313e0a96ff569d5b32ccd5a19a157af3afd93ba091"
+      "rawFileInventoryDigest": "sha256:7c73876b30d10ce8c31099239b5560745b2674ef0bfb3d1b54f4aad217c947ad"
     }
   },
   "cleanBuildRequirement": {
@@ -55,9 +55,9 @@
         "path": "apps/aops-cli",
         "tree": {
           "algorithm": "sha256",
-          "digest": "sha256:bba842f4904fbdbd63e65513dcb04c74bfae8bcde785b06ab8ebef5c14135c19",
+          "digest": "sha256:d7a740cbc48c85525e0c2d38af1bff66dddf8680610a2a63618a7225a294f35a",
           "fileCount": 118,
-          "byteLength": 3197025
+          "byteLength": 3197146
         }
       }
     },
