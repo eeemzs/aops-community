@@ -27,7 +27,7 @@ Every alternative uses the public CLI package from npm. Install the version that
 
 ```sh
 npm install --global @aopslab/aops-cli@0.1.0
-aops-cli --version
+aops-cli --cli-version
 ```
 
 > `@aopslab/aops-cli@0.1.0` is not published yet. The normal installation commands below become available after the npm package is published. The repository-local source invocation described at the end is for CLI development, not the normal user installation path.
