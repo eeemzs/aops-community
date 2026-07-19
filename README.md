@@ -19,18 +19,16 @@ Choose one of these independent alternatives:
 - **Alternative A3 — Run the ready AOPS stack with Docker.** No source clone or application build.
 - **Alternative A4 — Connect to an existing Community server through SSH.** No local server, PostgreSQL, or Docker required on the client computer.
 
-The examples below use release `0.1.0`. Use one matching version for the source, CLI, and server. Local server installations should have at least 4 GB of free memory and 2 GB of free disk space.
+The examples below use release `0.1.1`. Use one matching version for the source, CLI, and server. Local server installations should have at least 4 GB of free memory and 2 GB of free disk space.
 
 ### Install the AOPS CLI
 
 Every alternative uses the public CLI package from npm. Install the version that matches the AOPS source or server release:
 
 ```sh
-npm install --global @aopslab/aops-cli@0.1.0
+npm install --global @aopslab/aops-cli@0.1.1
 aops-cli --cli-version
 ```
-
-> `@aopslab/aops-cli@0.1.0` is not published yet. The normal installation commands below become available after the npm package is published. The repository-local source invocation described at the end is for CLI development, not the normal user installation path.
 
 ### Start with the guided setup
 
@@ -44,6 +42,29 @@ It inspects the computer, explains the four alternatives, asks only for missing
 choices, and shows what is required before changing anything. Choose Alternative
 A1, A2, A3, or A4 in the prompt. The explicit commands below are useful for
 repeatable or non-interactive setup, but they use the same setup engine.
+
+### Global AOPS skill gateway
+
+Guided setup can install one verified global `aops` gateway for Codex, Claude,
+or both. It does not copy every AOPS skill into the agent runtime. The gateway
+opens the small offline core first, searches only metadata when another
+capability is needed, and loads the selected exact skill on demand.
+
+For explicit or non-interactive setup, add `--agent-assets install`. After
+installation, these read-only commands show the active gateway and perform a
+bounded capability search:
+
+```sh
+aops-cli assets status --verify quick --json
+aops-cli assets resolve --gateway aops --json
+aops-cli assets discover --query "project planning" --limit 5 --json
+```
+
+An AI agent can therefore start from the single global `aops` skill and
+search for the task-relevant capability instead of preloading the full skill
+catalog. Use `aops-cli assets resolve --name <exact-name> --json` only after
+choosing an exact search result. Repository `.aops` caches do not replace the
+installed gateway.
 
 ## Security and remote access
 
@@ -76,7 +97,7 @@ Use this option when PostgreSQL 17 is already available locally, on your network
 Requirements: Git, Node.js 22.9.0 or newer, pnpm 11.9.0, and a reachable PostgreSQL 17 database.
 
 ```sh
-git clone --branch v0.1.0 --depth 1 https://github.com/eeemzs/aops-community.git aops-community
+git clone --branch v0.1.1 --depth 1 https://github.com/eeemzs/aops-community.git aops-community
 cd aops-community
 corepack enable
 corepack install --global pnpm@11.9.0
@@ -104,7 +125,7 @@ When `AOPS_PG_SSL_ROOT_CERT` is relative, it is resolved beside the global env
 file. Apply Alternative A1 and check the server:
 
 ```sh
-aops-cli setup init --path 1 --source-root . --postgres-tls verify-full --apply
+aops-cli setup init --path 1 --source-root . --postgres-tls verify-full --agent-assets install --apply
 aops-cli server status --json
 ```
 
@@ -124,12 +145,12 @@ Use this option when you want to run AOPS from source but do not want to install
 Requirements: Git, Node.js 22.9.0 or newer, pnpm 11.9.0, and Docker Engine or Docker Desktop.
 
 ```sh
-git clone --branch v0.1.0 --depth 1 https://github.com/eeemzs/aops-community.git aops-community
+git clone --branch v0.1.1 --depth 1 https://github.com/eeemzs/aops-community.git aops-community
 cd aops-community
 corepack enable
 corepack install --global pnpm@11.9.0
 pnpm install --frozen-lockfile
-aops-cli setup init --path 2 --source-root . --apply
+aops-cli setup init --path 2 --source-root . --agent-assets install --apply
 aops-cli server status --json
 ```
 
@@ -144,11 +165,55 @@ Use this option for the shortest full local installation. A source clone, pnpm w
 Requirements: Node.js 22.9.0 or newer and Docker Engine or Docker Desktop with Docker Compose v2.
 
 ```sh
-aops-cli setup init --path 3 --apply
+aops-cli setup init --path 3 --agent-assets install --apply
 aops-cli server status --json
 ```
 
 The CLI pulls the matching ready AOPS image, creates local secrets and persistent PostgreSQL storage, starts the stack, and verifies server health.
+
+#### Manual Docker pull and start
+
+Use this subsection when you want the same ready stack but prefer to manage
+Docker Compose yourself instead of letting `aops-cli setup init` own the Docker
+lifecycle. You still use the npm-installed CLI for AOPS operations after the
+server starts.
+
+Pull the ready application image and download the matching release Compose
+file. No source clone, registry login, or image build is required:
+
+```sh
+docker pull ghcr.io/eeemzs/aops-community:v0.1.1
+curl --fail --location --output compose.yaml https://github.com/eeemzs/aops-community/releases/download/v0.1.1/compose.yaml
+```
+
+Generate two different random secrets, then place them in a local `.env` file.
+The following Node.js command prints suitable values without writing them to
+the shell command line:
+
+```sh
+node -e "const c=require('node:crypto'); console.log('AOPS_POSTGRES_PASSWORD='+c.randomBytes(24).toString('hex')); console.log('CHATV3_SERVER_KEY_SECRET='+c.randomBytes(32).toString('base64url'))"
+```
+
+Create `.env` beside `compose.yaml` with the printed secrets:
+
+```dotenv
+AOPS_IMAGE_REF=ghcr.io/eeemzs/aops-community:v0.1.1
+AOPS_RELEASE_VERSION=0.1.1
+AOPS_POSTGRES_PASSWORD=REPLACE_WITH_THE_FIRST_RANDOM_VALUE
+CHATV3_SERVER_KEY_SECRET=REPLACE_WITH_THE_SECOND_RANDOM_VALUE
+```
+
+Start and inspect the stack:
+
+```sh
+docker compose --env-file .env --file compose.yaml up --detach --wait
+docker compose --env-file .env --file compose.yaml ps
+```
+
+Open <http://127.0.0.1:5900>. For this manual path, use the same explicit
+`docker compose --env-file .env --file compose.yaml ...` command for container
+lifecycle operations; `aops-cli` does not claim ownership of manually created
+Compose state.
 
 ### Alternative A4 — Connect through an SSH tunnel
 
@@ -165,7 +230,7 @@ ssh -L 5900:127.0.0.1:5900 user@aops-host
 In another terminal, register the local end of that tunnel:
 
 ```sh
-aops-cli setup init --path 4 --api-base-url http://127.0.0.1:5900 --target-name remote-community --target-auth-provider trusted-local --target-tls-policy loopback-http --apply
+aops-cli setup init --path 4 --api-base-url http://127.0.0.1:5900 --target-name remote-community --target-auth-provider trusted-local --target-tls-policy loopback-http --agent-assets install --apply
 aops-cli target doctor remote-community --json
 ```
 
