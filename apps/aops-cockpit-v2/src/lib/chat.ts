@@ -74,6 +74,16 @@ export type ChatChannelRef = {
 }
 export type ChatStatus = 'idle' | 'connecting' | 'connected' | 'error'
 
+export type ChatBulkActionResult = {
+  succeeded: string[]
+  failed: Array<{ id: string; message: string }>
+}
+
+export type ChatChannelDeleteTarget = {
+  id: string
+  confirmSlug: string
+}
+
 const normalizeRecoveryState = (state: MemberRecoveryResult['recoveryState'] | string): MemberRecoveryState => {
   const normalized = String(state).trim().toLowerCase().replace(/_/g, '-')
   if (
@@ -163,7 +173,8 @@ const DEFAULT_SPACE: ChatSpaceRef = { slug: 'default', title: 'Default Space' }
 const chatKeyStore = new CockpitChatKeyStore()
 const chatSessionStore = new CockpitChatSessionStore()
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e))
-const isServerMemberAuthErrorText = (message: string) => /(member token mismatch|unauthorized|401)/i.test(message)
+const isServerMemberAuthErrorText = (message: string) =>
+  /(member token mismatch|member token required|unknown member token|invalid member token|unauthorized|\b401\b)/i.test(message)
 const isServerMemberAuthError = (error: unknown) => isServerMemberAuthErrorText(errText(error))
 const recoveryIssueMessage = (stage: string, error: unknown): string =>
   `ChatV3 auto-recovery failed at ${stage}: ${errText(error)}`
@@ -227,6 +238,7 @@ const rememberStoredChannelInvite = async (
   if (!channel.invite) return
   const parsed = parseInvite(channel.invite)
   if (parsed.channelId !== channel.id) return
+  await chatSessionStore.setChannelInvite(channel.id, channel.invite)
   await chatSessionStore.setChannelKeyId(channel.id, parsed.keyId).catch(() => undefined)
   await client.rememberChannelInvite(parsed)
 }
@@ -446,6 +458,7 @@ const importServerEpochKeys = async (keys: ServerEpochKeyRow[]) => {
 const forgetChannelMemberToken = (channelId: string) => {
   void chatSessionStore.deleteChannelMemberToken(channelId).catch(() => undefined)
   void chatSessionStore.deleteChannelKeyId(channelId).catch(() => undefined)
+  void chatSessionStore.deleteChannelInvite(channelId).catch(() => undefined)
 }
 
 const normalizeStoredChannel = (
@@ -497,7 +510,10 @@ const hydrateStoredChannels = async (channels: ChatChannelRef[] | undefined): Pr
     const memberToken =
       channel.memberToken ??
       (channel.id ? await chatSessionStore.getChannelMemberToken(channel.id).catch(() => null) : null)
-    const normalized = normalizeStoredChannel(channel, memberToken)
+    const invite =
+      channel.invite ??
+      (channel.id ? await chatSessionStore.getChannelInvite(channel.id).catch(() => null) : null)
+    const normalized = normalizeStoredChannel({ ...channel, invite }, memberToken)
     if (normalized) map.set(normalized.id, normalized)
   }
   return [...map.values()]
@@ -599,9 +615,11 @@ const hydrateLoadableChannelsForSpace = async (
         (row.modeStatus?.encryptionMode ?? row.channel.encryptionMode) === 'server-encrypted'
           ? Boolean(memberToken || existing?.localCryptoAvailable)
           : await hasLocalChannelCrypto(row.channel.id).catch(() => false)
+      const invite =
+        existing?.invite ?? (await chatSessionStore.getChannelInvite(row.channel.id).catch(() => null))
       const channelSpace = spaces.find((item) => item.id === row.channel.spaceId) ?? space
       const existingWithCrypto = existing ? { ...existing, localCryptoAvailable } : undefined
-      hydrated.push(toMineChannelRef(row, channelSpace, memberToken, existingWithCrypto))
+      hydrated.push({ ...toMineChannelRef(row, channelSpace, memberToken, existingWithCrypto), invite })
     }
     return hydrated
   }
@@ -622,9 +640,10 @@ const hydrateLoadableChannelsForSpace = async (
       channelEncryptionMode(channel) === 'server-encrypted'
         ? Boolean(memberToken || existing?.localCryptoAvailable)
         : await hasLocalChannelCrypto(channel.id).catch(() => false)
+    const invite = existing?.invite ?? (await chatSessionStore.getChannelInvite(channel.id).catch(() => null))
     const channelSpace = spaces.find((item) => item.id === channel.spaceId) ?? space
     const existingWithCrypto = existing ? { ...existing, localCryptoAvailable } : undefined
-    hydrated.push(toServerChannelRef(channel, channelSpace, memberToken, existingWithCrypto))
+    hydrated.push({ ...toServerChannelRef(channel, channelSpace, memberToken, existingWithCrypto), invite })
   }
   return hydrated
 }
@@ -2242,41 +2261,46 @@ export function useChatSession(
     [state.channels, state.channelId],
   )
 
-  const archiveRoom = useCallback(async (roomId: string) => {
-    const client = clientRef.current
-    const channelId = state.channelId
-    if (!client || !channelId) return
-    try {
-      await client.archiveRoom(roomId)
-      setState((s) => {
-        const rooms = s.rooms.filter((r) => r.id !== roomId)
-        const channel = s.channels.find((c) => c.id === channelId)
-        const channels = channel ? mergeChannel(s.channels, { ...channel, rooms }) : s.channels
-        const next: ChatState = {
-          ...s,
-          error: null,
-          channels,
-          rooms,
-          activeRoomId: s.activeRoomId === roomId ? rooms[0]?.id ?? null : s.activeRoomId,
-          messages: s.activeRoomId === roomId ? [] : s.messages,
-          presence: s.activeRoomId === roomId ? [] : s.presence,
-          receipts: s.activeRoomId === roomId ? [] : s.receipts,
-          bindings: s.activeRoomId === roomId ? [] : s.bindings,
+  const runWithChannelAdminAccess = useCallback(
+    async <T,>(channel: ChatChannelRef, action: (client: Chatv3Client) => Promise<T>): Promise<T> => {
+      const client = ensureClient()
+      const previousMemberToken = client.http.memberToken
+      const restorePreviousToken = Boolean(
+        stateRef.current.channelId && stateRef.current.channelId !== channel.id,
+      )
+      try {
+        await activateChannelMemberToken(client, channel)
+        try {
+          return await action(client)
+        } catch (error) {
+          if (channel.encryptionMode !== 'server-encrypted' || !isServerMemberAuthError(error)) throw error
+          const recovered = await recoverChannelIfPossible(channel, recoverySecretRef.current, {
+            forceServerRecovery: true,
+          })
+          if (!recovered.memberToken) {
+            throw new Error(recovered.recoveryError ?? errText(error))
+          }
+          await activateChannelMemberToken(client, recovered)
+          setState((current) => {
+            const next = { ...current, error: null, channels: mergeChannel(current.channels, recovered) }
+            persistChatSession(next)
+            return next
+          })
+          return await action(client)
         }
-        persistChatSession(next)
-        return next
-      })
-    } catch (e) {
-      setState((s) => ({ ...s, error: errText(e) }))
-    }
-  }, [state.channelId])
+      } finally {
+        if (restorePreviousToken) client.http.memberToken = previousMemberToken
+      }
+    },
+    [ensureClient, recoverChannelIfPossible],
+  )
 
-  const deleteRoom = useCallback(async (roomId: string, confirmSlug: string) => {
-    const client = clientRef.current
-    const channelId = state.channelId
-    if (!client || !channelId) return
+  const archiveRoom = useCallback(async (roomId: string) => {
+    const channelId = stateRef.current.channelId
+    const channel = stateRef.current.channels.find((entry) => entry.id === channelId)
+    if (!channelId || !channel) return
     try {
-      await client.deleteRoom(roomId, { confirmSlug })
+      await runWithChannelAdminAccess(channel, (client) => client.archiveRoom(roomId))
       setState((s) => {
         const rooms = s.rooms.filter((r) => r.id !== roomId)
         const channel = s.channels.find((c) => c.id === channelId)
@@ -2299,34 +2323,157 @@ export function useChatSession(
       setState((s) => ({ ...s, error: errText(e) }))
       throw e
     }
-  }, [state.channelId])
+  }, [runWithChannelAdminAccess])
 
-  const archiveChannel = useCallback(async (channelId: string) => {
-    const client = clientRef.current
-    const channel = state.channels.find((c) => c.id === channelId)
-    if (!client || !channel) return
+  const deleteRoom = useCallback(async (roomId: string, confirmSlug: string) => {
+    const channelId = stateRef.current.channelId
+    const channel = stateRef.current.channels.find((entry) => entry.id === channelId)
+    if (!channelId || !channel) return
     try {
-      await activateChannelMemberToken(client, channel)
-      const archived = await client.archiveChannel(channelId, { updatedBy: state.handle ?? 'operator' })
-      const nextChannel: ChatChannelRef = {
-        ...channel,
-        title: archived.title || channel.title,
-        purpose: normalizePurpose(archived.purpose),
-        guidanceMarkdown: normalizePurpose(archived.guidanceMarkdown),
-        status: 'archived',
-        archivedAt: archived.archivedAt ? String(archived.archivedAt) : new Date().toISOString(),
-      }
+      await runWithChannelAdminAccess(channel, (client) => client.deleteRoom(roomId, { confirmSlug }))
       setState((s) => {
-        const nextState: ChatState = {
+        const rooms = s.rooms.filter((r) => r.id !== roomId)
+        const channel = s.channels.find((c) => c.id === channelId)
+        const channels = channel ? mergeChannel(s.channels, { ...channel, rooms }) : s.channels
+        const next: ChatState = {
           ...s,
+          error: null,
+          channels,
+          rooms,
+          activeRoomId: s.activeRoomId === roomId ? rooms[0]?.id ?? null : s.activeRoomId,
+          messages: s.activeRoomId === roomId ? [] : s.messages,
+          presence: s.activeRoomId === roomId ? [] : s.presence,
+          receipts: s.activeRoomId === roomId ? [] : s.receipts,
+          bindings: s.activeRoomId === roomId ? [] : s.bindings,
+        }
+        persistChatSession(next)
+        return next
+      })
+    } catch (e) {
+      setState((s) => ({ ...s, error: errText(e) }))
+      throw e
+    }
+  }, [runWithChannelAdminAccess])
+
+  const archiveChannels = useCallback(
+    async (channelIds: string[]): Promise<ChatBulkActionResult> => {
+      const selectedIds = new Set(channelIds)
+      const channels = stateRef.current.channels.filter((channel) => selectedIds.has(channel.id))
+      const archivedById = new Map<string, ChatChannelRef>()
+      const result: ChatBulkActionResult = { succeeded: [], failed: [] }
+
+      for (const channel of channels) {
+        if (channel.status === 'archived') {
+          result.succeeded.push(channel.id)
+          archivedById.set(channel.id, channel)
+          continue
+        }
+        try {
+          const archived = await runWithChannelAdminAccess(channel, (client) =>
+            client.archiveChannel(channel.id, { updatedBy: stateRef.current.handle ?? 'operator' }),
+          )
+          const nextChannel: ChatChannelRef = {
+            ...channel,
+            title: archived.title || channel.title,
+            purpose: normalizePurpose(archived.purpose),
+            guidanceMarkdown: normalizePurpose(archived.guidanceMarkdown),
+            status: 'archived',
+            archivedAt: archived.archivedAt ? String(archived.archivedAt) : new Date().toISOString(),
+          }
+          archivedById.set(channel.id, nextChannel)
+          result.succeeded.push(channel.id)
+        } catch (error) {
+          result.failed.push({ id: channel.id, message: errText(error) })
+        }
+      }
+
+      const error = result.failed.length
+        ? result.failed.map((failure) => failure.message).join('; ')
+        : null
+      setState((current) => {
+        let nextChannels = current.channels
+        for (const nextChannel of archivedById.values()) nextChannels = mergeChannel(nextChannels, nextChannel)
+        const activeArchived = current.channelId ? archivedById.get(current.channelId) : undefined
+        const next: ChatState = activeArchived
+          ? {
+              ...current,
+              status: 'connected',
+              error: error ?? archivedChannelMessage(activeArchived),
+              channelTitle: activeArchived.title,
+              invite: activeArchived.invite,
+              channels: nextChannels,
+              rooms: activeArchived.rooms,
+              activeRoomId: null,
+              messages: [],
+              members: [],
+              presence: [],
+              receipts: [],
+              bindings: [],
+            }
+          : { ...current, error, channels: nextChannels }
+        persistChatSession(next)
+        return next
+      })
+      return result
+    },
+    [runWithChannelAdminAccess],
+  )
+
+  const deleteChannels = useCallback(
+    async (targets: ChatChannelDeleteTarget[]): Promise<ChatBulkActionResult> => {
+      const targetById = new Map(targets.map((target) => [target.id, target]))
+      const channels = stateRef.current.channels.filter((channel) => targetById.has(channel.id))
+      const result: ChatBulkActionResult = { succeeded: [], failed: [] }
+
+      for (const channel of channels) {
+        const target = targetById.get(channel.id)!
+        if (channel.canDelete === false) {
+          result.failed.push({ id: channel.id, message: `${channel.title || channel.slug} cannot be deleted` })
+          continue
+        }
+        try {
+          await runWithChannelAdminAccess(channel, (client) =>
+            client.deleteChannel(channel.id, { confirmSlug: target.confirmSlug }),
+          )
+          forgetChannelMemberToken(channel.id)
+          result.succeeded.push(channel.id)
+        } catch (error) {
+          result.failed.push({ id: channel.id, message: errText(error) })
+        }
+      }
+
+      const deletedIds = new Set(result.succeeded)
+      const error = result.failed.length
+        ? result.failed.map((failure) => failure.message).join('; ')
+        : null
+      const activeChannelDeleted = Boolean(
+        stateRef.current.channelId && deletedIds.has(stateRef.current.channelId),
+      )
+      const replacementChannel = activeChannelDeleted
+        ? stateRef.current.channels.find(
+            (channel) => !deletedIds.has(channel.id) && Boolean(channel.memberToken),
+          ) ?? stateRef.current.channels.find((channel) => !deletedIds.has(channel.id))
+        : undefined
+      setState((current) => {
+        const remaining = current.channels.filter((channel) => !deletedIds.has(channel.id))
+        if (!remaining.length) {
+          clearChatSession()
+          return { ...emptyWithSpaces(current.spaces, current.activeSpaceSlug), error }
+        }
+        if (!current.channelId || !deletedIds.has(current.channelId)) {
+          const next = { ...current, error, channels: remaining }
+          persistChatSession(next)
+          return next
+        }
+        const next: ChatState = {
+          ...current,
           status: 'connected',
-          error: archivedChannelMessage(nextChannel),
-          channelId,
-          channelTitle: nextChannel.title,
-          invite: nextChannel.invite,
-          activeSpaceSlug: nextChannel.spaceSlug,
-          channels: mergeChannel(s.channels, nextChannel),
-          rooms: nextChannel.rooms,
+          error,
+          channelId: null,
+          channelTitle: null,
+          invite: null,
+          channels: remaining,
+          rooms: [],
           activeRoomId: null,
           messages: [],
           members: [],
@@ -2334,13 +2481,21 @@ export function useChatSession(
           receipts: [],
           bindings: [],
         }
-        persistChatSession(nextState)
-        return nextState
+        persistChatSession(next)
+        return next
       })
-    } catch (e) {
-      setState((s) => ({ ...s, error: errText(e) }))
-    }
-  }, [state.channels, state.handle])
+      if (replacementChannel && result.failed.length === 0) {
+        await selectChannel(replacementChannel.id)
+      }
+      return result
+    },
+    [runWithChannelAdminAccess, selectChannel],
+  )
+
+  const archiveChannel = useCallback(async (channelId: string) => {
+    const result = await archiveChannels([channelId])
+    if (result.failed.length) throw new Error(result.failed[0].message)
+  }, [archiveChannels])
 
   const unarchiveChannel = useCallback(async (channelId: string) => {
     const client = clientRef.current
@@ -2385,54 +2540,9 @@ export function useChatSession(
   }, [state.channels, state.handle, loadChannel])
 
   const deleteChannel = useCallback(async (channelId: string, confirmSlug: string) => {
-    const client = clientRef.current
-    const channel = state.channels.find((c) => c.id === channelId)
-    if (!client || !channel) return
-    try {
-      await activateChannelMemberToken(client, channel)
-      await client.deleteChannel(channelId, { confirmSlug })
-      forgetChannelMemberToken(channelId)
-      const remaining = state.channels.filter((c) => c.id !== channelId)
-      if (!remaining.length) {
-        setState((s) => {
-          const next = emptyWithSpaces(s.spaces, s.activeSpaceSlug)
-          clearChatSession()
-          return next
-        })
-        return
-      }
-      const next = remaining.find((c) => c.memberToken) ?? remaining[0]
-      if (!next.memberToken) {
-        setState((s) => selectLockedChannelState(s, next, remaining))
-        return
-      }
-      const loaded = await loadChannel(next)
-      setState((s) => {
-        const nextState: ChatState = {
-          ...s,
-          status: 'connected',
-          error: null,
-          channelId: next.id,
-          channelTitle: next.title,
-          invite: next.invite,
-          activeSpaceSlug: next.spaceSlug,
-          channels: mergeChannel(remaining, { ...next, rooms: loaded.rooms }),
-          rooms: loaded.rooms,
-          activeRoomId: loaded.activeRoomId,
-          messages: [],
-          members: loaded.members,
-          presence: [],
-          receipts: [],
-          bindings: [],
-        }
-        persistChatSession(nextState)
-        return nextState
-      })
-    } catch (e) {
-      setState((s) => ({ ...s, error: errText(e) }))
-      throw e
-    }
-  }, [state.channels, loadChannel])
+    const result = await deleteChannels([{ id: channelId, confirmSlug }])
+    if (result.failed.length) throw new Error(result.failed[0].message)
+  }, [deleteChannels])
 
   const removeMember = useCallback(
     async (memberId: string) => {
@@ -2581,6 +2691,8 @@ export function useChatSession(
     send,
     archiveRoom,
     deleteRoom,
+    archiveChannels,
+    deleteChannels,
     archiveChannel,
     unarchiveChannel,
     deleteChannel,

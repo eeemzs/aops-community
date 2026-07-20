@@ -650,6 +650,20 @@ interface AopsCockpitTags {
   chatNoChannelsSearch: string;
   chatNewChannel: string;
   chatJoinChannel: string;
+  chatSelectChats: string;
+  chatSelectionDone: string;
+  chatSelectChannel: string;
+  chatSelectAll: string;
+  chatSelected: string;
+  chatArchiveSelected: string;
+  chatDeleteSelected: string;
+  chatBulkDeleteBlocked: string;
+  chatBulkArchiveTitle: string;
+  chatBulkArchiveMessage: string;
+  chatBulkDeleteTitle: string;
+  chatBulkDeleteMessage: string;
+  chatBulkDeleteConfirmLabel: string;
+  chatBulkWorking: string;
   chatCreateTab: string;
   chatJoinTab: string;
   chatHandle: string;
@@ -762,6 +776,7 @@ interface AopsCockpitTags {
   chatInviteAction: string;
   chatInviteUnavailable: string;
   chatCopyInvite: string;
+  chatCreateAndCopyInvite: string;
   chatInviteCopied: string;
   // Activity tab
   chatActivityDirective: string;
@@ -1537,6 +1552,29 @@ const resources = {
     chatNoChannelsSearch: { en: "No channels or rooms match", tr: "Eşleşen kanal veya oda yok" },
     chatNewChannel: { en: "New channel", tr: "Yeni kanal" },
     chatJoinChannel: { en: "Join channel", tr: "Kanala katıl" },
+    chatSelectChats: { en: "Select chats", tr: "Sohbetleri seç" },
+    chatSelectionDone: { en: "Done", tr: "Bitti" },
+    chatSelectChannel: { en: "Select channel", tr: "Kanalı seç" },
+    chatSelectAll: { en: "Select all", tr: "Tümünü seç" },
+    chatSelected: { en: "selected", tr: "seçili" },
+    chatArchiveSelected: { en: "Archive selected", tr: "Seçilenleri arşivle" },
+    chatDeleteSelected: { en: "Delete selected", tr: "Seçilenleri sil" },
+    chatBulkDeleteBlocked: {
+      en: "One or more selected channels cannot be deleted.",
+      tr: "Seçilen kanallardan biri veya birkaçı silinemez."
+    },
+    chatBulkArchiveTitle: { en: "Archive selected chats", tr: "Seçili sohbetleri arşivle" },
+    chatBulkArchiveMessage: {
+      en: "Selected chats will be hidden from active lists. You can restore archived chats later.",
+      tr: "Seçili sohbetler aktif listelerden gizlenir. Arşivlenen sohbetleri daha sonra geri alabilirsiniz."
+    },
+    chatBulkDeleteTitle: { en: "Delete selected chats", tr: "Seçili sohbetleri sil" },
+    chatBulkDeleteMessage: {
+      en: "This permanently deletes the selected chats and their rooms. This cannot be undone.",
+      tr: "Bu işlem seçili sohbetleri ve odalarını kalıcı olarak siler. İşlem geri alınamaz."
+    },
+    chatBulkDeleteConfirmLabel: { en: "Type to confirm", tr: "Onaylamak için yazın" },
+    chatBulkWorking: { en: "Working…", tr: "İşleniyor…" },
     chatCreateTab: { en: "Create", tr: "Oluştur" },
     chatJoinTab: { en: "Join", tr: "Katıl" },
     chatHandle: { en: "Handle", tr: "Takma ad" },
@@ -1661,6 +1699,7 @@ const resources = {
     chatInviteAction: { en: "Invite", tr: "Davet et" },
     chatInviteUnavailable: { en: "No stored invite for this channel", tr: "Bu kanal için kayıtlı davet yok" },
     chatCopyInvite: { en: "Copy invite", tr: "Daveti kopyala" },
+    chatCreateAndCopyInvite: { en: "Create and copy invite", tr: "Davet oluştur ve kopyala" },
     chatInviteCopied: { en: "Invite copied", tr: "Davet kopyalandı" },
     chatActivityDirective: { en: "Latest directive", tr: "Son direktif" },
     chatActivityNoDirective: { en: "No directive yet", tr: "Henüz direktif yok" },

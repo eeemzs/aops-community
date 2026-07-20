@@ -62,11 +62,46 @@ function ToolbarClearIcon(): ReactNode {
   );
 }
 
+function ChatSelectionGlyph({ checked = false }: { checked?: boolean }): ReactNode {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+      <rect x="2.25" y="2.25" width="11.5" height="11.5" rx="3" stroke="currentColor" strokeWidth="1.5" />
+      {checked ? (
+        <path d="m4.8 8 2 2 4.4-4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      ) : null}
+    </svg>
+  );
+}
+
+function ChatArchiveGlyph(): ReactNode {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+      <path d="M2.4 4.3h11.2v8.5H2.4zM1.8 2.2h12.4v2.2H1.8zM6 7h4" stroke="currentColor" strokeWidth="1.35" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ChatTrashGlyph(): ReactNode {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+      <path d="M3.5 4.3h9M6 4.3V2.8h4v1.5m1.5 0-.6 9H5.1l-.6-9M6.6 6.5v4.8m2.8-4.8v4.8" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function ChatCopyIcon(): ReactNode {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
       <rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="1.7" />
       <path d="M5 15H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ChatCheckIcon(): ReactNode {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -223,6 +258,7 @@ export function ChatPage({ model, navigator, locale, t }: ChatPageProps): ReactN
         navigatorTriggerRef={mobileNavigatorTriggerRef}
         t={t}
       />
+      {navigator.bulkDialog}
       <div className="aops-v2-chat-console-shell">
         <button
           type="button"
@@ -393,16 +429,30 @@ function ChatConsoleNavigator({
         <span>
           {t("chatChannelsLabel")} <b>{model.channels.length}</b>
         </span>
-        <button
-          type="button"
-          className="aops-v2-chat-console-navgear"
-          aria-label={t("navSidePanelClose")}
-          title={t("navSidePanelClose")}
-          onClick={onClose}
-          data-testid="aops-v2-chat-console-nav-close"
-        >
-          <CockpitPanelCloseIcon />
-        </button>
+        <span className="aops-v2-chat-console-navhead-actions">
+          <button
+            type="button"
+            className={`aops-v2-chat-console-select-toggle${navigator.selectionMode ? " is-active" : ""}`}
+            aria-label={navigator.selectionMode ? t("chatSelectionDone") : t("chatSelectChats")}
+            title={navigator.selectionMode ? t("chatSelectionDone") : t("chatSelectChats")}
+            aria-pressed={navigator.selectionMode}
+            disabled={navigator.bulkBusy}
+            onClick={navigator.selectionMode ? navigator.exitSelectionMode : navigator.enterSelectionMode}
+            data-testid="aops-v2-chat-selection-toggle"
+          >
+            <ChatSelectionGlyph checked={navigator.selectionMode} />
+          </button>
+          <button
+            type="button"
+            className="aops-v2-chat-console-navgear"
+            aria-label={t("navSidePanelClose")}
+            title={t("navSidePanelClose")}
+            onClick={onClose}
+            data-testid="aops-v2-chat-console-nav-close"
+          >
+            <CockpitPanelCloseIcon />
+          </button>
+        </span>
       </div>
       <label className="aops-v2-chat-console-search">
         <span>{ToolbarSearchIcon()}</span>
@@ -424,19 +474,66 @@ function ChatConsoleNavigator({
           </button>
         ) : null}
       </label>
+      {navigator.selectionMode ? (
+        <div className="aops-v2-chat-console-bulkbar">
+          <button
+            type="button"
+            className="aops-v2-chat-console-bulk-all"
+            disabled={!model.channels.length || navigator.bulkBusy}
+            onClick={navigator.selectAllChannels}
+          >
+            {t("chatSelectAll")}
+          </button>
+          <span className="aops-v2-chat-console-bulk-count" aria-live="polite">
+            {navigator.selectedChannelCount} {t("chatSelected")}
+          </span>
+          <span className="aops-v2-chat-console-bulk-spacer" />
+          <button
+            type="button"
+            className="aops-v2-chat-console-bulk-action"
+            disabled={!navigator.selectedChannelCount || navigator.bulkBusy}
+            title={t("chatArchiveSelected")}
+            aria-label={t("chatArchiveSelected")}
+            onClick={() => navigator.requestBulkAction("archive")}
+            data-testid="aops-v2-chat-bulk-archive"
+          >
+            <ChatArchiveGlyph />
+          </button>
+          <button
+            type="button"
+            className="aops-v2-chat-console-bulk-action is-danger"
+            disabled={!navigator.selectedChannelCount || navigator.selectedDeleteBlocked || navigator.bulkBusy}
+            title={navigator.selectedDeleteBlocked ? t("chatBulkDeleteBlocked") : t("chatDeleteSelected")}
+            aria-label={t("chatDeleteSelected")}
+            onClick={() => navigator.requestBulkAction("delete")}
+            data-testid="aops-v2-chat-bulk-delete"
+          >
+            <ChatTrashGlyph />
+          </button>
+        </div>
+      ) : null}
+      {navigator.bulkError ? <p className="aops-v2-chat-console-bulk-error" role="alert">{navigator.bulkError}</p> : null}
       <div className="aops-v2-chat-console-navlist">
         {channelRows.length ? (
           channelRows.map(({ channel, rooms }) => (
             <div
               key={channel.id}
-              className={`aops-v2-chat-console-channel${channel.id === model.channelId ? " is-active" : ""}${channel.status === "archived" ? " is-archived" : ""}`}
+              className={`aops-v2-chat-console-channel${channel.id === model.channelId ? " is-active" : ""}${channel.status === "archived" ? " is-archived" : ""}${navigator.selectedChannelIds.has(channel.id) ? " is-selected" : ""}`}
             >
               <button
                 type="button"
                 className="aops-v2-chat-console-channelbtn"
-                onClick={() => void model.selectChannel(channel.id)}
-                aria-expanded={channel.id === model.channelId || Boolean(query)}
+                onClick={() => navigator.selectionMode ? navigator.toggleChannelSelection(channel.id) : void model.selectChannel(channel.id)}
+                role={navigator.selectionMode ? "checkbox" : undefined}
+                aria-checked={navigator.selectionMode ? navigator.selectedChannelIds.has(channel.id) : undefined}
+                aria-expanded={navigator.selectionMode ? undefined : channel.id === model.channelId || Boolean(query)}
+                data-testid={navigator.selectionMode ? `aops-v2-chat-select-${channel.id}` : undefined}
               >
+                {navigator.selectionMode ? (
+                  <span className="aops-v2-chat-console-selectbox">
+                    <ChatSelectionGlyph checked={navigator.selectedChannelIds.has(channel.id)} />
+                  </span>
+                ) : null}
                 <span className="aops-v2-chat-console-channelavatar" style={{ background: avatarColor(channel.id || channel.slug) }}>
                   {initials(channel.title || channel.slug)}
                 </span>
@@ -445,7 +542,7 @@ function ChatConsoleNavigator({
                 </span>
                 <span className="aops-v2-chat-console-count">{rooms.length}</span>
               </button>
-              {channel.id === model.channelId || query ? (
+              {!navigator.selectionMode && (channel.id === model.channelId || query) ? (
                 <div className="aops-v2-chat-console-rooms">
                   {rooms.map((room) => (
                     <button
@@ -689,9 +786,11 @@ function ChatRoomDetail({
   // preference, persisted page-scoped per UI System v2 §8.7 / §11.2.
   const [railExpanded, setRailExpanded] = useState<boolean>(() => readMemberRailExpanded());
   const [inviteCopied, setInviteCopied] = useState(false);
+  const [inviteCopyBusy, setInviteCopyBusy] = useState(false);
 
   const room = model.rooms.find((entry) => entry.id === model.activeRoomId) ?? null;
   const activeChannel = model.channels.find((entry) => entry.id === model.channelId) ?? null;
+  const canCopyInvite = Boolean(model.invite);
   const messageCount = model.messages.length;
   useLayoutEffect(() => {
     if (activeTab !== "messages") {
@@ -725,12 +824,20 @@ function ChatRoomDetail({
   const roomPath = room.title || room.slug;
   const roomTitle = room.title || room.slug;
 
-  const copyInvite = () => {
-    if (!model.invite) return;
-    void navigator.clipboard
-      ?.writeText(model.invite)
-      .then(() => setInviteCopied(true))
-      .catch(() => undefined);
+  const copyInvite = async () => {
+    if (inviteCopyBusy || !canCopyInvite) return;
+    setInviteCopyBusy(true);
+    try {
+      const invite = model.invite;
+      if (!invite) return;
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard API is unavailable");
+      await navigator.clipboard.writeText(invite);
+      setInviteCopied(true);
+    } catch {
+      // The session action already exposes server errors through model.error.
+    } finally {
+      setInviteCopyBusy(false);
+    }
   };
 
   const tabs = [
@@ -780,13 +887,14 @@ function ChatRoomDetail({
         <div className="aops-v2-chat-rechead-actions">
           <button
             type="button"
-            className="aops-v2-chat-copybtn"
-            disabled={!model.invite}
+            className={`aops-v2-chat-copybtn${inviteCopied ? " is-copied" : ""}`}
+            disabled={!canCopyInvite || inviteCopyBusy}
+            data-state={inviteCopied ? "copied" : inviteCopyBusy ? "busy" : "idle"}
             aria-label={inviteCopied ? t("chatInviteCopied") : t("chatCopyInvite")}
             title={inviteCopied ? t("chatInviteCopied") : model.invite ? t("chatCopyInvite") : t("chatInviteUnavailable")}
-            onClick={copyInvite}
+            onClick={() => void copyInvite()}
           >
-            {ChatCopyIcon()}
+            {inviteCopied ? ChatCheckIcon() : ChatCopyIcon()}
           </button>
           <ChatRoomActionsMenu
             open={actionsOpen}
@@ -797,8 +905,9 @@ function ChatRoomDetail({
             canDeleteChannel={activeChannel?.canDelete ?? true}
             invite={model.invite}
             inviteCopied={inviteCopied}
+            inviteCopyBusy={inviteCopyBusy}
             t={t}
-            onCopyInvite={copyInvite}
+            onCopyInvite={() => void copyInvite()}
             onArchiveRoom={() => {
               setActionsOpen(false);
               void model.archiveRoom(room.id);
@@ -1399,8 +1508,12 @@ function ChatInviteBlock({
           type="button"
           className="aops-v2-chat-headbtn aops-v2-chat-copyinvite aops-v2-chat-invitecopy"
           onClick={onCopy}
-          title={t("chatCopyInvite")}
+          title={copied ? t("chatInviteCopied") : t("chatCopyInvite")}
+          data-state={copied ? "copied" : "idle"}
         >
+          <span className="aops-v2-chat-invitecopy-icon" aria-hidden>
+            {copied ? ChatCheckIcon() : ChatCopyIcon()}
+          </span>
           {copied ? t("chatInviteCopied") : t("chatCopyInvite")}
         </button>
       </div>
@@ -1421,6 +1534,7 @@ function ChatRoomActionsMenu({
   canDeleteChannel,
   invite,
   inviteCopied,
+  inviteCopyBusy,
   t,
   onCopyInvite,
   onArchiveRoom,
@@ -1438,6 +1552,7 @@ function ChatRoomActionsMenu({
   canDeleteChannel: boolean;
   invite: string | null;
   inviteCopied: boolean;
+  inviteCopyBusy: boolean;
   t: (key: AopsCockpitTranslationKey) => string;
   onCopyInvite: () => void;
   onArchiveRoom: () => void;
@@ -1492,7 +1607,7 @@ function ChatRoomActionsMenu({
           <button
             type="button"
             role="menuitem"
-            disabled={!invite}
+            disabled={!invite || inviteCopyBusy}
             title={invite ? t("chatCopyInvite") : t("chatInviteUnavailable")}
             onClick={onCopyInvite}
           >
