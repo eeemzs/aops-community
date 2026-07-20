@@ -8889,6 +8889,37 @@ button {
   color: var(--text);
 }
 
+.aops-v2-chat-console-navhead-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aops-v2-chat-console-select-toggle {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-warm);
+  border-radius: 6px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+.aops-v2-chat-console-select-toggle:hover,
+.aops-v2-chat-console-select-toggle.is-active {
+  border-color: color-mix(in srgb, var(--accent) 44%, var(--border-warm));
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  color: var(--accent);
+}
+
+.aops-v2-chat-console-select-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .aops-v2-chat-console-navgear {
   width: 26px;
   height: 26px;
@@ -8938,6 +8969,87 @@ button {
   cursor: pointer;
 }
 
+.aops-v2-chat-console-bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  margin-bottom: 9px;
+  padding: 4px 6px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border-warm));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.aops-v2-chat-console-bulk-all,
+.aops-v2-chat-console-bulk-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-warm);
+  border-radius: 6px;
+  color: var(--text-muted);
+  background: var(--surface-elev);
+  cursor: pointer;
+}
+
+.aops-v2-chat-console-bulk-all {
+  min-height: 26px;
+  padding: 0 7px;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.aops-v2-chat-console-bulk-count {
+  color: var(--text-muted);
+  font-family: var(--font-mono-ref, var(--font-mono, ui-monospace, monospace));
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.aops-v2-chat-console-bulk-spacer {
+  flex: 1 1 auto;
+  min-width: 2px;
+}
+
+.aops-v2-chat-console-bulk-action {
+  flex: 0 0 auto;
+  width: 27px;
+  height: 27px;
+  padding: 0;
+}
+
+.aops-v2-chat-console-bulk-all:hover:not(:disabled),
+.aops-v2-chat-console-bulk-action:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border-warm));
+  color: var(--accent);
+}
+
+.aops-v2-chat-console-bulk-action.is-danger:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--danger) 54%, var(--border-warm));
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  color: var(--danger);
+}
+
+.aops-v2-chat-console-bulk-all:disabled,
+.aops-v2-chat-console-bulk-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.aops-v2-chat-console-bulk-error {
+  margin: 0 0 8px;
+  padding: 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border-warm));
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+  color: var(--danger);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .aops-v2-chat-console-navlist {
   min-height: 0;
   overflow-y: auto;
@@ -8946,6 +9058,11 @@ button {
 
 .aops-v2-chat-console-channel {
   margin-bottom: 4px;
+}
+
+.aops-v2-chat-console-channel.is-selected > .aops-v2-chat-console-channelbtn {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 72%, transparent);
 }
 
 .aops-v2-chat-console-channelbtn,
@@ -8988,6 +9105,28 @@ button {
   color: #fff;
   font-size: 10px;
   font-weight: 800;
+}
+
+.aops-v2-chat-console-selectbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+}
+
+.aops-v2-chat-console-channel.is-selected .aops-v2-chat-console-selectbox {
+  color: var(--accent);
+}
+
+.aops-v2-chat-console-select-toggle:focus-visible,
+.aops-v2-chat-console-bulk-all:focus-visible,
+.aops-v2-chat-console-bulk-action:focus-visible,
+.aops-v2-chat-console-channelbtn[role="checkbox"]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 52%, transparent);
+  outline-offset: 1px;
 }
 
 .aops-v2-chat-console-channelname {
@@ -9197,8 +9336,8 @@ button {
 }
 
 .aops-v2-chat-navstack {
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   flex: 1 1 auto;
   min-width: 0;
@@ -9270,6 +9409,122 @@ button {
   overflow: visible;
 }
 
+.aops-v2-chat-nav-toolspacer {
+  flex: 1 1 auto;
+  min-width: 4px;
+}
+
+.aops-v2-chat-nav-select-toggle,
+.aops-v2-chat-bulk-all,
+.aops-v2-chat-bulk-action,
+.aops-v2-chat-navcheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--aops-v2-border) 88%, transparent);
+  background: var(--aops-v2-surface);
+  color: var(--aops-v2-muted);
+  cursor: pointer;
+}
+
+.aops-v2-chat-nav-select-toggle {
+  flex: 0 0 auto;
+  gap: 5px;
+  min-height: 28px;
+  border-radius: 7px;
+  padding: 0 8px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.aops-v2-chat-nav-select-toggle svg,
+.aops-v2-chat-bulk-action svg,
+.aops-v2-chat-navcheck svg {
+  width: 15px;
+  height: 15px;
+}
+
+.aops-v2-chat-nav-select-toggle:hover,
+.aops-v2-chat-nav-select-toggle.is-active {
+  border-color: color-mix(in srgb, var(--aops-v2-primary) 45%, var(--aops-v2-border));
+  background: color-mix(in srgb, var(--aops-v2-primary) 10%, var(--aops-v2-surface));
+  color: var(--aops-v2-primary);
+}
+
+.aops-v2-chat-bulkbar {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 36px;
+  border: 1px solid color-mix(in srgb, var(--aops-v2-primary) 22%, var(--aops-v2-border));
+  border-radius: 8px;
+  padding: 4px 6px;
+  background: color-mix(in srgb, var(--aops-v2-primary) 6%, var(--aops-v2-surface));
+}
+
+.aops-v2-chat-bulkbar.is-visible {
+  display: flex;
+}
+
+.aops-v2-chat-bulk-all {
+  min-height: 26px;
+  border-radius: 6px;
+  padding: 0 7px;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.aops-v2-chat-bulk-count {
+  flex: 0 0 auto;
+  color: var(--aops-v2-muted);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.aops-v2-chat-bulk-action {
+  flex: 0 0 auto;
+  width: 27px;
+  height: 27px;
+  border-radius: 7px;
+  padding: 0;
+}
+
+.aops-v2-chat-bulk-action:hover:not(:disabled),
+.aops-v2-chat-bulk-all:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--aops-v2-primary) 48%, var(--aops-v2-border));
+  color: var(--aops-v2-primary);
+}
+
+.aops-v2-chat-bulk-action.is-danger:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--aops-v2-danger) 54%, var(--aops-v2-border));
+  background: color-mix(in srgb, var(--aops-v2-danger) 8%, var(--aops-v2-surface));
+  color: var(--aops-v2-danger);
+}
+
+.aops-v2-chat-nav-select-toggle:disabled,
+.aops-v2-chat-bulk-all:disabled,
+.aops-v2-chat-bulk-action:disabled,
+.aops-v2-chat-navcheck:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.aops-v2-chat-bulk-error {
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--aops-v2-danger) 28%, var(--aops-v2-border));
+  border-radius: 7px;
+  padding: 7px 8px;
+  background: color-mix(in srgb, var(--aops-v2-danger) 7%, var(--aops-v2-surface));
+  color: var(--aops-v2-danger);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .aops-v2-chat-nav-toolrow .inv-iv3-cattree-iconbar {
   flex-flow: row wrap;
   align-items: center;
@@ -9335,6 +9590,43 @@ button {
   overflow: hidden;
   border-radius: 8px;
   padding: 0;
+}
+
+.aops-v2-chat-navcard .cat-wb-tree-row.is-selection-mode,
+.aops-v2-chat-navdock .cat-wb-tree-row.is-selection-mode {
+  grid-template-columns: auto auto auto minmax(0, 1fr);
+}
+
+.aops-v2-chat-navcard .cat-wb-tree-row.is-selected,
+.aops-v2-chat-navdock .cat-wb-tree-row.is-selected {
+  background: color-mix(in srgb, var(--aops-v2-primary) 7%, transparent);
+}
+
+.aops-v2-chat-navcheck,
+.aops-v2-chat-navcheck-spacer {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+}
+
+.aops-v2-chat-navcheck {
+  border: 0;
+  border-radius: 5px;
+  padding: 0;
+  background: transparent;
+}
+
+.aops-v2-chat-navcheck:hover,
+.aops-v2-chat-navcheck.is-checked {
+  color: var(--aops-v2-primary);
+}
+
+.aops-v2-chat-navcheck:focus-visible,
+.aops-v2-chat-nav-select-toggle:focus-visible,
+.aops-v2-chat-bulk-all:focus-visible,
+.aops-v2-chat-bulk-action:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--aops-v2-primary) 48%, transparent);
+  outline-offset: 1px;
 }
 
 .aops-v2-chat-navcard .cat-wb-tree-entry,
@@ -10512,6 +10804,25 @@ button {
   width: min(420px, 92vw);
 }
 
+.aops-v2-chat-bulk-list {
+  display: grid;
+  gap: 5px;
+  max-height: 152px;
+  margin: 0;
+  padding: 8px 10px 8px 28px;
+  overflow-y: auto;
+  border: 1px solid var(--aops-v2-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--aops-v2-bg) 74%, var(--aops-v2-surface));
+  color: var(--aops-v2-ink);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.aops-v2-chat-bulk-list li {
+  overflow-wrap: anywhere;
+}
+
 .aops-v2-chat-modal-body code {
   font-family: var(--font-mono, monospace);
   font-size: 12px;
@@ -10903,6 +11214,20 @@ button {
 .aops-v2-chat-rechead-actions .aops-v2-chat-headbtn.is-active {
   color: var(--sage);
   border-color: var(--sage);
+}
+
+.aops-v2-chat-copybtn.is-copied,
+.aops-v2-chat-invitecopy[data-state="copied"] {
+  color: var(--color-success-700, #2f7657);
+  border-color: color-mix(in srgb, currentColor 42%, transparent);
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+
+.aops-v2-chat-invitecopy-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
 }
 
 .aops-v2-chat-copybtn:disabled {

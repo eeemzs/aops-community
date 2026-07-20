@@ -12,6 +12,7 @@ const kv = new IndexedDbKeyValueStore({ dbName: 'aops-cockpit-v2-chat', storeNam
 const SESSION_KEY = 'session:v1'
 const CHANNEL_MEMBER_TOKEN_KEY_PREFIX = 'channel-member-token:'
 const CHANNEL_KEY_ID_KEY_PREFIX = 'channel-key-id:'
+const CHANNEL_INVITE_KEY_PREFIX = 'channel-invite:'
 
 export type CockpitChatSessionSnapshot = {
   version: 1
@@ -74,5 +75,17 @@ export class CockpitChatSessionStore {
 
   async deleteChannelKeyId(channelId: string): Promise<void> {
     await kv.delete(`${CHANNEL_KEY_ID_KEY_PREFIX}${channelId}`)
+  }
+
+  async setChannelInvite(channelId: string, invite: string): Promise<void> {
+    await kv.put(`${CHANNEL_INVITE_KEY_PREFIX}${channelId}`, invite)
+  }
+
+  async getChannelInvite(channelId: string): Promise<string | null> {
+    return kv.get<string>(`${CHANNEL_INVITE_KEY_PREFIX}${channelId}`)
+  }
+
+  async deleteChannelInvite(channelId: string): Promise<void> {
+    await kv.delete(`${CHANNEL_INVITE_KEY_PREFIX}${channelId}`)
   }
 }

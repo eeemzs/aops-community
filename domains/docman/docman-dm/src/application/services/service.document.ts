@@ -1,6 +1,9 @@
 import { Effect } from 'effect'
 import { pipe } from 'effect/Function'
-import { marked } from 'marked'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { validateInput, XfErrorFactory, effectErrorInfo } from '@aopslab/xf-core'
 import { XfLogger } from '@aopslab/xf-logger'
 import type {
@@ -3469,7 +3472,15 @@ export class DocumentService implements IDocumentServicePort {
     const content = String(markdown ?? '').trim()
     if (!content) return ''
 
-    return String(marked.parse(content, { async: false, gfm: true }))
+    return renderToStaticMarkup(
+      createElement(
+        ReactMarkdown,
+        {
+          remarkPlugins: [remarkGfm],
+        } as any,
+        content,
+      ),
+    )
   }
 
   private buildPublishedHtmlDocument(title: string, bodyHtml: string): string {

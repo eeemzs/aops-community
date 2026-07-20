@@ -240,6 +240,33 @@ function SearchGlyph(): ReactNode {
   );
 }
 
+function CheckGlyph({ checked }: { checked: boolean }): ReactNode {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <rect x="2.25" y="2.25" width="11.5" height="11.5" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      {checked ? (
+        <path d="m4.8 8 2 2 4.4-4.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      ) : null}
+    </svg>
+  );
+}
+
+function ArchiveGlyph(): ReactNode {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M2.4 4.3h11.2v8.5H2.4zM1.8 2.2h12.4v2.2H1.8zM6 7h4" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function TrashGlyph(): ReactNode {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M3.5 4.3h9M6 4.3V2.8h4v1.5m1.5 0-.6 9H5.1l-.6-9M6.6 6.5v4.8m2.8-4.8v4.8" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function ChannelRowLabel({ row }: { row: ChatNavRow }): ReactNode {
   const channel = row.channel;
   if (!channel) return row.labelText;
@@ -337,17 +364,23 @@ function EmptyChatNavigator({
 function ChatNavigatorTreeBody({
   rows,
   selectedKey,
+  selectionMode,
+  selectedChannelIds,
   hasChannels,
   search,
   onSelect,
+  onToggleSelection,
   onToggleBranch,
   t
 }: {
   rows: ChatNavRow[];
   selectedKey: string;
+  selectionMode: boolean;
+  selectedChannelIds: Set<string>;
   hasChannels: boolean;
   search: string;
   onSelect: (key: string) => void;
+  onToggleSelection: (channelId: string) => void;
   onToggleBranch: (key: string) => void;
   t: (key: AopsCockpitTranslationKey) => string;
 }): ReactNode {
@@ -357,6 +390,7 @@ function ChatNavigatorTreeBody({
       {rows.map((row) => {
         const isActive = row.categoryUid === selectedKey;
         const isRoot = row.depth === 0;
+        const isSelected = isRoot && selectedChannelIds.has(row.channelId);
         const rowTitle = [
           row.titleText,
           row.locked ? row.lockedHint : "",
@@ -375,6 +409,8 @@ function ChatNavigatorTreeBody({
               !row.hasChildren && "is-leaf",
               row.kind === "channel" && "is-chat-channel",
               row.kind === "room" && "is-chat-room",
+              selectionMode && "is-selection-mode",
+              isSelected && "is-selected",
               row.locked && "is-chat-locked",
               row.archived && "is-chat-archived"
             )}
@@ -408,6 +444,24 @@ function ChatNavigatorTreeBody({
             ) : (
               <span className="cat-wb-tree-toggle-spacer" aria-hidden="true" />
             )}
+            {selectionMode ? (
+              isRoot ? (
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={isSelected}
+                  aria-label={`${t("chatSelectChannel")} ${row.labelText}`}
+                  title={`${t("chatSelectChannel")} ${row.labelText}`}
+                  className={cx("aops-v2-chat-navcheck", isSelected && "is-checked")}
+                  onClick={() => onToggleSelection(row.channelId)}
+                  data-testid={`aops-v2-chat-select-${row.channelId}`}
+                >
+                  <CheckGlyph checked={isSelected} />
+                </button>
+              ) : (
+                <span className="aops-v2-chat-navcheck-spacer" aria-hidden="true" />
+              )
+            ) : null}
             <button
               className={cx("cat-wb-tree-entry", isActive && "active", isRoot && "is-root")}
               type="button"
@@ -430,6 +484,91 @@ function ChatNavigatorTreeBody({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function ChatBulkActionModal({
+  action,
+  channels,
+  busy,
+  t,
+  onClose,
+  onConfirm
+}: {
+  action: "archive" | "delete";
+  channels: ChatChannelRef[];
+  busy: boolean;
+  t: (key: AopsCockpitTranslationKey) => string;
+  onClose: () => void;
+  onConfirm: () => void;
+}): ReactNode {
+  const [typed, setTyped] = useState("");
+  const isDelete = action === "delete";
+  const deleteMatches = !isDelete || typed.trim().toUpperCase() === "DELETE";
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !busy) onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [busy, onClose]);
+
+  return (
+    <div className="aops-v2-chat-modal-backdrop" role="presentation" onClick={busy ? undefined : onClose}>
+      <div
+        className="aops-v2-chat-modal aops-v2-chat-modal-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-label={isDelete ? t("chatBulkDeleteTitle") : t("chatBulkArchiveTitle")}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="aops-v2-chat-modal-head">
+          <h4>{isDelete ? t("chatBulkDeleteTitle") : t("chatBulkArchiveTitle")}</h4>
+          <button type="button" className="aops-v2-chat-iconclose" aria-label={t("chatClose")} disabled={busy} onClick={onClose}>
+            ✕
+          </button>
+        </header>
+        <div className="aops-v2-chat-modal-body">
+          <p className="aops-v2-chat-muted">
+            {isDelete ? t("chatBulkDeleteMessage") : t("chatBulkArchiveMessage")}
+          </p>
+          <ul className="aops-v2-chat-bulk-list">
+            {channels.slice(0, 5).map((channel) => (
+              <li key={channel.id}>{channel.title || channel.slug}</li>
+            ))}
+            {channels.length > 5 ? <li>+{channels.length - 5}</li> : null}
+          </ul>
+          {isDelete ? (
+            <label className="aops-v2-chat-field">
+              <span>
+                {t("chatBulkDeleteConfirmLabel")}: <code>DELETE</code>
+              </span>
+              <input
+                value={typed}
+                onChange={(event) => setTyped(event.target.value)}
+                autoFocus
+                data-testid="aops-v2-chat-bulk-delete-confirm"
+              />
+            </label>
+          ) : null}
+          <div className="aops-v2-chat-connect-actions">
+            <button type="button" className="aops-v2-secondary-button" disabled={busy} onClick={onClose}>
+              {t("chatCancel")}
+            </button>
+            <button
+              type="button"
+              className={isDelete ? "aops-v2-chat-danger-button" : "aops-v2-primary-button"}
+              disabled={busy || !deleteMatches}
+              onClick={onConfirm}
+              data-testid="aops-v2-chat-bulk-confirm"
+            >
+              {busy ? t("chatBulkWorking") : isDelete ? t("chatDelete") : t("chatArchiveSelected")}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -462,6 +601,18 @@ export interface ChatNavigator {
   channelCount: number;
   searchValue: string;
   onSearchChange: (value: string) => void;
+  selectionMode: boolean;
+  selectedChannelIds: ReadonlySet<string>;
+  selectedChannelCount: number;
+  bulkBusy: boolean;
+  bulkError: string | null;
+  selectedDeleteBlocked: boolean;
+  enterSelectionMode: () => void;
+  exitSelectionMode: () => void;
+  toggleChannelSelection: (channelId: string) => void;
+  selectAllChannels: () => void;
+  requestBulkAction: (action: "archive" | "delete") => void;
+  bulkDialog: ReactNode;
 }
 
 export function useChatNavigator(
@@ -470,6 +621,11 @@ export function useChatNavigator(
 ): ChatNavigator {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<Set<string>>(() => new Set());
+  const [bulkAction, setBulkAction] = useState<"archive" | "delete" | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkError, setBulkError] = useState<string | null>(null);
   const nav = useWorkbenchNavigator({
     storageKeys: NAV_STORAGE_KEYS,
     defaultMode: "left-menu",
@@ -487,6 +643,12 @@ export function useChatNavigator(
     () => buildChatRows(chat.channels, expanded, chat.channelId, chat.rooms, search, t),
     [chat.channels, expanded, chat.channelId, chat.rooms, search, t]
   );
+
+  const selectedChannels = useMemo(
+    () => chat.channels.filter((channel) => selectedChannelIds.has(channel.id)),
+    [chat.channels, selectedChannelIds]
+  );
+  const selectedDeleteBlocked = selectedChannels.some((channel) => channel.canDelete === false);
 
   const selectedKey =
     chat.activeRoomId && chat.channelId
@@ -535,6 +697,16 @@ export function useChatNavigator(
     [toggleChannel]
   );
 
+  const handleToggleSelection = useCallback((channelId: string) => {
+    setSelectedChannelIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(channelId)) next.delete(channelId);
+      else next.add(channelId);
+      return next;
+    });
+    setBulkError(null);
+  }, []);
+
   const allChannelIds = useMemo(() => chat.channels.map((c) => c.id), [chat.channels]);
   const autoExpandChannelIds = useMemo(() => {
     const ids = new Set<string>();
@@ -560,6 +732,53 @@ export function useChatNavigator(
       return changed ? next : previous;
     });
   }, [autoExpandChannelIds]);
+
+  useEffect(() => {
+    const availableIds = new Set(chat.channels.map((channel) => channel.id));
+    setSelectedChannelIds((previous) => {
+      const next = new Set(Array.from(previous).filter((id) => availableIds.has(id)));
+      return next.size === previous.size ? previous : next;
+    });
+  }, [chat.channels]);
+
+  const exitSelectionMode = useCallback(() => {
+    if (bulkBusy) return;
+    setSelectionMode(false);
+    setSelectedChannelIds(new Set());
+    setBulkAction(null);
+    setBulkError(null);
+  }, [bulkBusy]);
+
+  const selectAllChannels = useCallback(() => {
+    setSelectedChannelIds(new Set(chat.channels.map((channel) => channel.id)));
+    setBulkError(null);
+  }, [chat.channels]);
+
+  const executeBulkAction = useCallback(async () => {
+    if (!bulkAction || !selectedChannels.length) return;
+    setBulkBusy(true);
+    setBulkError(null);
+    try {
+      const result =
+        bulkAction === "archive"
+          ? await chat.archiveChannels(selectedChannels.map((channel) => channel.id))
+          : await chat.deleteChannels(
+              selectedChannels.map((channel) => ({ id: channel.id, confirmSlug: channel.slug }))
+            );
+      const succeeded = new Set(result.succeeded);
+      setSelectedChannelIds((previous) => new Set(Array.from(previous).filter((id) => !succeeded.has(id))));
+      setBulkAction(null);
+      if (result.failed.length) {
+        setBulkError(result.failed.map((failure) => failure.message).join("; "));
+      } else {
+        setSelectionMode(false);
+      }
+    } catch (error) {
+      setBulkError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBulkBusy(false);
+    }
+  }, [bulkAction, chat, selectedChannels]);
 
   const handleExpandAll = useCallback(() => setExpanded(new Set(allChannelIds)), [allChannelIds]);
   const handleCollapseAll = useCallback(() => setExpanded(new Set()), []);
@@ -630,20 +849,79 @@ export function useChatNavigator(
           />
         </label>
       </div>
-      <div className="aops-v2-chat-nav-toolrow">{iconBar}</div>
+      <div className="aops-v2-chat-nav-toolrow">
+        {iconBar}
+        <span className="aops-v2-chat-nav-toolspacer" />
+        <button
+          type="button"
+          className={cx("aops-v2-chat-nav-select-toggle", selectionMode && "is-active")}
+          aria-pressed={selectionMode}
+          onClick={() => (selectionMode ? exitSelectionMode() : setSelectionMode(true))}
+          data-testid="aops-v2-chat-selection-toggle"
+        >
+          <CheckGlyph checked={selectionMode} />
+          <span>{selectionMode ? t("chatSelectionDone") : t("chatSelectChats")}</span>
+        </button>
+      </div>
+      <div className={cx("aops-v2-chat-bulkbar", selectionMode && "is-visible")} aria-hidden={!selectionMode}>
+        <button type="button" className="aops-v2-chat-bulk-all" disabled={!chat.channels.length || bulkBusy} onClick={selectAllChannels}>
+          {t("chatSelectAll")}
+        </button>
+        <span className="aops-v2-chat-bulk-count" aria-live="polite">
+          {selectedChannels.length} {t("chatSelected")}
+        </span>
+        <span className="aops-v2-chat-nav-toolspacer" />
+        <button
+          type="button"
+          className="aops-v2-chat-bulk-action"
+          disabled={!selectedChannels.length || bulkBusy}
+          title={t("chatArchiveSelected")}
+          aria-label={t("chatArchiveSelected")}
+          onClick={() => setBulkAction("archive")}
+          data-testid="aops-v2-chat-bulk-archive"
+        >
+          <ArchiveGlyph />
+        </button>
+        <button
+          type="button"
+          className="aops-v2-chat-bulk-action is-danger"
+          disabled={!selectedChannels.length || selectedDeleteBlocked || bulkBusy}
+          title={selectedDeleteBlocked ? t("chatBulkDeleteBlocked") : t("chatDeleteSelected")}
+          aria-label={t("chatDeleteSelected")}
+          onClick={() => setBulkAction("delete")}
+          data-testid="aops-v2-chat-bulk-delete"
+        >
+          <TrashGlyph />
+        </button>
+      </div>
+      {bulkError ? <p className="aops-v2-chat-bulk-error" role="alert">{bulkError}</p> : null}
       <div className="inv-iv3-cattree-body aops-v2-chat-nav-listcard">
         <ChatNavigatorTreeBody
           rows={rows}
           selectedKey={selectedKey}
+          selectionMode={selectionMode}
+          selectedChannelIds={selectedChannelIds}
           hasChannels={chat.channels.length > 0}
           search={search}
           onSelect={handleSelect}
+          onToggleSelection={handleToggleSelection}
           onToggleBranch={handleToggleBranch}
           t={t}
         />
       </div>
     </div>
   );
+
+  const bulkDialog = bulkAction ? (
+    <ChatBulkActionModal
+      action={bulkAction}
+      channels={selectedChannels}
+      busy={bulkBusy}
+      t={t}
+      onClose={() => setBulkAction(null)}
+      onConfirm={() => void executeBulkAction()}
+    />
+  ) : null;
 
   // Shell-attached navigator dock: WorkbenchNavigator renders the NAVIGATOR
   // header (+ pin/close) with the tree. The header's left-menu button mirrors
@@ -717,6 +995,21 @@ export function useChatNavigator(
     leftDockWidth: nav.navigatorWidth,
     channelCount: chat.channels.length,
     searchValue: search,
-    onSearchChange: setSearch
+    onSearchChange: setSearch,
+    selectionMode,
+    selectedChannelIds,
+    selectedChannelCount: selectedChannels.length,
+    bulkBusy,
+    bulkError,
+    selectedDeleteBlocked,
+    enterSelectionMode: () => {
+      setSelectionMode(true);
+      setBulkError(null);
+    },
+    exitSelectionMode,
+    toggleChannelSelection: handleToggleSelection,
+    selectAllChannels,
+    requestBulkAction: setBulkAction,
+    bulkDialog
   };
 }
