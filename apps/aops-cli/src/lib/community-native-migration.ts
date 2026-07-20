@@ -12,6 +12,8 @@ import path from 'node:path'
 
 export const COMMUNITY_NATIVE_MIGRATION_POLICY_PATH =
   'apps/aops-server/scripts/community-migration-policy-v1.json'
+export const COMMUNITY_NATIVE_PACKAGE_MIGRATION_POLICY_PATH =
+  'scripts/community-migration-policy-v1.json'
 
 const MAX_POLICY_BYTES = 2 * 1024 * 1024
 const INSTANCE_NAME = /^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/
@@ -132,7 +134,14 @@ export function readCommunityNativeMigrationPolicy(sourceRoot: string): Communit
   if (path.relative(resolvedRoot, canonicalRoot) !== '' || path.relative(canonicalRoot, resolvedRoot) !== '') {
     throw new Error('community_native_migration_source_root_alias_refused')
   }
-  const policyPath = path.resolve(canonicalRoot, ...COMMUNITY_NATIVE_MIGRATION_POLICY_PATH.split('/'))
+  const manifest = (() => {
+    try { return JSON.parse(readFileSync(path.join(canonicalRoot, 'package.json'), 'utf8')) as Record<string, unknown> }
+    catch { return {} }
+  })()
+  const relativePolicyPath = manifest.name === '@aopslab/aops-server'
+    ? COMMUNITY_NATIVE_PACKAGE_MIGRATION_POLICY_PATH
+    : COMMUNITY_NATIVE_MIGRATION_POLICY_PATH
+  const policyPath = path.resolve(canonicalRoot, ...relativePolicyPath.split('/'))
   if (!isWithin(canonicalRoot, policyPath)) throw new Error('community_native_migration_policy_path_escape')
   const stats = lstatSync(policyPath)
   if (!stats.isFile() || stats.isSymbolicLink() || stats.size < 1 || stats.size > MAX_POLICY_BYTES) {

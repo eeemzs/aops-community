@@ -1,13 +1,10 @@
-AOPS Community Product Third-Party Notices
+AOPS Community Third-Party Notices
 
-This file is generated deterministically from the exact production payload union.
-pnpm: 11.9.0
-pnpm lockfile: sha256:fb0c58e5687f5518b120c058a8dd1089682005bafdb3c77915a0fcf038b60cc2
-Platforms: linux/amd64, linux/arm64
-Payloads: server production deploy, separate CLI artifact production deploy, Cockpit emitted bundle
-Third-party packages: 295
-First-party source records excluded from the sections below: 31
-First-party registry packages excluded from the sections below: 22
+This file preserves the reviewed license notices for third-party components
+used by the AOPS Community CLI, server, and Cockpit. It is intentionally a
+conservative superset: a particular installation may use fewer components.
+The exact dependency closure of an npm server release is recorded in that
+package's npm-shrinkwrap.json.
 
 ================================================================================
 @drizzle-team/brocli@0.10.2

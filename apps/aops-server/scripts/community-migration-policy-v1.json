@@ -14,7 +14,7 @@
     {
       "id": "sys",
       "ordinal": 0,
-      "migrationsDir": "domains/sys/drizzle-out/sys",
+      "migrationsDir": "apps/aops-server/node_modules/@aopslab/domain-pg-bootstrap-sys/drizzle-out/sys",
       "migrationTable": "sys_schema_migrations",
       "legacyHashColumn": false,
       "journalSha256": "f877cb40c7cb7ef9fadaf9e441b4a1f14eb18138815a42962912e9cc55a0e160",
@@ -82,7 +82,7 @@
     {
       "id": "docman",
       "ordinal": 2,
-      "migrationsDir": "domains/docman/drizzle-out/docman",
+      "migrationsDir": "apps/aops-server/node_modules/@aopslab/domain-pg-bootstrap-docman/drizzle-out/docman",
       "migrationTable": "docman_schema_migrations",
       "legacyHashColumn": false,
       "journalSha256": "6c9efe998ae606a4a31f0e4f5ba7726acd066e0dd10795fbda7c2768328ebfb4",
@@ -137,7 +137,7 @@
     {
       "id": "projectman",
       "ordinal": 3,
-      "migrationsDir": "domains/projectman/drizzle-out/projectman",
+      "migrationsDir": "apps/aops-server/node_modules/@aopslab/domain-pg-bootstrap-projectman/drizzle-out/projectman",
       "migrationTable": "projectman_schema_migrations",
       "legacyHashColumn": false,
       "journalSha256": "2badcdd7d9c42c2de2330b69b3aeaa0c27d83d2863bfe004b7d960a2ec926803",
@@ -186,7 +186,7 @@
     {
       "id": "chatv3",
       "ordinal": 4,
-      "migrationsDir": "domains/chatv3/drizzle-out/chatv3",
+      "migrationsDir": "apps/aops-server/node_modules/@aopslab/domain-pg-bootstrap-chatv3/drizzle-out/chatv3",
       "migrationTable": "chatv3_schema_migrations",
       "legacyHashColumn": false,
       "journalSha256": "aa27d8238fb574620a745fb0a08d04afe6a13f7489a754edf8f16f7e8d1d6a3b",

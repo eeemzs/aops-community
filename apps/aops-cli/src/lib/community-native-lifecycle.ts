@@ -1,5 +1,6 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { spawn } from 'node:child_process'
+import { createRequire } from 'node:module'
 import {
   closeSync,
   existsSync,
@@ -71,6 +72,7 @@ import {
 } from './community-native-application-recovery.js'
 
 const PUBLIC_ROOT_NAME = 'aops-community-distribution'
+const PUBLIC_SERVER_PACKAGE_NAME = '@aopslab/aops-server'
 const PUBLIC_PACKAGE_MANAGER = /^pnpm@(11\.[0-9]+\.[0-9]+)$/
 const RELEASE_VERSION = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?(?:\+[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?$/
 const INSTANCE_NAME = /^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/
@@ -92,7 +94,7 @@ const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set([
 const RUNTIME_INVENTORY_EXCLUDED_DIRECTORIES = new Set([
   '.aops', '.git', '.pnpm-store', '.svelte-kit', '.turbo', 'coverage', 'node_modules',
 ])
-const REQUIRED_SOURCE_PATHS = Object.freeze([
+const CHECKOUT_REQUIRED_SOURCE_PATHS = Object.freeze([
   'apps/aops-cli/package.json',
   'apps/aops-cockpit-v2/package.json',
   'apps/aops-server/package.json',
@@ -102,11 +104,42 @@ const REQUIRED_SOURCE_PATHS = Object.freeze([
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
 ])
-const REQUIRED_BUILD_PATHS = Object.freeze({
+const CHECKOUT_BUILD_PATHS = Object.freeze({
   hostEntry: 'apps/aops-server/scripts/community-host.mjs',
   handlerEntry: 'apps/aops-server/build/handler.js',
   cockpitIndex: 'apps/aops-cockpit-v2/dist/index.html',
 })
+const PACKAGE_REQUIRED_SOURCE_PATHS = Object.freeze([
+  'aops-server-runtime.json',
+  'community-postgres.json',
+  'npm-shrinkwrap.json',
+  'package.json',
+  'runtime/agentspace-host-adapter.mjs',
+  'runtime/agentspace-tooling.mjs',
+  'runtime/docman-host-adapter.mjs',
+  'runtime/docman-policy.mjs',
+  'runtime/docman-tooling.mjs',
+  'runtime/projectman-host-adapter.mjs',
+  'runtime/scope-context.mjs',
+  'scripts/community-host.mjs',
+  'scripts/community-migration-policy-v1.json',
+])
+const PACKAGE_BUILD_PATHS = Object.freeze({
+  hostEntry: 'scripts/community-host.mjs',
+  handlerEntry: 'build/handler.js',
+  cockpitIndex: 'cockpit/index.html',
+})
+
+type CommunityNativeSourceLayout = Readonly<{
+  kind: 'checkout' | 'npm-package'
+  requiredSourcePaths: readonly string[]
+  lockfilePath: string
+  buildPaths: Readonly<{
+    hostEntry: string
+    handlerEntry: string
+    cockpitIndex: string
+  }>
+}>
 
 export type CommunityNativeLaunchMode = 'foreground' | 'detached'
 
@@ -632,10 +665,11 @@ function parseNativeState(value: unknown, paths: CommunityNativePaths): Communit
       .every((item) => SHA256.test(String(item))) ||
     input.server.host !== '127.0.0.1' || !validPort(input.server.port)
   ) throw new Error('community_native_state_schema_invalid')
+  const layout = sourceLayout(input.source.root)
   if (
-    !samePhysicalPath(input.build.hostEntry, path.join(input.source.root, REQUIRED_BUILD_PATHS.hostEntry)) ||
-    !samePhysicalPath(input.build.handlerEntry, path.join(input.source.root, REQUIRED_BUILD_PATHS.handlerEntry)) ||
-    !samePhysicalPath(input.build.cockpitIndex, path.join(input.source.root, REQUIRED_BUILD_PATHS.cockpitIndex))
+    !samePhysicalPath(input.build.hostEntry, path.join(input.source.root, layout.buildPaths.hostEntry)) ||
+    !samePhysicalPath(input.build.handlerEntry, path.join(input.source.root, layout.buildPaths.handlerEntry)) ||
+    !samePhysicalPath(input.build.cockpitIndex, path.join(input.source.root, layout.buildPaths.cockpitIndex))
   ) throw new Error('community_native_state_build_path_mismatch')
   if (input.profile === 'native-external-postgres') {
     exactKeys(input.postgres, ['mode', 'configRef', 'tlsPolicy'], 'community_native_state_postgres_invalid')
@@ -989,6 +1023,77 @@ function sourcePackage(root: string): Record<string, any> {
   }
 }
 
+function sourceLayout(root: string, manifest = sourcePackage(root)): CommunityNativeSourceLayout {
+  if (
+    manifest.name === PUBLIC_ROOT_NAME && manifest.private === true &&
+    typeof manifest.version === 'string' && RELEASE_VERSION.test(manifest.version) &&
+    typeof manifest.packageManager === 'string' && PUBLIC_PACKAGE_MANAGER.test(manifest.packageManager)
+  ) {
+    return {
+      kind: 'checkout',
+      requiredSourcePaths: CHECKOUT_REQUIRED_SOURCE_PATHS,
+      lockfilePath: 'pnpm-lock.yaml',
+      buildPaths: CHECKOUT_BUILD_PATHS,
+    }
+  }
+  if (
+    manifest.name === PUBLIC_SERVER_PACKAGE_NAME && manifest.private !== true &&
+    typeof manifest.version === 'string' && RELEASE_VERSION.test(manifest.version) &&
+    typeof manifest.packageManager === 'string' && PUBLIC_PACKAGE_MANAGER.test(manifest.packageManager)
+  ) {
+    const markerPath = safeRegularFile(root, 'aops-server-runtime.json')
+    let marker: Record<string, unknown>
+    try {
+      marker = JSON.parse(readFileSync(markerPath, 'utf8')) as Record<string, unknown>
+    } catch {
+      throw new Error('community_native_server_package_marker_invalid')
+    }
+    if (
+      marker.schemaVersion !== 1 || marker.kind !== 'aops-server-npm-runtime' ||
+      marker.packageName !== manifest.name || marker.packageVersion !== manifest.version ||
+      marker.packageManager !== manifest.packageManager ||
+      !marker.source || typeof marker.source !== 'object' ||
+      Object.keys(marker.source).sort().join(',') !== 'commit,repository' ||
+      (marker.source as Record<string, unknown>).repository !== 'https://github.com/eeemzs/aops-community' ||
+      !/^[a-f0-9]{40}$/.test(String((marker.source as Record<string, unknown>).commit ?? '')) ||
+      JSON.stringify(marker.source) !== JSON.stringify(manifest.aopsSource) ||
+      Object.keys(marker).sort().join(',') !==
+        'kind,packageManager,packageName,packageVersion,schemaVersion,source'
+    ) throw new Error('community_native_server_package_marker_invalid')
+    return {
+      kind: 'npm-package',
+      requiredSourcePaths: PACKAGE_REQUIRED_SOURCE_PATHS,
+      lockfilePath: 'npm-shrinkwrap.json',
+      buildPaths: PACKAGE_BUILD_PATHS,
+    }
+  }
+  throw new Error('community_native_public_source_required')
+}
+
+function isPackagedCommunityServerSource(source: CommunityNativeSourceIdentity): boolean {
+  return sourceLayout(source.root).kind === 'npm-package'
+}
+
+export function isCommunityNativeNpmPackageSource(sourceRoot: string): boolean {
+  const resolved = path.resolve(sourceRoot)
+  return sourceLayout(realpathSync(resolved)).kind === 'npm-package'
+}
+
+export function resolveCommunityNativeDefaultSourceRoot(
+  fallbackRoot = process.cwd(),
+  moduleUrl = import.meta.url,
+): string {
+  try {
+    const require = createRequire(moduleUrl)
+    const packageJsonPath = require.resolve(`${PUBLIC_SERVER_PACKAGE_NAME}/package.json`)
+    const packageRoot = path.dirname(packageJsonPath)
+    sourceLayout(packageRoot)
+    return packageRoot
+  } catch {
+    return path.resolve(fallbackRoot)
+  }
+}
+
 export function inspectCommunityNativeSource(sourceRoot = process.cwd()): CommunityNativeSourceIdentity {
   const resolved = path.resolve(sourceRoot)
   let rootStats: ReturnType<typeof lstatSync>
@@ -996,14 +1101,10 @@ export function inspectCommunityNativeSource(sourceRoot = process.cwd()): Commun
   if (!rootStats.isDirectory() || rootStats.isSymbolicLink()) throw new Error('community_native_source_root_invalid')
   const root = realpathSync(resolved)
   const manifest = sourcePackage(root)
-  if (
-    manifest.name !== PUBLIC_ROOT_NAME || manifest.private !== true ||
-    typeof manifest.version !== 'string' || !RELEASE_VERSION.test(manifest.version) ||
-    typeof manifest.packageManager !== 'string' || !PUBLIC_PACKAGE_MANAGER.test(manifest.packageManager)
-  ) throw new Error('community_native_public_checkout_required')
-  for (const relativePath of REQUIRED_SOURCE_PATHS) safeRegularFile(root, relativePath)
+  const layout = sourceLayout(root, manifest)
+  for (const relativePath of layout.requiredSourcePaths) safeRegularFile(root, relativePath)
   const packageSha256 = hashFile(path.join(root, 'package.json'))
-  const lockfileSha256 = hashFile(path.join(root, 'pnpm-lock.yaml'))
+  const lockfileSha256 = hashFile(path.join(root, layout.lockfilePath))
   const postgresProfileSha256 = hashFile(path.join(root, COMMUNITY_NATIVE_POSTGRES_CONTRACT_PATH))
   const sourceInventory = inventoryCommunityNativeTree(root, SOURCE_INVENTORY_EXCLUDED_DIRECTORIES)
   return {
@@ -1039,9 +1140,10 @@ function inspectCommunityNativeBuild(
     currentSource.sourceInventorySha256 !== source.sourceInventorySha256 ||
     currentSource.sourceFingerprint !== source.sourceFingerprint
   ) throw new Error('community_native_source_changed_during_build')
-  const hostEntry = safeRegularFile(source.root, REQUIRED_BUILD_PATHS.hostEntry)
-  const handlerEntry = safeRegularFile(source.root, REQUIRED_BUILD_PATHS.handlerEntry)
-  const cockpitIndex = safeRegularFile(source.root, REQUIRED_BUILD_PATHS.cockpitIndex)
+  const layout = sourceLayout(source.root)
+  const hostEntry = safeRegularFile(source.root, layout.buildPaths.hostEntry)
+  const handlerEntry = safeRegularFile(source.root, layout.buildPaths.handlerEntry)
+  const cockpitIndex = safeRegularFile(source.root, layout.buildPaths.cockpitIndex)
   const hostEntrySha256 = hashFile(hostEntry)
   const handlerEntrySha256 = hashFile(handlerEntry)
   const cockpitIndexSha256 = hashFile(cockpitIndex)
@@ -2310,7 +2412,9 @@ export async function setupCommunityNativeInstall(params: {
     }
     assertCommunityNativeApplicationCurrent(inspection.state)
   }
-  const source = inspectCommunityNativeSource(params.sourceRoot ?? process.cwd())
+  const source = inspectCommunityNativeSource(
+    params.sourceRoot ?? resolveCommunityNativeDefaultSourceRoot(),
+  )
   let configRef: string | undefined
   if (params.contract.profile === 'native-external-postgres') {
     if (
@@ -2323,16 +2427,18 @@ export async function setupCommunityNativeInstall(params: {
   } else if (params.contract.postgres.mode !== 'container') {
     throw new Error('community_native_container_postgres_contract_required')
   }
-  await runBuildChecked(
-    runtime,
-    { ...buildCommunityPnpmInvocation(source.root, ['install', '--frozen-lockfile'], params.env), signal: params.signal },
-    'install',
-  )
-  await runBuildChecked(
-    runtime,
-    { ...buildCommunityPnpmInvocation(source.root, ['run', 'build'], params.env), signal: params.signal },
-    'build',
-  )
+  if (!isPackagedCommunityServerSource(source)) {
+    await runBuildChecked(
+      runtime,
+      { ...buildCommunityPnpmInvocation(source.root, ['install', '--frozen-lockfile'], params.env), signal: params.signal },
+      'install',
+    )
+    await runBuildChecked(
+      runtime,
+      { ...buildCommunityPnpmInvocation(source.root, ['run', 'build'], params.env), signal: params.signal },
+      'build',
+    )
+  }
   throwIfNativeAborted(params.signal)
   const updatedAt = now().toISOString()
   const build = inspectCommunityNativeBuild(source, updatedAt)
@@ -2507,16 +2613,18 @@ export async function rollbackCommunityNativeApplication(params: {
     throw new Error('community_native_application_update_target_not_active')
   }
   const source = inspectCommunityNativeSource(params.sourceRoot)
-  await runBuildChecked(
-    runtime,
-    { ...buildCommunityPnpmInvocation(source.root, ['install', '--frozen-lockfile'], params.env), signal: params.signal },
-    'rollback_install',
-  )
-  await runBuildChecked(
-    runtime,
-    { ...buildCommunityPnpmInvocation(source.root, ['run', 'build'], params.env), signal: params.signal },
-    'rollback_build',
-  )
+  if (!isPackagedCommunityServerSource(source)) {
+    await runBuildChecked(
+      runtime,
+      { ...buildCommunityPnpmInvocation(source.root, ['install', '--frozen-lockfile'], params.env), signal: params.signal },
+      'rollback_install',
+    )
+    await runBuildChecked(
+      runtime,
+      { ...buildCommunityPnpmInvocation(source.root, ['run', 'build'], params.env), signal: params.signal },
+      'rollback_build',
+    )
+  }
   throwIfNativeAborted(params.signal)
   const updatedAt = now().toISOString()
   const build = inspectCommunityNativeBuild(source, updatedAt)

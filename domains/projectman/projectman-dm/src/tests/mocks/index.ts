@@ -1,2 +1,0 @@
-// Test mocks exports
-export {};

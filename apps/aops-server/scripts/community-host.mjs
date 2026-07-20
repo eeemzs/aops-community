@@ -2,6 +2,7 @@ import {
   closeSync,
   constants as fsConstants,
   createReadStream,
+  existsSync,
   fstatSync,
   lstatSync,
   openSync,
@@ -21,8 +22,12 @@ const OCI_EDGE_HOST = "0.0.0.0";
 const INTERNAL_HOST = "127.0.0.1";
 const DEFAULT_EDGE_PORT = "5900";
 const DEFAULT_OCI_INTERNAL_PORT = "5901";
+const PACKAGE_STATIC_ROOT = path.resolve(import.meta.dirname, "../cockpit");
+const CHECKOUT_STATIC_ROOT = path.resolve(import.meta.dirname, "../../aops-cockpit-v2/dist");
 const DEFAULT_PATHS = Object.freeze({
-  staticRoot: path.resolve(import.meta.dirname, "../../aops-cockpit-v2/dist"),
+  staticRoot: existsSync(path.join(PACKAGE_STATIC_ROOT, "index.html"))
+    ? PACKAGE_STATIC_ROOT
+    : CHECKOUT_STATIC_ROOT,
   handlerEntry: path.resolve(import.meta.dirname, "../build/handler.js"),
 });
 const FORBIDDEN_PROXY_ENV = Object.freeze([

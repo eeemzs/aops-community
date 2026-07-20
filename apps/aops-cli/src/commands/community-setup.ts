@@ -22,12 +22,12 @@ export async function runCommunitySetupInit(options: SetupInitOptions = {}) {
 function addSetupInitOptions(command: Command): Command {
   return command
     .option('--path <path>', 'Setup path: 1 | 2 | 3 | 4 (semantic ids are also accepted)')
-    .option('--postgres-config <path>', 'Explicit PostgreSQL env file override for path 1')
-    .option('--postgres-tls <policy>', 'Path 1 TLS policy: disable | require | verify-full')
+    .option('--postgres-config <path>', 'Explicit PostgreSQL env file override for the default npm server path')
+    .option('--postgres-tls <policy>', 'PostgreSQL TLS policy: disable | require | verify-full')
     .option('--api-base-url <url>', 'Local or existing-server API base URL without credentials')
     .option('--instance <name>', 'Local Community instance name')
     .option('--data-root <path>', 'Local Community data root override')
-    .option('--source-root <path>', 'Native Community source checkout override for paths 1 and 2')
+    .option('--source-root <path>', 'Optional native Community source checkout override; npm server package is the default')
     .option('--port <port>', 'Local server port', (value) => Number.parseInt(String(value), 10))
     .option('--target-name <name>', 'Persistent target name for path 4')
     .option('--target-auth-provider <provider>', 'Path 4 target auth: trusted-local | authv2-jwt-session')
@@ -51,23 +51,24 @@ export function makeCommunitySetupCommand(): Command {
   command.addCommand(makeOfficialCatalogSetupCommand())
 
   addSetupInitOptions(command.command('init')
-    .description('Guide paths 1, 2, 3, or 4; read-only unless --apply is supplied'))
+    .description('Guide npm-server, source, deferred Docker, or existing-server setup; read-only unless --apply is supplied'))
     .addHelpText('after', `
 Examples:
   aops-cli setup init
   aops-cli setup init --path 1 --postgres-tls verify-full --json
-  aops-cli setup init --path 3 --apply --yes
   aops-cli setup init --path 4 --api-base-url https://aops.example.com --json
-  aops-cli setup init --path 2 --catalog-release <path> --apply --yes
-  aops-cli setup init --path 2 --no-catalog --apply --yes
+  aops-cli setup init --path 1 --no-catalog --apply --yes
 
 This command is distinct from repo-local \`aops-cli init\`.
-Path 1 uses \`~/.aops/aops.server.env\` by default, or the directory selected by
+Path 1 is the promoted npm-server path and uses \`~/.aops/aops.server.env\` by default, or the directory selected by
 \`AOPS_CLI_CONFIG_PATH\`. A relative \`AOPS_PG_SSL_ROOT_CERT\` is resolved beside
 the selected env file. \`--postgres-config\` remains an explicit override.
 Community agent assets use the TASK-136 \`aops-cli assets\` contract; the
 development-only repo-mirror installer is not part of this command.
-Fresh server setup imports only the inert signed official catalog by default.
+Source/release setup imports only the inert signed official catalog by default.
+The npm runtime skips that optional catalog unless \`--catalog-release\` is supplied.
+Docker-backed paths 2 and 3 are retained for later reactivation but are not the
+promoted installation path in this release.
 The CLI first resolves the canonical signed release from the selected source or
 installed Community runtime; \`--catalog-release\` is only an explicit override.
 \`--no-catalog\` is the bare/minimal opt-out; it never removes existing rows or
@@ -80,7 +81,7 @@ changes the offline client core. Reconcile and rollback remain explicit under
     })
 
   command.command('server-env')
-    .description('Create or validate the global trusted-local PostgreSQL env for path 1')
+    .description('Create or validate the global trusted-local PostgreSQL env for the npm server')
     .option('--env-path <path>', 'Explicit env file override (default: ~/.aops/aops.server.env)')
     .option('--yes', 'Non-interactive; read AOPS_PG_URL from the environment or existing file')
     .option('--json', 'Output a secret-free JSON summary')

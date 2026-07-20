@@ -29,6 +29,7 @@
     "pg": "catalog:"
   },
   "devDependencies": {
+    "@aopslab/domain-dm-agentspace": "0.1.1",
     "@types/pg": "catalog:"
   },
   "exports": {

@@ -1,262 +1,192 @@
 # AOPS Community
 
-AOPS (Agentic Operations System) is a self-hosted workspace for running AI-assisted operational work with durable project plans, shared context, documents, and agent collaboration.
+AOPS (AI Operations) is a self-hosted workspace for durable project plans,
+shared agent context, documents, discussions, and operator workflows.
 
-AOPS Community brings the three user-facing parts together:
+AOPS Community ships three user-facing parts:
 
-- **Cockpit** — the browser interface.
-- **AOPS Server** — the API and application runtime.
-- **AOPS CLI** — setup, administration, and agent workflows from the terminal.
+- **AOPS Cockpit** — the browser interface.
+- **AOPS Server** — the loopback API and application runtime.
+- **AOPS CLI** — setup, lifecycle, administration, and agent operations.
 
-The server stores its data in PostgreSQL 17 and can run on the same computer as the CLI or, for one trusted operator, on another machine through the SSH tunnel described below. For a broader product introduction, visit [aopslab.com](https://www.aopslab.com).
+## Default installation: npm
 
-## Getting Started
-
-Choose one of these independent alternatives:
-
-- **Alternative A1 — Clone the repository and use your own PostgreSQL.** No Docker required.
-- **Alternative A2 — Clone the repository and use the ready PostgreSQL container.** Docker is used only for PostgreSQL.
-- **Alternative A3 — Run the ready AOPS stack with Docker.** No source clone or application build.
-- **Alternative A4 — Connect to an existing Community server through SSH.** No local server, PostgreSQL, or Docker required on the client computer.
-
-The examples below use release `0.1.1`. Use one matching version for the source, CLI, and server. Local server installations should have at least 4 GB of free memory and 2 GB of free disk space.
-
-### Install the AOPS CLI
-
-Every alternative uses the public CLI package from npm. Install the version that matches the AOPS source or server release:
+The promoted installation does not require Git, a source checkout, pnpm, or an
+AOPS application container. Install the CLI globally; its exact dependency
+installs the matching ready-to-run server package and bundled Cockpit:
 
 ```sh
-npm install --global @aopslab/aops-cli@0.1.1
+npm install --global @aopslab/aops-cli@0.1.3
 aops-cli --cli-version
 ```
 
-### Start with the guided setup
+The compatible package pair for this release is:
 
-The primary setup entry point is interactive and can be run from any directory:
+- `@aopslab/aops-cli@0.1.3`
+- `@aopslab/aops-server@0.1.0`
 
-```sh
-aops-cli setup init
-```
+The server package may also be downloaded directly with npm for inspection,
+but normal operation should go through the `aops-cli` command.
 
-It inspects the computer, explains the four alternatives, asks only for missing
-choices, and shows what is required before changing anything. Choose Alternative
-A1, A2, A3, or A4 in the prompt. The explicit commands below are useful for
-repeatable or non-interactive setup, but they use the same setup engine.
+### 1. Configure PostgreSQL
 
-### Global AOPS skill gateway
-
-Guided setup can install one verified global `aops` gateway for Codex, Claude,
-or both. It does not copy every AOPS skill into the agent runtime. The gateway
-opens the small offline core first, searches only metadata when another
-capability is needed, and loads the selected exact skill on demand.
-
-For explicit or non-interactive setup, add `--agent-assets install`. After
-installation, these read-only commands show the active gateway and perform a
-bounded capability search:
-
-```sh
-aops-cli assets status --verify quick --json
-aops-cli assets resolve --gateway aops --json
-aops-cli assets discover --query "project planning" --limit 5 --json
-```
-
-An AI agent can therefore start from the single global `aops` skill and
-search for the task-relevant capability instead of preloading the full skill
-catalog. Use `aops-cli assets resolve --name <exact-name> --json` only after
-choosing an exact search result. Repository `.aops` caches do not replace the
-installed gateway.
-
-## Security and remote access
-
-AOPS Community is currently a single-user, local-trusted distribution. It does
-not provide an AOPS user account, password login, or JWT session boundary. A
-request accepted from the local machine receives the built-in local operator
-identity with administrator permissions.
-
-The default installation therefore publishes AOPS only on `127.0.0.1:5900` and
-does not publish PostgreSQL. Do not change the server binding to `0.0.0.0` or
-place this release directly behind a public reverse proxy: anyone who could
-reach that endpoint would be treated as the trusted operator.
-
-| Scenario | Current support | Security boundary |
-| --- | --- | --- |
-| Cockpit and CLI on the AOPS host | Supported | The local machine is trusted |
-| AOPS on a remote host, accessed through an SSH tunnel by one operator | Supported for single-user operation | SSH authenticates and encrypts the connection; AOPS still trusts the tunneled client |
-| Direct LAN or Internet exposure | Not supported | Community has no user-login boundary |
-| Multiple authenticated users | Not available yet | Authentication-based multi-user support is under development; a limited form is planned for Community Edition |
-
-Some CLI and ChatV3 surfaces refer to tokens. ChatV3 member tokens identify room
-membership, and shared CLI transport code can understand access tokens used by
-other AOPS distributions. Neither currently adds user authentication to AOPS
-Community.
-
-### Alternative A1 — Clone and use your own PostgreSQL
-
-Use this option when PostgreSQL 17 is already available locally, on your network, or through a managed database service.
-
-Requirements: Git, Node.js 22.9.0 or newer, pnpm 11.9.0, and a reachable PostgreSQL 17 database.
-
-```sh
-git clone --branch v0.1.1 --depth 1 https://github.com/eeemzs/aops-community.git aops-community
-cd aops-community
-corepack enable
-corepack install --global pnpm@11.9.0
-pnpm install --frozen-lockfile
-```
-
-Create the private PostgreSQL configuration through the CLI:
+PostgreSQL is operator-owned. AOPS can use an existing local, remote, or
+managed PostgreSQL 17+ database. Create the private configuration interactively:
 
 ```sh
 aops-cli setup server-env
 ```
 
-The default location is `~/.aops/aops.server.env` on macOS, Linux, and Windows.
-It belongs to the user, not to this Git repository, and should not be committed.
-The interactive command asks for the connection details without putting the
-password in the command line. Its managed content is equivalent to:
+The default file is `~/.aops/aops.server.env` on Windows, macOS, and Linux. It
+is outside the npm package and outside this repository. Its core value is:
 
 ```dotenv
 AOPS_PG_URL=postgresql://USER:PASSWORD@HOST:5432/aops
-# Optional private certificate authority:
-# AOPS_PG_SSL_ROOT_CERT=ca.pem
 ```
 
-When `AOPS_PG_SSL_ROOT_CERT` is relative, it is resolved beside the global env
-file. Apply Alternative A1 and check the server:
+Do not commit this file. Use `--postgres-tls disable` only for loopback
+PostgreSQL. For remote PostgreSQL use `require`, or preferably `verify-full`
+with `AOPS_PG_SSL_ROOT_CERT` configured beside the env file.
+
+### 2. Install and start the server
+
+For PostgreSQL on the same computer:
 
 ```sh
-aops-cli setup init --path 1 --source-root . --postgres-tls verify-full --agent-assets install --apply
+aops-cli server setup \
+  --runtime native \
+  --postgres external \
+  --postgres-tls disable \
+  --apply
+```
+
+For a remote PostgreSQL server with certificate and hostname verification:
+
+```sh
+aops-cli server setup \
+  --runtime native \
+  --postgres external \
+  --postgres-tls verify-full \
+  --apply
+```
+
+The guided equivalent remains available:
+
+```sh
+aops-cli setup init
+```
+
+The npm server package is the default. `--source-root` is only needed when an
+advanced user deliberately runs a cloned Community checkout.
+
+### 3. Verify and operate
+
+```sh
+aops-cli server health --json
 aops-cli server status --json
+aops-cli server logs --tail 100 --json
+aops-cli server stop --json
+aops-cli server start --json
 ```
 
-Use `--postgres-tls disable` only for PostgreSQL running on the same computer. For a remote database, keep hostname verification enabled.
+Open <http://127.0.0.1:5900>. The same loopback origin serves Cockpit and the
+AOPS API. Configuration, credentials, data, logs, migration receipts, and
+lifecycle state remain in the user-owned AOPS data directories, never inside
+the npm package folder.
 
-If an older checkout already has `aops.server.env` beside its root
-`package.json`, re-enter or move its private values with `aops-cli setup
-server-env`. You may instead keep that file temporarily by adding
-`--postgres-config ./aops.server.env` to the Alternative A1 setup command. Delete
-the old file only after `aops-cli setup init` reports readiness and `aops-cli
-server status --json` confirms a healthy server.
+## Optional PostgreSQL-only container
 
-### Alternative A2 — Clone and use the ready PostgreSQL container
-
-Use this option when you want to run AOPS from source but do not want to install PostgreSQL yourself. Docker runs PostgreSQL only; Cockpit and the AOPS server run directly from the cloned repository.
-
-Requirements: Git, Node.js 22.9.0 or newer, pnpm 11.9.0, and Docker Engine or Docker Desktop.
+Docker is not required for the AOPS application. If PostgreSQL is not already
+installed, an operator may run only PostgreSQL in a container and then give its
+loopback connection to `aops-cli`:
 
 ```sh
-git clone --branch v0.1.1 --depth 1 https://github.com/eeemzs/aops-community.git aops-community
+docker volume create aops-postgres-data
+docker run --detach \
+  --name aops-postgres \
+  --publish 127.0.0.1:5432:5432 \
+  --env POSTGRES_DB=aops \
+  --env POSTGRES_USER=aops \
+  --env POSTGRES_PASSWORD=REPLACE_WITH_A_PRIVATE_PASSWORD \
+  --volume aops-postgres-data:/var/lib/postgresql/data \
+  postgres:17-alpine
+```
+
+The operator owns this container lifecycle. In the npm-first path, `aops-cli`
+does not start, stop, update, or delete Docker resources.
+
+The ready AOPS application image and Docker/Compose installation lanes are
+temporarily deferred. Their code may remain for future reactivation, but npm
+installation is the supported default and ordinary source/doc changes do not
+trigger image work.
+
+## Source checkout for contributors
+
+Git clone remains a supported development and advanced installation path:
+
+```sh
+git clone https://github.com/eeemzs/aops-community.git
 cd aops-community
 corepack enable
 corepack install --global pnpm@11.9.0
 pnpm install --frozen-lockfile
-aops-cli setup init --path 2 --source-root . --agent-assets install --apply
-aops-cli server status --json
+pnpm build
 ```
 
-The CLI creates the database secret, starts the pinned PostgreSQL 17 container, and keeps its data in a persistent Docker volume. It does not build or run an AOPS application image.
-
-The source clone contains the CLI implementation for transparency and contribution, but normal setup still uses the npm-installed `aops-cli` command.
-
-### Alternative A3 — Run the ready Docker stack
-
-Use this option for the shortest full local installation. A source clone, pnpm workspace install, registry login, and application image build are not required.
-
-Requirements: Node.js 22.9.0 or newer and Docker Engine or Docker Desktop with Docker Compose v2.
+Run that explicit checkout through the same installed CLI:
 
 ```sh
-aops-cli setup init --path 3 --agent-assets install --apply
-aops-cli server status --json
+aops-cli server setup \
+  --runtime native \
+  --postgres external \
+  --postgres-tls disable \
+  --source-root . \
+  --apply
 ```
 
-The CLI pulls the matching ready AOPS image, creates local secrets and persistent PostgreSQL storage, starts the stack, and verifies server health.
-
-#### Manual Docker pull and start
-
-Use this subsection when you want the same ready stack but prefer to manage
-Docker Compose yourself instead of letting `aops-cli setup init` own the Docker
-lifecycle. You still use the npm-installed CLI for AOPS operations after the
-server starts.
-
-Pull the ready application image and download the matching release Compose
-file. No source clone, registry login, or image build is required:
+The repository includes CLI source for transparency and contribution. During
+development it can also be invoked directly:
 
 ```sh
-docker pull ghcr.io/eeemzs/aops-community:v0.1.1
-curl --fail --location --output compose.yaml https://github.com/eeemzs/aops-community/releases/download/v0.1.1/compose.yaml
+node ./apps/aops-cli/dist/main.js --help
 ```
 
-Generate two different random secrets, then place them in a local `.env` file.
-The following Node.js command prints suitable values without writing them to
-the shell command line:
+## Security and remote access
 
-```sh
-node -e "const c=require('node:crypto'); console.log('AOPS_POSTGRES_PASSWORD='+c.randomBytes(24).toString('hex')); console.log('CHATV3_SERVER_KEY_SECRET='+c.randomBytes(32).toString('base64url'))"
-```
+AOPS Community is currently single-user and local-trusted. It does not expose
+a multi-user login boundary. The server therefore binds to `127.0.0.1` by
+default. Do not bind it to `0.0.0.0`, expose it directly to a LAN or the
+Internet, or place it behind a public reverse proxy.
 
-Create `.env` beside `compose.yaml` with the printed secrets:
-
-```dotenv
-AOPS_IMAGE_REF=ghcr.io/eeemzs/aops-community:v0.1.1
-AOPS_RELEASE_VERSION=0.1.1
-AOPS_POSTGRES_PASSWORD=REPLACE_WITH_THE_FIRST_RANDOM_VALUE
-CHATV3_SERVER_KEY_SECRET=REPLACE_WITH_THE_SECOND_RANDOM_VALUE
-```
-
-Start and inspect the stack:
-
-```sh
-docker compose --env-file .env --file compose.yaml up --detach --wait
-docker compose --env-file .env --file compose.yaml ps
-```
-
-Open <http://127.0.0.1:5900>. For this manual path, use the same explicit
-`docker compose --env-file .env --file compose.yaml ...` command for container
-lifecycle operations; `aops-cli` does not claim ownership of manually created
-Compose state.
-
-### Alternative A4 — Connect through an SSH tunnel
-
-Use this option when AOPS Community already runs on another computer. The client computer does not need a source clone, PostgreSQL, or Docker, but the deployment remains single-user and local-trusted.
-
-Requirements: Node.js 22.9.0 or newer, the AOPS CLI, and SSH access to the remote host.
-
-Keep AOPS bound to loopback on the remote host. From the client computer, open a tunnel and leave the SSH session running:
+For one trusted operator accessing another computer, keep AOPS loopback-only
+on the host and use an SSH tunnel:
 
 ```sh
 ssh -L 5900:127.0.0.1:5900 user@aops-host
 ```
 
-In another terminal, register the local end of that tunnel:
+Register the local end of the tunnel in another terminal:
 
 ```sh
-aops-cli setup init --path 4 --api-base-url http://127.0.0.1:5900 --target-name remote-community --target-auth-provider trusted-local --target-tls-policy loopback-http --agent-assets install --apply
-aops-cli target doctor remote-community --json
+aops-cli target add --name remote-community \
+  --api-base-url http://127.0.0.1:5900 \
+  --auth-provider trusted-local \
+  --tls-policy loopback-http \
+  --use \
+  --apply
 ```
 
-The browser can use <http://127.0.0.1:5900> while the tunnel is open. SSH provides authentication and encryption; AOPS Community itself still treats the tunneled connection as the one trusted operator. Do not share the SSH account or tunnel with untrusted users.
+SSH provides authentication and encryption; AOPS still treats the tunneled
+client as the trusted operator.
 
-### After the server starts
+## Open-source ownership
 
-For a local installation, open <http://127.0.0.1:5900>. The same address serves Cockpit and the AOPS API.
+This public repository is the canonical AOPS Community application source.
+Reusable domains live in their independent public repositories and are
+consumed here as exact npm packages. Maintainer-only packaging and release
+automation belongs in the private `aops-dist` repository, not in this source
+tree.
 
-Use the npm-installed CLI for both source-clone and ready-image installations:
-
-```sh
-aops-cli server status --json
-aops-cli server logs --tail 100 --json
-aops-cli server restart --json
-aops-cli server stop --json
-aops-cli server start --json
-```
-
-### Develop the CLI from source
-
-The repository includes the CLI source so the open-source Community tree is complete and contributors can inspect, test, and change it. This is not the normal installation path. After installing the workspace dependencies, the built CLI can be invoked directly with Node.js:
-
-```sh
-node ./apps/aops-cli/dist/main.js --help
-node ./apps/aops-cli/dist/main.js server status --json
-```
-
-Use the npm-installed `aops-cli` command for normal operation. Use the direct Node.js form only while developing or testing the repository copy of the CLI.
+Licensed under Apache-2.0. See `LICENSE`, `NOTICE`, and
+`THIRD_PARTY_NOTICES`. Historical v1 Docker/projection SBOM and source-coverage
+files were removed because they no longer describe the npm-first product.

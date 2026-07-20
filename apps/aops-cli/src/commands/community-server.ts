@@ -816,7 +816,7 @@ export async function runCommunityServerSetup(
       mutationFree: true,
       contract,
       next: contract.runtime === 'native'
-        ? 'Re-run with --apply to install dependencies, build the public checkout, and start the loopback native host.'
+        ? 'Re-run with --apply to start the installed npm server package, or build an explicit public checkout supplied with --source-root.'
         : 'Re-run with --apply to verify the signed release and start the OCI stack.',
     }, options.json, options)
     return
@@ -1210,6 +1210,51 @@ export async function runCommunityServerStatus(options: CommunityServerOptions):
     writeResult(result.stdout || result.stderr || `AOPS Community ${inspection.state!.activeRelease.releaseVersion} is installed.`)
   }
   if (result.exitCode !== 0) process.exitCode = 1
+}
+
+export async function runCommunityServerHealth(options: CommunityServerOptions): Promise<void> {
+  const native = inspectNativeFrom(options)
+  if (native.status === 'installed' && native.state) {
+    const observed = await inspectCommunityNativeRuntime(installSelection(options))
+    const healthy = observed.runtimeState === 'running' && observed.health === 'healthy'
+    writeResult({
+      status: healthy ? 'healthy' : 'unhealthy',
+      runtime: 'native',
+      profile: native.state.profile,
+      instance: native.state.instanceName,
+      origin: `http://127.0.0.1:${native.state.server.port}`,
+      runtimeState: observed.runtimeState,
+      supervisor: observed.supervisorAlive,
+      host: observed.hostAlive,
+      health: observed.health,
+      identityBound: observed.identity !== null,
+      error: observed.reason ?? null,
+    }, options.json)
+    if (!healthy) process.exitCode = 1
+    return
+  }
+  if (native.status !== 'not-installed') {
+    throw new Error(`community_native_health_refused:${native.status}:${native.error ?? 'run_doctor'}`)
+  }
+  const inspection = requireInstalled(options)
+  try {
+    const lifecycle = createCommunityDockerAdapter({ verifyRelease: async () => undefined })
+    await lifecycle.health({ paths: inspection.paths, state: inspection.state })
+    writeResult({
+      status: 'healthy',
+      runtime: 'oci',
+      instance: inspection.state.instanceName,
+      releaseVersion: inspection.state.activeRelease.releaseVersion,
+    }, options.json)
+  } catch (error) {
+    writeResult({
+      status: 'unhealthy',
+      runtime: 'oci',
+      instance: inspection.state.instanceName,
+      error: error instanceof Error ? error.message : String(error),
+    }, options.json)
+    process.exitCode = 1
+  }
 }
 
 export async function runCommunityServerMigrationPlan(
@@ -2180,19 +2225,19 @@ export type CommunityServerCommandIdentity = Readonly<Pick<CommunityServerDepend
 export function makeCommunityServerCommand(identity: CommunityServerCommandIdentity = {}): Command {
   const dependencies: CommunityServerDependencies = { cliVersion: identity.cliVersion }
   const command = new Command('server').description('Configure and operate a named AOPS Community server instance')
-  common(releaseOptions(command.command('setup').description('Configure, build, and start an explicit native or OCI setup profile')))
+  common(releaseOptions(command.command('setup').description('Configure and start an npm-package, source-checkout, or OCI server profile')))
     .requiredOption('--runtime <native|oci>', 'Application runtime; no implicit default')
     .option('--postgres <external|container>', 'PostgreSQL owner for --runtime native')
     .option('--postgres-config <path>', 'Explicit external PostgreSQL env-file override; default: ~/.aops/aops.server.env (or AOPS_CLI_CONFIG_PATH directory)')
     .option('--postgres-tls <disable|require|verify-full>', 'Explicit external PostgreSQL TLS policy')
-    .option('--source-root <path>', 'Public aops-community checkout root; defaults to the current directory')
+    .option('--source-root <path>', 'Optional public aops-community checkout root; defaults to the installed @aopslab/aops-server package')
     .option('--port <number>', 'Host port', '5900')
     .option('--foreground', 'Keep the native server attached to this terminal')
     .option('--detach', 'Start the native server in the background (default)')
     .option('--preview', 'Validate and print the setup contract without mutation')
     .option('--apply', 'Apply the selected setup contract')
     .action((options) => runCommunityServerSetup(options, dependencies))
-  common(command.command('start').alias('up').description('Start the installed native source host or OCI stack'))
+  common(command.command('start').alias('up').description('Start the installed native npm/source host or OCI stack'))
     .option('--foreground', 'Keep the native server attached to this terminal')
     .option('--detach', 'Start the native server in the background (default)')
     .action((options) => runCommunityServerStart(options, dependencies))
@@ -2203,6 +2248,7 @@ export function makeCommunityServerCommand(identity: CommunityServerCommandIdent
     .option('--detach', 'Restart the native server in the background (default)')
     .action((options) => runCommunityServerRestart(options, dependencies))
   common(command.command('status').description('Show install and runtime status')).action(runCommunityServerStatus)
+  common(command.command('health').description('Check the installed server health without mutation')).action(runCommunityServerHealth)
   common(command.command('migration-plan').description('Read the exact pending native database migration plan without mutation'))
     .action((options) => runCommunityServerMigrationPlan(options, dependencies))
   common(command.command('attest-external-snapshot').description('Bind an operator-owned external PostgreSQL snapshot to one exact migration plan'))

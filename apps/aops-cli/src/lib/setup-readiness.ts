@@ -10,9 +10,11 @@ import {
 import { inspectCommunityInstall } from './community-lifecycle.js'
 import {
   buildCommunityPnpmInvocation,
+  isCommunityNativeNpmPackageSource,
   inspectCommunityNativeInstall,
   inspectCommunityNativeSource,
   loadExternalPostgresUrl,
+  resolveCommunityNativeDefaultSourceRoot,
 } from './community-native-lifecycle.js'
 import {
   buildCommunityInstanceContract,
@@ -30,17 +32,17 @@ export const SETUP_PATHS = [
   {
     id: 'native-external',
     number: '1',
-    title: 'Native server with external PostgreSQL',
+    title: 'Npm server with operator-owned PostgreSQL',
   },
   {
     id: 'native-container',
     number: '2',
-    title: 'Native server with managed PostgreSQL container',
+    title: 'Source server with PostgreSQL container (deferred)',
   },
   {
     id: 'oci-ready',
     number: '3',
-    title: 'Ready OCI stack from published images',
+    title: 'Ready OCI stack from published images (deferred)',
   },
   {
     id: 'cli-existing',
@@ -508,15 +510,19 @@ export async function inspectSetupReadiness(
 
   const hasCommand = probes.commandAvailable ?? commandAvailable
   if (selected === 'native-external' || selected === 'native-container') {
-    const selectedSourceRoot = path.resolve(options.sourceRoot ?? native.state?.source.root ?? cwd)
+    const selectedSourceRoot = path.resolve(
+      options.sourceRoot ?? native.state?.source.root ?? resolveCommunityNativeDefaultSourceRoot(cwd),
+    )
     let nativeSourceReady = false
+    let npmPackage = false
     let nativeSourceError: string | null = null
     if (probes.commandAvailable) {
-      nativeSourceReady = hasCommand('pnpm')
+      nativeSourceReady = options.sourceRoot ? hasCommand('pnpm') : true
     } else {
       try {
         inspectCommunityNativeSource(selectedSourceRoot)
-        buildCommunityPnpmInvocation(selectedSourceRoot, ['--version'], processEnv)
+        npmPackage = isCommunityNativeNpmPackageSource(selectedSourceRoot)
+        if (!npmPackage) buildCommunityPnpmInvocation(selectedSourceRoot, ['--version'], processEnv)
         nativeSourceReady = true
       } catch (error) {
         nativeSourceError = safeReason(error, 'community_native_source_runtime_invalid')
@@ -534,16 +540,19 @@ export async function inspectSetupReadiness(
       state: runtimeReady ? 'ready' : 'action-required',
       required: true,
       summary: runtimeReady
-        ? 'Native source runtime requirements are available.'
+        ? npmPackage
+          ? 'The installed npm server runtime is ready; no source build is required.'
+          : 'Native source runtime requirements are available.'
         : needsDocker
           ? 'The native source checkout, pnpm 11 and a running Docker daemon are required.'
-          : 'A valid Community source checkout and pnpm 11 are required.',
+          : 'Install @aopslab/aops-server through the CLI package, or provide a valid Community checkout with pnpm 11.',
       next: runtimeReady
         ? undefined
         : 'Use a Community source checkout and install its declared pnpm version and required container runtime.',
       data: {
         node: process.version,
         sourceRoot: selectedSourceRoot,
+        sourceKind: npmPackage ? 'npm-package' : 'source-checkout',
         nativeSource: nativeSourceReady,
         docker: needsDocker ? dockerReady : null,
         error: nativeSourceError,

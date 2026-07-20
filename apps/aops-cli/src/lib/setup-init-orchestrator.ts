@@ -167,7 +167,7 @@ export async function runSetupInitOrchestrator(
           name: `${entry.number}. ${entry.title}`,
           value: entry.id,
         })),
-        default: 'oci-ready',
+        default: 'native-external',
       }) as SetupPathId
     }
   }
@@ -237,9 +237,11 @@ export async function runSetupInitOrchestrator(
     throw new Error('setup_init_postgres_tls_required_for_path_1')
   }
   const localServerPath = selectedPath !== 'cli-existing'
+  const catalogDeferredForNpm = selectedPath === 'native-external' && !options.sourceRoot &&
+    !normalizeNonEmpty(options.catalogRelease) && !normalizeNonEmpty(options.agentAssetsRelease)
   let officialCatalogRelease: string | undefined
   let officialCatalogReleaseSource: string | undefined
-  if (localServerPath && !options.noCatalog && dependencies.officialCatalog) {
+  if (localServerPath && !options.noCatalog && !catalogDeferredForNpm && dependencies.officialCatalog) {
     const selectedRelease = options.catalogRelease ?? options.agentAssetsRelease
     if (normalizeNonEmpty(selectedRelease)) {
       officialCatalogRelease = resolveOfficialCatalogReleasePath(selectedRelease)
@@ -332,6 +334,14 @@ export async function runSetupInitOrchestrator(
       action: 'setup.catalog.skip',
       status: 'skipped',
       reason: '--no-catalog',
+      coreClientAssetsAffected: false,
+      existingCatalogRowsDeleted: false,
+    })
+  } else if (localServerPath && catalogDeferredForNpm) {
+    steps.push({
+      action: 'setup.catalog.skip',
+      status: 'skipped',
+      reason: 'npm-runtime-has-no-signed-catalog-release',
       coreClientAssetsAffected: false,
       existingCatalogRowsDeleted: false,
     })

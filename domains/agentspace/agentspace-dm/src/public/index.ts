@@ -1,5 +1,0 @@
-export * from './models/index.js'
-export * from './ports/index.js'
-export * from './repository-ports/index.js'
-export * from './services/index.js'
-export * from './factories/index.js'

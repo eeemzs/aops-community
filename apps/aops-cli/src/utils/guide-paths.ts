@@ -27,19 +27,15 @@ const GUIDE_TARGETS: Record<GuideKey, GuideTarget> = {
     mirrorPath: path.join('.aops', 'docman', 'domain-guides', 'agentspace-user-guide.md'),
   },
   projectman: {
-    fallbackPath: '../../../../domains/projectman/USER_GUIDE.md',
     mirrorPath: path.join('.aops', 'docman', 'domain-guides', 'projectman-user-guide.md'),
   },
   docman: {
-    fallbackPath: '../../../../domains/docman/USER_GUIDE.md',
     mirrorPath: path.join('.aops', 'docman', 'domain-guides', 'docman-user-guide.md'),
   },
   fileman: {
-    fallbackPath: '../../../../domains/fileman/USER_GUIDE.md',
     mirrorPath: path.join('.aops', 'docman', 'domain-guides', 'fileman-user-guide.md'),
   },
   tasker: {
-    fallbackPath: '../../../../domains/tasker/USER_GUIDE.md',
     mirrorPath: path.join('.aops', 'docman', 'domain-guides', 'tasker-user-guide.md'),
   },
   agentAssets: {

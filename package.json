@@ -4,7 +4,7 @@
   "private": true,
   "description": "Local AOPS Community three-application distribution.",
   "scripts": {
-    "prepare": "pnpm --filter @aops/aops-cli... run build",
+    "prepare": "pnpm --filter @aopslab/aops-cli... run build",
     "build": "pnpm -r --if-present build",
     "typecheck": "pnpm -r --if-present typecheck",
     "verify": "pnpm build && pnpm typecheck",

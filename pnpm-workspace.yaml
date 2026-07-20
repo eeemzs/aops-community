@@ -3,11 +3,6 @@ packages:
   - "apps/aops-cockpit-v2"
   - "apps/aops-server"
   - "apps/aops/packages/*"
-  - "domains/agentspace/*"
-  - "domains/chatv3/*"
-  - "domains/docman/*"
-  - "domains/projectman/*"
-  - "domains/sys/*"
 
 confirmModulesPurge: false
 forceLegacyDeploy: true
@@ -16,29 +11,30 @@ allowBuilds:
   esbuild: true
 
 overrides:
+  "@esbuild-kit/core-utils@3.3.2>esbuild": "0.27.3"
   "@aopslab/host-adapter-sveltekit": "0.1.1"
   "@aopslab/host-core": "0.1.1"
   "@aopslab/host-registration": "0.1.1"
   "@aopslab/manifest": "0.1.3"
-  "@aopslab/xf-bm": "0.1.88"
+  "@aopslab/xf-bm": "0.1.89"
   "@aopslab/xf-cli-operator": "0.0.2"
   "@aopslab/xf-cli-ui": "0.1.13"
-  "@aopslab/xf-core": "0.1.68"
-  "@aopslab/xf-db": "0.1.74"
-  "@aopslab/xf-db-drizzle": "0.1.80"
-  "@aopslab/xf-db-mongoose": "0.1.78"
-  "@aopslab/xf-db-redis": "0.1.75"
-  "@aopslab/xf-dm": "0.1.83"
-  "@aopslab/xf-dm-kits": "0.1.13"
-  "@aopslab/xf-i18n": "0.1.73"
+  "@aopslab/xf-core": "0.1.69"
+  "@aopslab/xf-db": "0.1.75"
+  "@aopslab/xf-db-drizzle": "0.1.81"
+  "@aopslab/xf-db-mongoose": "0.1.79"
+  "@aopslab/xf-db-redis": "0.1.76"
+  "@aopslab/xf-dm": "0.1.84"
+  "@aopslab/xf-dm-kits": "0.1.14"
+  "@aopslab/xf-i18n": "0.1.74"
   "@aopslab/xf-logger": "0.1.61"
   "@aopslab/xf-ui-composition-react": "0.1.1"
   "@aopslab/xf-ui-foundation": "0.1.1"
   "@aopslab/xf-ui-plugin": "0.1.1"
   "@aopslab/xf-ui-shell-react": "0.1.1"
-  "@aopslab/xf-validation": "0.1.79"
-  "drizzle-orm": "0.45.1"
-  "effect": "3.19.19"
+  "@aopslab/xf-validation": "0.1.80"
+  "drizzle-orm": "0.45.2"
+  "effect": "3.20.0"
   "mongoose": "8.23.1"
   "pg": "8.20.0"
   "zod": "4.4.3"
@@ -48,31 +44,31 @@ catalog:
   "@aopslab/host-core": "0.1.1"
   "@aopslab/host-registration": "0.1.1"
   "@aopslab/manifest": "0.1.3"
-  "@aopslab/xf-bm": "0.1.88"
+  "@aopslab/xf-bm": "0.1.89"
   "@aopslab/xf-cli-operator": "0.0.2"
   "@aopslab/xf-cli-ui": "0.1.13"
-  "@aopslab/xf-core": "0.1.68"
-  "@aopslab/xf-db": "0.1.74"
-  "@aopslab/xf-db-drizzle": "0.1.80"
-  "@aopslab/xf-db-mongoose": "0.1.78"
-  "@aopslab/xf-db-redis": "0.1.75"
-  "@aopslab/xf-dm": "0.1.83"
-  "@aopslab/xf-dm-kits": "0.1.13"
-  "@aopslab/xf-i18n": "0.1.73"
+  "@aopslab/xf-core": "0.1.69"
+  "@aopslab/xf-db": "0.1.75"
+  "@aopslab/xf-db-drizzle": "0.1.81"
+  "@aopslab/xf-db-mongoose": "0.1.79"
+  "@aopslab/xf-db-redis": "0.1.76"
+  "@aopslab/xf-dm": "0.1.84"
+  "@aopslab/xf-dm-kits": "0.1.14"
+  "@aopslab/xf-i18n": "0.1.74"
   "@aopslab/xf-logger": "0.1.61"
   "@aopslab/xf-ui-composition-react": "0.1.1"
   "@aopslab/xf-ui-foundation": "0.1.1"
   "@aopslab/xf-ui-plugin": "0.1.1"
   "@aopslab/xf-ui-shell-react": "0.1.1"
-  "@aopslab/xf-validation": "0.1.79"
+  "@aopslab/xf-validation": "0.1.80"
   "@types/node": "^25.3.0"
   "@types/pg": "8.20.0"
   "@types/react": "^19.2.14"
   "ajv": "^8.18.0"
   "dotenv": "^17.3.1"
   "drizzle-kit": "^0.31.9"
-  "drizzle-orm": "0.45.1"
-  "effect": "^3.19.19"
+  "drizzle-orm": "0.45.2"
+  "effect": "^3.20.0"
   "marked": "^16.4.1"
   "mongoose": "^8.20.1"
   "pg": "8.20.0"
@@ -88,20 +84,64 @@ minimumReleaseAgeExclude:
   - "@aopslab/host-core@0.1.1"
   - "@aopslab/host-registration@0.1.1"
   - "@aopslab/manifest@0.1.3"
-  - "@aopslab/xf-bm@0.1.88"
   - "@aopslab/xf-cli-operator@0.0.2"
   - "@aopslab/xf-cli-ui@0.1.13"
-  - "@aopslab/xf-core@0.1.68"
-  - "@aopslab/xf-db@0.1.74"
-  - "@aopslab/xf-db-drizzle@0.1.80"
-  - "@aopslab/xf-db-mongoose@0.1.78"
-  - "@aopslab/xf-db-redis@0.1.75"
-  - "@aopslab/xf-dm@0.1.83"
-  - "@aopslab/xf-dm-kits@0.1.13"
-  - "@aopslab/xf-i18n@0.1.73"
   - "@aopslab/xf-logger@0.1.61"
   - "@aopslab/xf-ui-composition-react@0.1.1"
   - "@aopslab/xf-ui-foundation@0.1.1"
   - "@aopslab/xf-ui-plugin@0.1.1"
   - "@aopslab/xf-ui-shell-react@0.1.1"
-  - "@aopslab/xf-validation@0.1.79"
+  - "@aopslab/xf-bm@0.1.89"
+  - "@aopslab/xf-core@0.1.69"
+  - "@aopslab/xf-db@0.1.75"
+  - "@aopslab/xf-db-drizzle@0.1.81"
+  - "@aopslab/xf-db-mongoose@0.1.79"
+  - "@aopslab/xf-db-redis@0.1.76"
+  - "@aopslab/xf-dm@0.1.84"
+  - "@aopslab/xf-dm-kits@0.1.14"
+  - "@aopslab/xf-i18n@0.1.74"
+  - "@aopslab/xf-validation@0.1.80"
+  - '@aopslab/domain-dm-agentspace@0.1.1'
+  - '@aopslab/domain-host-plugin-agentspace@0.1.1'
+  - '@aopslab/domain-kit-agentspace@0.1.1'
+  - '@aopslab/domain-dm-chatv3@0.1.1'
+  - '@aopslab/domain-host-plugin-chatv3@0.1.1'
+  - '@aopslab/domain-kit-chatv3@0.1.1'
+  - '@aopslab/domain-pg-bootstrap-chatv3@0.1.1'
+  - '@aopslab/domain-product-client-chatv3@0.1.1'
+  - '@aopslab/light-client-core@0.1.1'
+  - '@aopslab/domain-cli-projectman@0.0.5'
+  - '@aopslab/domain-core-projectman@0.1.3'
+  - '@aopslab/domain-dm-projectman@0.1.4'
+  - '@aopslab/domain-host-plugin-projectman@0.0.4'
+  - '@aopslab/domain-kit-projectman@0.1.5'
+  - '@aopslab/domain-ops-projectman@0.0.4'
+  - '@aopslab/domain-pg-bootstrap-projectman@0.1.0'
+  - '@aopslab/domain-product-projectman@0.1.1'
+  - '@aopslab/domain-runtime-config-projectman@0.1.0'
+  - '@aopslab/domain-tooling-projectman@0.0.3'
+  - '@aopslab/projectman-cockpit-client@0.1.0'
+  - '@aopslab/domain-cli-docman@0.1.4'
+  - '@aopslab/domain-core-docman@0.0.15'
+  - '@aopslab/domain-dm-docman@0.1.2'
+  - '@aopslab/domain-host-plugin-docman@0.1.4'
+  - '@aopslab/domain-kit-docman@0.1.4'
+  - '@aopslab/domain-ops-docman@0.1.4'
+  - '@aopslab/domain-pg-bootstrap-docman@0.1.0'
+  - '@aopslab/domain-product-client-docman@0.1.0'
+  - '@aopslab/domain-product-docman@0.1.0'
+  - '@aopslab/domain-runtime-config-docman@0.1.0'
+  - '@aopslab/domain-tooling-docman@0.1.4'
+  - '@aopslab/domain-cli-sys@0.0.4'
+  - '@aopslab/domain-core-sys@0.0.3'
+  - '@aopslab/domain-dm-sys@0.1.86'
+  - '@aopslab/domain-host-plugin-sys@0.0.6'
+  - '@aopslab/domain-kit-sys@0.0.5'
+  - '@aopslab/domain-ops-sys@0.0.5'
+  - '@aopslab/domain-pg-bootstrap-sys@0.1.0'
+  - '@aopslab/domain-tooling-sys@0.0.4'
+  - '@sveltejs/adapter-node@5.5.7'
+  - '@sveltejs/kit@2.70.1'
+  - 'svelte@5.56.7'
+  - 'vite@7.3.6'
+  - 'esbuild@0.27.3'

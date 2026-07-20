@@ -36,7 +36,7 @@ import {
   workflowDefinitionTable,
   workflowInstanceTable,
   workflowStepRunTable,
-} from '../../../../domains/agentspace/agentspace-dm/dist/infrastructure/db/drizzle/drizzle.schema.index.js'
+} from '@aopslab/domain-dm-agentspace'
 
 // Drizzle Kit's `generate` command serializes every table exported by each
 // schema module; `tablesFilter` is a database push/introspection filter. Export

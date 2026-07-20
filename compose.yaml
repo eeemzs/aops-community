@@ -17,31 +17,7 @@ services:
     volumes:
       - aops-postgres-data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:${AOPS_PORT:-5900}:5900"
-
-  app:
-    image: ${AOPS_IMAGE_REF}
-    pull_policy: always
-    restart: unless-stopped
-    network_mode: service:postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
-        restart: true
-    environment:
-      NODE_ENV: production
-      AOPS_PUBLIC_PORT: ${AOPS_PORT:-5900}
-      AOPS_RELEASE_VERSION: ${AOPS_RELEASE_VERSION:?managed lifecycle must provide the verified release version}
-      AOPS_DB_BOOTSTRAP_MODE: explicit
-      AOPS_PG_URL: postgresql://${AOPS_POSTGRES_USER:-aops}:${AOPS_POSTGRES_PASSWORD}@127.0.0.1:5432/${AOPS_POSTGRES_DB:-aops}
-      CHATV3_SERVER_KEY_ID: k1
-      CHATV3_SERVER_KEY_SECRET: ${CHATV3_SERVER_KEY_SECRET:?set CHATV3_SERVER_KEY_SECRET in .env}
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5900/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
+      - "127.0.0.1:${AOPS_POSTGRES_PORT:-5432}:5432"
 
 volumes:
   aops-postgres-data:
