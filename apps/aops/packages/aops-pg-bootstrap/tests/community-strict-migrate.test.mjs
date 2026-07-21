@@ -840,6 +840,7 @@ test('apply reconciles one exact partial five-root lineage without replaying exi
       async query(text, params = []) {
         queries.push(text)
         if (text.includes('pg_try_advisory_lock')) return { rows: [{ acquired: true }] }
+        if (text.includes('pg_advisory_xact_lock')) return { rows: [] }
         if (text.includes('pg_advisory_unlock')) return { rows: [{ unlocked: true }] }
         if (text.startsWith('SET SESSION') || text.startsWith('BEGIN') || text === 'COMMIT' ||
             text === 'ROLLBACK' || text.startsWith('LOCK TABLE') ||
@@ -961,14 +962,27 @@ test('apply reconciles one exact partial five-root lineage without replaying exi
       },
     }
     const logs = []
+    const planning = await planCommunityStrictPgSchema({
+      repoUrl: 'postgresql://user:pass@localhost:5432/community',
+      workspaceRoot,
+      policy,
+      clientFactory: () => client,
+    })
+    assert.equal(planning.lineageId, 'reconciliation:known-partial-v1')
+    assert.equal(planning.migrationPlan.source.lineageId, 'reconciliation:known-partial-v1')
+    assert.equal(planning.migrationPlan.action, 'migrate')
+    assert.equal(planning.requiresSnapshotEvidence, false)
     const receipt = await applyCommunityStrictPgSchema({
       repoUrl: 'postgresql://user:pass@localhost:5432/community',
       workspaceRoot,
       policy,
       logs,
+      expectedPlanSha256: planning.acceptedPlanSha256,
       clientFactory: () => client,
     })
     assert.equal(receipt.lineageId, 'strict-v1')
+    assert.equal(receipt.acceptedPlanSha256, planning.acceptedPlanSha256)
+    assert.equal(receipt.sourceFingerprintSha256, planning.sourceFingerprintSha256)
     assert.ok(sourceTables.has('sys_product'))
     assert.equal(rowsByTable[MIGRATION_TABLES.agentspace].length, 1)
     assert.ok(logs.some((line) => /Applying exact Community lineage reconciliation.*sys/.test(line)))

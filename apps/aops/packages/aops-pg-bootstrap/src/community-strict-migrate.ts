@@ -1001,14 +1001,25 @@ export function buildCommunityStrictMigrationPlanV1(params: {
   const sourceLineage = params.sourceLineageId === 'empty-v1'
     ? null
     : params.policy.lineages.find((lineage) => lineage.id === params.sourceLineageId)
-  if (params.sourceLineageId !== 'empty-v1' && !sourceLineage) {
+  const reconciliationPrefix = 'reconciliation:'
+  const sourceReconciliation = params.sourceLineageId.startsWith(reconciliationPrefix)
+    ? params.policy.lineageReconciliations.find(
+      (candidate) => candidate.id === params.sourceLineageId.slice(reconciliationPrefix.length),
+    )
+    : undefined
+  if (params.sourceLineageId !== 'empty-v1' && !sourceLineage && !sourceReconciliation) {
     throw new Error(`community_strict_plan_source_lineage_invalid:${params.sourceLineageId}`)
   }
   if (sourceLineage && (sourceLineage.postgresMajor !== params.postgresMajor ||
       sourceLineage.schemaFingerprintSha256 !== params.sourceSchemaFingerprintSha256)) {
     throw new Error(`community_strict_plan_source_lineage_mismatch:${params.sourceLineageId}`)
   }
-  if ((sourceLineage?.kind === 'strict') !== (params.sourceStrictReceiptRowsSha256 !== null)) {
+  if (sourceReconciliation && (sourceReconciliation.postgresMajor !== params.postgresMajor ||
+      sourceReconciliation.schemaFingerprintSha256 !== params.sourceSchemaFingerprintSha256)) {
+    throw new Error(`community_strict_plan_source_reconciliation_mismatch:${sourceReconciliation.id}`)
+  }
+  if ((sourceLineage?.kind === 'strict') !== (params.sourceStrictReceiptRowsSha256 !== null) ||
+      (sourceReconciliation !== undefined && params.sourceStrictReceiptRowsSha256 !== null)) {
     throw new Error('community_strict_plan_source_strict_receipts_mismatch')
   }
 
@@ -1044,7 +1055,11 @@ export function buildCommunityStrictMigrationPlanV1(params: {
   if (sourceLineage && !sourceLineage.appliedCounts.every((count, index) => count === appliedCounts[index])) {
     throw new Error(`community_strict_plan_source_counts_mismatch:${sourceLineage.id}`)
   }
-  if (!sourceLineage && appliedCounts.some((count) => count !== 0)) {
+  if (sourceReconciliation &&
+      !sourceReconciliation.appliedCounts.every((count, index) => count === appliedCounts[index])) {
+    throw new Error(`community_strict_plan_source_counts_mismatch:${sourceReconciliation.id}`)
+  }
+  if (!sourceLineage && !sourceReconciliation && appliedCounts.some((count) => count !== 0)) {
     throw new Error('community_strict_plan_empty_source_not_empty')
   }
 
@@ -1644,7 +1659,11 @@ function classifyObservedState(params: {
     const migrationTableCount = params.policy.roots
       .filter((root) => params.observed.relationNames.has(root.migrationTable)).length
     if (migrationTableCount > 0 && migrationTableCount < params.policy.roots.length) {
-      throw new Error('community_strict_lineage_partial_migration_tables')
+      throw new Error(
+        `community_strict_lineage_partial_migration_tables:` +
+        `schema=${params.observed.schemaFingerprintSha256}:relations=${relationCount}:` +
+        `applied=${appliedCounts.join(',')}`,
+      )
     }
     if (migrationTableCount === 0 && !isEmptyCatalogProjection(params.observed.projection)) {
       throw new Error('community_strict_lineage_heuristic_only')
@@ -2635,6 +2654,24 @@ function buildPlanFromObservedState(params: {
   })
 }
 
+function buildPlanFromReconciliationState(params: {
+  policy: CommunityStrictMigrationPolicyV1
+  bundle: CommunityStrictMigrationBundleV1
+  postgresMajor: number
+  reconciliation: CommunityStrictLineageReconciliationV1
+  observed: ObservedState
+}): CommunityStrictMigrationPlanBindingV1 {
+  return buildCommunityStrictMigrationPlanV1({
+    policy: params.policy,
+    bundle: params.bundle,
+    postgresMajor: params.postgresMajor,
+    sourceLineageId: `reconciliation:${params.reconciliation.id}`,
+    sourceSchemaFingerprintSha256: params.observed.schemaFingerprintSha256,
+    sourceStrictReceiptRowsSha256: null,
+    sourceRoots: params.observed.roots,
+  })
+}
+
 function assertExpectedPlanSha256(
   expectedPlanSha256: string | undefined,
   binding: CommunityStrictMigrationPlanBindingV1,
@@ -2723,23 +2760,42 @@ export async function planCommunityStrictPgSchema(params: {
     ])
     const postgresMajor = await readPostgresMajor(client)
     const observed = await observeState({ client, policy: params.policy })
-    const classification = classifyObservedState({ policy: params.policy, observed, postgresMajor })
+    const reconciliation = findCommunityStrictLineageReconciliation({
+      policy: params.policy,
+      observed,
+      postgresMajor,
+    })
+    const classification = reconciliation
+      ? null
+      : classifyObservedState({ policy: params.policy, observed, postgresMajor })
     const dataSentinels = classification === 'empty-v1'
       ? []
       : await captureDataSentinels(client, observed.projection, params.policy)
     const receipt = createStateReceipt({
       policy: params.policy,
-      lineageId: classification === 'empty-v1' ? classification : classification.id,
+      lineageId: reconciliation
+        ? `reconciliation:${reconciliation.id}`
+        : classification === 'empty-v1'
+          ? classification
+          : classification!.id,
       observed,
       dataSentinels,
     })
-    const binding = buildPlanFromObservedState({
-      policy: params.policy,
-      bundle,
-      postgresMajor,
-      classification,
-      observed,
-    })
+    const binding = reconciliation
+      ? buildPlanFromReconciliationState({
+        policy: params.policy,
+        bundle,
+        postgresMajor,
+        reconciliation,
+        observed,
+      })
+      : buildPlanFromObservedState({
+        policy: params.policy,
+        bundle,
+        postgresMajor,
+        classification: classification!,
+        observed,
+      })
     await client.query('COMMIT')
     transactionOpen = false
     return {
@@ -2798,6 +2854,14 @@ export async function applyCommunityStrictPgSchema(params: {
   let committed = false
   let managedBackupGuard: CommunityStrictManagedBackupGuard | null = null
   let managedBackupRescue: CommunityStrictManagedBackupRescue | null = null
+  let reconciliationPlanContext: Readonly<{
+    binding: CommunityStrictMigrationPlanBindingV1
+    preflight: CommunityStrictStateReceiptV1
+    snapshotEvidence: Readonly<{
+      evidence: CommunityStrictSnapshotEvidenceV1
+      evidenceSha256: string
+    }> | null
+  }> | null = null
   const assertPostCommitManagedBackup = (): void => {
     const guard = managedBackupGuard
     const rescue = managedBackupRescue
@@ -2830,6 +2894,49 @@ export async function applyCommunityStrictPgSchema(params: {
       postgresMajor,
     })
     if (reconciliation) {
+      const binding = buildPlanFromReconciliationState({
+        policy: params.policy,
+        bundle,
+        postgresMajor,
+        reconciliation,
+        observed: discovered,
+      })
+      assertExpectedPlanSha256(params.expectedPlanSha256, binding)
+      const dataSentinels = await captureDataSentinels(client, discovered.projection, params.policy)
+      const preflight = createStateReceipt({
+        policy: params.policy,
+        lineageId: `reconciliation:${reconciliation.id}`,
+        observed: discovered,
+        dataSentinels,
+      })
+      let snapshotEvidence: {
+        evidence: CommunityStrictSnapshotEvidenceV1
+        evidenceSha256: string
+      } | null = null
+      if (binding.plan.pendingMigrations.some((migration) => migration.risk === 'destructive-or-dynamic')) {
+        const verifiedSnapshot = await verifySnapshotEvidence({
+          evidencePath: snapshotEvidencePath,
+          preflight,
+          policy: params.policy,
+          plan: binding,
+          snapshotPolicy,
+        })
+        snapshotEvidence = {
+          evidence: verifiedSnapshot.evidence,
+          evidenceSha256: verifiedSnapshot.evidenceSha256,
+        }
+        managedBackupGuard = verifiedSnapshot.managedBackupGuard
+      }
+      await params.onPlanAccepted?.({
+        migrationPlan: binding.plan,
+        acceptedPlanSha256: binding.planSha256,
+        sourceFingerprintSha256: binding.sourceFingerprintSha256,
+        preflight,
+        snapshotEvidenceKind: snapshotEvidence?.evidence.kind ?? null,
+        snapshotEvidenceSha256: snapshotEvidence?.evidenceSha256 ?? null,
+      })
+      if (managedBackupGuard) assertManagedBackupGuard(managedBackupGuard)
+      reconciliationPlanContext = { binding, preflight, snapshotEvidence }
       await client.query('COMMIT')
       transactionOpen = false
       await client.query('BEGIN')
@@ -2905,14 +3012,14 @@ export async function applyCommunityStrictPgSchema(params: {
     await lockObservedRelations(client, mutationDiscovery.projection)
     const before = await observeState({ client, policy: params.policy })
     const classification = classifyObservedState({ policy: params.policy, observed: before, postgresMajor })
-    const acceptedPlan = buildPlanFromObservedState({
+    const acceptedPlan = reconciliationPlanContext?.binding ?? buildPlanFromObservedState({
       policy: params.policy,
       bundle,
       postgresMajor,
       classification,
       observed: before,
     })
-    assertExpectedPlanSha256(params.expectedPlanSha256, acceptedPlan)
+    if (!reconciliationPlanContext) assertExpectedPlanSha256(params.expectedPlanSha256, acceptedPlan)
     if (classification !== 'empty-v1' && classification.id === target.id) {
       logs.push(`Community PostgreSQL lineage ${target.id} became exact before table locking; no DDL applied.`)
       const exactReceipt = createStateReceipt({
@@ -2937,18 +3044,21 @@ export async function applyCommunityStrictPgSchema(params: {
       )
       return attachAcceptedPlan(exactReceipt, acceptedPlan, durableAcceptance, latestAppliedAcceptance)
     }
-    const beforeSentinels = classification === 'empty-v1'
-      ? []
-      : await captureDataSentinels(client, before.projection, params.policy)
-    const preflight = createStateReceipt({
+    const beforeSentinels = reconciliationPlanContext?.preflight.dataSentinels ?? (
+      classification === 'empty-v1'
+        ? []
+        : await captureDataSentinels(client, before.projection, params.policy)
+    )
+    const preflight = reconciliationPlanContext?.preflight ?? createStateReceipt({
       policy: params.policy,
       lineageId: classification === 'empty-v1' ? classification : classification.id,
       observed: before,
       dataSentinels: beforeSentinels,
     })
     const risky = pendingRiskyMigrations(params.policy, before.roots)
-    let snapshotEvidence: { evidence: CommunityStrictSnapshotEvidenceV1; evidenceSha256: string } | null = null
-    if (classification !== 'empty-v1' && risky.length > 0) {
+    let snapshotEvidence: { evidence: CommunityStrictSnapshotEvidenceV1; evidenceSha256: string } | null =
+      reconciliationPlanContext?.snapshotEvidence ?? null
+    if (!reconciliationPlanContext && classification !== 'empty-v1' && risky.length > 0) {
       const verifiedSnapshot = await verifySnapshotEvidence({
         evidencePath: snapshotEvidencePath,
         preflight,
@@ -2962,14 +3072,16 @@ export async function applyCommunityStrictPgSchema(params: {
       }
       managedBackupGuard = verifiedSnapshot.managedBackupGuard
     }
-    await params.onPlanAccepted?.({
-      migrationPlan: acceptedPlan.plan,
-      acceptedPlanSha256: acceptedPlan.planSha256,
-      sourceFingerprintSha256: acceptedPlan.sourceFingerprintSha256,
-      preflight,
-      snapshotEvidenceKind: snapshotEvidence?.evidence.kind ?? null,
-      snapshotEvidenceSha256: snapshotEvidence?.evidenceSha256 ?? null,
-    })
+    if (!reconciliationPlanContext) {
+      await params.onPlanAccepted?.({
+        migrationPlan: acceptedPlan.plan,
+        acceptedPlanSha256: acceptedPlan.planSha256,
+        sourceFingerprintSha256: acceptedPlan.sourceFingerprintSha256,
+        preflight,
+        snapshotEvidenceKind: snapshotEvidence?.evidence.kind ?? null,
+        snapshotEvidenceSha256: snapshotEvidence?.evidenceSha256 ?? null,
+      })
+    }
     if (managedBackupGuard) assertManagedBackupGuard(managedBackupGuard)
 
     const preflightCounts = before.roots.map((root) => root.rows.length)
