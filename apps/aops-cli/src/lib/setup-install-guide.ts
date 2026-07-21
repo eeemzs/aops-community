@@ -54,3 +54,14 @@ export function loadAopsInstallSkill(
   }
   throw new Error('aops_install_skill_missing:reinstall_the_official_aops_cli_package')
 }
+
+export function buildAopsInstallAgentPrompt(): string {
+  return `Install AOPS Community on this computer with the installed \`aops\` command.
+
+1. Run \`aops setup guide --json\` and follow its packaged \`aops-install\` skill as the current installation guide.
+2. Run \`aops setup init --yes --json\` first and explain the available PostgreSQL paths and remaining actions briefly.
+3. Ask me only for choices or authority you cannot safely infer. Use the installed command's exact nested \`--help\`; do not guess flags.
+4. Never ask me to paste PostgreSQL URLs or passwords into chat and never place secrets in command arguments. Let me enter private values through AOPS's masked interactive prompts.
+5. Keep the starter data, signed official catalog, and Gateway assets for all registered agent runtimes unless I explicitly opt out.
+6. Apply the selected setup path, then verify migrations, server health, Gateway asset bindings, and Cockpit. Report the Cockpit URL and any remaining safe action.`
+}

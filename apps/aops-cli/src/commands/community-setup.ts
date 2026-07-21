@@ -1,4 +1,5 @@
 import { Command } from 'commander'
+import { banner, logInfo } from '@aopslab/xf-cli-ui'
 
 import { makeOfficialCatalogSetupCommand } from './official-catalog.js'
 
@@ -12,12 +13,29 @@ import {
 } from '../lib/community-setup-server-env.js'
 import { createSetupOfficialCatalogProviderV1 } from '../lib/setup-official-catalog-bridge.js'
 import { createSetupAgentAssetsProvider } from '../lib/setup-agent-assets-bridge.js'
-import { loadAopsInstallSkill } from '../lib/setup-install-guide.js'
+import {
+  buildAopsInstallAgentPrompt,
+  loadAopsInstallSkill,
+} from '../lib/setup-install-guide.js'
+import { promptSelect } from '../utils/prompts.js'
 
 export type CommunitySetupGuideOptions = Readonly<{
   json?: boolean
   path?: boolean
 }>
+
+export type CommunitySetupAiOptions = Readonly<{
+  json?: boolean
+}>
+
+const COMMUNITY_SETUP_HOME = `AOPS Setup — choose how to begin
+  Install interactively    aops setup init
+  Set up with an AI agent  aops setup ai
+  Inspect readiness        aops setup init --yes --json
+  Agent install skill      aops setup guide
+  Configure PostgreSQL     aops setup server-env
+Help: aops setup --help
+`
 
 export function runCommunitySetupGuide(options: CommunitySetupGuideOptions = {}): void {
   if (options.json && options.path) throw new Error('setup_guide_selector_conflict:choose_--json_or_--path')
@@ -38,10 +56,35 @@ export function runCommunitySetupGuide(options: CommunitySetupGuideOptions = {})
         content: skill.content,
       },
       nextCommand: 'aops setup init --yes --json',
+      aiCommand: 'aops setup ai',
     }, null, 2)}\n`)
     return
   }
   process.stdout.write(skill.content.endsWith('\n') ? skill.content : `${skill.content}\n`)
+}
+
+export function runCommunitySetupAi(options: CommunitySetupAiOptions = {}): void {
+  const skill = loadAopsInstallSkill()
+  const prompt = buildAopsInstallAgentPrompt()
+  if (options.json) {
+    process.stdout.write(`${JSON.stringify({
+      schemaVersion: 1,
+      command: 'setup.ai',
+      ok: true,
+      prompt,
+      skill: {
+        name: skill.name,
+        path: skill.path,
+        sha256: skill.sha256,
+      },
+      nextCommand: 'aops setup init --yes --json',
+    }, null, 2)}\n`)
+    return
+  }
+  banner('AOPS Setup with AI')
+  logInfo('Copy the prompt below to Codex, Claude, or another terminal AI agent.')
+  logInfo('Enter database secrets only in AOPS masked prompts; never paste them into chat.')
+  process.stdout.write(`\n--- copy from here ---\n${prompt}\n--- end prompt ---\n`)
 }
 
 export async function runCommunitySetupInit(options: SetupInitOptions = {}) {
@@ -50,6 +93,39 @@ export async function runCommunitySetupInit(options: SetupInitOptions = {}) {
     agentAssets: createSetupAgentAssetsProvider(),
     officialCatalog: createSetupOfficialCatalogProviderV1(),
   })
+}
+
+export async function runCommunitySetupMenu(): Promise<void> {
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    process.stdout.write(COMMUNITY_SETUP_HOME)
+    return
+  }
+
+  banner('AOPS Setup')
+  logInfo('Install here, or hand a safe setup prompt to any terminal AI agent.')
+  logInfo('Enter database secrets only in masked AOPS prompts; never paste them into chat.')
+  while (true) {
+    const action = await promptSelect({
+      message: 'How do you want to continue?',
+      type: process.env.AOPS_CLI_MENU_STYLE?.toLowerCase() === 'rawlist' ? 'rawlist' : 'select',
+      pageSize: 6,
+      choices: [
+        { name: 'Install AOPS interactively', value: 'install' },
+        { name: 'Set up with an AI agent', value: 'ai' },
+        { name: 'Inspect setup readiness', value: 'inspect' },
+        { name: 'Configure PostgreSQL connection', value: 'server-env' },
+        { name: 'Show packaged agent installation skill', value: 'guide' },
+        { name: 'Exit', value: 'exit' },
+      ],
+    })
+    if (action === 'exit') return
+    if (action === 'ai') { runCommunitySetupAi(); continue }
+    if (action === 'inspect') { await runCommunitySetupInit({ yes: true }); continue }
+    if (action === 'server-env') { await runCommunitySetupServerEnv({}); continue }
+    if (action === 'guide') { runCommunitySetupGuide(); continue }
+    await runCommunitySetupInit({ skipBanner: true })
+    return
+  }
 }
 
 function addSetupInitOptions(command: Command): Command {
@@ -77,8 +153,8 @@ function addSetupInitOptions(command: Command): Command {
     .option('--catalog-release <path>', 'Explicit verified-release override (normally resolved from the Community install)')
     .option('--catalog-idempotency-key <key>', 'Explicit official catalog reconcile replay key')
     .option('--no-seed', 'Skip the default small starter project, kanban board, sprint plan, and user guide')
-    .option('--apply', 'Apply the selected path after readiness checks')
-    .option('--resume', 'With --apply, resume the same idempotent setup orchestration')
+    .option('--apply', 'Apply the selected path in non-interactive or scripted use (interactive setup applies directly)')
+    .option('--resume', 'Resume the same idempotent setup orchestration')
     .option('--timeout-ms <ms>', 'Read-only host probe timeout', (value) => Number.parseInt(String(value), 10))
     .option('--yes', 'Non-interactive; report missing selections as actions')
     .option('--json', 'Output one typed readiness or apply-result envelope')
@@ -89,11 +165,23 @@ export function makeCommunitySetupCommand(): Command {
     .description('Inspect and bootstrap an AOPS Community installation')
     .addHelpText('after', `
 Agent bootstrap:
+  aops setup ai             Print a copy-ready prompt for any terminal AI agent
   aops setup guide          Print the packaged agent-readable installation skill
   aops setup guide --json   Return the same guide in a structured envelope
 `)
+    .action(async () => runCommunitySetupMenu())
 
   command.addCommand(makeOfficialCatalogSetupCommand())
+
+  command.command('ai')
+    .description('Print a safe, copy-ready AOPS installation prompt for a terminal AI agent')
+    .option('--json', 'Return the prompt and packaged skill identity as JSON')
+    .addHelpText('after', `
+This read-only handoff works with Codex, Claude, or another terminal agent. The
+prompt directs the agent to the packaged install skill and keeps database
+credentials in AOPS masked terminal prompts rather than chat or command argv.
+`)
+    .action((options: CommunitySetupAiOptions) => runCommunitySetupAi(options))
 
   command.command('guide')
     .description('Print the packaged agent-readable AOPS installation skill')
@@ -107,11 +195,12 @@ server health verification, and Cockpit handoff. It performs no setup itself.
     .action((options: CommunitySetupGuideOptions) => runCommunitySetupGuide(options))
 
   addSetupInitOptions(command.command('init')
-    .description('Configure an npm server with existing, managed Docker, or installed-local PostgreSQL; read-only unless --apply is supplied'))
+    .description('Interactively install AOPS, or inspect/apply an explicit path for automation'))
     .addHelpText('after', `
 Examples:
+  aops setup ai
   aops setup init
-  aops setup init --path 1 --postgres-tls verify-full --json
+  aops setup init --path 1 --postgres-tls require --json
   aops setup init --path 2 --apply --yes
   aops setup init --path 3 --apply
   aops setup init --path 2 --no-seed --apply --yes
@@ -128,7 +217,11 @@ Its password is generated securely by default; the interactive wizard also
 allows a masked, confirmed custom password without placing it in shell history.
 All PostgreSQL paths plan, apply when needed, and verify database migrations
 before the server is reported ready. Interactive terminals show animated
-progress for long-running steps; \`--json\` remains free of spinner output.
+progress and apply directly after required private inputs are collected; there
+is no redundant continue or starter-data confirmation. \`--json\` remains free
+of spinner output. Path 1 defaults to TLS \`require\`; choose \`verify-full\` when
+a trusted CA file is available, or explicitly choose \`disable\` when accepting
+an unencrypted PostgreSQL connection.
 Path 3 detects PostgreSQL on this computer, securely asks for an existing
 administrator role/password, and creates a new dedicated AOPS role and database
 before running the same migration verification. Administrator credentials are
@@ -144,8 +237,9 @@ Community agent assets use the TASK-136 \`aops assets\` contract; the
 development-only repo-mirror installer is not part of this command.
 Source and npm setup import only the inert signed official catalog bundled with
 the verified Community release by default.
-The application-image/OCI installation lane remains deferred and is not an
-ordinary setup path.
+  The optional application image reuses the exact npm CLI/server lifecycle
+  inside a container; it remains a distribution surface rather than another
+  interactive setup path.
 The CLI first resolves the canonical signed release bundled with the official
 npm package, selected source, or installed Community runtime;
 \`--catalog-release\` is only an explicit override.

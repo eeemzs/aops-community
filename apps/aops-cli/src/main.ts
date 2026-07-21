@@ -6,10 +6,8 @@ import { promptSelect } from './utils/prompts.js'
 import { makeInitCommand } from './commands/init.js'
 import {
   makeCommunitySetupCommand,
-  runCommunitySetupGuide,
-  runCommunitySetupInit,
+  runCommunitySetupMenu,
 } from './commands/community-setup.js'
-import { runCommunitySetupServerEnv } from './lib/community-setup-server-env.js'
 import { makeAssetsCommand, runAgentAssetsMenu } from './commands/assets.js'
 import { makeStartCommand } from './commands/start.js'
 import { makePlanCommand } from './commands/plan.js'
@@ -44,6 +42,7 @@ import { makeCommunityDoctorCommand } from './commands/community-doctor.js'
 import { makeCommunityConsoleCommand } from './commands/community-console.js'
 import { makeTargetCommand } from './commands/target.js'
 import { makeVersionCommand } from './commands/version.js'
+import { resolveCommunityHomeMode } from './lib/community-home.js'
 
 for (const stream of [process.stdout, process.stderr]) {
   stream.on('error', (error: NodeJS.ErrnoException) => {
@@ -102,6 +101,7 @@ AOPS Community is a single-user, self-hosted/local-trusted distribution.
 Canonical writes go to the local AOPS server; .aops/** remains a read-only cache.
 
 Quick checks:
+  aops setup ai
   aops setup guide
   aops host health
   aops agent tools
@@ -110,36 +110,49 @@ Quick checks:
   return program
 }
 
-const COMMUNITY_HOME = `AOPS Community — quick start
-  Agent install guide     aops setup guide
+const COMMUNITY_SETUP_FIRST_HOME = `AOPS Community — setup and installation
+  Install interactively  aops setup init
+  Set up with AI         aops setup ai
+  Inspect readiness      aops setup init --yes --json
+  Agent install skill    aops setup guide
   Configure PostgreSQL   aops setup server-env
-  Initialize AOPS        aops setup init
+After setup: aops server health | aops cockpit | aops assets
+Help: aops setup --help | aops --help
+`
+
+const COMMUNITY_OPERATOR_HOME = `AOPS Community — operator home
+  Setup/install          aops setup | aops setup init | aops setup guide
+  Configure PostgreSQL  aops setup server-env
+  Set up with AI         aops setup ai
   Check server health    aops server health
   Open Cockpit           aops cockpit
   Manage agent assets    aops assets
 Help: aops --help | aops <command> --help | Legacy: aops-cli
 `
 
-function outputCommunityHome(): void {
-  process.stdout.write(COMMUNITY_HOME)
+function outputCommunityHome(mode: 'setup' | 'operate'): void {
+  process.stdout.write(mode === 'setup' ? COMMUNITY_SETUP_FIRST_HOME : COMMUNITY_OPERATOR_HOME)
 }
 
 async function runCommunityMenu(): Promise<void> {
+  const mode = resolveCommunityHomeMode()
   if (!process.stdin.isTTY || !process.stdout.isTTY) {
-    outputCommunityHome()
+    outputCommunityHome(mode)
+    return
+  }
+  if (mode === 'setup') {
+    await runCommunitySetupMenu()
     return
   }
   banner('AOPS Community')
-  logInfo('Quick start. Full command list: aops --help')
+  logInfo('Operator home. Full command list: aops --help')
   while (true) {
     const action = await promptSelect({
       message: 'What do you want to do?',
       type: process.env.AOPS_CLI_MENU_STYLE?.toLowerCase() === 'rawlist' ? 'rawlist' : 'select',
       pageSize: 8,
       choices: [
-        { name: 'Show agent installation guide', value: 'setup-guide' },
-        { name: 'Configure PostgreSQL environment', value: 'server-env' },
-        { name: 'Initialize AOPS', value: 'init' },
+        { name: 'Setup and installation', value: 'setup' },
         { name: 'Check server health', value: 'health' },
         { name: 'Open Cockpit', value: 'cockpit' },
         { name: 'Manage agent assets', value: 'assets' },
@@ -148,13 +161,11 @@ async function runCommunityMenu(): Promise<void> {
       ],
     })
     if (action === 'exit') return
-    if (action === 'help') { outputCommunityHome(); continue }
-    if (action === 'setup-guide') { runCommunitySetupGuide(); continue }
-    if (action === 'server-env') { await runCommunitySetupServerEnv({}); continue }
+    if (action === 'help') { outputCommunityHome('operate'); continue }
+    if (action === 'setup') { await runCommunitySetupMenu(); continue }
     if (action === 'health') { await runCommunityServerHealth({}); continue }
     if (action === 'cockpit') { await runCommunityCockpit({}); continue }
     if (action === 'assets') { await runAgentAssetsMenu(); continue }
-    await runCommunitySetupInit({})
   }
 }
 

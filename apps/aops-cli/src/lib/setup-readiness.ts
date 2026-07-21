@@ -506,7 +506,7 @@ export async function inspectSetupReadiness(
         state: 'action-required',
         required: true,
         summary: 'A PostgreSQL TLS policy has not been selected.',
-        next: 'Choose disable (loopback only), require, or verify-full.',
+        next: 'Choose require (default), verify-full, or an explicit disable policy.',
       })
     } else if (!envReady) {
       checks.push({

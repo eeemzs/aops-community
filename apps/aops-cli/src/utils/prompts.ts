@@ -3,6 +3,7 @@ import inquirer from 'inquirer'
 export interface SelectChoice {
   name: string
   value: string
+  description?: string
 }
 
 const DONE_PREFIX = '\u2714 '

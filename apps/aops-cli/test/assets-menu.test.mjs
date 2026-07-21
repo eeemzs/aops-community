@@ -11,7 +11,7 @@ import { createDefaultAgentAssetsCommandRunner } from '../dist/commands/assets.j
 import { createSetupAgentAssetsProvider } from '../dist/lib/setup-agent-assets-bridge.js'
 import { resolveBundledAgentAssetsReleaseV1 } from '../dist/lib/setup-agent-assets-release.js'
 import { resolveSetupOfficialCatalogReleaseV1 } from '../dist/lib/setup-official-catalog-bridge.js'
-import { loadAopsInstallSkill } from '../dist/lib/setup-install-guide.js'
+import { buildAopsInstallAgentPrompt, loadAopsInstallSkill } from '../dist/lib/setup-install-guide.js'
 import { removeAopsGatewayPointers } from '../dist/lib/agent-assets/legacy-pointer-migration.js'
 import { windowsQualificationSupportsRuntime } from '../dist/lib/agent-assets/native-fs.js'
 import { resolveAgentAssetTargetSelection } from '../dist/lib/agent-assets/runtime-targets.js'
@@ -222,6 +222,17 @@ test('setup guide exposes the packaged agent-readable installation skill', () =>
   assert.equal(document.ok, true)
   assert.equal(document.skill.name, 'aops-install')
   assert.equal(document.nextCommand, 'aops setup init --yes --json')
+  assert.equal(document.aiCommand, 'aops setup ai')
+
+  const expectedPrompt = buildAopsInstallAgentPrompt()
+  const ai = runCli(['setup', 'ai', '--json'])
+  assert.equal(ai.status, 0, ai.stderr)
+  const aiDocument = JSON.parse(ai.stdout)
+  assert.equal(aiDocument.ok, true)
+  assert.equal(aiDocument.prompt, expectedPrompt)
+  assert.equal(aiDocument.skill.name, 'aops-install')
+  assert.match(aiDocument.prompt, /aops setup guide --json/)
+  assert.match(aiDocument.prompt, /never place secrets in command arguments/i)
 })
 
 test('bundled npm release discovery needs no operator-supplied path', () => {

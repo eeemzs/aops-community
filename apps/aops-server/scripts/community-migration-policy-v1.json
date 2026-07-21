@@ -292,5 +292,28 @@
       "convergenceSha256": "dcc49a31f8fecaba7d3f05c939a78f266ca7543d46da62ef9c3ac2176df024b2"
     }
   ],
+  "lineageReconciliations": [
+    {
+      "id": "community-five-root-metadata-reconciliation-v1",
+      "postgresMajor": 17,
+      "relationCount": 79,
+      "schemaFingerprintSha256": "43ced4bc630097f11eccfa9774e0d36c25f0a64311278e98e1e2f88a823352a1",
+      "appliedCounts": [
+        0,
+        0,
+        7,
+        6,
+        6
+      ],
+      "targetLineageId": "legacy-full-v1",
+      "rootModes": [
+        "apply",
+        "adopt",
+        "unchanged",
+        "unchanged",
+        "unchanged"
+      ]
+    }
+  ],
   "targetLineageId": "strict-v1"
 }

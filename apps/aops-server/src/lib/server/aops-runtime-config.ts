@@ -82,7 +82,7 @@ function parsePgTarget(value: unknown): CommunityPgTarget {
   let ssl: CommunityPgTarget['ssl']
   if (entries.length === 0 && loopback) {
     ssl = false
-  } else if (loopback && exactQuery({ sslmode: 'disable' })) {
+  } else if (exactQuery({ sslmode: 'disable' })) {
     ssl = false
   } else if (exactQuery({ sslmode: 'require', uselibpqcompat: 'true' })) {
     ssl = { rejectUnauthorized: false }

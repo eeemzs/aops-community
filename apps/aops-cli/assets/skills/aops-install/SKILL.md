@@ -9,6 +9,10 @@ Use the installed `aops` command as live truth. Run the relevant `--help` before
 
 ## Inspect first
 
+If the operator starts with `aops setup ai`, treat its copy-ready prompt as the
+handoff into this packaged skill. The prompt is only an entry point; this skill
+and the installed CLI's live help remain the detailed authority.
+
 Run mutation-free discovery:
 
 ```sh
@@ -29,6 +33,7 @@ password in argv, logs, committed files, or chat.
 | Need | Smallest surface |
 | --- | --- |
 | inspect choices and readiness | `aops setup init --yes --json` |
+| give any terminal AI agent a safe setup handoff | `aops setup ai` |
 | normal operator installation | `aops setup init` |
 | use an existing database URL | path `1`, then `aops setup server-env` |
 | let AOPS manage Docker PostgreSQL | path `2` |
@@ -50,8 +55,10 @@ aops setup init
 
 All server paths use the normal `default` instance and port `5900`, verify
 migrations, install registered Gateway pointers, reconcile the inert signed
-official catalog, and create a small starter dataset by default. Use
-`--no-seed` or `--no-catalog` only when the operator explicitly opts out.
+official catalog, and create a small starter dataset automatically. Interactive
+setup applies after collecting the selected path's required private inputs; it
+does not ask a redundant continue or starter-data question. Use `--no-seed` or
+`--no-catalog` only when the operator explicitly opts out.
 
 For automatic Docker PostgreSQL, the container port is loopback-only and dynamically assigned. A destructive reset removes only exact instance/root/secret label-verified resources:
 
@@ -64,16 +71,23 @@ Global AOPS skills and pointers are shared installation assets and remain instal
 
 ## Path safety notes
 
-Git clone is a secondary development path. The application-image/OCI lane is
-deferred and is not a setup path. Path `2` manages only its namespaced,
+Git clone is a secondary development path. The optional application image is
+built from the same exact public npm CLI/server closure and runs the normal
+`aops server setup` lifecycle inside the container. It is a distribution path,
+not a fifth interactive `setup init` path. Path `2` manages only its namespaced,
 label-verified PostgreSQL resources; unrelated Docker resources remain
 operator-owned.
 
 For path `1`, PostgreSQL is operator-owned and may be local, remote, managed,
-or separately containerized. First run interactive `aops setup server-env` (or
-inject `AOPS_PG_URL` privately), then inspect
-`aops setup init --path 1 --postgres-tls <policy> --yes --json`. Do not choose a
-TLS policy without operator or deployment evidence.
+or separately containerized. Run interactive `aops setup init` and select path
+`1`; it asks for the TLS policy and PostgreSQL URL using masked input. A saved
+URL is offered as a masked default on retry and can be kept or replaced.
+`require` is the interactive TLS default for encrypted transport without a CA
+file. Use `verify-full` with a trusted CA and matching hostname; use `disable`
+only when the operator explicitly accepts unencrypted transport. For
+non-interactive work, inject `AOPS_PG_URL` privately or prepare it with
+`aops setup server-env`, then inspect `aops setup init --path 1
+--postgres-tls <policy> --yes --json`.
 
 For path `3`, prefer interactive setup. It probes loopback PostgreSQL, asks for
 an existing administrator role/password through masked input, creates a new
@@ -90,11 +104,11 @@ operator to configure one through their local PostgreSQL administration flow
 (for example, interactive `sudo -u postgres psql` followed by `\password
 postgres`) before retrying.
 
-## Apply explicitly
+## Apply explicitly in automation
 
-After PostgreSQL and path selections are known, run the selected path's
-mutation-free readiness first. Apply only after its required actions and private
-inputs are understood:
+Interactive `aops setup init` applies directly. For agents, CI, and scripts,
+run the selected path's mutation-free readiness first and apply only after its
+required actions and private inputs are understood:
 
 ```sh
 aops setup init --path 2 --yes --json

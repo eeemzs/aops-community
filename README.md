@@ -25,12 +25,13 @@ npm install --global @aopslab/aops-cli
 aops --cli-version
 ```
 
-Then choose the operator menu, the direct setup wizard, or the packaged
-agent-installation guide:
+Then choose the setup menu, direct wizard, or an AI-assisted handoff:
 
 ```sh
-aops                 # compact interactive operator menu
+aops                 # setup-first when no local installation is detected
+aops setup           # compact installation menu
 aops setup init      # direct interactive installation wizard
+aops setup ai        # copy-ready prompt for any terminal AI agent
 aops setup guide     # read-only installation skill for an AI agent
 ```
 
@@ -55,13 +56,15 @@ through the canonical `aops` command.
 
 | Setup style | Start here | Best for |
 |---|---|---|
-| Interactive operator setup | `aops` or `aops setup init` | A person installing AOPS on one computer |
-| Agent-assisted setup | `aops setup guide` | Codex, Claude, or another terminal agent helping the operator safely |
+| Interactive operator setup | `aops`, `aops setup`, or `aops setup init` | A person installing AOPS on one computer |
+| Agent-assisted setup | `aops setup ai` | Codex, Claude, or another terminal agent helping the operator safely |
+| Agent install skill | `aops setup guide` | An agent that needs the complete packaged setup discipline |
 | Non-interactive automation | `aops setup init --yes --json` | CI, scripts, and an agent that must inspect readiness before applying |
 
-The no-argument `aops` menu is intentionally short. It exposes installation,
-PostgreSQL configuration, health, Cockpit, agent assets, and help without
-dumping the full command catalog. Use `aops --help` or
+The no-argument `aops` menu is intentionally short. When no complete local
+runtime or configured remote AOPS target is detected it opens the setup-first
+menu automatically; otherwise it opens the operator menu. `aops setup` always
+opens the compact installation menu. Use `aops --help` or
 `aops <command> --help` for the complete live surface.
 
 ### Recommended: interactive first installation
@@ -85,7 +88,9 @@ On Windows, macOS, and Linux the menu offers three local server paths:
 All three choices install the npm server as the normal `default` instance on
 <http://127.0.0.1:5900>, activate the AOPS Gateway for every registered agent
 runtime, reconcile the bundled signed official catalog without activating its
-skills, and create a deliberately small starter dataset by default. Use
+skills, and create a deliberately small starter dataset automatically. The
+interactive wizard proceeds after the selected path's required private inputs;
+it does not ask a redundant confirmation or starter-data question. Use
 `--no-catalog` only for an explicitly minimal server installation:
 
 - one **AOPS Starter** project;
@@ -110,8 +115,7 @@ created AOPS tables, setup revokes those non-owner grants before the exact
 schema verification succeeds. Access remains through the configured AOPS
 server connection unless the operator deliberately adds a separate policy.
 
-Choose “no” at the starter-data question, or use `--no-seed` in automation, to
-start with an empty database. Non-interactive examples:
+Use `--no-seed` to start with an empty database. Non-interactive examples:
 
 ```sh
 aops setup init --path 2 --apply --yes
@@ -146,6 +150,8 @@ server or global Gateway pointers exist:
 
 ```sh
 aops setup guide          # print the complete agent-readable guide
+aops setup ai             # print a safe prompt to copy to any terminal AI agent
+aops setup ai --json      # return the prompt and skill identity for tooling
 aops setup guide --path   # print the installed SKILL.md path
 aops setup guide --json   # return metadata and content for automation
 aops setup init --help    # inspect the exact setup surface in this CLI version
@@ -157,18 +163,28 @@ apply only an explicitly selected path, activate registered agent runtimes, and
 verify server health and Cockpit. It does not silently install or change
 anything.
 
-After installing the CLI, an operator can give a terminal agent this bootstrap
-request:
+After installing the CLI, run `aops setup ai` and copy its generated bootstrap
+request to a terminal agent. The generated prompt routes the agent back to the
+packaged `aops-install` skill, mutation-free readiness, live help, masked secret
+entry, and end-to-end verification. Its current shape is:
 
 ```text
-Install AOPS Community on this computer. First run `aops setup guide`, then use
-the installed command's live `--help` as the source of truth. Inspect readiness
-without mutation, ask me whether to use my existing database, an AOPS-managed
-Docker PostgreSQL, or PostgreSQL installed on this computer, and never place database credentials in command arguments,
-logs, committed files, or chat. Apply only after the path and TLS choice are
-clear. Keep the small starter data and install AOPS Gateway assets for all
-registered agent runtimes unless I explicitly opt out. Finally verify server
-health, asset bindings, and Cockpit, and report the URL and any remaining action.
+Install AOPS Community on this computer with the installed `aops` command.
+
+1. Run `aops setup guide --json` and follow its packaged `aops-install` skill as
+   the current installation guide.
+2. Run `aops setup init --yes --json` first and explain the available PostgreSQL
+   paths and remaining actions briefly.
+3. Ask me only for choices or authority you cannot safely infer. Use the
+   installed command's exact nested `--help`; do not guess flags.
+4. Never ask me to paste PostgreSQL URLs or passwords into chat and never place
+   secrets in command arguments. Let me enter private values through AOPS's
+   masked interactive prompts.
+5. Keep the starter data, signed official catalog, and Gateway assets for all
+   registered agent runtimes unless I explicitly opt out.
+6. Apply the selected setup path, then verify migrations, server health,
+   Gateway asset bindings, and Cockpit. Report the Cockpit URL and any remaining
+   safe action.
 ```
 
 The agent's safe discovery sequence is:
@@ -257,8 +273,10 @@ aops server setup \
 ```
 
 Configure `AOPS_PG_SSL_ROOT_CERT` beside the server env file for
-`verify-full`. `--postgres-tls disable` is accepted only for loopback database
-hosts.
+`verify-full`. The interactive default is `require`, which encrypts transport
+without requiring a CA file. `--postgres-tls disable` is also available for an
+operator who intentionally chooses an unencrypted local, remote, or
+private-network PostgreSQL connection.
 
 For a guided readiness and installation flow instead of the explicit command:
 
@@ -387,10 +405,32 @@ The operator owns containers created with this manual recipe. The normal setup
 path `aops setup init --path 2` is separate: AOPS manages only its own
 namespaced, ownership-label-verified PostgreSQL container and volume.
 
-The ready AOPS application image and Docker/Compose installation lanes are
-temporarily deferred. Their code may remain for future reactivation, but npm
-installation is the supported default and ordinary source/doc changes do not
-trigger image work.
+## Optional npm-built application image
+
+The application image is another wrapper around the same published npm
+CLI/server closure; it does not clone or build this repository. Configuration,
+migrations, lifecycle state, Cockpit, and the server still flow through `aops`.
+Keep the data root on a volume and place the PostgreSQL URL in a private env
+file rather than command arguments:
+
+```sh
+docker volume create aops-community-data
+docker run --detach --name aops-community \
+  --publish 127.0.0.1:5900:5900 \
+  --env-file ./aops-container.env \
+  --volume aops-community-data:/var/lib/aops \
+  ghcr.io/eeemzs/aops-community:0.1.5
+```
+
+Set `AOPS_PG_URL` and choose the PostgreSQL transport policy explicitly with
+`AOPS_POSTGRES_TLS=require`, `verify-full`, or `disable`. `require` remains the
+image default, while `disable` is available when the operator intentionally
+uses a non-TLS local, remote, or private-network PostgreSQL service. The image
+never mounts the Docker socket or creates sibling containers.
+
+Image construction and architecture composition live in private `aops-dist`.
+Windows/x64 builds `linux/amd64` locally and macOS/ARM64 builds `linux/arm64`
+locally; ordinary source or documentation changes do not trigger either lane.
 
 ## Source checkout for contributors
 

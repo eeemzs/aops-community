@@ -7,6 +7,8 @@ operations.
 ```sh
 npm install --global @aopslab/aops-cli
 aops --help
+aops setup
+aops setup ai
 aops setup guide
 aops setup init
 aops cockpit
@@ -17,7 +19,14 @@ aops assets
 backward-compatible alias. `aops cockpit` opens a healthy installed Cockpit,
 starting a stopped server first; use `--no-open --json` on headless hosts.
 
-`aops setup init` is the normal cross-platform first-install menu. It offers an
+With no complete local runtime or configured remote target, parameterless
+`aops` opens a setup-first menu; otherwise it opens the compact operator home.
+`aops setup` always opens the installation menu, and `aops setup ai` prints a
+safe prompt that can be handed to Codex, Claude, or another terminal AI agent.
+The prompt routes the agent to the packaged `aops-install` skill and keeps
+secrets in masked AOPS prompts instead of chat or argv.
+
+`aops setup init` is the normal cross-platform first-install wizard. It offers an
 existing PostgreSQL connection, an automatic Docker PostgreSQL 17 container,
 or a dedicated AOPS role/database created in PostgreSQL installed on this computer,
 uses the standard `default` instance and port `5900`, installs all registered
@@ -26,7 +35,10 @@ activating its skills, and creates one small starter project/board/sprint/user-g
 dataset by default. Managed PostgreSQL uses a generated strong password by
 default, with a masked custom-password choice in the interactive wizard. All
 database paths verify migrations before readiness; interactive terminals show
-animated progress and `--json` remains machine-clean. Use `--no-seed` to start empty. A managed database can be
+animated progress and `--json` remains machine-clean. Interactive setup applies
+the chosen path immediately after collecting its required private inputs; the
+starter dataset is automatic and has no extra confirmation question. Use
+`--no-seed` to start empty. A managed database can be
 removed only with `aops server reset --remove-managed-postgres
 --confirm-data-loss --confirm-instance default`; exact ownership labels are
 verified before the container or volume is deleted.
@@ -54,7 +66,8 @@ users can still run an explicit AOPS Community checkout with `--source-root`.
 the server is initialized. `aops assets` opens the registered-runtime asset
 manager. It installs or updates the verified AOPS Gateway skill, repairs global pointers, reports
 status, and can safely remove recognized pointers while retaining the local
-verified core. `aops setup init --apply` offers the same first-install choice.
+verified core. Interactive `aops setup init` applies directly; automation uses
+an explicit path with `--apply --yes`.
 The official npm package supplies an independently signed
 Gateway/client-core closure and inert official catalog snapshot, so normal
 installation does not depend on an application-image release or ask for a
