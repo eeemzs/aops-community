@@ -144,8 +144,9 @@ Community agent assets use the TASK-136 \`aops assets\` contract; the
 development-only repo-mirror installer is not part of this command.
 Source and npm setup import only the inert signed official catalog bundled with
 the verified Community release by default.
-The application-image/OCI installation lane remains deferred and is not an
-ordinary setup path.
+  The optional application image reuses the exact npm CLI/server lifecycle
+  inside a container; it remains a distribution surface rather than another
+  interactive setup path.
 The CLI first resolves the canonical signed release bundled with the official
 npm package, selected source, or installed Community runtime;
 \`--catalog-release\` is only an explicit override.

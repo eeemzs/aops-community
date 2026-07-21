@@ -501,7 +501,10 @@ export async function restoreCommunityNativeDatabaseForUpdate(params: {
         },
       }
     }
-    const repoUrl = loadExternalPostgresUrl(params.state.postgres.configRef, params.state.postgres.tlsPolicy)
+    const repoUrl = loadExternalPostgresUrl(
+      params.state.postgres.configRef,
+      params.state.postgres.tlsPolicy,
+    )
     const planned = await (dependencies.planNativeMigration ?? planCommunityNativeMigration)({
       sourceRoot: path.resolve(params.sourceRoot),
       repoUrl,

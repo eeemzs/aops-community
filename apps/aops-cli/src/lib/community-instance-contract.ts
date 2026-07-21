@@ -3,6 +3,7 @@ import { resolveAopsServerEnvPath } from '@aops/runtime-config'
 export type CommunityServerRuntime = 'native' | 'oci'
 export type CommunityPostgresMode = 'external' | 'container'
 export type CommunityPostgresTlsPolicy = 'disable' | 'require' | 'verify-full'
+export type CommunityServerExposure = 'loopback' | 'container'
 
 export type CommunityInstanceContract = Readonly<{
   schemaVersion: 1
@@ -14,7 +15,11 @@ export type CommunityInstanceContract = Readonly<{
     configRef?: string
     tlsPolicy?: CommunityPostgresTlsPolicy
   }>
-  server: Readonly<{ port: number }>
+  server: Readonly<{
+    port: number
+    exposure: CommunityServerExposure
+    publicPort: number
+  }>
   lifecycleAuthority: 'local-instance'
   implementation: 'p1-contract-only' | 'native-v1-supervisor' | 'oci-v1-adapter'
 }>
@@ -38,6 +43,8 @@ export function buildCommunityInstanceContract(input: {
   postgres?: string
   postgresConfig?: string
   postgresTls?: string
+  exposure?: string
+  publicPort?: string | number
   instance?: string
   port?: string | number
   processEnv?: NodeJS.ProcessEnv
@@ -46,7 +53,19 @@ export function buildCommunityInstanceContract(input: {
     throw new Error('community_setup_runtime_required:use_--runtime_native_or_oci')
   }
   const runtime: CommunityServerRuntime = input.runtime
-  const server = Object.freeze({ port: portNumber(input.port) })
+  const exposure = input.exposure ?? 'loopback'
+  if (exposure !== 'loopback' && exposure !== 'container') {
+    throw new Error('community_setup_exposure_invalid:use_--exposure_loopback_or_container')
+  }
+  const port = portNumber(input.port)
+  const publicPort = portNumber(input.publicPort ?? port)
+  if (exposure === 'loopback' && input.publicPort !== undefined && publicPort !== port) {
+    throw new Error('community_setup_public_port_requires_container_exposure')
+  }
+  if (exposure === 'container' && port !== 5900) {
+    throw new Error('community_setup_container_exposure_port_required:5900')
+  }
+  const server = Object.freeze({ port, exposure, publicPort })
   const base = {
     schemaVersion: 1 as const,
     instanceId: instanceId(input.instance),
@@ -55,8 +74,11 @@ export function buildCommunityInstanceContract(input: {
     lifecycleAuthority: 'local-instance' as const,
   }
   if (runtime === 'oci') {
-    if (input.postgres || input.postgresConfig || input.postgresTls) {
-      throw new Error('community_setup_oci_postgres_options_refused')
+    if (
+      input.postgres || input.postgresConfig || input.postgresTls ||
+      input.exposure !== undefined || input.publicPort !== undefined
+    ) {
+      throw new Error('community_setup_oci_native_options_refused')
     }
     return Object.freeze({
       ...base,
@@ -71,6 +93,9 @@ export function buildCommunityInstanceContract(input: {
   if (input.postgres === 'container') {
     if (input.postgresConfig || input.postgresTls) {
       throw new Error('community_setup_container_postgres_external_options_refused')
+    }
+    if (exposure !== 'loopback') {
+      throw new Error('community_setup_managed_postgres_requires_loopback_exposure')
     }
     return Object.freeze({
       ...base,
@@ -115,11 +140,21 @@ export function parseCommunityInstanceContract(value: unknown): CommunityInstanc
     throw new Error('community_instance_contract_invalid')
   }
   const input = value as Record<string, any>
+  const ociRuntime = input.runtime === 'oci'
+  if (
+    ociRuntime &&
+    (
+      (input.server?.exposure !== undefined && input.server.exposure !== 'loopback') ||
+      (input.server?.publicPort !== undefined && input.server.publicPort !== input.server?.port)
+    )
+  ) throw new Error('community_instance_contract_oci_server_invalid')
   const rebuilt = buildCommunityInstanceContract({
     runtime: input.runtime,
     postgres: input.postgres?.mode === 'managed-stack' ? undefined : input.postgres?.mode,
     postgresConfig: input.postgres?.configRef,
     postgresTls: input.postgres?.tlsPolicy,
+    exposure: ociRuntime ? undefined : input.server?.exposure,
+    publicPort: ociRuntime ? undefined : input.server?.publicPort,
     instance: input.instanceId,
     port: input.server?.port,
   })

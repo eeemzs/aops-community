@@ -34,7 +34,11 @@ import {
   type CommunityNativeControlRequest,
 } from './community-native-child.js'
 import { resolveCommunityInstallPaths } from './community-lifecycle.js'
-import type { CommunityInstanceContract, CommunityPostgresTlsPolicy } from './community-instance-contract.js'
+import type {
+  CommunityInstanceContract,
+  CommunityPostgresTlsPolicy,
+  CommunityServerExposure,
+} from './community-instance-contract.js'
 import {
   COMMUNITY_NATIVE_POSTGRES_CONTRACT_PATH,
   assertCommunityNativePostgresInstanceState,
@@ -179,6 +183,8 @@ type CommunityNativeInstallStateBase = {
   server: {
     host: '127.0.0.1'
     port: number
+    exposure: CommunityServerExposure
+    publicPort: number
   }
 }
 
@@ -650,7 +656,13 @@ function parseNativeState(value: unknown, paths: CommunityNativePaths): Communit
     'handlerEntrySha256', 'cockpitIndexSha256', 'runtimeFileCount', 'runtimeInventorySha256',
     'buildFingerprint',
   ], 'community_native_state_build_invalid')
-  exactKeys(input.server, ['host', 'port'], 'community_native_state_server_invalid')
+  const serverKeys = Object.keys(input.server ?? {})
+  if (
+    !['host', 'port'].every((key) => serverKeys.includes(key)) ||
+    serverKeys.some((key) => !['host', 'port', 'exposure', 'publicPort'].includes(key))
+  ) throw new Error('community_native_state_server_invalid')
+  const exposure = input.server.exposure ?? 'loopback'
+  const publicPort = input.server.publicPort ?? input.server.port
   if (
     !path.isAbsolute(input.source.root) || !PUBLIC_PACKAGE_MANAGER.test(input.source.packageManager) ||
     !RELEASE_VERSION.test(String(input.source.releaseVersion)) ||
@@ -663,7 +675,10 @@ function parseNativeState(value: unknown, paths: CommunityNativePaths): Communit
     ![input.build.hostEntrySha256, input.build.handlerEntrySha256, input.build.cockpitIndexSha256,
       input.build.runtimeInventorySha256, input.build.buildFingerprint]
       .every((item) => SHA256.test(String(item))) ||
-    input.server.host !== '127.0.0.1' || !validPort(input.server.port)
+    input.server.host !== '127.0.0.1' || !validPort(input.server.port) ||
+    !['loopback', 'container'].includes(exposure) || !validPort(publicPort) ||
+    (exposure === 'container' && input.server.port !== 5900) ||
+    (exposure === 'loopback' && publicPort !== input.server.port)
   ) throw new Error('community_native_state_schema_invalid')
   const layout = sourceLayout(input.source.root)
   if (
@@ -686,6 +701,7 @@ function parseNativeState(value: unknown, paths: CommunityNativePaths): Communit
     if (postgres.mode !== 'container') throw new Error('community_native_state_postgres_invalid')
     void buildCommunityNativePostgresUrl(postgres)
   }
+  input.server = { ...input.server, exposure, publicPort }
   return input as CommunityNativeInstallState
 }
 
@@ -1243,14 +1259,10 @@ export function buildCommunityPnpmInvocation(
   throw new Error('community_pnpm11_not_resolvable:run_via_pnpm_11_or_set_PNPM_HOME')
 }
 
-function isLoopbackHost(value: string): boolean {
-  const host = value.replace(/^\[|\]$/g, '').toLowerCase()
-  if (host === 'localhost' || host === '::1') return true
-  const match = /^127\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host)
-  return Boolean(match && match.slice(1).every((octet) => Number(octet) <= 255))
-}
-
-export function loadExternalPostgresUrl(configRef: string, tlsPolicy: CommunityPostgresTlsPolicy): string {
+export function loadExternalPostgresUrl(
+  configRef: string,
+  tlsPolicy: CommunityPostgresTlsPolicy,
+): string {
   const resolved = path.resolve(configRef)
   let stats: ReturnType<typeof lstatSync>
   try { stats = lstatSync(resolved) } catch { throw new Error('community_native_postgres_config_file_invalid') }
@@ -1274,7 +1286,6 @@ export function loadExternalPostgresUrl(configRef: string, tlsPolicy: CommunityP
 
   const rootCertInput = String(parsed.AOPS_PG_SSL_ROOT_CERT ?? '').trim()
   if (tlsPolicy === 'disable') {
-    if (!isLoopbackHost(url.hostname)) throw new Error('community_native_remote_postgres_tls_required')
     if (rootCertInput) throw new Error('community_native_postgres_tls_root_cert_not_allowed')
     url.searchParams.set('sslmode', 'disable')
     return url.toString()
@@ -1490,6 +1501,8 @@ function childEnvironment(params: {
     AOPS_NATIVE_CONTROL_PATH: params.paths.controlPath,
     AOPS_NATIVE_PORT: String(params.state.server.port),
     COMMUNITY_PORT: String(params.state.server.port),
+    AOPS_COMMUNITY_HOST_MODE: params.state.server.exposure,
+    AOPS_COMMUNITY_PUBLIC_PORT: String(params.state.server.publicPort),
   }
 }
 
@@ -2457,7 +2470,12 @@ export async function setupCommunityNativeInstall(params: {
     updatedAt,
     source,
     build,
-    server: { host: '127.0.0.1', port: params.contract.server.port },
+    server: {
+      host: '127.0.0.1',
+      port: params.contract.server.port,
+      exposure: params.contract.server.exposure,
+      publicPort: params.contract.server.publicPort,
+    },
   }
   const state: CommunityNativeInstallState = params.contract.profile === 'native-external-postgres'
     ? {

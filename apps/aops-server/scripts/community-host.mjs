@@ -129,7 +129,7 @@ function requirePostgresqlUrl(value) {
     entries.every(([key, entryValue]) => expected[key] === entryValue);
   const loopback = isLoopbackPostgresqlHost(parsed.hostname);
   const noQuery = entries.length === 0;
-  const localDisable = loopback && exactQuery({ sslmode: "disable" });
+  const tlsDisable = exactQuery({ sslmode: "disable" });
   const tlsRequire = exactQuery({ sslmode: "require", uselibpqcompat: "true" });
   const verifyFull = exactQuery({ sslmode: "verify-full" });
   const verifyFullWithRoot = entries.length === 2 &&
@@ -137,7 +137,10 @@ function requirePostgresqlUrl(value) {
     parsed.searchParams.get("sslmode") === "verify-full" &&
     path.isAbsolute(nonEmpty(parsed.searchParams.get("sslrootcert"))) &&
     entries.every(([key]) => key === "sslmode" || key === "sslrootcert");
-  if (!(loopback && noQuery) && !localDisable && !tlsRequire && !verifyFull && !verifyFullWithRoot) {
+  if (
+    !(loopback && noQuery) && !tlsDisable &&
+    !tlsRequire && !verifyFull && !verifyFullWithRoot
+  ) {
     throw new Error("community_server_postgresql_url_required");
   }
   return candidate;
@@ -168,8 +171,8 @@ export function resolveCommunityHostConfig(options, env = process.env) {
   if (!options || typeof options !== "object" || Array.isArray(options)) {
     throw new Error("community_host_options_required");
   }
-  validateRuntimeEnvironment(env);
   const mode = nonEmpty(options.mode);
+  validateRuntimeEnvironment(env);
   const edgePort = parsePort(options.edgePort, DEFAULT_EDGE_PORT, "edge");
   if (mode === COMMUNITY_HOST_MODES.native) {
     if (
@@ -623,11 +626,24 @@ export async function runCommunityHost(options, env = process.env) {
 
 const isMain = typeof process.argv[1] === "string" && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
-  runCommunityHost({
-    mode: COMMUNITY_HOST_MODES.native,
-    edgeHost: NATIVE_EDGE_HOST,
-    edgePort: process.env.COMMUNITY_PORT || DEFAULT_EDGE_PORT,
-  }).catch((error) => {
+  const hostMode = nonEmpty(process.env.AOPS_COMMUNITY_HOST_MODE) || "loopback";
+  const options = hostMode === "loopback"
+    ? {
+        mode: COMMUNITY_HOST_MODES.native,
+        edgeHost: NATIVE_EDGE_HOST,
+        edgePort: process.env.COMMUNITY_PORT || DEFAULT_EDGE_PORT,
+      }
+    : hostMode === "container"
+      ? {
+          mode: COMMUNITY_HOST_MODES.oci,
+          edgeHost: OCI_EDGE_HOST,
+          edgePort: process.env.COMMUNITY_PORT || DEFAULT_EDGE_PORT,
+          publicPort: process.env.AOPS_COMMUNITY_PUBLIC_PORT || DEFAULT_EDGE_PORT,
+          internalHost: INTERNAL_HOST,
+          internalPort: DEFAULT_OCI_INTERNAL_PORT,
+        }
+      : { mode: hostMode };
+  runCommunityHost(options).catch((error) => {
     process.stderr.write(`[aops-community] ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   });

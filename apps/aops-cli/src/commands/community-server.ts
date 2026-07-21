@@ -77,6 +77,7 @@ import {
   buildCommunityInstanceContract,
   type CommunityPostgresMode,
   type CommunityPostgresTlsPolicy,
+  type CommunityServerExposure,
   type CommunityServerRuntime,
 } from '../lib/community-instance-contract.js'
 import {
@@ -116,6 +117,8 @@ export type CommunityServerOptions = {
   postgres?: CommunityPostgresMode
   postgresConfig?: string
   postgresTls?: CommunityPostgresTlsPolicy
+  exposure?: CommunityServerExposure
+  publicPort?: string | number
   sourceRoot?: string
   foreground?: boolean
   detach?: boolean
@@ -159,6 +162,12 @@ export type CommunityServerOptions = {
   silent?: boolean
   /** Ephemeral setup-only secret factory; never exposed as a CLI flag or serialized. */
   createPostgresSecret?: () => string
+}
+
+function nativePublicOrigin(state: {
+  server: { publicPort: number }
+}): string {
+  return `http://127.0.0.1:${state.server.publicPort}`
 }
 
 export type CommunityServerDependencies = Readonly<{
@@ -808,6 +817,8 @@ export async function runCommunityServerSetup(
     postgres: options.postgres,
     postgresConfig: options.postgresConfig,
     postgresTls: options.postgresTls,
+    exposure: options.exposure,
+    publicPort: options.publicPort,
     instance: options.instance,
     port: options.port,
   })
@@ -896,7 +907,8 @@ export async function runCommunityServerSetup(
         instance: setup.state.instanceName,
         mode: setup.launch.mode,
         pid: setup.launch.process.pid,
-        origin: `http://127.0.0.1:${setup.state.server.port}`,
+        origin: nativePublicOrigin(setup.state),
+        exposure: setup.state.server.exposure,
         dataRoot: setup.paths.dataRoot,
         sourceRoot: setup.state.source.root,
         sourceFingerprint: setup.state.source.sourceFingerprint,
@@ -1017,7 +1029,8 @@ export async function runCommunityServerStart(
         instance: launch.state.instanceName,
         mode: launch.mode,
         pid: launch.process.pid,
-        origin: `http://127.0.0.1:${launch.state.server.port}`,
+        origin: nativePublicOrigin(launch.state),
+        exposure: launch.state.server.exposure,
         sourceFingerprint: launch.state.source.sourceFingerprint,
         buildFingerprint: launch.state.build.buildFingerprint,
         migration: nativeMigrationSummary(launch.migration),
@@ -1098,7 +1111,8 @@ export async function runCommunityServerRestart(
         mode: launch.mode,
         pid: launch.process.pid,
         hostPid: launch.process.hostPid ?? null,
-        origin: `http://127.0.0.1:${launch.state.server.port}`,
+        origin: nativePublicOrigin(launch.state),
+        exposure: launch.state.server.exposure,
         migration: nativeMigrationSummary(launch.migration),
       }, options.json)
       if (launch.waitForExit) await launch.waitForExit()
@@ -1160,7 +1174,8 @@ export async function runCommunityServerStatus(options: CommunityServerOptions):
       profile: native.state?.profile ?? null,
       instanceRoot: native.paths.instanceRoot,
       instance: native.state?.instanceName ?? options.instance ?? 'default',
-      origin: native.state ? `http://127.0.0.1:${native.state.server.port}` : null,
+      origin: native.state ? nativePublicOrigin(native.state) : null,
+      exposure: native.state?.server.exposure ?? null,
       processRecord: runtime?.process ? {
         status: runtime.process.status,
         mode: runtime.process.mode,
@@ -1230,7 +1245,8 @@ export async function runCommunityServerHealth(options: CommunityServerOptions):
       runtime: 'native',
       profile: native.state.profile,
       instance: native.state.instanceName,
-      origin: `http://127.0.0.1:${native.state.server.port}`,
+      origin: nativePublicOrigin(native.state),
+      exposure: native.state.server.exposure,
       runtimeState: observed.runtimeState,
       supervisor: observed.supervisorAlive,
       host: observed.hostAlive,
@@ -1356,6 +1372,8 @@ export async function runCommunityServerUpdate(
           postgres: state.postgres.mode,
           postgresConfig: state.postgres.mode === 'external' ? state.postgres.configRef : undefined,
           postgresTls: state.postgres.mode === 'external' ? state.postgres.tlsPolicy : undefined,
+          exposure: state.server.exposure,
+          publicPort: state.server.publicPort,
           instance: state.instanceName,
           port: state.server.port,
         })
@@ -2263,6 +2281,8 @@ export function makeCommunityServerCommand(identity: CommunityServerCommandIdent
     .option('--postgres <external|container>', 'PostgreSQL owner for --runtime native')
     .option('--postgres-config <path>', 'Explicit external PostgreSQL env-file override; default: ~/.aops/aops.server.env (or AOPS_CLI_CONFIG_PATH directory)')
     .option('--postgres-tls <disable|require|verify-full>', 'Explicit external PostgreSQL TLS policy')
+    .option('--exposure <loopback|container>', 'Server exposure; container publishes the hardened container edge on 0.0.0.0:5900')
+    .option('--public-port <number>', 'Host-side public port used by container origin checks; defaults to --port')
     .option('--source-root <path>', 'Optional public aops-community checkout root; defaults to the installed @aopslab/aops-server package')
     .option('--port <number>', 'Host port', '5900')
     .option('--foreground', 'Keep the native server attached to this terminal')

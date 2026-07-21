@@ -1,6 +1,6 @@
 {
   "name": "@aopslab/aops-cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "type": "module",
   "description": "AOPS Community operator CLI.",
@@ -20,6 +20,7 @@
     "test:cockpit": "node --test test/cockpit.test.mjs",
     "test:setup-install": "node --test test/setup-install.test.mjs",
     "test:skill-discovery": "node --test test/skill-discovery.test.mjs",
+    "test:container-runtime": "node --test test/container-runtime.test.mjs",
     "test:home": "node --test test/home-menu.test.mjs",
     "test:shortcuts": "pnpm run test:home && pnpm run test:cockpit && pnpm run test:assets-menu && pnpm run test:setup-install && pnpm run test:skill-discovery",
     "typecheck": "tsc -p tsconfig.json --noEmit",

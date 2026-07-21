@@ -387,10 +387,32 @@ The operator owns containers created with this manual recipe. The normal setup
 path `aops setup init --path 2` is separate: AOPS manages only its own
 namespaced, ownership-label-verified PostgreSQL container and volume.
 
-The ready AOPS application image and Docker/Compose installation lanes are
-temporarily deferred. Their code may remain for future reactivation, but npm
-installation is the supported default and ordinary source/doc changes do not
-trigger image work.
+## Optional npm-built application image
+
+The application image is another wrapper around the same published npm
+CLI/server closure; it does not clone or build this repository. Configuration,
+migrations, lifecycle state, Cockpit, and the server still flow through `aops`.
+Keep the data root on a volume and place the PostgreSQL URL in a private env
+file rather than command arguments:
+
+```sh
+docker volume create aops-community-data
+docker run --detach --name aops-community \
+  --publish 127.0.0.1:5900:5900 \
+  --env-file ./aops-container.env \
+  --volume aops-community-data:/var/lib/aops \
+  ghcr.io/eeemzs/aops-community:0.1.5
+```
+
+Set `AOPS_PG_URL` and choose the PostgreSQL transport policy explicitly with
+`AOPS_POSTGRES_TLS=require`, `verify-full`, or `disable`. `require` remains the
+image default, while `disable` is available when the operator intentionally
+uses a non-TLS local, remote, or private-network PostgreSQL service. The image
+never mounts the Docker socket or creates sibling containers.
+
+Image construction and architecture composition live in private `aops-dist`.
+Windows/x64 builds `linux/amd64` locally and macOS/ARM64 builds `linux/arm64`
+locally; ordinary source or documentation changes do not trigger either lane.
 
 ## Source checkout for contributors
 

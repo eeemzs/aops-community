@@ -30,7 +30,8 @@ These rules apply to the public `aops-community` repository.
 - The server package must include the production server runtime, PostgreSQL migrations/bootstrap assets, Cockpit production assets, and every required runtime child/resource.
 - Existing PostgreSQL is operator-owned and may be local, remote, managed, or started from the documented manual container recipe. Setup path 2 is the explicit AOPS-managed PostgreSQL exception.
 - Git clone remains a supported secondary development/install path.
-- AOPS application Docker image automation is deferred. npm packaging/release automation must not trigger Docker, GHCR, QEMU, or private-source projection; only an operator-invoked setup path 2 may manage PostgreSQL through the local Docker CLI.
+- The optional AOPS application image is assembled only from exact public npm CLI/server releases. Image Dockerfiles, build/push scripts, registry composition, and architecture-manifest automation live in private `aops-dist`; routine Community source/npm work must not trigger Docker, GHCR, QEMU, or private-source projection.
+- Community owns the thin container-runtime capability used by that image: the existing npm server lifecycle may expose its hardened container edge, while Docker remains a distribution wrapper rather than a second application build system.
 - The CLI may manage AOPS setup and server lifecycle. Setup path 2 may create or remove only the selected instance's namespaced PostgreSQL container/volume, and destructive reset must verify exact instance/root/secret ownership labels plus explicit data-loss and instance confirmations. Manually created or unrelated Docker resources remain operator-owned.
 - `apps/aops-cli/assets/agent-assets/core` owns only the public offline client skill/reference/user-guide closure. Hosted Docman architecture groups are development truth and must never be copied into the npm agent-asset payload.
 

@@ -64,8 +64,10 @@ Global AOPS skills and pointers are shared installation assets and remain instal
 
 ## Path safety notes
 
-Git clone is a secondary development path. The application-image/OCI lane is
-deferred and is not a setup path. Path `2` manages only its namespaced,
+Git clone is a secondary development path. The optional application image is
+built from the same exact public npm CLI/server closure and runs the normal
+`aops server setup` lifecycle inside the container. It is a distribution path,
+not a fifth interactive `setup init` path. Path `2` manages only its namespaced,
 label-verified PostgreSQL resources; unrelated Docker resources remain
 operator-owned.
 
