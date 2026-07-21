@@ -11,8 +11,9 @@ These rules apply to the public `aops-community` repository.
 ## Safe Git workflow
 
 - Start work from the current public `origin/main` commit in a clean worktree.
-- Develop on short-lived local `codex/` branches. Do not push development history unless the operator explicitly approves it.
-- Prepare a small, understandable public candidate commit after validation; pushing, opening a pull request, tagging, and releasing are separate operator-approved actions.
+- Develop on short-lived local `codex/` branches or local worktrees. These are machine-local implementation surfaces and must not be pushed to the public repository.
+- Publish source only through a small, understandable commit on local `main`, then push `main` directly. Public tags and release assets may follow only after validation and separate operator approval.
+- Do not expose local branch names, intermediate commit history, worktree layout, or development-only review surfaces in the public repository. A public pull request is exceptional and requires an explicit operator request.
 - Never overwrite or clean an unrelated dirty checkout. Preserve user-owned changes and use a separate worktree.
 
 ## Public repository safety
@@ -34,6 +35,16 @@ These rules apply to the public `aops-community` repository.
 - Community owns the thin container-runtime capability used by that image: the existing npm server lifecycle may expose its hardened container edge, while Docker remains a distribution wrapper rather than a second application build system.
 - The CLI may manage AOPS setup and server lifecycle. Setup path 2 may create or remove only the selected instance's namespaced PostgreSQL container/volume, and destructive reset must verify exact instance/root/secret ownership labels plus explicit data-loss and instance confirmations. Manually created or unrelated Docker resources remain operator-owned.
 - `apps/aops-cli/assets/agent-assets/core` owns only the public offline client skill/reference/user-guide closure. Hosted Docman architecture groups are development truth and must never be copied into the npm agent-asset payload.
+
+## Complete setup experience
+
+- A successful default `aops setup init` is an immediately usable AOPS installation, not only a running server.
+- For local server paths, setup must configure the selected PostgreSQL ownership model, plan/apply/verify all AOPS migrations, start and health-check the npm server, reconcile the signed official catalog, install or repair the verified global AOPS core for every registered agent runtime, and create the small starter project/user-guide dataset.
+- The verified global core includes the neutral AOPS router, concise domain references, and user guides. Signed official catalog packages include optional collaboration and working-discipline skills; setup makes them available and discoverable without silently choosing or activating a working discipline for the user.
+- Default interactive setup installs or repairs required agent assets automatically after its primary setup choices. Do not add a second asset-selection or confirmation prompt. Explicit `--agent-assets status` and `--agent-assets skip` remain advanced opt-outs.
+- `--no-catalog`, `--no-seed`, and asset opt-outs are explicit advanced choices; they are never the default first-run experience.
+- Asset ownership conflicts, unsafe paths, invalid signatures, and unknown user files fail closed. Setup must never overwrite or remove user-owned runtime files to appear successful.
+- Setup success requires final readback of migrations, server health, global core integrity, registered-runtime bindings, official catalog reconciliation, and Cockpit reachability. Preserve exact safe next actions when any part remains incomplete.
 
 ## Package and release gates
 

@@ -37,8 +37,11 @@ default, with a masked custom-password choice in the interactive wizard. All
 database paths verify migrations before readiness; interactive terminals show
 animated progress and `--json` remains machine-clean. Interactive setup applies
 the chosen path immediately after collecting its required private inputs; the
-starter dataset is automatic and has no extra confirmation question. Use
-`--no-seed` to start empty. A managed database can be
+starter dataset and verified global AOPS core/runtime gateways are automatic
+and have no extra selection or confirmation questions. Signed collaboration
+and working-discipline packages are imported as discoverable catalog choices,
+not silently activated. Use `--agent-assets skip` or `--no-seed` only for an
+explicit opt-out. A managed database can be
 removed only with `aops server reset --remove-managed-postgres
 --confirm-data-loss --confirm-instance default`; exact ownership labels are
 verified before the container or volume is deleted.

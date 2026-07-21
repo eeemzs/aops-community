@@ -57,8 +57,13 @@ All server paths use the normal `default` instance and port `5900`, verify
 migrations, install registered Gateway pointers, reconcile the inert signed
 official catalog, and create a small starter dataset automatically. Interactive
 setup applies after collecting the selected path's required private inputs; it
-does not ask a redundant continue or starter-data question. Use `--no-seed` or
-`--no-catalog` only when the operator explicitly opts out.
+does not ask redundant continue, starter-data, asset-selection, or asset-confirmation
+questions. It automatically installs or repairs the verified AOPS core and
+gateway pointers for every registered runtime. The core supplies the neutral
+router, concise references, and user guides; signed collaboration and working-
+discipline packages are imported as discoverable, inert catalog choices rather
+than silently activated. Use `--agent-assets skip`, `--no-seed`, or `--no-catalog`
+only when the operator explicitly opts out.
 
 For automatic Docker PostgreSQL, the container port is loopback-only and dynamically assigned. A destructive reset removes only exact instance/root/secret label-verified resources:
 

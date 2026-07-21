@@ -137,6 +137,46 @@ test('non-interactive Docker PostgreSQL setup installs all runtime gateways and 
   assert.equal(progressCalls, 0)
 })
 
+test('interactive setup installs required agent assets without a second selection or confirmation', async () => {
+  const calls = []
+  const selectMessages = []
+  const confirmMessages = []
+  let assetsReady = false
+  await runSetupInitOrchestrator({
+    path: '2', skipBanner: true, noCatalog: true, seed: false,
+  }, {
+    inspectReadiness: async () => readiness('native-container', assetsReady),
+    select: async (prompt) => {
+      selectMessages.push(prompt.message)
+      if (prompt.message === 'Managed PostgreSQL password:') return 'generate'
+      throw new Error(`unexpected_select:${prompt.message}`)
+    },
+    confirm: async (prompt) => {
+      confirmMessages.push(prompt.message)
+      return true
+    },
+    setupCommunityServer: async (options) => calls.push(['server', options]),
+    agentAssets: {
+      status: async () => ({
+        availability: 'available', state: assetsReady ? 'ready' : 'action-required',
+        summary: assetsReady ? 'ready' : 'install', nextActions: [],
+        data: { recommendedAction: 'install' },
+      }),
+      resolveRelease: async () => ({ fromRelease: 'C:/signed-release', source: 'bundled-npm' }),
+      apply: async (options) => {
+        calls.push(['assets', options])
+        assetsReady = true
+        return { availability: 'available', state: 'ready', summary: 'ready', nextActions: [] }
+      },
+    },
+  })
+
+  assert.deepEqual(selectMessages, ['Managed PostgreSQL password:'])
+  assert.deepEqual(confirmMessages, [])
+  assert.equal(calls.filter(([name]) => name === 'assets').length, 1)
+  assert.equal(calls.find(([name]) => name === 'assets')[1].target, 'all')
+})
+
 for (const setupPath of [
   { number: '1', id: 'native-external', postgresTls: 'verify-full' },
   { number: '2', id: 'native-container', postgresTls: undefined },

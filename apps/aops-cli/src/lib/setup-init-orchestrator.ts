@@ -614,19 +614,10 @@ export async function runSetupInitOrchestrator(
     if (interactive) {
       logInfo(`Codex gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.codex}`)
       logInfo(`Claude gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.claude}`)
-      logInfo('Only the global AOPS gateway pointers are managed; hosted assets remain versioned in the AOPS store.')
-      agentAssetsAction = await select({
-        message: 'Global AOPS agent gateway action:',
-        choices: [
-          { name: recommendedAction === 'repair' ? 'Repair gateway bindings (recommended)' : 'Install gateways (recommended)', value: recommendedAction },
-          { name: 'Inspect status only', value: 'status' },
-          { name: 'Skip for now', value: 'skip' },
-        ],
-        default: recommendedAction,
-      }) as SetupInitOptions['agentAssets']
-    } else {
-      agentAssetsAction = recommendedAction
+      logInfo(`Setup will ${recommendedAction} the verified AOPS core and gateway pointers for every registered runtime.`)
+      logInfo('Optional signed discipline packages remain discoverable without selecting a working discipline for you.')
     }
+    agentAssetsAction = recommendedAction
   }
 
   if (agentAssetsAction === 'install' || agentAssetsAction === 'repair') {
@@ -642,22 +633,14 @@ export async function runSetupInitOrchestrator(
       })
       fromRelease = resolution.fromRelease
     }
-    const confirmed = !interactive || await confirm({
-      message: `${agentAssetsAction === 'install' ? 'Install' : 'Repair'} the AOPS gateway pointers for all registered runtimes now?`,
-      default: true,
-    })
-    if (confirmed) {
-      const appliedAssets = await progress('Installing global AOPS agent gateways...', () => applySetupAgentAssets(dependencies.agentAssets!, {
-        action: agentAssetsAction,
-        fromRelease: agentAssetsAction === 'install'
-          ? resolveAgentAssetsReleasePath(fromRelease)
-          : undefined,
-      }))
-      steps.push({ action: `assets.${agentAssetsAction}`, status: appliedAssets.state, target: 'all' })
-      result = await inspect()
-    } else {
-      steps.push({ action: `assets.${agentAssetsAction}`, status: 'cancelled', target: 'all' })
-    }
+    const appliedAssets = await progress('Installing global AOPS agent gateways...', () => applySetupAgentAssets(dependencies.agentAssets!, {
+      action: agentAssetsAction,
+      fromRelease: agentAssetsAction === 'install'
+        ? resolveAgentAssetsReleasePath(fromRelease)
+        : undefined,
+    }))
+    steps.push({ action: `assets.${agentAssetsAction}`, status: appliedAssets.state, target: 'all' })
+    result = await inspect()
   }
 
   if (selectedPath === 'native-external' || selectedPath === 'native-container' || selectedPath === 'native-local') {

@@ -89,14 +89,22 @@ All three choices install the npm server as the normal `default` instance on
 <http://127.0.0.1:5900>, activate the AOPS Gateway for every registered agent
 runtime, reconcile the bundled signed official catalog without activating its
 skills, and create a deliberately small starter dataset automatically. The
-interactive wizard proceeds after the selected path's required private inputs;
-it does not ask a redundant confirmation or starter-data question. Use
-`--no-catalog` only for an explicitly minimal server installation:
+interactive wizard proceeds after the selected path's required private inputs
+and installs or repairs the verified agent assets automatically; it does not ask
+redundant continue, starter-data, asset-selection, or asset-confirmation
+questions. Use `--agent-assets skip`, `--no-catalog`, or `--no-seed` only for an
+explicitly minimal installation:
 
 - one **AOPS Starter** project;
 - one **Getting Started** kanban board;
 - one task with the **First AOPS Sprint** plan; and
 - one **AOPS Getting Started** user-guide document.
+
+The global verified AOPS core includes the neutral router, concise domain
+references, and user guides needed by an agent immediately after setup. The
+signed official catalog also makes collaboration and working-discipline skills
+discoverable, but keeps them inert until the user or agent deliberately selects
+one; setup does not impose a working method.
 
 For the managed Docker database, AOPS generates a strong password by default.
 The wizard can instead accept and confirm a custom password through masked
