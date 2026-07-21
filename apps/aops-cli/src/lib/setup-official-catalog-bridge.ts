@@ -1,4 +1,5 @@
 import { lstatSync, realpathSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 import { verifyAndLoadCommunityCatalogReleaseInputs } from './agent-assets/release-input.js'
@@ -54,7 +55,7 @@ export interface SetupOfficialCatalogProviderV1 {
 
 export type SetupOfficialCatalogReleaseResolutionV1 = Readonly<{
   fromRelease: string
-  source: 'source-root' | 'installed-native' | 'installed-oci' | 'cwd-community-repo'
+  source: 'bundled-npm' | 'source-root' | 'installed-native' | 'installed-oci' | 'cwd-community-repo'
 }>
 
 export type SetupOfficialCatalogProviderDependenciesV1 = Readonly<{
@@ -67,6 +68,7 @@ export type SetupOfficialCatalogProviderDependenciesV1 = Readonly<{
   inspectOci?: typeof inspectCommunityInstall
   resolveRepo?: typeof resolveCommunityRepo
   cwd?: () => string
+  bundledCandidates?: () => readonly string[]
 }>
 
 function localSignedReleaseRoot(candidate: string | undefined): string | undefined {
@@ -75,7 +77,7 @@ function localSignedReleaseRoot(candidate: string | undefined): string | undefin
   try {
     const root = lstatSync(releaseRoot)
     if (!root.isDirectory() || root.isSymbolicLink()) return undefined
-    for (const name of ['release.json', 'release.sigstore.json']) {
+    for (const name of ['agent-assets-release.json', 'agent-assets-release.sigstore.json']) {
       const entry = lstatSync(path.join(releaseRoot, name))
       if (!entry.isFile() || entry.isSymbolicLink()) return undefined
     }
@@ -83,6 +85,14 @@ function localSignedReleaseRoot(candidate: string | undefined): string | undefin
   } catch {
     return undefined
   }
+}
+
+function defaultBundledCandidates(): readonly string[] {
+  const moduleDirectory = path.dirname(fileURLToPath(import.meta.url))
+  return Object.freeze([
+    path.resolve(moduleDirectory, '..', 'agent-assets-release'),
+    path.resolve(moduleDirectory, '..', '..', 'agent-assets-release'),
+  ])
 }
 
 export async function resolveSetupOfficialCatalogReleaseV1(
@@ -93,6 +103,11 @@ export async function resolveSetupOfficialCatalogReleaseV1(
     options.sourceRoot ? path.join(path.resolve(options.sourceRoot), 'release') : undefined,
   )
   if (sourceRoot) return Object.freeze({ fromRelease: sourceRoot, source: 'source-root' as const })
+
+  for (const candidate of (dependencies.bundledCandidates ?? defaultBundledCandidates)()) {
+    const bundledRoot = localSignedReleaseRoot(candidate)
+    if (bundledRoot) return Object.freeze({ fromRelease: bundledRoot, source: 'bundled-npm' as const })
+  }
 
   const inspectNative = dependencies.inspectNative ?? inspectCommunityNativeInstall
   const native = inspectNative({ instanceName: options.instance, dataRoot: options.dataRoot })
@@ -116,7 +131,7 @@ export async function resolveSetupOfficialCatalogReleaseV1(
     // Discovery is optional. Signature verification still happens before import.
   }
   throw new Error(
-    'setup_init_catalog_verified_release_unavailable:run_from_or_install_a_signed_community_release_or_use_--catalog-release_<path>_or_--no-catalog',
+    'setup_init_catalog_verified_release_unavailable:reinstall_the_official_aops_cli_or_run_from_a_signed_community_release_or_use_--catalog-release_<path>_or_--no-catalog',
   )
 }
 

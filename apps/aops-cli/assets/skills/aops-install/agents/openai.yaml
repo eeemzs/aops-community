@@ -1,0 +1,4 @@
+interface:
+  display_name: "AOPS Installation"
+  short_description: "Guide agents through safe AOPS installation"
+  default_prompt: "Use $aops-install to inspect and complete this AOPS Community installation safely."

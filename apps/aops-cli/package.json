@@ -1,6 +1,6 @@
 {
   "name": "@aopslab/aops-cli",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "type": "module",
   "description": "AOPS Community operator CLI.",
@@ -11,10 +11,17 @@
     "directory": "apps/aops-cli"
   },
   "bin": {
+    "aops": "dist/main.js",
     "aops-cli": "dist/main.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json --incremental false",
+    "test:assets-menu": "node --test test/assets-menu.test.mjs",
+    "test:cockpit": "node --test test/cockpit.test.mjs",
+    "test:setup-install": "node --test test/setup-install.test.mjs",
+    "test:skill-discovery": "node --test test/skill-discovery.test.mjs",
+    "test:home": "node --test test/home-menu.test.mjs",
+    "test:shortcuts": "pnpm run test:home && pnpm run test:cockpit && pnpm run test:assets-menu && pnpm run test:setup-install && pnpm run test:skill-discovery",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/main.js"
   },
@@ -33,10 +40,12 @@
     "@aopslab/xf-cli-ui": "0.1.13",
     "commander": "14.0.3",
     "inquirer": "13.3.0",
+    "pg": "8.20.0",
     "sigstore": "4.1.1"
   },
   "devDependencies": {
     "@types/node": "25.3.1",
+    "@types/pg": "8.20.0",
     "typescript": "5.9.3"
   }
 }

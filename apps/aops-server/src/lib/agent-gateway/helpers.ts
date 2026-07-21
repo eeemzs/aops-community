@@ -224,13 +224,17 @@ function normalizeQueryParams(input: unknown): URLSearchParams {
 }
 
 export function hasInputEnvelope(input: Record<string, unknown>): boolean {
-  return (
-    Object.prototype.hasOwnProperty.call(input, 'pathParams') ||
-    Object.prototype.hasOwnProperty.call(input, 'params') ||
-    Object.prototype.hasOwnProperty.call(input, 'query') ||
-    Object.prototype.hasOwnProperty.call(input, 'body') ||
-    Object.prototype.hasOwnProperty.call(input, 'context')
-  )
+  const envelopeKeys = new Set(['pathParams', 'params', 'query', 'body', 'context'])
+  const keys = Object.keys(input)
+  if (keys.length === 0 || keys.some((key) => !envelopeKeys.has(key))) return false
+
+  if (isRecord(input.pathParams) || isRecord(input.params) || isRecord(input.context)) return true
+  if (isRecord(input.query)) return true
+
+  // A body-only object is the legacy route envelope. A scalar `query` is not:
+  // several domain operations (for example agentspace.skill.search) own a
+  // first-class argument with that name and must reach the plugin unchanged.
+  return Object.prototype.hasOwnProperty.call(input, 'body')
 }
 
 export function parseRouteInvokeInput(input: unknown): RouteInvokeInput {

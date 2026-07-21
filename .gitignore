@@ -4,7 +4,9 @@
 **/dist/
 **/build/
 **/.svelte-kit/
+**/.vite/
 .pnpm-store/
+/.aops/
 coverage/
 *.log
 /aops-community-backup*.sql

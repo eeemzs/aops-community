@@ -27,22 +27,26 @@ import {
   type SetupAgentAssetsProvider,
   type SetupAgentAssetsStatus,
 } from './setup-agent-assets-bridge.js'
+import {
+  inspectLocalPostgres,
+  type LocalPostgresInspection,
+} from './setup-local-postgres.js'
 
 export const SETUP_PATHS = [
   {
     id: 'native-external',
     number: '1',
-    title: 'Npm server with operator-owned PostgreSQL',
+    title: 'Npm server with your existing PostgreSQL',
   },
   {
     id: 'native-container',
     number: '2',
-    title: 'Source server with PostgreSQL container (deferred)',
+    title: 'Npm server with automatic Docker PostgreSQL',
   },
   {
-    id: 'oci-ready',
+    id: 'native-local',
     number: '3',
-    title: 'Ready OCI stack from published images (deferred)',
+    title: 'Npm server with PostgreSQL installed on this computer',
   },
   {
     id: 'cli-existing',
@@ -61,6 +65,7 @@ export type SetupReadinessCheck = Readonly<{
     | 'installation-state'
     | 'global-server-env'
     | 'postgresql-tls'
+    | 'local-postgresql'
     | 'runtime'
     | 'host'
     | 'first-admin'
@@ -107,6 +112,7 @@ export type SetupReadinessProbeOverrides = Readonly<{
   commandAvailable?: (command: string) => boolean
   endpoint?: EndpointProbe
   agentAssets?: SetupAgentAssetsStatus
+  localPostgres?: LocalPostgresInspection
 }>
 
 export type InspectSetupReadinessOptions = Readonly<{
@@ -120,6 +126,8 @@ export type InspectSetupReadinessOptions = Readonly<{
   timeoutMs?: number
   cwd?: string
   sourceRoot?: string
+  localPostgresHost?: string
+  localPostgresPort?: number
   processEnv?: NodeJS.ProcessEnv
   agentAssetsProvider?: SetupAgentAssetsProvider
   probes?: SetupReadinessProbeOverrides
@@ -175,6 +183,15 @@ function isLoopbackUrl(value: string): boolean {
   }
 }
 
+function isLoopbackPostgresAtPort(value: string, port: number): boolean {
+  try {
+    const parsed = new URL(value)
+    return isLoopbackUrl(value) && Number(parsed.port || 5432) === port
+  } catch {
+    return false
+  }
+}
+
 function commandAvailable(command: string): boolean {
   const locator = process.platform === 'win32' ? 'where.exe' : 'which'
   const result = spawnSync(locator, [command], {
@@ -219,7 +236,6 @@ function inferInstalledPath(
   if (native.status === 'installed' && native.state?.profile === 'native-container-postgres') {
     return 'native-container'
   }
-  if (oci.status === 'installed') return 'oci-ready'
   return undefined
 }
 
@@ -244,8 +260,22 @@ function installationStateCheck(
       summary: 'The CLI-only path does not install a local server runtime.',
     }
   }
+  if (oci.status !== 'not-installed') {
+    return {
+      id: 'installation-state',
+      state: 'action-required',
+      required: true,
+      summary: 'A legacy application-image installation owns this local instance.',
+      next: 'Use the explicit server lifecycle to inspect or remove that installation before selecting an npm-server setup path.',
+      data: { blocking: true, legacyProfile: 'oci-managed-stack' },
+    }
+  }
   const installedPath = inferInstalledPath(native, oci)
-  if (installedPath && installedPath !== selected) {
+  const compatibleInstalledPath =
+    selected === 'native-local' && installedPath === 'native-external'
+      ? selected
+      : installedPath
+  if (compatibleInstalledPath && compatibleInstalledPath !== selected) {
     return {
       id: 'installation-state',
       state: 'action-required',
@@ -261,24 +291,24 @@ function installationStateCheck(
       state: 'action-required',
       required: true,
       summary: 'Conflicting local runtime state requires repair before setup can continue.',
-      next: 'Run `aops-cli doctor --json` and resolve the reported runtime conflict.',
+      next: 'Run `aops doctor --json` and resolve the reported runtime conflict.',
       data: { blocking: true },
     }
   }
   const expected =
-    selected === 'native-external'
+    selected === 'native-external' || selected === 'native-local'
       ? native.status === 'installed' && native.state?.profile === 'native-external-postgres'
       : selected === 'native-container'
         ? native.status === 'installed' && native.state?.profile === 'native-container-postgres'
-        : oci.status === 'installed'
-  const partial = native.status === 'partial' || oci.status === 'partial'
+        : false
+  const partial = native.status === 'partial'
   if (partial) {
     return {
       id: 'installation-state',
       state: 'action-required',
       required: true,
       summary: 'A partial local installation requires repair or an explicit reset.',
-      next: 'Run `aops-cli doctor --json` before resuming setup.',
+      next: 'Run `aops doctor --json` before resuming setup.',
       data: { blocking: true },
     }
   }
@@ -294,7 +324,7 @@ function installationStateCheck(
         state: 'action-required',
         required: true,
         summary: 'The selected local installation profile is not installed yet.',
-        next: 'Run `aops-cli setup init --apply` to continue the selected setup path.',
+        next: 'Run `aops setup init --apply` to continue the selected setup path.',
       }
 }
 
@@ -436,16 +466,29 @@ export async function inspectSetupReadiness(
   } catch (error) {
     envError = safeReason(error, 'aops_server_env_invalid')
   }
-  if (selected === 'native-external') {
-    const envReady = Boolean(envSnapshot?.exists && envSnapshot.repoDialect === 'pg' && envSnapshot.repoUrl)
+  if (selected === 'native-external' || selected === 'native-local') {
+    const postgresEnvReady = Boolean(envSnapshot?.exists && envSnapshot.repoDialect === 'pg' && envSnapshot.repoUrl)
+    const selectedLocalPostgresPort = Number(options.localPostgresPort ?? 5432)
+    const envReady = postgresEnvReady && (
+      selected !== 'native-local' || isLoopbackPostgresAtPort(
+        String(envSnapshot?.repoUrl ?? ''),
+        selectedLocalPostgresPort,
+      )
+    )
     checks.push({
       id: 'global-server-env',
       state: envReady ? 'ready' : 'action-required',
       required: true,
       summary: envReady
         ? 'The selected server env contains a PostgreSQL repository target.'
-        : 'The selected server env is missing, unsafe, or does not contain a PostgreSQL target.',
-      next: envReady ? undefined : 'Run `aops-cli setup server-env` or provide a safe `--postgres-config` file path.',
+        : selected === 'native-local' && postgresEnvReady
+          ? 'The selected server env points to a non-local PostgreSQL target or a different local port.'
+          : 'The selected server env is missing, unsafe, or does not contain a PostgreSQL target.',
+      next: envReady
+        ? undefined
+        : selected === 'native-local'
+          ? 'Path 3 creates a private local server env during apply; use `--postgres-config <private-path>` to preserve an existing remote env, or use path 1 for that remote target.'
+          : 'Run `aops setup server-env` or provide a safe `--postgres-config` file path.',
       data: {
         path: envResolution.path,
         source: envResolution.source satisfies AopsServerEnvPathSource,
@@ -453,9 +496,10 @@ export async function inspectSetupReadiness(
         repoDialect: envSnapshot?.repoDialect ?? null,
         redactedRepoUrl: envSnapshot?.redactedRepoUrl ?? null,
         error: envError ?? null,
+        blocking: selected === 'native-local' && postgresEnvReady && !envReady,
       },
     })
-    const tlsPolicy = options.postgresTls
+    const tlsPolicy = selected === 'native-local' ? 'disable' : options.postgresTls
     if (!tlsPolicy) {
       checks.push({
         id: 'postgresql-tls',
@@ -508,8 +552,45 @@ export async function inspectSetupReadiness(
     })
   }
 
+  if (selected === 'native-local') {
+    const local = probes.localPostgres ?? await inspectLocalPostgres({
+      host: options.localPostgresHost,
+      port: options.localPostgresPort,
+      timeoutMs: options.timeoutMs,
+    })
+    const next = local.reachable
+      ? undefined
+      : [local.guidance.summary, ...local.guidance.commands, local.guidance.url].join(' ')
+    checks.push({
+      id: 'local-postgresql',
+      state: local.reachable ? 'ready' : 'action-required',
+      required: true,
+      summary: local.reachable
+        ? `A local PostgreSQL endpoint is reachable at ${local.host}:${local.port}.`
+        : local.status === 'installed-not-running'
+          ? `PostgreSQL tools were found, but no server is reachable at ${local.host}:${local.port}.`
+          : `PostgreSQL was not detected at ${local.host}:${local.port}.`,
+      next,
+      data: {
+        host: local.host,
+        port: local.port,
+        status: local.status,
+        psqlAvailable: local.psqlAvailable,
+        psqlVersion: local.psqlVersion,
+        install: local.reachable ? null : local.guidance,
+      },
+    })
+  } else {
+    checks.push({
+      id: 'local-postgresql',
+      state: 'not-applicable',
+      required: false,
+      summary: 'Local PostgreSQL discovery and provisioning are not used by this path.',
+    })
+  }
+
   const hasCommand = probes.commandAvailable ?? commandAvailable
-  if (selected === 'native-external' || selected === 'native-container') {
+  if (selected === 'native-external' || selected === 'native-container' || selected === 'native-local') {
     const selectedSourceRoot = path.resolve(
       options.sourceRoot ?? native.state?.source.root ?? resolveCommunityNativeDefaultSourceRoot(cwd),
     )
@@ -544,11 +625,13 @@ export async function inspectSetupReadiness(
           ? 'The installed npm server runtime is ready; no source build is required.'
           : 'Native source runtime requirements are available.'
         : needsDocker
-          ? 'The native source checkout, pnpm 11 and a running Docker daemon are required.'
+          ? 'The installed npm server runtime (or an explicit source checkout) and a running Docker daemon are required.'
           : 'Install @aopslab/aops-server through the CLI package, or provide a valid Community checkout with pnpm 11.',
       next: runtimeReady
         ? undefined
-        : 'Use a Community source checkout and install its declared pnpm version and required container runtime.',
+        : needsDocker
+          ? 'Install and start Docker Desktop/Engine, then retry the npm-server setup.'
+          : 'Install the matching npm server package or provide a valid Community source checkout.',
       data: {
         node: process.version,
         sourceRoot: selectedSourceRoot,
@@ -557,18 +640,6 @@ export async function inspectSetupReadiness(
         docker: needsDocker ? dockerReady : null,
         error: nativeSourceError,
       },
-    })
-  } else if (selected === 'oci-ready') {
-    const dockerReady = probes.commandAvailable
-      ? hasCommand('docker')
-      : hasCommand('docker') && dockerRuntimeAvailable(true)
-    checks.push({
-      id: 'runtime',
-      state: dockerReady ? 'ready' : 'action-required',
-      required: true,
-      summary: dockerReady ? 'Docker daemon and Compose are available.' : 'Docker daemon and Compose are required for the OCI path.',
-      next: dockerReady ? undefined : 'Install and start Docker with the Compose plugin.',
-      data: { docker: dockerReady, compose: dockerReady },
     })
   } else if (selected === 'cli-existing') {
     checks.push({
@@ -626,7 +697,7 @@ export async function inspectSetupReadiness(
       : firstAdminReady
         ? 'First-admin bootstrap does not require action.'
         : 'Interactive auth requires a first admin.',
-    next: endpoint.reachable && !firstAdminReady ? 'Run `aops-cli setup first-admin`.' : undefined,
+    next: endpoint.reachable && !firstAdminReady ? 'Run `aops setup first-admin`.' : undefined,
     data: { state: endpoint.firstAdminState },
   })
   const targetRequired = selected === 'cli-existing'
@@ -654,7 +725,7 @@ export async function inspectSetupReadiness(
     next: targetRequired && !activeTarget
       ? 'Add and select an AOPS target.'
       : targetRequired && !loginReady
-        ? 'Run `aops-cli auth login` for the selected target.'
+        ? 'Run `aops auth login` for the selected target.'
         : undefined,
     data: activeTarget
       ? { name: activeTarget.name, apiBaseUrl: activeTarget.apiBaseUrl, hasCredentials: activeTarget.hasCredentials }

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { Command } from 'commander'
+import { banner, logError, logInfo, logSuccess } from '@aopslab/xf-cli-ui'
 
 import {
   AgentAssetsError,
@@ -19,6 +20,7 @@ import {
   inspectLegacyAopsPointers,
   LEGACY_POINTER_GENERATOR_CONTRACT_V1,
   migrateLegacyAopsPointers,
+  removeAopsGatewayPointers,
 } from '../lib/agent-assets/legacy-pointer-migration.js'
 import {
   assertExpectedSkillPackageManifestV1,
@@ -44,6 +46,22 @@ import {
   repairAgentAssetRuntimeBindings,
   rollbackAgentAssets,
 } from '../lib/agent-assets/store-writer.js'
+import {
+  createSetupAgentAssetsProvider,
+  type SetupAgentAssetsProvider,
+  type SetupAgentAssetsStatus,
+} from '../lib/setup-agent-assets-bridge.js'
+import { resolveSetupAgentAssetsReleaseV1 } from '../lib/setup-agent-assets-release.js'
+import {
+  AGENT_ASSET_RUNTIME_IDS,
+  AGENT_ASSET_RUNTIME_REGISTRY,
+  collectAgentAssetTarget,
+  resolveAgentAssetTargetSelection,
+  selectAgentAssetRuntimeHomes,
+  type AgentAssetTargetInput,
+  type AgentAssetTargetSelection,
+} from '../lib/agent-assets/runtime-targets.js'
+import { promptConfirm, promptMultiSelect, promptSelect } from '../utils/prompts.js'
 
 export type AgentAssetsCommandName =
   | 'assets.status'
@@ -51,6 +69,7 @@ export type AgentAssetsCommandName =
   | 'assets.resolve'
   | 'assets.install'
   | 'assets.update'
+  | 'assets.uninstall'
   | 'assets.package.inspect'
   | 'assets.package.pull'
   | 'assets.pin'
@@ -86,7 +105,7 @@ export type AgentAssetsCommandOptions = RootOptions & GuardOptions & {
   pinId?: string
   pinUntil?: string
   fromRelease?: string
-  target?: string
+  target?: AgentAssetTargetInput
   idempotencyKey?: string
   manifest?: string
   expectedManifest?: string
@@ -219,8 +238,10 @@ function normalizeOptions(command: AgentAssetsCommandName, raw: AgentAssetsComma
     }
     case 'assets.install':
     case 'assets.update':
-      options.fromRelease = required(options.fromRelease, '--from-release')
-      options.target = oneOf(options.target, '--target', ['codex', 'claude', 'both'], 'both')
+    case 'assets.uninstall':
+    case 'assets.migrate.inspect':
+    case 'assets.migrate.legacy-pointers':
+      resolveAgentAssetTargetSelection(options.target)
       break
     case 'assets.package.inspect':
       options.manifest = required(options.manifest, '--manifest')
@@ -240,6 +261,12 @@ function normalizeOptions(command: AgentAssetsCommandName, raw: AgentAssetsComma
       }
       break
     case 'assets.repair':
+      resolveAgentAssetTargetSelection(options.target)
+      if (options.target !== undefined && options.repairBindings !== true) {
+        throw new AgentAssetsError('schema_incompatible', '--target is valid for repair only with --repair-bindings.', {
+          nextActions: ['Add --repair-bindings or omit --target for non-runtime repair actions.'],
+        })
+      }
       if ([
         options.cleanupStaging,
         options.repairBindings,
@@ -251,9 +278,6 @@ function normalizeOptions(command: AgentAssetsCommandName, raw: AgentAssetsComma
         })
       }
       break
-    case 'assets.migrate.legacy-pointers':
-      options.target = oneOf(options.target, '--target', ['codex', 'claude', 'both'], 'both')
-      break
     default:
       break
   }
@@ -264,6 +288,7 @@ function mutationGuard(command: AgentAssetsCommandName, options: AgentAssetsComm
   const mutations = new Set<AgentAssetsCommandName>([
     'assets.install',
     'assets.update',
+    'assets.uninstall',
     'assets.package.pull',
     'assets.pin',
     'assets.repair',
@@ -276,6 +301,7 @@ function mutationGuard(command: AgentAssetsCommandName, options: AgentAssetsComm
 
   const destructive = command === 'assets.rollback'
     || command === 'assets.prune'
+    || command === 'assets.uninstall'
     || command === 'assets.migrate.legacy-pointers'
     || (command === 'assets.repair' && Boolean(
       options.cleanupStaging || options.takeoverStaleLock || options.rebindMachine,
@@ -351,6 +377,8 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
   prune?: typeof pruneAgentAssets
   inspectLegacyPointers?: typeof inspectLegacyAopsPointers
   migrateLegacyPointers?: typeof migrateLegacyAopsPointers
+  removeGatewayPointers?: typeof removeAopsGatewayPointers
+  resolveRelease?: typeof resolveSetupAgentAssetsReleaseV1
 }> = {}): AgentAssetsCommandRunner {
   const readStoreStatus = dependencies.readStoreStatus ?? readAgentAssetsStoreStatus
   const inspectRuntimeBindings = dependencies.inspectRuntimeBindings ?? inspectRuntimeGatewayBindings
@@ -367,6 +395,8 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
   const prune = dependencies.prune ?? pruneAgentAssets
   const inspectLegacyPointers = dependencies.inspectLegacyPointers ?? inspectLegacyAopsPointers
   const migrateLegacyPointers = dependencies.migrateLegacyPointers ?? migrateLegacyAopsPointers
+  const removeGatewayPointers = dependencies.removeGatewayPointers ?? removeAopsGatewayPointers
+  const resolveRelease = dependencies.resolveRelease ?? resolveSetupAgentAssetsReleaseV1
   return Object.freeze({
     async run(request: AgentAssetsRunnerRequest): Promise<AgentAssetsRunnerResult> {
     const roots = rootContext(request.roots)
@@ -452,7 +482,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
             },
             diagnostics: [],
             nextActions: discovery.candidates.length === 0
-              ? ['Refine the query or use `aops-cli assets resolve --gateway aops --json` for the installed core.']
+              ? ['Refine the query or use `aops assets resolve --gateway aops --json` for the installed core.']
               : [],
           }
         }
@@ -514,7 +544,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
                 code: applied.idempotent ? 'hosted_package_already_active' : 'hosted_package_activated_from_cache',
                 message: 'The exact full-verified cached package is active in the authenticated receipt chain.',
               }],
-              nextActions: ['Resolve the exact version with `aops-cli assets resolve --version-id <id> --json`.'],
+              nextActions: ['Resolve the exact version with `aops assets resolve --version-id <id> --json`.'],
             }
           }
           return {
@@ -563,7 +593,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
               code: applied.idempotent ? 'hosted_package_already_active' : 'hosted_package_pulled_and_activated',
               message: 'Hosted bytes matched immutable publish-time metadata and were activated through the native writer.',
             }],
-            nextActions: ['Resolve the exact version with `aops-cli assets resolve --version-id <id> --json`.'],
+            nextActions: ['Resolve the exact version with `aops assets resolve --version-id <id> --json`.'],
           }
         }
         return {
@@ -593,25 +623,74 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
       }
       case 'assets.install':
       case 'assets.update': {
+        const releaseResolution = request.options.fromRelease
+          ? Object.freeze({ fromRelease: request.options.fromRelease, source: 'explicit-override' as const })
+          : await resolveRelease({})
         const release = await verifyCommunityRelease({
-          releaseRoot: required(request.options.fromRelease, '--from-release'),
+          releaseRoot: releaseResolution.fromRelease,
           verificationMode: 'offline',
         })
         const operation = request.command === 'assets.install' ? 'install' : 'update'
+        const target = resolveAgentAssetTargetSelection(request.options.target)
+        const runtimeHomes = selectAgentAssetRuntimeHomes(target, {
+          codex: request.roots.runtimeHomes.codex.absolutePath,
+          claude: request.roots.runtimeHomes.claude.absolutePath,
+        })
+        const classifications = inspectLegacyPointers({
+          assetRoot: request.roots.assetRoot,
+          runtimeHomes,
+        })
         if (request.guard?.mode === 'apply') {
-          const target = request.options.target ?? 'both'
+          const conflicts = classifications.filter((item) => (
+            item.state !== 'absent'
+            && item.state !== 'managed-ready'
+            && item.state !== 'recognized-legacy'
+          ) || (item.state === 'recognized-legacy' && !item.eligible))
+          if (conflicts.length > 0) {
+            throw new AgentAssetsError(
+              'binding_conflict',
+              'One or more selected global skill paths are unknown, unsafe, or owned by another installation.',
+              {
+                nextActions: [
+                  'Run `aops assets migrate inspect --json` and reconcile only the reported conflicting paths.',
+                  'Unknown and user-owned skill files are never overwritten.',
+                ],
+                details: {
+                  conflicts: conflicts.map((item) => ({ runtime: item.runtime, state: item.state, reasons: item.reasons })),
+                },
+              },
+            )
+          }
+          const legacyRuntimes = new Set(classifications
+            .filter((item) => item.state === 'recognized-legacy')
+            .map((item) => item.runtime))
+          const directRuntimeHomes = Object.freeze(Object.fromEntries(
+            target.runtimes
+              .filter((runtime) => !legacyRuntimes.has(runtime))
+              .map((runtime) => [runtime, runtimeHomes[runtime]!]),
+          ))
           const applied = await applyCommunityCore({
             assetRoot: request.roots.assetRoot,
             release,
             requestedOperation: operation,
             ...(request.options.idempotencyKey ? { idempotencyKey: request.options.idempotencyKey } : {}),
+            runtimeHomes: directRuntimeHomes,
+          })
+          const migrated = legacyRuntimes.size > 0
+            ? await migrateLegacyPointers({
+                assetRoot: request.roots.assetRoot,
+                runtimeHomes: Object.freeze(Object.fromEntries(
+                  target.runtimes
+                    .filter((runtime) => legacyRuntimes.has(runtime))
+                    .map((runtime) => [runtime, runtimeHomes[runtime]!]),
+                )),
+              })
+            : undefined
+          const runtimeBindings = inspectRuntimeBindings({
+            assetRoot: request.roots.assetRoot,
             runtimeHomes: {
-              ...(target === 'codex' || target === 'both'
-                ? { codex: request.roots.runtimeHomes.codex.absolutePath }
-                : {}),
-              ...(target === 'claude' || target === 'both'
-                ? { claude: request.roots.runtimeHomes.claude.absolutePath }
-                : {}),
+              codex: request.roots.runtimeHomes.codex.absolutePath,
+              claude: request.roots.runtimeHomes.claude.absolutePath,
             },
           })
           return {
@@ -620,10 +699,12 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
               mode: 'applied',
               mutationFree: false,
               operation,
-              target,
+              target: target.selector,
+              targets: target.runtimes,
               idempotent: applied.idempotent,
               packageInstalled: applied.packageInstalled,
               releaseSetSha256: release.releaseSetSha256,
+              releaseSource: releaseResolution.source,
               identity: release.packageRef,
               store: {
                 storeId: applied.authority.storeId,
@@ -634,15 +715,20 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
                 publicationCapability: applied.authority.publicationCapability,
                 capabilityEvidenceSha256: applied.authority.capabilityEvidenceSha256,
               },
-              runtimeBindings: applied.bindings,
+              runtimeBindings,
+              legacyPointersMigrated: migrated?.migrated ?? [],
             },
             diagnostics: [{
-              code: applied.idempotent ? 'verified_install_idempotent' : 'verified_install_applied',
-              message: applied.idempotent
+              code: migrated?.migrated.length
+                ? 'verified_install_and_legacy_migration_applied'
+                : applied.idempotent ? 'verified_install_idempotent' : 'verified_install_applied',
+              message: migrated?.migrated.length
+                ? 'The verified core was installed before exact recognized legacy pointers were migrated to stable gateways.'
+                : applied.idempotent
                 ? 'The exact verified core and selected runtime gateways were already ready.'
                 : 'The verified core and selected runtime gateways were published through the native writer.',
             }],
-            nextActions: ['Run `aops-cli assets status --verify full --json` to inspect the exact active chain.'],
+            nextActions: ['Run `aops assets status --verify full --json` to inspect the exact active chain.'],
           }
         }
         return {
@@ -651,13 +737,16 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
             mode: 'preview',
             mutationFree: true,
             operation,
-            target: request.options.target,
+            target: target.selector,
+            targets: target.runtimes,
             releaseSetSha256: release.releaseSetSha256,
+            releaseSource: releaseResolution.source,
             identity: release.packageRef,
             entryFile: release.manifest.entryFile,
             fileCount: release.manifest.files.length,
             files: release.manifest.files,
             nativeAliasValidation: release.validation.nativeAliasValidation,
+            legacyPointerClassifications: classifications,
           },
           nextActions: request.guard?.nextActions ?? [],
           diagnostics: [{
@@ -667,16 +756,19 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
         }
       }
       case 'assets.migrate.inspect': {
+        const target = resolveAgentAssetTargetSelection(request.options.target)
         const classifications = inspectLegacyPointers({
           assetRoot: request.roots.assetRoot,
-          runtimeHomes: {
+          runtimeHomes: selectAgentAssetRuntimeHomes(target, {
             codex: request.roots.runtimeHomes.codex.absolutePath,
             claude: request.roots.runtimeHomes.claude.absolutePath,
-          },
+          }),
         })
         return {
           result: {
             roots,
+            target: target.selector,
+            targets: target.runtimes,
             classifications,
             generatorContract: LEGACY_POINTER_GENERATOR_CONTRACT_V1,
             mutationFree: true,
@@ -689,16 +781,65 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
             : [],
         }
       }
-      case 'assets.migrate.legacy-pointers': {
-        const target = request.options.target ?? 'both'
-        const runtimeHomes = {
-          ...(target === 'codex' || target === 'both'
-            ? { codex: request.roots.runtimeHomes.codex.absolutePath }
-            : {}),
-          ...(target === 'claude' || target === 'both'
-            ? { claude: request.roots.runtimeHomes.claude.absolutePath }
-            : {}),
+      case 'assets.uninstall': {
+        const target = resolveAgentAssetTargetSelection(request.options.target)
+        const runtimeHomes = selectAgentAssetRuntimeHomes(target, {
+          codex: request.roots.runtimeHomes.codex.absolutePath,
+          claude: request.roots.runtimeHomes.claude.absolutePath,
+        })
+        if (request.guard?.mode === 'apply') {
+          const removed = removeGatewayPointers({ assetRoot: request.roots.assetRoot, runtimeHomes })
+          return {
+            result: {
+              roots,
+              mode: 'applied',
+              mutationFree: false,
+              target: target.selector,
+              targets: target.runtimes,
+              removed: removed.removed,
+              unchanged: removed.unchanged,
+              retainedManagedBindings: removed.retainedManagedBindings,
+              verifiedCoreRetained: true,
+              classifications: removed.classifications,
+            },
+            diagnostics: [{
+              code: removed.removed.length > 0 ? 'gateway_pointers_removed' : 'gateway_pointers_already_absent',
+              message: removed.removed.length > 0
+                ? 'Only exact recognized AOPS gateway pointers were removed; the verified core and receipts were retained.'
+                : 'The selected global AOPS gateway pointers were already absent.',
+            }],
+            nextActions: removed.retainedManagedBindings.length > 0
+              ? ['Run `aops assets repair --repair-bindings --apply --json` to restore these managed pointers later.']
+              : [],
+          }
         }
+        const classifications = inspectLegacyPointers({
+          assetRoot: request.roots.assetRoot,
+          runtimeHomes,
+        })
+        return {
+          result: {
+            roots,
+            mode: 'preview',
+            mutationFree: true,
+            target: target.selector,
+            targets: target.runtimes,
+            classifications,
+            verifiedCoreRetained: true,
+          },
+          diagnostics: [{
+            code: 'gateway_pointer_removal_preview',
+            message: 'Preview only; unknown, unsafe, and user-owned files are never removed.',
+          }],
+          nextActions: request.guard?.nextActions ?? [],
+        }
+      }
+      case 'assets.migrate.legacy-pointers': {
+        const target = resolveAgentAssetTargetSelection(request.options.target)
+        const runtimeHomes = selectAgentAssetRuntimeHomes(target, {
+          codex: request.roots.runtimeHomes.codex.absolutePath,
+          claude: request.roots.runtimeHomes.claude.absolutePath,
+        })
         if (request.guard?.mode === 'apply') {
           const migrated = await migrateLegacyPointers({
             assetRoot: request.roots.assetRoot,
@@ -709,7 +850,8 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
               roots,
               mode: 'applied',
               mutationFree: false,
-              target,
+              target: target.selector,
+              targets: target.runtimes,
               idempotent: migrated.idempotent,
               migrated: migrated.migrated,
               unchanged: migrated.unchanged,
@@ -728,7 +870,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
                 ? 'Selected runtimes had no recognized legacy pointer requiring migration.'
                 : 'Only exact recognized legacy AOPS pointers were replaced through the native writer.',
             }],
-            nextActions: ['Run `aops-cli assets status --verify full --json` to verify the stable gateway bindings.'],
+            nextActions: ['Run `aops assets status --verify full --json` to verify the stable gateway bindings.'],
           }
         }
         const classifications = inspectLegacyPointers({
@@ -740,7 +882,8 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
             roots,
             mode: 'preview',
             mutationFree: true,
-            target,
+            target: target.selector,
+            targets: target.runtimes,
             classifications,
           },
           diagnostics: [{
@@ -776,7 +919,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
                   ? 'No provably managed incomplete staging required cleanup.'
                   : 'Only fully preflighted writer-owned staging trees were removed through the native writer.',
               }],
-              nextActions: ['Run `aops-cli assets status --verify full --json` to verify that staging drift is clear.'],
+              nextActions: ['Run `aops assets status --verify full --json` to verify that staging drift is clear.'],
             }
           }
           if (
@@ -786,12 +929,13 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
           ) {
             unsupportedApply(request)
           }
+          const target = resolveAgentAssetTargetSelection(request.options.target)
           const repaired = await repairRuntimeBindings({
             assetRoot: request.roots.assetRoot,
-            runtimeHomes: {
+            runtimeHomes: selectAgentAssetRuntimeHomes(target, {
               codex: request.roots.runtimeHomes.codex.absolutePath,
               claude: request.roots.runtimeHomes.claude.absolutePath,
-            },
+            }),
           })
           return {
             result: {
@@ -799,7 +943,8 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
               mode: 'applied',
               mutationFree: false,
               action: 'repair-bindings',
-              target: 'both',
+              target: target.selector,
+              targets: target.runtimes,
               idempotent: repaired.idempotent,
               store: {
                 storeId: repaired.authority.storeId,
@@ -813,12 +958,15 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
             diagnostics: [{
               code: repaired.idempotent ? 'runtime_bindings_already_ready' : 'runtime_bindings_repaired',
               message: repaired.idempotent
-                ? 'Codex and Claude gateway bindings were already ready.'
-                : 'Codex and Claude gateway bindings were repaired through the native writer.',
+                ? 'The selected registered runtime gateway bindings were already ready.'
+                : 'The selected registered runtime gateway bindings were repaired through the native writer.',
             }],
-            nextActions: ['Run `aops-cli assets status --verify full --json` to inspect the exact binding chain.'],
+            nextActions: ['Run `aops assets status --verify full --json` to inspect the exact binding chain.'],
           }
         }
+        const previewTarget = request.options.repairBindings
+          ? resolveAgentAssetTargetSelection(request.options.target)
+          : undefined
         return {
           result: {
             roots,
@@ -829,6 +977,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
               : request.options.repairBindings
                 ? 'repair-bindings'
                 : 'inspect-repair-options',
+            ...(previewTarget ? { target: previewTarget.selector, targets: previewTarget.runtimes } : {}),
           },
           nextActions: request.guard?.nextActions ?? [],
           diagnostics: [{
@@ -866,7 +1015,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
                 ? 'The requested rollback operation was already active.'
                 : 'A new activation receipt selected the prior verified package set.',
             }],
-            nextActions: ['Run `aops-cli assets status --verify full --json` to verify protected current and previous packages.'],
+            nextActions: ['Run `aops assets status --verify full --json` to verify protected current and previous packages.'],
           }
         }
         const target = readAgentAssetsRollbackTarget({
@@ -916,7 +1065,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
                 ? 'The exact immutable package already has the requested lease and expiry.'
                 : 'The exact immutable package pin and maintenance receipt were published through the native writer.',
             }],
-            nextActions: ['Run `aops-cli assets status --verify full --json` to verify the protected package set.'],
+            nextActions: ['Run `aops assets status --verify full --json` to verify the protected package set.'],
           }
         }
         return {
@@ -951,7 +1100,7 @@ export function createDefaultAgentAssetsCommandRunner(dependencies: Readonly<{
                 ? 'No unprotected managed immutable package required removal.'
                 : 'Only full-verified unprotected immutable packages were removed through the native writer.',
             }],
-            nextActions: ['Run `aops-cli assets status --verify full --json` to verify the protected package set.'],
+            nextActions: ['Run `aops assets status --verify full --json` to verify the protected package set.'],
           }
         }
         const plan = readAgentAssetsPrunePlan({ assetRoot: request.roots.assetRoot })
@@ -1076,6 +1225,14 @@ function addSharedSelectors(command: Command): Command {
     .option('--claude-home <path>', 'Claude runtime-home override')
 }
 
+function addTargetSelector(command: Command): Command {
+  return command.option(
+    '--target <runtime>',
+    'Registered runtime; repeat or comma-separate values, or use all (default: all)',
+    collectAgentAssetTarget,
+  )
+}
+
 function addPreviewApply(command: Command, applyDescription: string): Command {
   return command
     .option('--preview', 'Explicit preview alias; preview is the default')
@@ -1128,17 +1285,16 @@ Notes:
 
 function makeMigrateCommand(runner: AgentAssetsCommandRunner): Command {
   const command = new Command('migrate').description('Inspect or explicitly migrate recognized legacy pointers')
-  addSharedSelectors(command.command('inspect')
+  addSharedSelectors(addTargetSelector(command.command('inspect')
     .description('Classify recognized legacy pointers without changing them')
-    .option('--json', 'Stable common envelope'))
+    .option('--json', 'Stable common envelope')))
     .action(action('assets.migrate.inspect', runner))
 
-  addSharedSelectors(command.command('legacy-pointers')
+  addSharedSelectors(addTargetSelector(command.command('legacy-pointers')
     .description('Migrate exact recognized AOPS-generated pointer templates')
-    .option('--target <target>', 'codex | claude | both (default: both)', 'both')
     .option('--apply', 'Apply exact-template managed migration')
     .option('--confirm', 'Confirm runtime-file ownership transition')
-    .option('--json', 'Stable common envelope'))
+    .option('--json', 'Stable common envelope')))
     .addHelpText('after', `
 Notes:
   Only recognized AOPS-generated templates are eligible.
@@ -1148,9 +1304,153 @@ Notes:
   return command
 }
 
+export const AGENT_ASSETS_HOME = `AOPS Agent Assets
+
+Global Gateway skill pointers:
+  Status                 aops assets status --verify full
+  Install                aops assets install --apply
+  Update                 aops assets update --apply
+  Repair pointers        aops assets repair --repair-bindings --apply
+  Remove pointers        aops assets uninstall --apply --confirm
+
+Targets: --target codex | --target claude | --target codex,claude | --target all
+`
+
+type AgentAssetsMenuStatusData = Readonly<{
+  store?: Readonly<{ state?: string }>
+  runtimeBindings?: Readonly<{
+    codex?: Readonly<{ state?: string }>
+    claude?: Readonly<{ state?: string }>
+  }>
+}>
+
+function menuStatusData(status: SetupAgentAssetsStatus): AgentAssetsMenuStatusData {
+  return (status.data ?? {}) as AgentAssetsMenuStatusData
+}
+
+function showAgentAssetsStatus(status: SetupAgentAssetsStatus): void {
+  const data = menuStatusData(status)
+  logInfo(status.summary)
+  logInfo(`Core: ${data.store?.state ?? 'unknown'}`)
+  logInfo(`Codex pointer: ${data.runtimeBindings?.codex?.state ?? 'unknown'}`)
+  logInfo(`Claude pointer: ${data.runtimeBindings?.claude?.state ?? 'unknown'}`)
+}
+
+async function selectAgentAssetsTarget(): Promise<AgentAssetTargetSelection> {
+  const selected = await promptMultiSelect({
+    message: 'Registered runtime targets:',
+    choices: AGENT_ASSET_RUNTIME_REGISTRY.map((runtime) => ({
+      name: runtime.label,
+      value: runtime.id,
+      checked: true,
+    })),
+  })
+  if (selected.length === 0) {
+    throw new AgentAssetsError('schema_incompatible', 'Select at least one registered runtime.', {
+      nextActions: ['Select one or more runtimes, or leave every registered runtime checked for all.'],
+    })
+  }
+  return resolveAgentAssetTargetSelection(
+    selected.length === AGENT_ASSET_RUNTIME_IDS.length ? 'all' : selected,
+  )
+}
+
+function selectedRuntimeHomes(
+  roots: AgentAssetsResolvedRoots,
+  target: AgentAssetTargetSelection,
+): Readonly<Partial<Record<'codex' | 'claude', string>>> {
+  return selectAgentAssetRuntimeHomes(target, {
+    codex: roots.runtimeHomes.codex.absolutePath,
+    claude: roots.runtimeHomes.claude.absolutePath,
+  })
+}
+
+async function resolveAgentAssetsReleaseForMenu(provider: SetupAgentAssetsProvider): Promise<string> {
+  const resolved = await provider.resolveRelease?.({})
+  if (!resolved?.fromRelease) {
+    throw new Error('agent_assets_bundled_source_unavailable:reinstall_the_official_aops_cli_package')
+  }
+  logInfo(resolved.source === 'bundled-npm'
+    ? 'Using the verified Gateway assets bundled with this AOPS CLI installation.'
+    : `Using verified Gateway assets from ${resolved.source}.`)
+  return resolved.fromRelease
+}
+
+export async function runAgentAssetsMenu(
+  provider: SetupAgentAssetsProvider = createSetupAgentAssetsProvider(),
+): Promise<void> {
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    process.stdout.write(AGENT_ASSETS_HOME)
+    return
+  }
+  banner('AOPS Agent Assets')
+  logInfo('Manage the verified AOPS Gateway skill pointers for registered agent runtimes.')
+  while (true) {
+    const status = await provider.status()
+    showAgentAssetsStatus(status)
+    const storeReady = menuStatusData(status).store?.state === 'ready'
+    const action = await promptSelect({
+      message: 'Agent assets action:',
+      choices: [
+        { name: 'Inspect status', value: 'status' },
+        { name: storeReady ? 'Update verified Gateway core' : 'Install verified Gateway core', value: 'install-update' },
+        { name: 'Repair global pointers', value: 'repair' },
+        { name: 'Remove global pointers', value: 'uninstall' },
+        { name: 'Quick command help', value: 'help' },
+        { name: 'Back', value: 'back' },
+      ],
+      pageSize: 6,
+    })
+    if (action === 'back') return
+    if (action === 'status') continue
+    if (action === 'help') {
+      process.stdout.write(AGENT_ASSETS_HOME)
+      continue
+    }
+    try {
+      const target = await selectAgentAssetsTarget()
+      if (action === 'uninstall') {
+        const confirmed = await promptConfirm({
+          message: 'Remove only the selected recognized AOPS global pointer files?',
+          default: false,
+        })
+        if (!confirmed) continue
+        const roots = resolveAgentAssetsRoots({})
+        const removed = removeAopsGatewayPointers({
+          assetRoot: roots.assetRoot,
+          runtimeHomes: selectedRuntimeHomes(roots, target),
+        })
+        logSuccess(removed.removed.length > 0
+          ? `Removed: ${removed.removed.join(', ')}. Verified core and receipts were retained.`
+          : 'Selected global pointers were already absent.')
+        continue
+      }
+      if (!provider.apply) throw new Error('agent_assets_apply_unavailable')
+      if (action === 'repair') {
+        if (!await promptConfirm({ message: 'Repair the selected managed AOPS pointers now?', default: true })) continue
+        const repaired = await provider.apply({ action: 'repair', target: target.selector })
+        showAgentAssetsStatus(repaired)
+        logSuccess('Gateway pointer repair completed.')
+        continue
+      }
+      const operation = storeReady ? 'update' as const : 'install' as const
+      const fromRelease = await resolveAgentAssetsReleaseForMenu(provider)
+      if (!await promptConfirm({
+        message: `${operation === 'install' ? 'Install' : 'Update'} the verified Gateway core for ${target.selector}?`,
+        default: true,
+      })) continue
+      const applied = await provider.apply({ action: operation, fromRelease, target: target.selector })
+      showAgentAssetsStatus(applied)
+      logSuccess(`Gateway ${operation} completed.`)
+    } catch (error) {
+      logError(error instanceof Error ? error.message : String(error))
+    }
+  }
+}
+
 export function makeAssetsCommand(runner: AgentAssetsCommandRunner = defaultAgentAssetsCommandRunner): Command {
   const command = new Command('assets')
-    .description(`Install, inspect, resolve, repair, and roll back verified AOPS client assets in
+    .description(`Install, inspect, update, repair, remove pointers, and roll back verified AOPS client assets in
 the user-local agent-assets store. This family does not choose a working method
 and does not treat repository mirrors as installation truth.`)
     .addHelpText('after', `
@@ -1177,7 +1477,7 @@ storeId/runtimeHomeId values. Commands that do not bind a runtime accept the
 shared selectors for deterministic context but perform no runtime write.
 
 Canonical guide:
-  aops-cli assets --help
+  aops assets --help
   aops-cli agent schema --tool <domain>.<operation> for raw hosted payloads
 `)
 
@@ -1234,18 +1534,19 @@ Notes:
     .action(action('assets.resolve', runner))
 
   for (const [name, description, applyDescription] of [
-    ['install', 'Install the signed client core from a Community release', 'Apply verified local writes'],
-    ['update', 'Activate verified assets from a newer Community release', 'Activate the verified update'],
+    ['install', 'Install the signed client core bundled with the official npm CLI', 'Apply verified local writes'],
+    ['update', 'Activate the verified client assets bundled with the official npm CLI', 'Activate the verified update'],
   ] as const) {
-    addSharedSelectors(addPreviewApply(command.command(name)
+    addSharedSelectors(addPreviewApply(addTargetSelector(command.command(name)
       .description(description)
-      .option('--from-release <path>', 'Verified Community release/package root')
-      .option('--target <target>', 'codex | claude | both (default: both)', 'both')
+      .option('--from-release <path>', 'Advanced offline/maintainer override for the signed asset release root')
       .option('--idempotency-key <key>', 'Optional replay/conflict key')
-      .option('--json', 'Stable common envelope'), applyDescription))
+      .option('--json', 'Stable common envelope')), applyDescription))
       .addHelpText('after', name === 'install' ? `
 Notes:
-  Install verifies signed expected digests before activation.
+  Install uses the verified Gateway assets bundled with the official npm CLI.
+  --from-release is an explicit offline/maintainer override, not a normal user requirement.
+  Signed expected digests are verified before activation.
   It refuses unowned runtime files and never scans a repository for core bytes.
 ` : `
 Notes:
@@ -1272,14 +1573,14 @@ Notes:
 `)
     .action(action('assets.pin', runner))
 
-  addSharedSelectors(addPreviewApply(command.command('repair')
+  addSharedSelectors(addPreviewApply(addTargetSelector(command.command('repair')
     .description('Diagnose or repair managed incomplete/drifted state')
     .option('--cleanup-staging', 'Remove only provably incomplete managed staging')
     .option('--repair-bindings', 'Restore modified/missing AOPS-managed gateways')
     .option('--takeover-stale-lock', 'Reserved in v1; apply fails closed')
     .option('--rebind-machine', 'Reserved in v1; apply fails closed')
     .option('--confirm', 'Required for takeover/rebind or destructive repair')
-    .option('--json', 'Stable common envelope'), 'Apply non-destructive managed repairs'))
+    .option('--json', 'Stable common envelope')), 'Apply non-destructive managed repairs'))
     .addHelpText('after', `
 Notes:
   No flag steals a live or unverifiable kernel publication guard.
@@ -1291,6 +1592,18 @@ Notes:
   User-owned files are reported but never changed.
 `)
     .action(action('assets.repair', runner))
+
+  addSharedSelectors(addPreviewApply(addTargetSelector(command.command('uninstall')
+    .description('Remove only exact recognized global AOPS Gateway pointers')
+    .option('--confirm', 'Confirm removal of selected recognized pointer files')
+    .option('--json', 'Stable common envelope')), 'Remove selected recognized global pointer files'))
+    .addHelpText('after', `
+Notes:
+  The verified local core, immutable receipts, and managed binding history are
+  retained. An explicit repair can restore a removed managed pointer.
+  Unknown, unsafe, and user-owned files are never removed.
+`)
+    .action(action('assets.uninstall', runner))
 
   addSharedSelectors(addPreviewApply(command.command('rollback')
     .description('Create a new activation from a prior verified receipt')
@@ -1318,5 +1631,6 @@ Notes:
     .action(action('assets.prune', runner))
 
   command.addCommand(makeMigrateCommand(runner))
+  command.action(() => runAgentAssetsMenu())
   return command
 }

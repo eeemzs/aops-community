@@ -1,6 +1,6 @@
 {
   "name": "@aopslab/aops-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "AOPS Community loopback server.",
   "keywords": [
@@ -21,6 +21,8 @@
   "scripts": {
     "dev": "vite dev --host 127.0.0.1",
     "build": "svelte-kit sync && vite build",
+    "test:host": "node --test test/community-host.test.mjs",
+    "test:gateway": "node --test --experimental-strip-types src/lib/agent-gateway/helpers.test.ts",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "start": "node ./scripts/community-host.mjs"
   },

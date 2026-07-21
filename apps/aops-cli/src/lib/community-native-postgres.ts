@@ -720,6 +720,60 @@ export async function removeCommunityNativePostgresContainerForReset(params: {
   return { container: 'removed', containerName: expected.containerName, volumeName: expected.volumeName }
 }
 
+/**
+ * Destructive teardown for an explicitly confirmed managed-PostgreSQL reset.
+ * Both resources must carry the exact instance/root/secret ownership labels;
+ * an unknown or drifted Docker resource is never removed.
+ */
+export async function removeCommunityNativeManagedPostgres(params: {
+  instanceName: string
+  instanceRoot: string
+  runtime?: CommunityNativePostgresRuntime
+  signal?: AbortSignal
+}): Promise<{
+  container: 'removed' | 'missing'
+  volume: 'removed' | 'missing'
+  containerName: string
+  volumeName: string
+}> {
+  throwIfCommunityCommandAborted(params.signal)
+  const runtime = params.runtime ?? communityNativePostgresRuntime
+  const expected = identity(params.instanceName, params.instanceRoot)
+  const containerLabels = await inspectLabels(runtime, 'container', expected.containerName, params.signal)
+  const volumeLabels = await inspectLabels(runtime, 'volume', expected.volumeName, params.signal)
+  if (!containerLabels && !volumeLabels) {
+    return {
+      container: 'missing',
+      volume: 'missing',
+      containerName: expected.containerName,
+      volumeName: expected.volumeName,
+    }
+  }
+
+  const secretRef = path.join(path.resolve(params.instanceRoot), 'runtime', 'native-postgres.env')
+  const secret = readSecret(secretRef)
+  const ownedState = {
+    namespace: expected.namespace,
+    secretSha256: secret.secretSha256,
+    instanceName: params.instanceName,
+  }
+  if (containerLabels) assertOwnedLabels(containerLabels, ownedState, 'container')
+  if (volumeLabels) assertOwnedLabels(volumeLabels, ownedState, 'volume')
+
+  if (containerLabels) {
+    await runDocker(runtime, ['container', 'rm', '--force', expected.containerName], 'container_remove', params.signal)
+  }
+  if (volumeLabels) {
+    await runDocker(runtime, ['volume', 'rm', expected.volumeName], 'volume_remove', params.signal)
+  }
+  return {
+    container: containerLabels ? 'removed' : 'missing',
+    volume: volumeLabels ? 'removed' : 'missing',
+    containerName: expected.containerName,
+    volumeName: expected.volumeName,
+  }
+}
+
 export async function inspectCommunityNativePostgres(params: {
   state: CommunityNativePostgresState
   instanceName: string

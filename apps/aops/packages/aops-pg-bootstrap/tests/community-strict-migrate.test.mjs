@@ -369,7 +369,7 @@ function reorderJsonObjectKeys(value) {
 
 function createRiskyApplyHarness(
   fixture,
-  { failAcceptanceRead = false, beforeCommit, jsonbPlanRoundTrip = false } = {},
+  { failAcceptanceRead = false, beforeCommit, jsonbPlanRoundTrip = false, relationGrants = [] } = {},
 ) {
   const rowsByTable = structuredClone(fixture.rowsByTable)
   const strictReceipts = []
@@ -412,6 +412,8 @@ function createRiskyApplyHarness(
         return { rows: [] }
       }
       if (text.includes("current_setting('server_version_num')")) return { rows: [{ major: 17 }] }
+      if (text.includes('FROM pg_catalog.pg_class relation')) return { rows: relationGrants }
+      if (text.startsWith('REVOKE ALL PRIVILEGES ON ')) return { rows: [] }
 
       const projection = metadataReady ? fixture.strictProjection : fixture.legacyProjection
       if (text.includes('FROM pg_catalog.pg_class c') &&
@@ -541,6 +543,7 @@ function publicMutationQueries(queries) {
     query.startsWith('INSERT INTO public.') ||
     query.startsWith('UPDATE public.') ||
     query.startsWith('DELETE FROM public.') ||
+    query.startsWith('REVOKE ALL PRIVILEGES ON ') ||
     query.startsWith('DROP '),
   )
 }
@@ -621,12 +624,12 @@ test('bundle rejects a journal meta directory symlink or junction', () => {
   }
 })
 
-test('every catalog object family contributes to the exact fingerprint', () => {
+test('every AOPS-owned catalog object family contributes to the exact fingerprint', () => {
   const baseline = projectionForTables([])
   const baselineFingerprint = fingerprintCommunityStrictCatalog(baseline)
   for (const section of [
     'relations', 'columns', 'constraints', 'indexes', 'views', 'sequences', 'inheritance',
-    'routines', 'triggers', 'eventTriggers', 'rules', 'policies', 'types', 'extensions',
+    'routines', 'triggers', 'rules', 'policies', 'types',
   ]) {
     const changed = structuredClone(baseline)
     changed[section].push({ name: `tamper-${section}` })
@@ -636,6 +639,21 @@ test('every catalog object family contributes to the exact fingerprint', () => {
       `${section} must be fingerprinted`,
     )
   }
+})
+
+test('provider-owned extensions and event triggers stay outside the AOPS lineage fingerprint', () => {
+  const baseline = projectionForTables([])
+  const providerManaged = structuredClone(baseline)
+  providerManaged.extensions.push({ name: 'pg_stat_statements', schema: 'extensions', version: '1.11' })
+  providerManaged.eventTriggers.push({
+    name: 'provider_ddl_watch',
+    event: 'ddl_command_end',
+    functionSchema: 'provider_internal',
+  })
+  assert.equal(
+    fingerprintCommunityStrictCatalog(providerManaged),
+    fingerprintCommunityStrictCatalog(baseline),
+  )
 })
 
 test('catalog projection fingerprints logical column order instead of restore-unstable storage artifacts', async () => {
@@ -648,8 +666,15 @@ test('catalog projection fingerprints logical column order instead of restore-un
       queries,
     }))
     const columnQuery = queries.find((query) => query.includes('FROM pg_catalog.pg_attribute'))
+    const relationQuery = queries.find((query) => query.includes('FROM pg_catalog.pg_class c'))
+    const routineQuery = queries.find((query) => query.includes('FROM pg_catalog.pg_proc p'))
+    const typeQuery = queries.find((query) => query.includes('FROM pg_catalog.pg_type t'))
     assert.match(columnQuery, /row_number\(\) OVER \(PARTITION BY c\.oid ORDER BY a\.attnum\)::integer/)
     assert.doesNotMatch(columnQuery, /atthasmissing|attmissingval/)
+    assert.match(relationQuery, /pg_catalog\.pg_extension/)
+    assert.match(routineQuery, /pg_catalog\.pg_extension/)
+    assert.match(typeQuery, /pg_catalog\.pg_extension/)
+    assert.equal(queries.some((query) => query.includes('FROM pg_catalog.pg_event_trigger')), false)
   } finally {
     rmSync(fixture.workspaceRoot, { recursive: true, force: true })
   }
@@ -695,38 +720,42 @@ test('inspection treats an untracked routine as a non-empty unknown lineage', as
   }
 })
 
-test('inspection rejects internal constraint-trigger overrides and database event triggers', async () => {
+test('inspection rejects internal constraint-trigger overrides but ignores provider event triggers', async () => {
   const fixture = createFixture()
   try {
-    for (const [section, row] of [
-      ['triggers', {
-        table: 'sys_product',
-        name: null,
-        internal: true,
-        type: 9,
-        enabled: 'D',
-        constraint: 'sys_product_fk',
-      }],
-      ['eventTriggers', {
-        name: 'intercept_ddl',
-        event: 'ddl_command_start',
-        enabled: 'O',
-        tags: [],
-        functionSchema: 'private_hooks',
-        functionName: 'intercept',
-        functionIdentityArguments: '',
-      }],
-    ]) {
-      const projection = structuredClone(fixture.legacyProjection)
-      projection[section].push(row)
-      await assert.rejects(
-        inspectCommunityStrictPgSchema({
-          client: createInspectClient({ projection, policy: fixture.policy }),
-          policy: fixture.policy,
-        }),
-        /community_strict_lineage_unknown/,
-      )
-    }
+    const triggerOverride = structuredClone(fixture.legacyProjection)
+    triggerOverride.triggers.push({
+      table: String(fixture.legacyProjection.relations[0].table),
+      name: null,
+      internal: true,
+      type: 9,
+      enabled: 'D',
+      constraint: 'sys_product_fk',
+    })
+    await assert.rejects(
+      inspectCommunityStrictPgSchema({
+        client: createInspectClient({ projection: triggerOverride, policy: fixture.policy }),
+        policy: fixture.policy,
+      }),
+      /community_strict_lineage_unknown/,
+    )
+
+    const providerManaged = structuredClone(fixture.legacyProjection)
+    providerManaged.eventTriggers.push({
+      name: 'provider_ddl_watch',
+      event: 'ddl_command_end',
+      enabled: 'O',
+      tags: [],
+      functionSchema: 'provider_internal',
+      functionName: 'watch_ddl',
+      functionIdentityArguments: '',
+    })
+    providerManaged.extensions.push({ name: 'provider_extension', schema: 'extensions', version: '1.0' })
+    const receipt = await inspectCommunityStrictPgSchema({
+      client: createInspectClient({ projection: providerManaged, policy: fixture.policy }),
+      policy: fixture.policy,
+    })
+    assert.equal(receipt.lineageId, 'legacy-v1')
   } finally {
     rmSync(fixture.workspaceRoot, { recursive: true, force: true })
   }
@@ -1012,7 +1041,13 @@ test('managed-or-external policy accepts exact external attestation after jsonb 
     const evidence = externalSnapshotEvidence(plan, fixture.policy)
     const evidencePath = path.join(fixture.workspaceRoot, 'external-exact.json')
     writeFileSync(evidencePath, JSON.stringify(evidence))
-    const harness = createRiskyApplyHarness(fixture, { jsonbPlanRoundTrip: true })
+    const harness = createRiskyApplyHarness(fixture, {
+      jsonbPlanRoundTrip: true,
+      relationGrants: [
+        { table: 'sys_product', kind: 'r', grantee: 'anon', publicGrantee: false },
+        { table: 'sys_product', kind: 'r', grantee: null, publicGrantee: true },
+      ],
+    })
 
     const result = await applyCommunityStrictPgSchema({
       repoUrl: 'postgresql://user:pass@localhost:5432/community',
@@ -1032,6 +1067,8 @@ test('managed-or-external policy accepts exact external attestation after jsonb 
     assert.equal(result.durableAcceptance.evidenceSha256, sha256(JSON.stringify(evidence)))
     assert.equal(result.durableAcceptance.acceptedAt, '2026-07-16T12:05:00.000Z')
     assert.equal(harness.committedAcceptances.size, 1)
+    assert.ok(harness.queries.includes('REVOKE ALL PRIVILEGES ON TABLE public."sys_product" FROM "anon"'))
+    assert.ok(harness.queries.includes('REVOKE ALL PRIVILEGES ON TABLE public."sys_product" FROM PUBLIC'))
 
     const publicDdlIndex = harness.queries.findIndex((query) => query.startsWith('CREATE TABLE sys_product'))
     const auditIndex = harness.queries.findIndex((query) =>
@@ -1278,6 +1315,8 @@ test('additive convergence preserves seeded rows using the preflight column set'
         if (text.startsWith('SET SESSION') || text.startsWith('BEGIN') || text === 'COMMIT' || text === 'ROLLBACK' ||
             text.startsWith('LOCK TABLE')) return { rows: [] }
         if (text.includes("current_setting('server_version_num')")) return { rows: [{ major: 17 }] }
+        if (text.includes('FROM pg_catalog.pg_class relation')) return { rows: [] }
+        if (text.startsWith('REVOKE ALL PRIVILEGES ON ')) return { rows: [] }
 
         const projection = metadataReady ? strictProjection : legacyProjection
         if (text.includes('FROM pg_catalog.pg_class c') && text.includes("c.relkind IN ('r', 'p', 'v'")) {

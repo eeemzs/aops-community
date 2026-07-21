@@ -249,6 +249,13 @@ export function validateCommunityHostPaths(paths = DEFAULT_PATHS) {
   return Object.freeze(resolved);
 }
 
+export function activateCommunityPackageWorkingDirectory() {
+  const packageRoot = realpathSync(path.resolve(import.meta.dirname, '..'));
+  const current = realpathSync(process.cwd());
+  if (current !== packageRoot) process.chdir(packageRoot);
+  return packageRoot;
+}
+
 export function shouldHandleApiPath(pathname) {
   return pathname === "/api" || pathname.startsWith("/api/") ||
     pathname === "/api-info" || pathname === "/api-info.json" || pathname === "/openapi.json";
@@ -529,6 +536,7 @@ async function loadHandler(handlerEntry) {
 export async function runCommunityHost(options, env = process.env) {
   if (env !== process.env) throw new Error("community_host_process_env_required");
   const config = resolveCommunityHostConfig(options, env);
+  activateCommunityPackageWorkingDirectory();
   const paths = validateCommunityHostPaths();
   process.env.HOST = NATIVE_EDGE_HOST;
   process.env.PORT = String(config.internalPort ?? config.edgePort);

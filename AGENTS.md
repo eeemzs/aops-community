@@ -28,10 +28,11 @@ These rules apply to the public `aops-community` repository.
 - Domain source is owned by its independent public repository. Consume released domain packages from npm; do not restore copied domain workspaces as the normal dependency path.
 - Each domain repository owns its GitHub Release to npm automation through npm Trusted Publishing/OIDC. Do not add a central domain-package publish workflow to this repository or rely on a long-lived npm token here.
 - The server package must include the production server runtime, PostgreSQL migrations/bootstrap assets, Cockpit production assets, and every required runtime child/resource.
-- PostgreSQL is operator-owned and may be local, remote, managed, or started separately from a documented PostgreSQL-only container recipe.
+- Existing PostgreSQL is operator-owned and may be local, remote, managed, or started from the documented manual container recipe. Setup path 2 is the explicit AOPS-managed PostgreSQL exception.
 - Git clone remains a supported secondary development/install path.
-- AOPS application Docker image automation is deferred. npm work must not trigger Docker, GHCR, QEMU, or private-source projection.
-- The CLI may manage AOPS setup and server lifecycle, but it does not own the user's Docker lifecycle in the npm-first path.
+- AOPS application Docker image automation is deferred. npm packaging/release automation must not trigger Docker, GHCR, QEMU, or private-source projection; only an operator-invoked setup path 2 may manage PostgreSQL through the local Docker CLI.
+- The CLI may manage AOPS setup and server lifecycle. Setup path 2 may create or remove only the selected instance's namespaced PostgreSQL container/volume, and destructive reset must verify exact instance/root/secret ownership labels plus explicit data-loss and instance confirmations. Manually created or unrelated Docker resources remain operator-owned.
+- `apps/aops-cli/assets/agent-assets/core` owns only the public offline client skill/reference/user-guide closure. Hosted Docman architecture groups are development truth and must never be copied into the npm agent-asset payload.
 
 ## Package and release gates
 

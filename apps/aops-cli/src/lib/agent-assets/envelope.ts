@@ -104,7 +104,7 @@ export function agentAssetsFailure(
   const normalized = error instanceof AgentAssetsError
     ? error
     : new AgentAssetsError('schema_incompatible', error instanceof Error ? error.message : String(error), {
-      nextActions: ['Run `aops-cli assets status --verify quick --json` and inspect the reported diagnostics.'],
+      nextActions: ['Run `aops assets status --verify quick --json` and inspect the reported diagnostics.'],
       cause: error,
     })
   const commandError = Object.freeze({

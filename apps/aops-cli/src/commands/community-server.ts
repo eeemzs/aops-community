@@ -103,6 +103,7 @@ import {
 import {
   inspectCommunityNativePostgres,
   removeCommunityNativePostgresContainerForReset,
+  removeCommunityNativeManagedPostgres,
 } from '../lib/community-native-postgres.js'
 
 export type CommunityServerOptions = {
@@ -142,6 +143,7 @@ export type CommunityServerOptions = {
   confirmDataRewind?: boolean
   confirmDataLoss?: boolean
   confirmInstance?: string
+  removeManagedPostgres?: boolean
   expectedPlanSha256?: string
   provider?: string
   snapshotRef?: string
@@ -155,6 +157,8 @@ export type CommunityServerOptions = {
   resultSink?: (result: unknown) => void
   /** Internal composition seam used to preserve a single parent JSON envelope. */
   silent?: boolean
+  /** Ephemeral setup-only secret factory; never exposed as a CLI flag or serialized. */
+  createPostgresSecret?: () => string
 }
 
 export type CommunityServerDependencies = Readonly<{
@@ -168,6 +172,7 @@ export type CommunityServerDependencies = Readonly<{
   inspectOperationLock?: typeof inspectCommunityOperationLock
   recoverStaleOperationLock?: typeof recoverStaleCommunityOperationLock
   removeNativePostgresContainerForReset?: typeof removeCommunityNativePostgresContainerForReset
+  removeNativeManagedPostgres?: typeof removeCommunityNativeManagedPostgres
   planNativeMigration?: typeof planCommunityNativeInstalledMigration
   attestNativeExternalSnapshot?: typeof attestCommunityNativeExternalSnapshot
   setupNativeInstall?: typeof setupCommunityNativeInstall
@@ -378,6 +383,8 @@ function resolveDependencies(
     recoverStaleOperationLock: dependencies.recoverStaleOperationLock ?? recoverStaleCommunityOperationLock,
     removeNativePostgresContainerForReset:
       dependencies.removeNativePostgresContainerForReset ?? removeCommunityNativePostgresContainerForReset,
+    removeNativeManagedPostgres:
+      dependencies.removeNativeManagedPostgres ?? removeCommunityNativeManagedPostgres,
     planNativeMigration: dependencies.planNativeMigration ?? planCommunityNativeInstalledMigration,
     attestNativeExternalSnapshot:
       dependencies.attestNativeExternalSnapshot ?? attestCommunityNativeExternalSnapshot,
@@ -869,6 +876,7 @@ export async function runCommunityServerSetup(
                   sourceRoot: options.sourceRoot,
                   dataRoot: selection.dataRoot,
                   mode: resolveCommunityNativeLaunchMode(options),
+                  createPostgresSecret: options.createPostgresSecret,
                   signal,
                 })
                 assertInstanceDirectoryIdentity(instanceIdentity)
@@ -1013,7 +1021,7 @@ export async function runCommunityServerStart(
         sourceFingerprint: launch.state.source.sourceFingerprint,
         buildFingerprint: launch.state.build.buildFingerprint,
         migration: nativeMigrationSummary(launch.migration),
-      }, options.json)
+      }, options.json, options)
       if (launch.waitForExit) await launch.waitForExit()
       return
     }
@@ -1032,7 +1040,7 @@ export async function runCommunityServerStart(
       return { status: 'community-server-running', instance: state.instanceName, imageRef: state.activeRelease.imageRef }
     })
     throwIfCommunityCommandAborted(signal)
-    writeResult(result, options.json)
+    writeResult(result, options.json, options)
   })
 }
 
@@ -2115,8 +2123,8 @@ export async function runCommunityServerReset(
     const resetOptions = { ...options, instance }
     const native = inspectNativeFrom(resetOptions)
     if (native.status === 'installed' && native.state) {
-      if (native.state.profile === 'native-container-postgres') {
-        throw new Error('community_native_container_reset_refused:preserve_credentials_and_volume_use_future_migration_safe_reset')
+      if (native.state.profile === 'native-container-postgres' && options.removeManagedPostgres !== true) {
+        throw new Error('community_native_container_reset_refused:use_--remove-managed-postgres_to_delete_the_label_verified_database')
       }
       const expectedRoot = pathsFrom(resetOptions).instanceRoot
       if (!isSamePhysicalPath(path.resolve(expectedRoot), path.resolve(native.paths.instanceRoot))) {
@@ -2130,17 +2138,42 @@ export async function runCommunityServerReset(
           if (lockedNative.status !== 'installed' || !lockedNative.state) {
             throw new Error(`community_native_install_changed:${lockedNative.status}:${lockedNative.error ?? 'unknown'}`)
           }
-          if (lockedNative.state.profile !== 'native-external-postgres') {
-            throw new Error('community_native_container_reset_refused:preserve_credentials_and_volume_use_future_migration_safe_reset')
+          if (
+            lockedNative.state.profile === 'native-container-postgres' &&
+            options.removeManagedPostgres !== true
+          ) {
+            throw new Error('community_native_container_reset_refused:use_--remove-managed-postgres_to_delete_the_label_verified_database')
+          }
+          if (
+            lockedNative.state.profile !== 'native-external-postgres' &&
+            lockedNative.state.profile !== 'native-container-postgres'
+          ) {
+            throw new Error('community_native_reset_profile_invalid')
           }
           const lockedOci = inspectFrom(resetOptions)
           if (lockedOci.status !== 'not-installed') {
             throw new Error(`community_instance_runtime_conflict:oci_${lockedOci.status}:run_aops-cli_doctor`)
           }
-          await stopCommunityNativeInstall(installSelection(resetOptions))
+          await stopCommunityNativeInstall({ ...installSelection(resetOptions), signal })
+          throwIfCommunityCommandAborted(signal)
+          const postgres = lockedNative.state.profile === 'native-container-postgres'
+            ? await runtime.removeNativeManagedPostgres({
+                instanceName: instance,
+                instanceRoot: expectedRoot,
+                signal,
+              })
+            : null
           throwIfCommunityCommandAborted(signal)
           removeInstanceContentsExceptLock(expectedRoot)
-          return { status: 'community-install-reset', runtime: 'native', instance, instanceRoot: expectedRoot, rootPreserved: true }
+          return {
+            status: 'community-install-reset',
+            runtime: 'native',
+            instance,
+            instanceRoot: expectedRoot,
+            rootPreserved: true,
+            managedPostgresRemoved: postgres !== null,
+            postgres,
+          }
         },
       )
       writeResult(output, options.json)
@@ -2327,9 +2360,10 @@ export function makeCommunityServerCommand(identity: CommunityServerCommandIdent
     .requiredOption('--expected-process-start-identity <digest>', 'Exact processStartIdentity from server lock-status')
     .option('--confirm-stale-lock-recovery', 'Confirm deletion of only this exact proven-stale generation')
     .action((options) => runCommunityServerRecoverLock(options, dependencies))
-  common(command.command('reset').description('Remove local installation state; Docker named volumes are preserved'))
+  common(command.command('reset').description('Remove local installation state; managed PostgreSQL is deleted only when explicitly requested'))
     .requiredOption('--confirm-instance <name>', 'Repeat the instance name')
     .option('--confirm-data-loss', 'Confirm removal of the installation state and its active data pointer')
+    .option('--remove-managed-postgres', 'Also delete the exact ownership-label-verified managed PostgreSQL container and volume')
     .action((options) => runCommunityServerReset(options, dependencies))
   return command
 }

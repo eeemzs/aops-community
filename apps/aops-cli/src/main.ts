@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
-import { banner, logError, logWarn } from '@aopslab/xf-cli-ui'
+import { banner, logError, logInfo } from '@aopslab/xf-cli-ui'
 import { resolveCommunityCliIdentity } from './lib/community-client-contract.js'
 import { promptSelect } from './utils/prompts.js'
 import { makeInitCommand } from './commands/init.js'
-import { makeCommunitySetupCommand, runCommunitySetupInit } from './commands/community-setup.js'
-import { makeAssetsCommand } from './commands/assets.js'
+import {
+  makeCommunitySetupCommand,
+  runCommunitySetupGuide,
+  runCommunitySetupInit,
+} from './commands/community-setup.js'
+import { runCommunitySetupServerEnv } from './lib/community-setup-server-env.js'
+import { makeAssetsCommand, runAgentAssetsMenu } from './commands/assets.js'
 import { makeStartCommand } from './commands/start.js'
 import { makePlanCommand } from './commands/plan.js'
 import { makeAgentsMdCommand } from './commands/agents-md.js'
@@ -33,7 +38,8 @@ import { makeActivityCommand } from './commands/activity.js'
 import { makeSkillCommand } from './commands/skill.js'
 import { makeDocCommand } from './commands/doc.js'
 import { makePmCommand } from './commands/pm/index.js'
-import { makeCommunityServerCommand } from './commands/community-server.js'
+import { makeCommunityServerCommand, runCommunityServerHealth } from './commands/community-server.js'
+import { makeCommunityCockpitCommand, runCommunityCockpit } from './commands/community-cockpit.js'
 import { makeCommunityDoctorCommand } from './commands/community-doctor.js'
 import { makeCommunityConsoleCommand } from './commands/community-console.js'
 import { makeTargetCommand } from './commands/target.js'
@@ -51,7 +57,7 @@ for (const stream of [process.stdout, process.stderr]) {
 export function buildCommunityProgram(): Command {
   const program = new Command()
   program
-    .name('aops-cli')
+    .name('aops')
     .description('AOPS Community operator CLI for local-trusted, self-hosted workflows')
     .version(resolveCommunityCliIdentity().version, '-V, --cli-version', 'output the CLI version')
 
@@ -86,6 +92,7 @@ export function buildCommunityProgram(): Command {
   program.addCommand(makeDocCommand()) // community-family:doc
   program.addCommand(makePmCommand()) // community-family:pm
   program.addCommand(makeCommunityServerCommand()) // community-family:server
+  program.addCommand(makeCommunityCockpitCommand()) // community-family:cockpit
   program.addCommand(makeCommunityDoctorCommand()) // community-family:doctor
   program.addCommand(makeCommunityConsoleCommand()) // community-family:console
   program.addCommand(makeTargetCommand()) // community-family:target
@@ -95,33 +102,58 @@ AOPS Community is a single-user, self-hosted/local-trusted distribution.
 Canonical writes go to the local AOPS server; .aops/** remains a read-only cache.
 
 Quick checks:
-  aops-cli host health
-  aops-cli agent tools
-  aops-cli view dashboard --style agent
+  aops setup guide
+  aops host health
+  aops agent tools
+  aops view dashboard --style agent
 `)
   return program
 }
 
-async function runCommunityMenu(program: Command): Promise<void> {
-  const readiness = await runCommunitySetupInit({ yes: true, skipBanner: true })
+const COMMUNITY_HOME = `AOPS Community — quick start
+  Agent install guide     aops setup guide
+  Configure PostgreSQL   aops setup server-env
+  Initialize AOPS        aops setup init
+  Check server health    aops server health
+  Open Cockpit           aops cockpit
+  Manage agent assets    aops assets
+Help: aops --help | aops <command> --help | Legacy: aops-cli
+`
+
+function outputCommunityHome(): void {
+  process.stdout.write(COMMUNITY_HOME)
+}
+
+async function runCommunityMenu(): Promise<void> {
   if (!process.stdin.isTTY || !process.stdout.isTTY) {
-    logWarn('Interactive menu requires a TTY. Use `aops-cli --help` or run a command directly.')
-    program.outputHelp()
+    outputCommunityHome()
     return
   }
-  banner('AOPS Community CLI')
+  banner('AOPS Community')
+  logInfo('Quick start. Full command list: aops --help')
   while (true) {
     const action = await promptSelect({
-      message: 'Select an action:',
-      type: process.env.AOPS_CLI_MENU_STYLE?.toLowerCase() === 'list' ? 'list' : 'rawlist',
+      message: 'What do you want to do?',
+      type: process.env.AOPS_CLI_MENU_STYLE?.toLowerCase() === 'rawlist' ? 'rawlist' : 'select',
+      pageSize: 8,
       choices: [
-        { name: readiness.status === 'action-required' ? 'Continue setup (readiness actions remain)' : 'Setup: Check readiness', value: 'setup' },
-        { name: 'Show command help', value: 'help' },
+        { name: 'Show agent installation guide', value: 'setup-guide' },
+        { name: 'Configure PostgreSQL environment', value: 'server-env' },
+        { name: 'Initialize AOPS', value: 'init' },
+        { name: 'Check server health', value: 'health' },
+        { name: 'Open Cockpit', value: 'cockpit' },
+        { name: 'Manage agent assets', value: 'assets' },
+        { name: 'Quick help', value: 'help' },
         { name: 'Exit', value: 'exit' },
       ],
     })
     if (action === 'exit') return
-    if (action === 'help') { program.outputHelp(); continue }
+    if (action === 'help') { outputCommunityHome(); continue }
+    if (action === 'setup-guide') { runCommunitySetupGuide(); continue }
+    if (action === 'server-env') { await runCommunitySetupServerEnv({}); continue }
+    if (action === 'health') { await runCommunityServerHealth({}); continue }
+    if (action === 'cockpit') { await runCommunityCockpit({}); continue }
+    if (action === 'assets') { await runAgentAssetsMenu(); continue }
     await runCommunitySetupInit({})
   }
 }
@@ -130,7 +162,7 @@ async function main(): Promise<void> {
   const program = buildCommunityProgram()
   try {
     if (process.argv.length <= 2) {
-      await runCommunityMenu(program)
+      await runCommunityMenu()
       return
     }
     const argv = process.argv[2] === '--'

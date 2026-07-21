@@ -8,6 +8,7 @@ import {
   openSync,
   readFileSync,
   realpathSync,
+  unlinkSync,
   type Stats,
 } from 'node:fs'
 import path from 'node:path'
@@ -119,6 +120,18 @@ export type MigrateLegacyPointersResultV1 = Readonly<{
   classifications: readonly LegacyPointerClassificationV1[]
 }>
 
+export type RemoveAopsGatewayPointersOptionsV1 = Readonly<{
+  assetRoot: string
+  runtimeHomes: Readonly<Partial<Record<Runtime, string>>>
+}>
+
+export type RemoveAopsGatewayPointersResultV1 = Readonly<{
+  removed: readonly Runtime[]
+  unchanged: readonly Runtime[]
+  retainedManagedBindings: readonly Runtime[]
+  classifications: readonly LegacyPointerClassificationV1[]
+}>
+
 type SafeFileRead =
   | Readonly<{ state: 'absent' }>
   | Readonly<{ state: 'unsafe-path'; reason: string }>
@@ -145,7 +158,7 @@ function migrationError(
 ): AgentAssetsError {
   return new AgentAssetsError(code, message, {
     nextActions: [
-      'Run `aops-cli assets migrate inspect --json` and leave unknown/user-owned files untouched.',
+      'Run `aops assets migrate inspect --json` and leave unknown/user-owned files untouched.',
     ],
     ...(details === undefined ? {} : { details }),
   })
@@ -827,4 +840,83 @@ export async function migrateLegacyAopsPointers(
   } finally {
     await session.close()
   }
+}
+
+function unlinkVerifiedPointerFile(
+  root: string,
+  relativePath: string,
+  expectedSha256: string,
+): void {
+  const read = safeReadBoundedFile(root, relativePath, MAX_MANAGED_STATE_BYTES)
+  if (read.state !== 'ready') {
+    throw migrationError(
+      read.state === 'unsafe-path' ? 'link_unsafe_path' : 'not_found',
+      'A global AOPS gateway file changed after removal preflight.',
+      { relativePath, state: read.state },
+    )
+  }
+  if (sha256(read.bytes) !== expectedSha256) {
+    throw migrationError('binding_conflict', 'A global AOPS gateway file changed after removal preflight.', {
+      relativePath,
+    })
+  }
+  unlinkSync(path.join(path.resolve(root), ...relativePath.split('/')))
+}
+
+/**
+ * Removes only an exact recognized legacy pointer or a fully proven managed
+ * gateway. The verified local core, immutable receipts, and managed binding
+ * history are intentionally retained so an explicit repair can restore a
+ * removed runtime pointer without reconstructing trust.
+ */
+export function removeAopsGatewayPointers(
+  options: RemoveAopsGatewayPointersOptionsV1,
+): RemoveAopsGatewayPointersResultV1 {
+  const assetRoot = path.resolve(options.assetRoot)
+  const before = inspectLegacyAopsPointers({ assetRoot, runtimeHomes: options.runtimeHomes })
+  const conflicts = before.filter((item) => (
+    item.state !== 'absent'
+    && item.state !== 'recognized-legacy'
+    && item.state !== 'managed-ready'
+  ) || (item.state === 'recognized-legacy' && !item.eligible))
+  if (conflicts.length > 0) {
+    throw migrationError('binding_conflict', 'Gateway removal found an unknown, unsafe, or unowned runtime file.', {
+      runtimes: conflicts.map((item) => item.runtime),
+      states: conflicts.map((item) => item.state),
+    })
+  }
+
+  const removed: Runtime[] = []
+  const unchanged: Runtime[] = []
+  const retainedManagedBindings: Runtime[] = []
+  for (const classification of before) {
+    if (classification.state === 'absent') {
+      unchanged.push(classification.runtime)
+      continue
+    }
+    const runtimeHome = options.runtimeHomes[classification.runtime]
+    if (!runtimeHome || !classification.contentSha256) {
+      throw migrationError('schema_incompatible', 'Gateway removal lost its selected runtime context.')
+    }
+    if (classification.state === 'managed-ready') {
+      const binding = readCurrentBinding(assetRoot, classification.runtime)
+      const marker = safeReadBoundedFile(runtimeHome, binding.ownerMarkerRelativePath, MAX_LEGACY_POINTER_BYTES)
+      if (marker.state !== 'ready' || sha256(marker.bytes) !== binding.ownerMarkerSha256) {
+        throw migrationError('binding_conflict', `${classification.runtime} ownership marker changed after preflight.`)
+      }
+      unlinkVerifiedPointerFile(runtimeHome, binding.relativePath, binding.contentSha256)
+      unlinkVerifiedPointerFile(runtimeHome, binding.ownerMarkerRelativePath, binding.ownerMarkerSha256)
+      retainedManagedBindings.push(classification.runtime)
+    } else {
+      unlinkVerifiedPointerFile(runtimeHome, classification.relativePath, classification.contentSha256)
+    }
+    removed.push(classification.runtime)
+  }
+
+  return Object.freeze({
+    removed: Object.freeze(removed),
+    unchanged: Object.freeze(unchanged),
+    retainedManagedBindings: Object.freeze(retainedManagedBindings),
+    classifications: inspectLegacyAopsPointers({ assetRoot, runtimeHomes: options.runtimeHomes }),
+  })
 }

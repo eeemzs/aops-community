@@ -1,9 +1,9 @@
 export const SETUP_AGENT_ASSETS_CONTRACT = Object.freeze({
   task: 'TASK-136',
   surface: 'agent-assets-client-v1',
-  statusCommand: 'aops-cli assets status --verify quick --json',
-  installCommand: 'aops-cli assets install --from-release <path> --target both --apply --json',
-  repairCommand: 'aops-cli assets repair --repair-bindings --apply --json',
+  statusCommand: 'aops assets status --verify quick --json',
+  installCommand: 'aops assets install --target all --apply --json',
+  repairCommand: 'aops assets repair --repair-bindings --apply --json',
   transitionRemovalCondition:
     'Satisfied by the native TASK-136 provider composed after TASK-137; never route through setup agent-assets.',
 })
@@ -33,9 +33,9 @@ export type SetupAgentAssetsProvider = Readonly<{
     dataRoot?: string
   }>) => Promise<Readonly<{ fromRelease: string; source: string }>>
   apply?: (options: Readonly<{
-    action: 'install' | 'repair'
+    action: 'install' | 'update' | 'repair'
     fromRelease?: string
-    target: 'both'
+    target: AgentAssetTargetInput
   }>) => Promise<SetupAgentAssetsStatus>
 }>
 
@@ -46,7 +46,9 @@ export type SetupAgentAssetsProviderDependencies = Readonly<{
   verifyRelease?: typeof verifyAndLoadCommunityCoreReleaseInput
   applyCore?: typeof applyVerifiedCommunityCore
   repairBindings?: typeof repairAgentAssetRuntimeBindings
-  resolveRelease?: typeof resolveSetupOfficialCatalogReleaseV1
+  inspectLegacyPointers?: typeof inspectLegacyAopsPointers
+  migrateLegacyPointers?: typeof migrateLegacyAopsPointers
+  resolveRelease?: typeof resolveSetupAgentAssetsReleaseV1
 }>
 
 export async function verifySetupAgentAssetsReleaseInput(
@@ -65,7 +67,9 @@ export function createSetupAgentAssetsProvider(
   const verifyRelease = dependencies.verifyRelease ?? verifyAndLoadCommunityCoreReleaseInput
   const applyCore = dependencies.applyCore ?? applyVerifiedCommunityCore
   const repairBindings = dependencies.repairBindings ?? repairAgentAssetRuntimeBindings
-  const resolveRelease = dependencies.resolveRelease ?? resolveSetupOfficialCatalogReleaseV1
+  const inspectLegacyPointers = dependencies.inspectLegacyPointers ?? inspectLegacyAopsPointers
+  const migrateLegacyPointers = dependencies.migrateLegacyPointers ?? migrateLegacyAopsPointers
+  const resolveRelease = dependencies.resolveRelease ?? resolveSetupAgentAssetsReleaseV1
   const inspect = async (): Promise<SetupAgentAssetsStatus> => {
     const roots = resolveRoots({})
     const store = readStatus({ assetRoot: roots.assetRoot, verify: 'quick' })
@@ -76,7 +80,7 @@ export function createSetupAgentAssetsProvider(
         claude: roots.runtimeHomes.claude.absolutePath,
       },
     })
-    const states = [bindings.codex.state, bindings.claude.state]
+    const states = AGENT_ASSET_RUNTIME_IDS.map((runtime) => bindings[runtime].state)
     const recoveryReasons = store.recoveryReasons ?? []
     const storeDrift = recoveryReasons.length > 0
     const ready = store.state === 'ready' && !storeDrift && states.every((state) => state === 'ready')
@@ -85,7 +89,7 @@ export function createSetupAgentAssetsProvider(
       availability: 'available' as const,
       state: ready ? 'ready' as const : conflict ? 'conflict' as const : 'action-required' as const,
       summary: ready
-        ? 'The verified AOPS core and both global runtime gateways are ready.'
+        ? 'The verified AOPS core and all registered runtime gateways are ready.'
         : conflict
           ? 'A global runtime gateway has an ownership or unsafe-path conflict.'
           : store.state === 'ready' && storeDrift
@@ -96,12 +100,12 @@ export function createSetupAgentAssetsProvider(
       nextActions: Object.freeze(ready
         ? []
         : conflict
-          ? ['Inspect `aops-cli assets status --verify full --json`; unknown user files are never overwritten.']
+          ? ['Inspect `aops assets status --verify full --json`; unknown user files are never overwritten.']
           : store.state === 'ready' && storeDrift
-            ? ['Inspect `aops-cli assets status --verify full --json` and reconcile only the reported managed recovery state.']
+            ? ['Inspect `aops assets status --verify full --json` and reconcile only the reported managed recovery state.']
           : store.state === 'ready'
-            ? ['Run `aops-cli assets repair --repair-bindings --apply --json`.']
-            : ['Run `aops-cli assets install --from-release <path> --target both --apply --json`.']),
+            ? ['Run `aops assets repair --repair-bindings --apply --json`.']
+            : ['Run `aops assets install --target all --apply --json`.']),
       data: Object.freeze({
         store,
         runtimeBindings: bindings,
@@ -118,25 +122,51 @@ export function createSetupAgentAssetsProvider(
     },
     async apply(options) {
       const roots = resolveRoots({})
-      if (options.action === 'install') {
+      const target = resolveAgentAssetTargetSelection(options.target)
+      const runtimeHomes = selectAgentAssetRuntimeHomes(target, {
+        codex: roots.runtimeHomes.codex.absolutePath,
+        claude: roots.runtimeHomes.claude.absolutePath,
+      })
+      if (options.action === 'install' || options.action === 'update') {
         if (!options.fromRelease) throw new Error('setup_init_agent_assets_release_required_for_install')
         const release = await verifySetupAgentAssetsReleaseInput(verifyRelease, options.fromRelease)
+        const classifications = inspectLegacyPointers({ assetRoot: roots.assetRoot, runtimeHomes })
+        const conflicts = classifications.filter((item) => (
+          item.state !== 'absent'
+          && item.state !== 'managed-ready'
+          && item.state !== 'recognized-legacy'
+        ) || (item.state === 'recognized-legacy' && !item.eligible))
+        if (conflicts.length > 0) {
+          throw new Error(`setup_init_agent_assets_runtime_conflict:${conflicts.map((item) => `${item.runtime}:${item.state}`).join(',')}`)
+        }
+        const legacyRuntimes = new Set(classifications
+          .filter((item) => item.state === 'recognized-legacy')
+          .map((item) => item.runtime))
+        const directRuntimeHomes = Object.freeze(Object.fromEntries(
+          target.runtimes
+            .filter((runtime) => !legacyRuntimes.has(runtime))
+            .map((runtime) => [runtime, runtimeHomes[runtime]!]),
+        ))
         await applyCore({
           assetRoot: roots.assetRoot,
           release,
-          requestedOperation: 'install',
-          runtimeHomes: {
-            codex: roots.runtimeHomes.codex.absolutePath,
-            claude: roots.runtimeHomes.claude.absolutePath,
-          },
+          requestedOperation: options.action,
+          runtimeHomes: directRuntimeHomes,
         })
+        if (legacyRuntimes.size > 0) {
+          await migrateLegacyPointers({
+            assetRoot: roots.assetRoot,
+            runtimeHomes: Object.freeze(Object.fromEntries(
+              target.runtimes
+                .filter((runtime) => legacyRuntimes.has(runtime))
+                .map((runtime) => [runtime, runtimeHomes[runtime]!]),
+            )),
+          })
+        }
       } else {
         await repairBindings({
           assetRoot: roots.assetRoot,
-          runtimeHomes: {
-            codex: roots.runtimeHomes.codex.absolutePath,
-            claude: roots.runtimeHomes.claude.absolutePath,
-          },
+          runtimeHomes,
         })
       }
       return inspect()
@@ -169,7 +199,7 @@ export async function inspectSetupAgentAssets(
       state: 'action-required',
       summary: 'The canonical global AOPS agent-assets client is not available in this build yet.',
       nextActions: Object.freeze([
-        'Complete TASK-136 on the TASK-137 merge base, then run `aops-cli assets status --verify quick --json`.',
+        'Complete TASK-136 on the TASK-137 merge base, then run `aops assets status --verify quick --json`.',
       ]),
       data: Object.freeze({
         task: SETUP_AGENT_ASSETS_CONTRACT.task,
@@ -196,7 +226,7 @@ export async function applySetupAgentAssets(
   }
   return normalizeProviderStatus(await provider.apply({
     ...options,
-    target: 'both',
+    target: 'all',
   }))
 }
 import { verifyAndLoadCommunityCoreReleaseInput } from './agent-assets/release-input.js'
@@ -207,4 +237,14 @@ import {
   applyVerifiedCommunityCore,
   repairAgentAssetRuntimeBindings,
 } from './agent-assets/store-writer.js'
-import { resolveSetupOfficialCatalogReleaseV1 } from './setup-official-catalog-bridge.js'
+import {
+  inspectLegacyAopsPointers,
+  migrateLegacyAopsPointers,
+} from './agent-assets/legacy-pointer-migration.js'
+import { resolveSetupAgentAssetsReleaseV1 } from './setup-agent-assets-release.js'
+import {
+  AGENT_ASSET_RUNTIME_IDS,
+  resolveAgentAssetTargetSelection,
+  selectAgentAssetRuntimeHomes,
+  type AgentAssetTargetInput,
+} from './agent-assets/runtime-targets.js'

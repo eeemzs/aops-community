@@ -148,7 +148,7 @@ type StoreBindingRead =
 
 function bindingError(message: string, details?: Readonly<Record<string, unknown>>): AgentAssetsError {
   return new AgentAssetsError('schema_incompatible', message, {
-    nextActions: ['Run `aops-cli assets status --verify full --json` and inspect the binding diagnostics.'],
+    nextActions: ['Run `aops assets status --verify full --json` and inspect the binding diagnostics.'],
     ...(details === undefined ? {} : { details }),
   })
 }

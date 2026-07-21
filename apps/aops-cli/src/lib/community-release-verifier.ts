@@ -15,6 +15,10 @@ const NPM_INTEGRITY_SHA512 = /^sha512-[A-Za-z0-9+/]{86}==$/
 export const COMMUNITY_GITHUB_OIDC_ISSUER = 'https://token.actions.githubusercontent.com'
 export const COMMUNITY_PUBLIC_SOURCE_REPOSITORY = 'git+https://github.com/eeemzs/aops-community'
 export const COMMUNITY_PUBLIC_CLI_PACKAGE_NAME = '@aopslab/aops-cli'
+export const COMMUNITY_AGENT_ASSETS_MANIFEST_REF = 'agent-assets-release.json'
+export const COMMUNITY_AGENT_ASSETS_SIGNATURE_REF = 'agent-assets-release.sigstore.json'
+export const COMMUNITY_AGENT_ASSETS_CERTIFICATE_IDENTITY_URI =
+  '^https://github\\.com/eeemzs/[A-Za-z0-9._-]+/\\.github/workflows/sign-community-agent-assets\\.yml@refs/heads/main$'
 
 type ArtifactRef = { ref: string; sha256: string; kind: string }
 export type AgentAssetsPackageRecord = {
@@ -70,6 +74,19 @@ type ReleaseManifest = {
   }
 }
 
+type AgentAssetsManifest = {
+  schemaVersion: 1
+  kind: 'aops-community-agent-assets-bundle-v1'
+  releaseVersion: string
+  source: {
+    repository: typeof COMMUNITY_PUBLIC_SOURCE_REPOSITORY
+    commit: string
+    root: 'apps/aops-cli/assets/agent-assets'
+  }
+  agentAssets: AgentAssetsReleaseRecord
+  evidence: { signature: { bundleRef: typeof COMMUNITY_AGENT_ASSETS_SIGNATURE_REF } }
+}
+
 export type CommunityVerifiedReleaseDescriptor = {
   manifestContent: string
   composeContent: string
@@ -84,6 +101,19 @@ export type CommunityVerifiedReleaseBundle = CommunityVerifiedReleaseDescriptor 
   releaseRoot: string
   manifestPath: string
   signatureBundlePath: string
+}
+
+export type CommunityVerifiedAgentAssetsReleaseBundle = {
+  releaseRoot: string
+  manifestPath: string
+  signatureBundlePath: string
+  manifestContent: string
+  releaseVersion: string
+  source: AgentAssetsManifest['source']
+  certificateIdentity: string
+  certificateOidcIssuer: string
+  verifiedArtifactCount: number
+  agentAssets: AgentAssetsReleaseRecord
 }
 
 export type CommunityReleaseSignatureVerifier = (
@@ -321,6 +351,48 @@ function parseManifest(content: string): ReleaseManifest {
   return manifest
 }
 
+function parseAgentAssetsManifest(content: string): AgentAssetsManifest {
+  let value: unknown
+  try {
+    value = JSON.parse(content)
+  } catch {
+    fail('community_agent_assets_manifest_json_invalid')
+  }
+  assertExactObject(
+    value,
+    ['schemaVersion', 'kind', 'releaseVersion', 'source', 'agentAssets', 'evidence'],
+    'community_agent_assets_manifest_invalid',
+  )
+  const manifest = value as unknown as AgentAssetsManifest
+  if (
+    manifest.schemaVersion !== 1 ||
+    manifest.kind !== 'aops-community-agent-assets-bundle-v1' ||
+    typeof manifest.releaseVersion !== 'string' ||
+    !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(manifest.releaseVersion)
+  ) fail('community_agent_assets_manifest_identity_invalid')
+  assertExactObject(
+    manifest.source,
+    ['repository', 'commit', 'root'],
+    'community_agent_assets_manifest_source_invalid',
+  )
+  if (
+    manifest.source.repository !== COMMUNITY_PUBLIC_SOURCE_REPOSITORY ||
+    !/^[a-f0-9]{40}$/.test(manifest.source.commit) ||
+    manifest.source.root !== 'apps/aops-cli/assets/agent-assets'
+  ) fail('community_agent_assets_manifest_source_invalid')
+  assertExactObject(manifest.evidence, ['signature'], 'community_agent_assets_manifest_evidence_invalid')
+  assertExactObject(
+    manifest.evidence.signature,
+    ['bundleRef'],
+    'community_agent_assets_manifest_signature_invalid',
+  )
+  if (manifest.evidence.signature.bundleRef !== COMMUNITY_AGENT_ASSETS_SIGNATURE_REF) {
+    fail('community_agent_assets_manifest_signature_invalid')
+  }
+  assertAgentAssetsRelease(manifest.agentAssets)
+  return manifest
+}
+
 function defaultCertificateIdentity(manifest: ReleaseManifest): string {
   const tag = manifest.image.tag || `v${manifest.releaseVersion}`
   return `https://github.com/eeemzs/aops/.github/workflows/community-release.yml@refs/tags/${tag}`
@@ -400,6 +472,41 @@ async function verifyManifestSignature(options: {
   } catch (error) {
     if (error instanceof Error && error.message.startsWith('community_release_signature_bundle_json_invalid')) throw error
     fail('community_release_sigstore_verification_failed', error instanceof Error ? error.message : String(error))
+  }
+  return { certificateIdentity, certificateOidcIssuer }
+}
+
+async function verifyAgentAssetsManifestSignature(options: {
+  manifestContent: string
+  signatureBundleContent: string
+  certificateIdentity?: string
+  certificateOidcIssuer?: string
+  signatureVerifier?: CommunityReleaseSignatureVerifier
+  verificationMode?: 'online' | 'offline'
+}): Promise<{ certificateIdentity: string; certificateOidcIssuer: string }> {
+  const certificateIdentity = options.certificateIdentity ?? COMMUNITY_AGENT_ASSETS_CERTIFICATE_IDENTITY_URI
+  const certificateOidcIssuer = options.certificateOidcIssuer ?? COMMUNITY_GITHUB_OIDC_ISSUER
+  const verificationMode = options.verificationMode ?? 'online'
+  try {
+    const bundle = parseSignatureBundle(options.signatureBundleContent)
+    const payload = Buffer.from(options.manifestContent)
+    const verifierOptions = {
+      certificateIssuer: certificateOidcIssuer,
+      certificateIdentityURI: options.certificateIdentity === undefined
+        ? certificateIdentity
+        : exactRegex(certificateIdentity),
+      verificationMode,
+    }
+    if (options.signatureVerifier) {
+      await options.signatureVerifier(bundle, payload, verifierOptions)
+    } else if (verificationMode === 'offline') {
+      await verifySigstoreOffline(bundle, payload, verifierOptions)
+    } else {
+      await verifySigstore(bundle, payload, verifierOptions)
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('community_release_signature_bundle_json_invalid')) throw error
+    fail('community_agent_assets_sigstore_verification_failed', error instanceof Error ? error.message : String(error))
   }
   return { certificateIdentity, certificateOidcIssuer }
 }
@@ -501,5 +608,61 @@ export async function verifyCommunityReleaseBundle(options: {
     signatureBundlePath,
     ...descriptor,
     verifiedArtifactCount: artifacts.length + 2,
+  }
+}
+
+/**
+ * Verifies only the signed release descriptor, Compose binding required by the
+ * descriptor contract, and the agent-assets closure consumed by the CLI. This
+ * keeps the client asset lane independent from unrelated image, migration,
+ * legal, source, SBOM, and CLI artifacts while preserving the same Sigstore
+ * identity and signed per-file digests.
+ */
+export async function verifyCommunityAgentAssetsReleaseBundle(options: {
+  releaseRoot: string
+  certificateIdentity?: string
+  certificateOidcIssuer?: string
+  signatureVerifier?: CommunityReleaseSignatureVerifier
+  verificationMode?: 'online' | 'offline'
+}): Promise<CommunityVerifiedAgentAssetsReleaseBundle> {
+  const releaseRoot = path.resolve(options.releaseRoot)
+  const rootStat = lstatSync(releaseRoot)
+  if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) fail('community_release_root_invalid')
+  const manifestPath = requireConfinedFile(
+    releaseRoot,
+    COMMUNITY_AGENT_ASSETS_MANIFEST_REF,
+    'community_agent_assets_manifest',
+  )
+  const manifestContent = readFileSync(manifestPath, 'utf8')
+  const manifest = parseAgentAssetsManifest(manifestContent)
+  for (const artifact of manifest.agentAssets.files) {
+    const artifactPath = requireConfinedFile(releaseRoot, artifact.ref, 'community_release_agent_assets')
+    if (digestFile(artifactPath) !== `sha256:${artifact.sha256}`) {
+      fail('community_release_agent_assets_digest_mismatch', artifact.ref)
+    }
+  }
+  const signatureBundlePath = requireConfinedFile(
+    releaseRoot,
+    COMMUNITY_AGENT_ASSETS_SIGNATURE_REF,
+    'community_agent_assets_signature',
+  )
+  const certificate = await verifyAgentAssetsManifestSignature({
+    manifestContent,
+    signatureBundleContent: readFileSync(signatureBundlePath, 'utf8'),
+    certificateIdentity: options.certificateIdentity,
+    certificateOidcIssuer: options.certificateOidcIssuer,
+    signatureVerifier: options.signatureVerifier,
+    verificationMode: options.verificationMode,
+  })
+  return {
+    releaseRoot,
+    manifestPath,
+    signatureBundlePath,
+    manifestContent,
+    releaseVersion: manifest.releaseVersion,
+    source: manifest.source,
+    ...certificate,
+    verifiedArtifactCount: manifest.agentAssets.files.length + 2,
+    agentAssets: manifest.agentAssets,
   }
 }

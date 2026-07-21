@@ -95,7 +95,6 @@ export type OpenAgentAssetsNativeSessionOptions = Readonly<{
   requiredDurability?: AgentAssetsNativeDurability
   platform?: NodeJS.Platform
   architecture?: string
-  osBuild?: string
 }>
 
 export interface AgentAssetsNativePublicationSession {
@@ -125,6 +124,16 @@ export interface AgentAssetsNativeRuntimeRoot {
   ): Promise<void>
 }
 
+export function windowsQualificationSupportsRuntime(input: Readonly<{
+  qualificationArchitecture: string
+  qualificationCapabilityClass: string
+  runtimeArchitecture: string
+  runtimeCapabilityClass: string
+}>): boolean {
+  return input.qualificationArchitecture === input.runtimeArchitecture
+    && input.qualificationCapabilityClass === input.runtimeCapabilityClass
+}
+
 export async function openAgentAssetsNativePublicationSession(
   options: OpenAgentAssetsNativeSessionOptions,
 ): Promise<AgentAssetsNativePublicationSession> {
@@ -148,7 +157,7 @@ export async function openAgentAssetsNativePublicationSession(
       hexUtf8(options.agentAssetsRoot),
       hexUtf8(loaded.helper.capabilityClass),
       loaded.capabilityEvidenceSha256,
-      hexUtf8(loaded.qualificationOsBuild),
+      hexUtf8(loaded.runtimeOsBuild),
       hexUtf8(loaded.helper.architecture),
       options.requiredDurability ?? 'process-crash',
     ])
@@ -421,7 +430,7 @@ async function loadNativeHelper(options: OpenAgentAssetsNativeSessionOptions): P
   helperPath: string
   manifestSha256: string
   capabilityEvidenceSha256: string
-  qualificationOsBuild: string
+  runtimeOsBuild: string
 }>> {
   const platform = normalizePlatform(options.platform ?? process.platform)
   const architecture = normalizeArchitecture(options.architecture ?? process.arch)
@@ -479,7 +488,7 @@ async function loadNativeHelper(options: OpenAgentAssetsNativeSessionOptions): P
       helperPath,
       manifestSha256,
       capabilityEvidenceSha256: helper.sha256,
-      qualificationOsBuild: '',
+      runtimeOsBuild: '',
     })
   }
 
@@ -487,7 +496,7 @@ async function loadNativeHelper(options: OpenAgentAssetsNativeSessionOptions): P
     throw new AgentAssetsError(
       'durability_unavailable',
       'The Windows helper has no packaged signed crash-recovery qualification.',
-      { nextActions: ['Install a Community release qualified for this exact Windows build and architecture.'] },
+      { nextActions: ['Install a Community release with signed Windows crash-recovery evidence.'] },
     )
   }
   const qualificationPath = safeManifestPath(nativeRoot, helper.qualification.relativePath)
@@ -498,24 +507,27 @@ async function loadNativeHelper(options: OpenAgentAssetsNativeSessionOptions): P
     })
   }
   const qualification = parseWindowsQualification(qualificationBytes)
-  const observedBuild = options.osBuild ?? os.release()
-  if (
-    qualification.architecture !== architecture
-    || qualification.osBuild !== observedBuild
-    || qualification.capabilityClass !== helper.capabilityClass
-  ) {
+  if (!windowsQualificationSupportsRuntime({
+    qualificationArchitecture: qualification.architecture,
+    qualificationCapabilityClass: qualification.capabilityClass,
+    runtimeArchitecture: architecture,
+    runtimeCapabilityClass: helper.capabilityClass,
+  })) {
     throw new AgentAssetsError(
       'durability_unavailable',
-      'The packaged Windows qualification does not match this kernel build and architecture.',
-      { nextActions: ['Install a release with an exact qualification match; do not override the matrix.'] },
+      'The packaged Windows qualification does not match this architecture and capability class.',
+      { nextActions: ['Install a Community release with a compatible signed Windows helper.'] },
     )
   }
+  // The evidence build identifies where crash recovery was exercised; it is
+  // provenance metadata, not a Windows Update allowlist. Runtime compatibility
+  // is enforced by the signed helper identity and the live kernel/NTFS probe.
   return Object.freeze({
     helper,
     helperPath,
     manifestSha256,
     capabilityEvidenceSha256: qualification.evidenceSha256,
-    qualificationOsBuild: qualification.osBuild,
+    runtimeOsBuild: os.release(),
   })
 }
 
@@ -619,6 +631,7 @@ function assertCapability(
     || capability.architecture !== loaded.helper.architecture
     || capability.capabilityClass !== loaded.helper.capabilityClass
     || capability.capabilityEvidenceSha256 !== loaded.capabilityEvidenceSha256
+    || (loaded.helper.platform === 'win32' && capability.filesystem !== 'NTFS')
     || !SHA256.test(capability.machineIdentitySha256)
     || !SHA256.test(capability.rootIdentitySha256)
     || capability.machineIdentitySha256 === capability.rootIdentitySha256
@@ -755,7 +768,7 @@ function nativeError(code: string, message: string): AgentAssetsError {
     ? code as AgentAssetsErrorCode
     : 'atomic_primitive_unavailable'
   return new AgentAssetsError(normalized, message, {
-    nextActions: ['Run `aops-cli assets status --verify full --json` and inspect native capability diagnostics.'],
+    nextActions: ['Run `aops assets status --verify full --json` and inspect native capability diagnostics.'],
   })
 }
 

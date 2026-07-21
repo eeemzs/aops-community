@@ -2,10 +2,10 @@ import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs'
 import path from 'node:path'
 
 import {
-  verifyCommunityReleaseBundle,
+  verifyCommunityAgentAssetsReleaseBundle,
   type AgentAssetsPackageRecord,
   type CommunityReleaseSignatureVerifier,
-  type CommunityVerifiedReleaseBundle,
+  type CommunityVerifiedAgentAssetsReleaseBundle,
 } from '../community-release-verifier.js'
 import { AgentAssetsError } from './envelope.js'
 import { sha256Bytes, validatePortablePackageV1 } from './package-manifest.js'
@@ -94,7 +94,7 @@ function parseJsonBytes(bytes: Uint8Array): unknown {
 }
 
 function loadVerifiedReleasePackage(
-  bundle: CommunityVerifiedReleaseBundle,
+  bundle: CommunityVerifiedAgentAssetsReleaseBundle,
   pointer: AgentAssetsPackageRecord,
   expected: Readonly<{
     assetKind: 'community-core' | 'skill-package'
@@ -206,7 +206,7 @@ function loadVerifiedReleasePackage(
  * agentAssets record before those bytes may reach staging.
  */
 export function loadVerifiedCommunityCoreReleaseInput(
-  bundle: CommunityVerifiedReleaseBundle,
+  bundle: CommunityVerifiedAgentAssetsReleaseBundle,
 ): VerifiedCommunityCoreReleaseInputV1 {
   const loaded = loadVerifiedReleasePackage(bundle, bundle.agentAssets.core, {
     assetKind: 'community-core',
@@ -225,7 +225,7 @@ export function loadVerifiedCommunityCoreReleaseInput(
  * mutation and never consults repo `.aops` mirrors.
  */
 export function loadVerifiedCommunityCatalogReleaseInputs(
-  bundle: CommunityVerifiedReleaseBundle,
+  bundle: CommunityVerifiedAgentAssetsReleaseBundle,
 ): readonly VerifiedCommunityCatalogReleaseInputV1[] {
   const loaded = bundle.agentAssets.catalog.packages.map((pointer) => {
     const candidate = loadVerifiedReleasePackage(bundle, pointer, {
@@ -255,7 +255,7 @@ export async function verifyAndLoadCommunityCoreReleaseInput(options: Readonly<{
   verificationMode?: 'online' | 'offline'
   signatureVerifier?: CommunityReleaseSignatureVerifier
 }>): Promise<VerifiedCommunityCoreReleaseInputV1> {
-  const bundle = await verifyCommunityReleaseBundle(options)
+  const bundle = await verifyCommunityAgentAssetsReleaseBundle(options)
   return loadVerifiedCommunityCoreReleaseInput(bundle)
 }
 
@@ -266,6 +266,6 @@ export async function verifyAndLoadCommunityCatalogReleaseInputs(options: Readon
   verificationMode?: 'online' | 'offline'
   signatureVerifier?: CommunityReleaseSignatureVerifier
 }>): Promise<readonly VerifiedCommunityCatalogReleaseInputV1[]> {
-  const bundle = await verifyCommunityReleaseBundle(options)
+  const bundle = await verifyCommunityAgentAssetsReleaseBundle(options)
   return loadVerifiedCommunityCatalogReleaseInputs(bundle)
 }

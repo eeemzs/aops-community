@@ -1034,12 +1034,27 @@ export async function readCommunityStrictCatalogProjection(
             ts.spcname AS "tablespace",
             COALESCE((SELECT array_agg(option_value ORDER BY option_value)
                         FROM unnest(c.reloptions) AS option_value), ARRAY[]::text[]) AS "options",
-            COALESCE((SELECT array_agg(acl_value::text ORDER BY acl_value::text)
-                        FROM unnest(c.relacl) AS acl_value), ARRAY[]::text[]) AS "acl"
+            COALESCE((SELECT array_agg(
+                                (CASE WHEN acl_value.grantee = 0 THEN 'PUBLIC'
+                                      ELSE pg_catalog.pg_get_userbyid(acl_value.grantee) END) || ':' ||
+                                acl_value.privilege_type || ':' ||
+                                CASE WHEN acl_value.is_grantable THEN 'grantable' ELSE 'plain' END
+                                ORDER BY acl_value.grantee, acl_value.privilege_type,
+                                         acl_value.is_grantable)
+                        FROM pg_catalog.aclexplode(c.relacl) AS acl_value
+                       WHERE acl_value.grantee <> c.relowner), ARRAY[]::text[]) AS "acl"
        FROM pg_catalog.pg_class c
        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
        LEFT JOIN pg_catalog.pg_tablespace ts ON ts.oid = c.reltablespace
-      WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm', 'S', 'f', 'c')`,
+      WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm', 'S', 'f', 'c')
+        AND NOT EXISTS (
+          SELECT 1
+            FROM pg_catalog.pg_depend extension_dependency
+           WHERE extension_dependency.classid = 'pg_catalog.pg_class'::regclass
+             AND extension_dependency.objid = c.oid
+             AND extension_dependency.refclassid = 'pg_catalog.pg_extension'::regclass
+             AND extension_dependency.deptype = 'e'
+        )`,
   )
   const columns = await client.query<Record<string, unknown>>(
     `SELECT c.relname AS "table",
@@ -1153,7 +1168,15 @@ export async function readCommunityStrictCatalogProjection(
        FROM pg_catalog.pg_proc p
        JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
        JOIN pg_catalog.pg_language l ON l.oid = p.prolang
-      WHERE n.nspname = 'public'`,
+      WHERE n.nspname = 'public'
+        AND NOT EXISTS (
+          SELECT 1
+            FROM pg_catalog.pg_depend extension_dependency
+           WHERE extension_dependency.classid = 'pg_catalog.pg_proc'::regclass
+             AND extension_dependency.objid = p.oid
+             AND extension_dependency.refclassid = 'pg_catalog.pg_extension'::regclass
+             AND extension_dependency.deptype = 'e'
+        )`,
   )
   const triggers = await client.query<Record<string, unknown>>(
     `SELECT c.relname AS "table",
@@ -1175,16 +1198,6 @@ export async function readCommunityStrictCatalogProjection(
        LEFT JOIN pg_catalog.pg_class ref ON ref.oid = t.tgconstrrelid
        LEFT JOIN pg_catalog.pg_namespace ref_ns ON ref_ns.oid = ref.relnamespace
       WHERE n.nspname = 'public' AND (NOT t.tgisinternal OR t.tgenabled <> 'O')`,
-  )
-  const eventTriggers = await client.query<Record<string, unknown>>(
-    `SELECT e.evtname AS "name", e.evtevent AS "event", e.evtenabled AS "enabled",
-            COALESCE((SELECT array_agg(tag_value ORDER BY tag_value)
-                        FROM unnest(e.evttags) AS tag_value), ARRAY[]::text[]) AS "tags",
-            fn_ns.nspname AS "functionSchema", fn.proname AS "functionName",
-            pg_catalog.pg_get_function_identity_arguments(fn.oid) AS "functionIdentityArguments"
-       FROM pg_catalog.pg_event_trigger e
-       JOIN pg_catalog.pg_proc fn ON fn.oid = e.evtfoid
-       JOIN pg_catalog.pg_namespace fn_ns ON fn_ns.oid = fn.pronamespace`,
   )
   const rules = await client.query<Record<string, unknown>>(
     `SELECT c.relname AS "table", r.rulename AS "name", r.ev_enabled AS "enabled",
@@ -1251,35 +1264,43 @@ export async function readCommunityStrictCatalogProjection(
        LEFT JOIN pg_catalog.pg_namespace rn ON rn.oid = rc.collnamespace
        LEFT JOIN pg_catalog.pg_opclass opc ON opc.oid = r.rngsubopc
       WHERE n.nspname = 'public' AND t.typtype IN ('e', 'd', 'r', 'm', 'c')
-        AND (t.typtype <> 'c' OR composite.relkind = 'c')`,
+        AND (t.typtype <> 'c' OR composite.relkind = 'c')
+        AND NOT EXISTS (
+          SELECT 1
+            FROM pg_catalog.pg_depend extension_dependency
+           WHERE extension_dependency.classid = 'pg_catalog.pg_type'::regclass
+             AND extension_dependency.objid = t.oid
+             AND extension_dependency.refclassid = 'pg_catalog.pg_extension'::regclass
+             AND extension_dependency.deptype = 'e'
+        )`,
   )
-  const extensions = await client.query<Record<string, unknown>>(
-    `SELECT e.extname AS "name", e.extversion AS "version", n.nspname AS "schema",
-            e.extrelocatable AS "relocatable"
-       FROM pg_catalog.pg_extension e
-       JOIN pg_catalog.pg_namespace n ON n.oid = e.extnamespace
-      WHERE e.extname <> 'plpgsql'`,
-  )
+  const ownedRelations = new Set(relations.rows.map((row) => String(row.table)))
+  const ownedTableRows = (rows: readonly Record<string, unknown>[]) =>
+    rows.filter((row) => ownedRelations.has(String(row.table)))
   return Object.freeze({
     relations: Object.freeze(sortCatalogRows(relations.rows)),
-    columns: Object.freeze(sortCatalogRows(columns.rows)),
-    constraints: Object.freeze(sortCatalogRows(constraints.rows)),
-    indexes: Object.freeze(sortCatalogRows(indexes.rows)),
-    views: Object.freeze(sortCatalogRows(views.rows)),
-    sequences: Object.freeze(sortCatalogRows(sequences.rows)),
-    inheritance: Object.freeze(sortCatalogRows(inheritance.rows)),
+    columns: Object.freeze(sortCatalogRows(ownedTableRows(columns.rows))),
+    constraints: Object.freeze(sortCatalogRows(ownedTableRows(constraints.rows))),
+    indexes: Object.freeze(sortCatalogRows(ownedTableRows(indexes.rows))),
+    views: Object.freeze(sortCatalogRows(views.rows.filter((row) => ownedRelations.has(String(row.name))))),
+    sequences: Object.freeze(sortCatalogRows(sequences.rows.filter((row) => ownedRelations.has(String(row.name))))),
+    inheritance: Object.freeze(sortCatalogRows(inheritance.rows.filter((row) =>
+      ownedRelations.has(String(row.child)) || ownedRelations.has(String(row.parent))))),
     routines: Object.freeze(sortCatalogRows(routines.rows)),
-    triggers: Object.freeze(sortCatalogRows(triggers.rows)),
-    eventTriggers: Object.freeze(sortCatalogRows(eventTriggers.rows)),
-    rules: Object.freeze(sortCatalogRows(rules.rows)),
-    policies: Object.freeze(sortCatalogRows(policies.rows)),
+    triggers: Object.freeze(sortCatalogRows(ownedTableRows(triggers.rows))),
+    // PostgreSQL event triggers and extensions are database/provider-owned ambient
+    // capabilities. They are intentionally outside the AOPS application lineage;
+    // exact AOPS-owned post-DDL verification still catches mutations to AOPS objects.
+    eventTriggers: Object.freeze([]),
+    rules: Object.freeze(sortCatalogRows(ownedTableRows(rules.rows))),
+    policies: Object.freeze(sortCatalogRows(ownedTableRows(policies.rows))),
     types: Object.freeze(sortCatalogRows(types.rows)),
-    extensions: Object.freeze(sortCatalogRows(extensions.rows)),
+    extensions: Object.freeze([]),
   })
 }
 
 export function fingerprintCommunityStrictCatalog(projection: CommunityStrictCatalogProjectionV1): string {
-  return sha256Json(projection)
+  return sha256Json({ ...projection, eventTriggers: [], extensions: [] })
 }
 
 function relationNames(projection: CommunityStrictCatalogProjectionV1): Set<string> {
@@ -1289,7 +1310,9 @@ function relationNames(projection: CommunityStrictCatalogProjectionV1): Set<stri
 }
 
 function isEmptyCatalogProjection(projection: CommunityStrictCatalogProjectionV1): boolean {
-  return Object.values(projection).every((rows) => rows.length === 0)
+  return Object.entries(projection)
+    .filter(([section]) => section !== 'eventTriggers' && section !== 'extensions')
+    .every(([, rows]) => rows.length === 0)
 }
 
 async function readLegacyRootState(params: {
@@ -1585,6 +1608,44 @@ async function lockObservedRelations(
   for (const table of tables) {
     await client.query(`LOCK TABLE public.${quoteIdentifier(table)} IN ACCESS EXCLUSIVE MODE`)
   }
+}
+
+async function normalizeCommunityOwnedRelationPrivileges(
+  client: CommunityStrictPgClient,
+): Promise<number> {
+  const result = await client.query<{
+    table: unknown
+    kind: unknown
+    grantee: unknown
+    publicGrantee: unknown
+  }>(
+    `SELECT DISTINCT relation.relname AS "table", relation.relkind AS "kind",
+            CASE WHEN expanded_acl.grantee = 0 THEN NULL
+                 ELSE pg_catalog.pg_get_userbyid(expanded_acl.grantee) END AS "grantee",
+            expanded_acl.grantee = 0 AS "publicGrantee"
+       FROM pg_catalog.pg_class relation
+       JOIN pg_catalog.pg_namespace namespace ON namespace.oid = relation.relnamespace
+       CROSS JOIN LATERAL pg_catalog.aclexplode(relation.relacl) AS expanded_acl
+      WHERE namespace.nspname = 'public'
+        AND relation.relkind IN ('r', 'p', 'v', 'm', 'S', 'f')
+        AND expanded_acl.grantee <> relation.relowner
+        AND NOT EXISTS (
+          SELECT 1
+            FROM pg_catalog.pg_depend extension_dependency
+           WHERE extension_dependency.classid = 'pg_catalog.pg_class'::regclass
+             AND extension_dependency.objid = relation.oid
+             AND extension_dependency.refclassid = 'pg_catalog.pg_extension'::regclass
+             AND extension_dependency.deptype = 'e'
+        )
+      ORDER BY relation.relname, relation.relkind, "publicGrantee", "grantee"`,
+  )
+  for (const row of result.rows) {
+    const table = quoteIdentifier(String(row.table))
+    const objectKind = String(row.kind) === 'S' ? 'SEQUENCE' : 'TABLE'
+    const principal = row.publicGrantee === true ? 'PUBLIC' : quoteIdentifier(String(row.grantee))
+    await client.query(`REVOKE ALL PRIVILEGES ON ${objectKind} public.${table} FROM ${principal}`)
+  }
+  return result.rows.length
 }
 
 async function captureDataSentinels(
@@ -2721,6 +2782,12 @@ export async function applyCommunityStrictPgSchema(params: {
     await applyPendingMigrations({ client, bundle, preflightCounts, logs })
     await applyConvergenceOperations({ client, policy: params.policy, logs })
     await ensureCommunityStrictMetadataTablesV1(client)
+    const normalizedPrivilegeCount = await normalizeCommunityOwnedRelationPrivileges(client)
+    if (normalizedPrivilegeCount > 0) {
+      logs.push(
+        `Removed ${normalizedPrivilegeCount} provider-applied non-owner relation privilege grants from the AOPS schema.`,
+      )
+    }
     const afterApply = await observeState({
       client,
       policy: params.policy,

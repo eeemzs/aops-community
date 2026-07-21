@@ -57,6 +57,12 @@ type SkillListOptions = SkillContextOptions & {
   limit?: string | number
 }
 
+type SkillDiscoveryOptions = SkillContextOptions & {
+  q?: string
+  query?: string
+  limit?: string | number
+}
+
 type SkillGetOptions = SkillContextOptions & {
   id?: string
 }
@@ -206,6 +212,61 @@ function toInteger(value: unknown, label: string): number {
   const parsed = Number.parseInt(normalized, 10)
   if (!Number.isInteger(parsed)) throw new Error(`${label} must be an integer.`)
   return parsed
+}
+
+export function resolveSkillDiscoveryInput(params: {
+  query?: unknown
+  limit?: unknown
+  scopeId?: unknown
+  scopeResolution?: unknown
+}): Record<string, unknown> {
+  const query = normalizeNonEmpty(params.query)
+  if (!query) throw new Error('Provide --query <text> or -q <text>.')
+  if (query.length > 256 || Buffer.byteLength(query, 'utf8') > 256) {
+    throw new Error('--query must be at most 256 characters and 256 UTF-8 bytes.')
+  }
+
+  const limit = params.limit === undefined ? undefined : toInteger(params.limit, '--limit')
+  if (limit !== undefined && (limit < 1 || limit > 5)) {
+    throw new Error('--limit must be between 1 and 5.')
+  }
+
+  const scopeResolution = normalizeNonEmpty(params.scopeResolution)
+  if (scopeResolution && scopeResolution !== 'explicit' && scopeResolution !== 'cascade') {
+    throw new Error('--scope-resolution must be explicit or cascade.')
+  }
+
+  return compactPayload({
+    query,
+    scopeId: normalizeNonEmpty(params.scopeId),
+    scopeResolution,
+    limit,
+  })
+}
+
+export function formatSkillSearchResult(result: unknown): string {
+  if (!isRecord(result)) return 'No published hosted skill matched the query.'
+  const candidates = Array.isArray(result.candidates)
+    ? result.candidates.filter((candidate): candidate is Record<string, unknown> => isRecord(candidate))
+    : []
+  if (candidates.length === 0) {
+    const query = normalizeNonEmpty(result.query)
+    return query
+      ? `No published hosted skill matched "${query}".`
+      : 'No published hosted skill matched the query.'
+  }
+
+  return candidates.map((candidate, index) => {
+    const name = normalizeNonEmpty(candidate.name) ?? '(unnamed skill)'
+    const shortDescription = normalizeNonEmpty(candidate.shortDescription)
+    const exactRef = normalizeNonEmpty(candidate.exactRef) ?? normalizeNonEmpty(candidate.versionId) ?? '(no ref)'
+    const rationale = normalizeNonEmpty(candidate.rationale)
+    return [
+      `${index + 1}. ${name}${shortDescription ? ` — ${shortDescription}` : ''}`,
+      `   ref: ${exactRef}`,
+      ...(rationale ? [`   match: ${rationale}`] : []),
+    ].join('\n')
+  }).join('\n')
 }
 
 function toStringArray(values: unknown): string[] {
@@ -691,6 +752,70 @@ export async function runSkillList(options: SkillListOptions = {}): Promise<void
     logError(error instanceof Error ? error.message : String(error))
     process.exitCode = 1
   }
+}
+
+async function runSkillDiscovery(
+  mode: 'search' | 'ask',
+  options: SkillDiscoveryOptions = {},
+): Promise<void> {
+  try {
+    const apiState = await requireApiState(options)
+    if (!apiState) return
+    const resolvedContext = await resolveSkillContext(options, apiState)
+    const input = resolveSkillDiscoveryInput({
+      query: options.query ?? options.q,
+      limit: options.limit,
+      scopeId: resolvedContext.scopeId,
+      scopeResolution: options.scopeResolution,
+    })
+    const toolId = `agentspace.skill.${mode}`
+    const payload = await invokeHostedToolWithApiState(apiState, {
+      ...buildGatewayOptions(options, resolvedContext),
+      tenantId: options.tenantId,
+      locale: options.locale,
+      fallbackLocale: options.fallbackLocale,
+      timeoutMs: options.timeoutMs,
+      apiBaseUrl: options.apiBaseUrl,
+      accessToken: options.accessToken,
+      refreshToken: options.refreshToken,
+      toolId,
+      input,
+    })
+    const hostedResult = unwrapHostedToolResult(payload)
+    const result = unwrapResultData<unknown>(hostedResult) ?? hostedResult
+
+    if (options.json) {
+      console.log(JSON.stringify(buildEnvelope({
+        command: `skill.${mode}`,
+        toolId,
+        resolvedContext: buildResolvedContextRecord(resolvedContext),
+        input,
+        result,
+      }), null, 2))
+      return
+    }
+
+    if (mode === 'ask' && isRecord(result) && normalizeNonEmpty(result.answer)) {
+      logSuccess('Hosted skill recommendation ready.')
+      console.log(normalizeNonEmpty(result.answer))
+      return
+    }
+
+    const count = isRecord(result) && Number.isInteger(result.count) ? Number(result.count) : 0
+    if (count > 0) logSuccess(`${count} hosted skill${count === 1 ? '' : 's'} matched.`)
+    console.log(formatSkillSearchResult(result))
+  } catch (error) {
+    logError(error instanceof Error ? error.message : String(error))
+    process.exitCode = 1
+  }
+}
+
+export async function runSkillSearch(options: SkillDiscoveryOptions = {}): Promise<void> {
+  return runSkillDiscovery('search', options)
+}
+
+export async function runSkillAsk(options: SkillDiscoveryOptions = {}): Promise<void> {
+  return runSkillDiscovery('ask', options)
 }
 
 export async function runSkillGet(options: SkillGetOptions = {}): Promise<void> {
@@ -1223,6 +1348,28 @@ export function makeSkillCommand(): Command {
   const cmd = new Command('skill').description('Agentspace skill and skill-version sugar commands over the hosted AOPS gateway')
 
   applySkillContextOptions(
+    cmd.command('search')
+      .description('Find current published hosted skills by bounded deterministic metadata ranking')
+      .option('--q <text>', 'Search phrase (maximum 256 UTF-8 bytes)')
+      .option('--query <text>', 'Long-form alias for --q')
+      .option('--limit <n>', 'Maximum candidates, 1 to 5'),
+    { withScopeResolution: true },
+  ).action(async (options: SkillDiscoveryOptions) => {
+    await runSkillSearch(options)
+  })
+
+  applySkillContextOptions(
+    cmd.command('ask')
+      .description('Recommend hosted skills using one deterministic metadata search (no LLM or body loading)')
+      .option('--q <text>', 'Operator or agent need (maximum 256 UTF-8 bytes)')
+      .option('--query <text>', 'Long-form alias for --q')
+      .option('--limit <n>', 'Maximum candidates, 1 to 5'),
+    { withScopeResolution: true },
+  ).action(async (options: SkillDiscoveryOptions) => {
+    await runSkillAsk(options)
+  })
+
+  applySkillContextOptions(
     cmd.command('list')
       .description('List reusable skill shells')
       .option('--name <text>', 'Skill name filter')
@@ -1366,6 +1513,8 @@ export function makeSkillCommand(): Command {
     'after',
     buildOperatorCookbook({
       examples: [
+        'aops skill search --q "kanban sprint planning" --limit 3',
+        'aops skill ask --q "Which skill should an agent use to plan a sprint?" --limit 3',
         'aops-cli skill create --name "Projectman Delivery" --apply --json',
         'aops-cli skill version list --skill-id <skill-id> --summary --json',
         'aops-cli skill version create --skill-id <skill-id> --content @./SKILL.md --apply --json',
@@ -1379,6 +1528,8 @@ export function makeSkillCommand(): Command {
         'Canonical reusable skill truth lives in aops-server/DB; create/update/publish through these skill commands.',
         '.aops/hosted/skills/** is a read-only repo mirror refreshed by sync pull/bootstrap, not an authoring source.',
         'Skill version list/inspect/current are curated read surfaces and do not require --apply.',
+        'skill search/ask inspect only current published package metadata; they do not load skill bodies or maintain a local search index.',
+        'skill ask is a deterministic projection of one skill search result, not an LLM-generated semantic answer.',
         'Use version list/inspect/current --summary for token-efficient checks; omit --summary only when full skill content is needed.',
         'Use --hosted-project-slug <slug> from a non-bound repo when the hosted project is not in local repo config.',
         'When --version is omitted, the CLI resolves the next version number from existing skill versions.',

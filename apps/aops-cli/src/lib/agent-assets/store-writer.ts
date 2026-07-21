@@ -212,7 +212,7 @@ function writerError(
   details?: Readonly<Record<string, unknown>>,
 ): AgentAssetsError {
   return new AgentAssetsError(code, message, {
-    nextActions: ['Run `aops-cli assets status --verify full --json` before retrying the mutation.'],
+    nextActions: ['Run `aops assets status --verify full --json` before retrying the mutation.'],
     ...(details === undefined ? {} : { details }),
   })
 }

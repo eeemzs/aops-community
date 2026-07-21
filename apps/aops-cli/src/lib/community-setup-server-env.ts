@@ -16,6 +16,8 @@ import {
 export type CommunitySetupServerEnvOptions = Readonly<{
   root?: string
   envPath?: string
+  /** Internal setup-init handoff. Never expose the URL as a CLI option. */
+  repoUrl?: string
   yes?: boolean
   json?: boolean
   skipBanner?: boolean
@@ -64,8 +66,8 @@ export async function runCommunitySetupServerEnv(
   const environmentUrl = normalizeNonEmpty(process.env.AOPS_PG_URL)
     ?? normalizeNonEmpty(process.env.AOPS_REPO_URL)
 
-  let repoUrl = environmentUrl ?? existingUrl
-  if (!options.yes && !options.json) {
+  let repoUrl = normalizeNonEmpty(options.repoUrl) ?? environmentUrl ?? existingUrl
+  if (!options.repoUrl && !options.yes && !options.json) {
     if (!options.skipBanner) banner('AOPS Community Server Environment')
     repoUrl = normalizeNonEmpty(await promptPassword({
       message: 'External PostgreSQL URL:',

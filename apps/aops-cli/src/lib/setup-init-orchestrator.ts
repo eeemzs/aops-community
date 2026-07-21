@@ -1,11 +1,11 @@
 import path from 'node:path'
 
-import { banner, logInfo, logSuccess, logWarn } from '@aopslab/xf-cli-ui'
+import { banner, logInfo, logSuccess, logWarn, withSpinner } from '@aopslab/xf-cli-ui'
 
 import { runAuthLogin } from '../commands/auth/login.js'
 import { runCommunityServerSetup } from '../commands/community-server.js'
 import { runTargetAdd } from '../commands/target.js'
-import { promptConfirm, promptInput, promptSelect } from '../utils/prompts.js'
+import { promptConfirm, promptInput, promptPassword, promptSelect } from '../utils/prompts.js'
 import {
   inspectSetupReadiness,
   parseSetupPath,
@@ -19,11 +19,27 @@ import {
   type SetupAgentAssetsProvider,
 } from './setup-agent-assets-bridge.js'
 import type { SetupOfficialCatalogProviderV1 } from './setup-official-catalog-bridge.js'
+import {
+  seedCommunityStarterData,
+  type CommunityStarterSeedOptions,
+} from './community-starter-seed.js'
+import {
+  defaultLocalPostgresAdminUser,
+  defaultLocalPostgresDatabase,
+  provisionLocalPostgres,
+  type ProvisionLocalPostgresOptions,
+} from './setup-local-postgres.js'
 
 export type SetupInitOptions = {
   path?: string
   postgresConfig?: string
   postgresTls?: 'disable' | 'require' | 'verify-full'
+  localPostgresHost?: string
+  localPostgresPort?: number
+  localPostgresAdminUser?: string
+  localPostgresDatabase?: string
+  localPostgresAppUser?: string
+  localPostgresAdminNoPassword?: boolean
   apiBaseUrl?: string
   instance?: string
   dataRoot?: string
@@ -37,6 +53,7 @@ export type SetupInitOptions = {
   noCatalog?: boolean
   catalogRelease?: string
   catalogIdempotencyKey?: string
+  seed?: boolean
   apply?: boolean
   resume?: boolean
   timeoutMs?: number
@@ -61,6 +78,8 @@ export type SetupInitDependencies = Readonly<{
   setupServerEnv?: (options: Readonly<{
     root?: string
     envPath?: string
+    repoUrl?: string
+    yes?: boolean
     skipBanner?: boolean
   }>) => Promise<SetupServerEnvResult>
   setupCommunityServer?: typeof runCommunityServerSetup
@@ -68,16 +87,58 @@ export type SetupInitDependencies = Readonly<{
   setupFirstAdmin?: (options: Readonly<{ apiBaseUrl?: string }>) => Promise<SetupFirstAdminResult>
   authLogin?: typeof runAuthLogin
   confirm?: typeof promptConfirm
-  select?: typeof promptSelect
+  password?: typeof promptPassword
   input?: typeof promptInput
+  select?: typeof promptSelect
+  progress?: SetupProgressRunner
   agentAssets?: SetupAgentAssetsProvider
   officialCatalog?: SetupOfficialCatalogProviderV1
+  seedStarter?: (options: CommunityStarterSeedOptions) => Promise<Readonly<Record<string, unknown>>>
+  provisionLocalPostgres?: (
+    options: ProvisionLocalPostgresOptions,
+  ) => ReturnType<typeof provisionLocalPostgres>
 }>
+
+export type SetupProgressRunner = <T>(label: string, action: () => Promise<T>) => Promise<T>
 
 function normalizeNonEmpty(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined
   const normalized = value.trim()
   return normalized || undefined
+}
+
+function validateManagedPostgresPassword(value: string): true | string {
+  if (value.length < 16) return 'Use at least 16 characters.'
+  if (value.length > 128) return 'Use no more than 128 characters.'
+  if (value !== value.trim()) return 'Do not begin or end the password with whitespace.'
+  if (/\0|\r|\n/.test(value)) return 'The password cannot contain line breaks or NUL characters.'
+  return true
+}
+
+function validateLocalPostgresIdentifier(value: string): true | string {
+  return /^[a-z][a-z0-9_]{0,62}$/.test(value.trim().toLowerCase())
+    ? true
+    : 'Use 1-63 lowercase letters, digits, or underscores; begin with a letter.'
+}
+
+function validateLocalPostgresAdminPassword(value: string): true | string {
+  if (value.length > 1_024) return 'Use no more than 1024 characters.'
+  if (/\0|\r|\n/.test(value)) return 'The password cannot contain line breaks or NUL characters.'
+  return true
+}
+
+function printMigrationVerification(result: unknown): void {
+  if (!result || typeof result !== 'object') return
+  const migration = (result as Record<string, unknown>).migration
+  if (!migration || typeof migration !== 'object') return
+  const summary = migration as Record<string, unknown>
+  if (summary.status !== 'community-native-migration-verified') return
+  const action = summary.action === 'migrate' ? 'migrate' : 'verify-only'
+  const count = typeof summary.pendingMigrationCount === 'number' ? summary.pendingMigrationCount : 0
+  const detail = action === 'migrate'
+    ? `${count} migration${count === 1 ? '' : 's'} applied`
+    : 'schema already current'
+  logSuccess(`PostgreSQL schema verified (${detail}).`)
 }
 
 function printSetupReadiness(result: SetupReadinessResult): void {
@@ -137,9 +198,14 @@ export async function runSetupInitOrchestrator(
   const addTarget = dependencies.addTarget ?? runTargetAdd
   const authLogin = dependencies.authLogin ?? runAuthLogin
   const confirm = dependencies.confirm ?? promptConfirm
-  const select = dependencies.select ?? promptSelect
+  const password = dependencies.password ?? promptPassword
   const input = dependencies.input ?? promptInput
+  const select = dependencies.select ?? promptSelect
   const interactive = !options.yes && !options.json
+  const directProgress: SetupProgressRunner = async (_label, action) => action()
+  const progress = interactive
+    ? dependencies.progress ?? (process.stdout.isTTY === true ? withSpinner : directProgress)
+    : directProgress
   const requestedAgentAssetsAction = normalizeAgentAssetsAction(options.agentAssets)
   const requestedPath = normalizeNonEmpty(options.path)
   if (requestedPath && !parseSetupPath(requestedPath)) {
@@ -184,8 +250,70 @@ export async function runSetupInitOrchestrator(
       default: 'verify-full',
     }) as SetupInitOptions['postgresTls']
   }
-  if (selectedPath && selectedPath !== 'native-external' && (options.postgresConfig || postgresTls)) {
-    throw new Error('setup_init_external_postgres_options_only_valid_for_path_1')
+  let localPostgresHost = normalizeNonEmpty(options.localPostgresHost) ?? '127.0.0.1'
+  let localPostgresPort = options.localPostgresPort ?? 5432
+  let localPostgresAdminUser = normalizeNonEmpty(options.localPostgresAdminUser)
+    ?? defaultLocalPostgresAdminUser()
+  let localPostgresDatabase = normalizeNonEmpty(options.localPostgresDatabase)
+    ?? defaultLocalPostgresDatabase(options.instance)
+  let localPostgresAppUser = normalizeNonEmpty(options.localPostgresAppUser)
+    ?? localPostgresDatabase
+  if (selectedPath === 'native-local' && interactive) {
+    localPostgresHost = await input({
+      message: 'Local PostgreSQL host (loopback only):',
+      default: localPostgresHost,
+      validate: (value) => ['localhost', '127.0.0.1', '::1'].includes(value.trim().toLowerCase())
+        || /^127(?:\.\d{1,3}){3}$/.test(value.trim())
+        ? true
+        : 'Use a loopback host such as 127.0.0.1 or localhost.',
+    })
+    localPostgresPort = Number(await input({
+      message: 'Local PostgreSQL port:',
+      default: String(localPostgresPort),
+      validate: (value) => {
+        const port = Number(value)
+        return Number.isSafeInteger(port) && port >= 1 && port <= 65_535 ? true : 'Use a TCP port from 1 to 65535.'
+      },
+    }))
+    localPostgresAdminUser = await input({
+      message: 'PostgreSQL administrator role:',
+      default: localPostgresAdminUser,
+      validate: validateLocalPostgresIdentifier,
+    })
+    localPostgresDatabase = await input({
+      message: 'New AOPS database name:',
+      default: localPostgresDatabase,
+      validate: validateLocalPostgresIdentifier,
+    })
+    localPostgresAppUser = await input({
+      message: 'New AOPS application role:',
+      default: localPostgresAppUser,
+      validate: validateLocalPostgresIdentifier,
+    })
+  }
+  let seedStarter = options.seed !== false
+  if (
+    interactive && seedStarter &&
+    (selectedPath === 'native-external' || selectedPath === 'native-container' || selectedPath === 'native-local')
+  ) {
+    seedStarter = await confirm({
+      message: 'Create the small starter project, kanban board, sprint plan, and user guide?',
+      default: true,
+    })
+  }
+  if (selectedPath && !['native-external', 'native-local'].includes(selectedPath) && options.postgresConfig) {
+    throw new Error('setup_init_postgres_config_only_valid_for_paths_1_or_3')
+  }
+  if (selectedPath && selectedPath !== 'native-external' && postgresTls) {
+    throw new Error('setup_init_postgres_tls_only_valid_for_path_1')
+  }
+  const localPostgresOptionsUsed = Boolean(
+    options.localPostgresHost !== undefined || options.localPostgresPort !== undefined ||
+    options.localPostgresAdminUser !== undefined || options.localPostgresDatabase !== undefined ||
+    options.localPostgresAppUser !== undefined || options.localPostgresAdminNoPassword !== undefined,
+  )
+  if (selectedPath && selectedPath !== 'native-local' && localPostgresOptionsUsed) {
+    throw new Error('setup_init_local_postgres_options_only_valid_for_path_3')
   }
   if (selectedPath === 'cli-existing' && (options.noCatalog || options.catalogRelease || options.catalogIdempotencyKey)) {
     throw new Error('setup_init_catalog_options_only_valid_for_server_paths_1_2_or_3')
@@ -194,20 +322,38 @@ export async function runSetupInitOrchestrator(
     throw new Error('setup_init_catalog_mode_conflict:choose_default_catalog_or_--no-catalog')
   }
 
+  let effectivePostgresConfig = options.postgresConfig
+  let effectivePostgresTls = postgresTls
   const inspect = () => inspectReadiness({
     path: selectedPath,
-    postgresConfig: options.postgresConfig,
-    postgresTls,
+    postgresConfig: effectivePostgresConfig,
+    postgresTls: effectivePostgresTls,
     apiBaseUrl: options.apiBaseUrl,
     instance: options.instance,
     dataRoot: options.dataRoot,
     sourceRoot: options.sourceRoot,
+    localPostgresHost,
+    localPostgresPort,
     port: options.port,
     agentAssetsProvider: dependencies.agentAssets,
     timeoutMs: options.timeoutMs,
   })
 
-  const initial = await inspect()
+  let initial = await inspect()
+  const path3Env = initial.checks.find((check) => check.id === 'global-server-env')
+  if (
+    selectedPath === 'native-local' && interactive && !options.postgresConfig &&
+    path3Env?.data?.blocking === true && typeof path3Env.data.path === 'string'
+  ) {
+    const instance = normalizeNonEmpty(options.instance)?.toLowerCase() ?? 'default'
+    const suggested = path.join(path.dirname(path3Env.data.path), `aops.${instance}.local.server.env`)
+    effectivePostgresConfig = await input({
+      message: 'Private server env for this local PostgreSQL setup:',
+      default: suggested,
+      validate: (value) => path.isAbsolute(value.trim()) ? true : 'Use an absolute private env path.',
+    })
+    initial = await inspect()
+  }
   if (interactive && !options.skipBanner) banner('AOPS Setup')
 
   let shouldApply = options.apply === true
@@ -236,12 +382,33 @@ export async function runSetupInitOrchestrator(
   if (selectedPath === 'native-external' && !postgresTls) {
     throw new Error('setup_init_postgres_tls_required_for_path_1')
   }
+  let createPostgresSecret: (() => string) | undefined
+  if (selectedPath === 'native-container' && interactive) {
+    const passwordMode = await select({
+      message: 'Managed PostgreSQL password:',
+      choices: [
+        { name: 'Generate a strong password automatically (recommended)', value: 'generate' },
+        { name: 'Enter a custom password securely', value: 'custom' },
+      ],
+      default: 'generate',
+    })
+    if (passwordMode === 'custom') {
+      const customPassword = await password({
+        message: 'PostgreSQL password:',
+        validate: validateManagedPostgresPassword,
+      })
+      const confirmedPassword = await password({
+        message: 'Confirm PostgreSQL password:',
+        validate: (value) => value === customPassword ? true : 'Passwords do not match.',
+      })
+      if (confirmedPassword !== customPassword) throw new Error('setup_init_postgres_password_mismatch')
+      createPostgresSecret = () => customPassword
+    }
+  }
   const localServerPath = selectedPath !== 'cli-existing'
-  const catalogDeferredForNpm = selectedPath === 'native-external' && !options.sourceRoot &&
-    !normalizeNonEmpty(options.catalogRelease) && !normalizeNonEmpty(options.agentAssetsRelease)
   let officialCatalogRelease: string | undefined
   let officialCatalogReleaseSource: string | undefined
-  if (localServerPath && !options.noCatalog && !catalogDeferredForNpm && dependencies.officialCatalog) {
+  if (localServerPath && !options.noCatalog && dependencies.officialCatalog) {
     const selectedRelease = options.catalogRelease ?? options.agentAssetsRelease
     if (normalizeNonEmpty(selectedRelease)) {
       officialCatalogRelease = resolveOfficialCatalogReleasePath(selectedRelease)
@@ -258,9 +425,7 @@ export async function runSetupInitOrchestrator(
   } else if (localServerPath && (options.catalogRelease || options.catalogIdempotencyKey) && !dependencies.officialCatalog) {
     throw new Error('setup_init_official_catalog_contract_unavailable')
   }
-  if (initial.checks.some((check) =>
-    check.id === 'installation-state' && check.data?.blocking === true,
-  )) {
+  if (initial.checks.some((check) => check.data?.blocking === true)) {
     throw new Error('setup_init_install_state_requires_explicit_repair_or_reset')
   }
 
@@ -286,27 +451,101 @@ export async function runSetupInitOrchestrator(
     }
   }
 
-  if (selectedPath === 'native-external' || selectedPath === 'native-container' || selectedPath === 'oci-ready') {
+  if (selectedPath === 'native-local') {
+    const localCheck = initial.checks.find((check) => check.id === 'local-postgresql')
+    if (localCheck?.state !== 'ready') {
+      throw new Error('setup_init_local_postgres_not_ready:inspect_readiness_next_actions')
+    }
+    const envCheck = initial.checks.find((check) => check.id === 'global-server-env')
+    if (envCheck?.state === 'ready') {
+      effectivePostgresConfig = String(envCheck.data?.path ?? '') || undefined
+      effectivePostgresTls = 'disable'
+      steps.push({
+        action: 'setup.local-postgres',
+        status: 'already-configured',
+        host: localPostgresHost,
+        port: localPostgresPort,
+        envPath: effectivePostgresConfig,
+      })
+    } else {
+      let adminPassword = process.env.AOPS_LOCAL_POSTGRES_ADMIN_PASSWORD ?? ''
+      const passwordValidation = validateLocalPostgresAdminPassword(adminPassword)
+      if (passwordValidation !== true) throw new Error('setup_init_local_postgres_admin_password_invalid')
+      if (interactive) {
+        adminPassword = await password({
+          message: 'Existing PostgreSQL administrator password (leave blank only for local trust auth):',
+          validate: validateLocalPostgresAdminPassword,
+        })
+      } else if (!adminPassword && options.localPostgresAdminNoPassword !== true) {
+        throw new Error('setup_init_local_postgres_admin_password_required:use_private_environment_or_--local-postgres-admin-no-password')
+      }
+      const provision = dependencies.provisionLocalPostgres ?? provisionLocalPostgres
+      let provisioned: Awaited<ReturnType<typeof provisionLocalPostgres>>
+      try {
+        provisioned = await progress('Creating the local AOPS PostgreSQL role and database...', () => provision({
+          host: localPostgresHost,
+          port: localPostgresPort,
+          adminUser: localPostgresAdminUser,
+          adminPassword,
+          database: localPostgresDatabase,
+          appUser: localPostgresAppUser,
+          connectTimeoutMs: options.timeoutMs,
+        }))
+      } finally {
+        adminPassword = ''
+        delete process.env.AOPS_LOCAL_POSTGRES_ADMIN_PASSWORD
+      }
+      const { connectionUrl, ...safeProvisioned } = provisioned
+      if (!dependencies.setupServerEnv) {
+        throw new Error('setup_init_local_postgres_env_provider_unavailable')
+      }
+      const serverEnv = await dependencies.setupServerEnv({
+        root: options.sourceRoot,
+        envPath: effectivePostgresConfig,
+        repoUrl: connectionUrl,
+        yes: true,
+        skipBanner: true,
+      })
+      if (!serverEnv.ok || serverEnv.repoDialect !== 'pg') {
+        throw new Error('setup_init_local_postgres_env_not_ready')
+      }
+      effectivePostgresConfig = serverEnv.envPath
+      effectivePostgresTls = 'disable'
+      steps.push({
+        action: 'setup.local-postgres',
+        ...safeProvisioned,
+        envPath: serverEnv.envPath,
+      })
+    }
+  }
+
+  if (selectedPath === 'native-external' || selectedPath === 'native-container' || selectedPath === 'native-local') {
     let lifecycleResult: unknown
-    await setupCommunityServer({
-      runtime: selectedPath === 'oci-ready' ? 'oci' : 'native',
-      postgres: selectedPath === 'native-external'
+    await progress('Preparing PostgreSQL, verifying migrations, and starting AOPS server...', () => setupCommunityServer({
+      runtime: 'native',
+      postgres: selectedPath === 'native-external' || selectedPath === 'native-local'
         ? 'external'
         : selectedPath === 'native-container'
           ? 'container'
           : undefined,
-      postgresConfig: selectedPath === 'native-external' ? options.postgresConfig : undefined,
-      postgresTls: selectedPath === 'native-external' ? postgresTls : undefined,
+      postgresConfig: selectedPath === 'native-external' || selectedPath === 'native-local'
+        ? effectivePostgresConfig
+        : undefined,
+      postgresTls: selectedPath === 'native-external' || selectedPath === 'native-local'
+        ? effectivePostgresTls
+        : undefined,
       instance: options.instance,
       dataRoot: options.dataRoot,
-      sourceRoot: selectedPath === 'oci-ready' ? undefined : options.sourceRoot,
+      sourceRoot: options.sourceRoot,
       port: options.port,
-      detach: selectedPath === 'oci-ready' ? undefined : true,
+      detach: true,
+      createPostgresSecret: selectedPath === 'native-container' ? createPostgresSecret : undefined,
       apply: true,
       silent: options.json === true,
       resultSink: (result) => { lifecycleResult = result },
-    })
+    }))
     steps.push({ action: 'community-server.setup', status: 'applied', result: lifecycleResult ?? null })
+    if (interactive) printMigrationVerification(lifecycleResult)
   } else {
     const targetName = normalizeNonEmpty(options.targetName)
     const apiBaseUrl = normalizeNonEmpty(options.apiBaseUrl)
@@ -337,21 +576,13 @@ export async function runSetupInitOrchestrator(
       coreClientAssetsAffected: false,
       existingCatalogRowsDeleted: false,
     })
-  } else if (localServerPath && catalogDeferredForNpm) {
-    steps.push({
-      action: 'setup.catalog.skip',
-      status: 'skipped',
-      reason: 'npm-runtime-has-no-signed-catalog-release',
-      coreClientAssetsAffected: false,
-      existingCatalogRowsDeleted: false,
-    })
   } else if (localServerPath && dependencies.officialCatalog && officialCatalogRelease) {
-    const catalog = await dependencies.officialCatalog.reconcile({
+    const catalog = await progress('Installing the official AOPS catalog...', () => dependencies.officialCatalog!.reconcile({
       fromRelease: officialCatalogRelease,
       apiBaseUrl: options.apiBaseUrl,
       timeoutMs: options.timeoutMs,
       idempotencyKey: options.catalogIdempotencyKey,
-    })
+    }))
     steps.push({
       action: 'setup.catalog.reconcile',
       status: catalog.mutation,
@@ -364,26 +595,30 @@ export async function runSetupInitOrchestrator(
     })
   }
 
-  let result = await inspect()
+  let result = await progress('Checking AOPS server health and setup readiness...', inspect)
   const agentAssetsCheck = result.checks.find((check) => check.id === 'agent-assets')
   let agentAssetsAction = requestedAgentAssetsAction
   if (agentAssetsCheck?.state === 'ready') {
-    steps.push({ action: 'assets.status', status: 'ready', target: 'both' })
+    steps.push({ action: 'assets.status', status: 'ready', target: 'all' })
     agentAssetsAction = 'skip'
-  } else if (!agentAssetsAction && interactive && dependencies.agentAssets?.apply) {
-    logInfo(`Codex gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.codex}`)
-    logInfo(`Claude gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.claude}`)
-    logInfo('Only the global AOPS gateway pointers are managed; hosted assets remain versioned in the AOPS store.')
+  } else if (!agentAssetsAction && dependencies.agentAssets?.apply) {
     const recommendedAction = agentAssetsCheck?.data?.recommendedAction === 'repair' ? 'repair' : 'install'
-    agentAssetsAction = await select({
-      message: 'Global AOPS agent gateway action:',
-      choices: [
-        { name: recommendedAction === 'repair' ? 'Repair gateway bindings (recommended)' : 'Install gateways (recommended)', value: recommendedAction },
-        { name: 'Inspect status only', value: 'status' },
-        { name: 'Skip for now', value: 'skip' },
-      ],
-      default: recommendedAction,
-    }) as SetupInitOptions['agentAssets']
+    if (interactive) {
+      logInfo(`Codex gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.codex}`)
+      logInfo(`Claude gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.claude}`)
+      logInfo('Only the global AOPS gateway pointers are managed; hosted assets remain versioned in the AOPS store.')
+      agentAssetsAction = await select({
+        message: 'Global AOPS agent gateway action:',
+        choices: [
+          { name: recommendedAction === 'repair' ? 'Repair gateway bindings (recommended)' : 'Install gateways (recommended)', value: recommendedAction },
+          { name: 'Inspect status only', value: 'status' },
+          { name: 'Skip for now', value: 'skip' },
+        ],
+        default: recommendedAction,
+      }) as SetupInitOptions['agentAssets']
+    } else {
+      agentAssetsAction = recommendedAction
+    }
   }
 
   if (agentAssetsAction === 'install' || agentAssetsAction === 'repair') {
@@ -399,27 +634,36 @@ export async function runSetupInitOrchestrator(
       })
       fromRelease = resolution.fromRelease
     }
-    if (agentAssetsAction === 'install' && !normalizeNonEmpty(fromRelease) && interactive) {
-      fromRelease = await input({
-        message: 'Verified AOPS agent-assets release directory:',
-        validate: (value) => value.trim().length > 0 ? true : 'A release directory is required.',
-      })
-    }
     const confirmed = !interactive || await confirm({
-      message: `${agentAssetsAction === 'install' ? 'Install' : 'Repair'} the Codex and Claude AOPS gateway pointers now?`,
+      message: `${agentAssetsAction === 'install' ? 'Install' : 'Repair'} the AOPS gateway pointers for all registered runtimes now?`,
       default: true,
     })
     if (confirmed) {
-      const appliedAssets = await applySetupAgentAssets(dependencies.agentAssets, {
+      const appliedAssets = await progress('Installing global AOPS agent gateways...', () => applySetupAgentAssets(dependencies.agentAssets!, {
         action: agentAssetsAction,
         fromRelease: agentAssetsAction === 'install'
           ? resolveAgentAssetsReleasePath(fromRelease)
           : undefined,
-      })
-      steps.push({ action: `assets.${agentAssetsAction}`, status: appliedAssets.state, target: 'both' })
+      }))
+      steps.push({ action: `assets.${agentAssetsAction}`, status: appliedAssets.state, target: 'all' })
       result = await inspect()
     } else {
-      steps.push({ action: `assets.${agentAssetsAction}`, status: 'cancelled', target: 'both' })
+      steps.push({ action: `assets.${agentAssetsAction}`, status: 'cancelled', target: 'all' })
+    }
+  }
+
+  if (selectedPath === 'native-external' || selectedPath === 'native-container' || selectedPath === 'native-local') {
+    if (seedStarter) {
+      const seed = await progress('Creating the AOPS starter project and user guide...', () => (dependencies.seedStarter ?? seedCommunityStarterData)({
+        instanceName: normalizeNonEmpty(options.instance)?.toLowerCase() ?? 'default',
+        dataRoot: options.dataRoot,
+        origin: `http://127.0.0.1:${options.port ?? 5900}`,
+        apply: true,
+        timeoutMs: options.timeoutMs,
+      }))
+      steps.push({ action: 'setup.starter-seed', status: seed.status ?? 'applied', result: seed })
+    } else {
+      steps.push({ action: 'setup.starter-seed', status: 'skipped', reason: '--no-seed-or-operator-choice' })
     }
   }
 

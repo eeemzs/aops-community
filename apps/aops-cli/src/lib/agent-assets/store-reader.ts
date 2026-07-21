@@ -187,7 +187,7 @@ function storeError(
   details?: Readonly<Record<string, unknown>>,
 ): AgentAssetsError {
   return new AgentAssetsError(code, message, {
-    nextActions: ['Run `aops-cli assets status --verify full --json` before retrying.'],
+    nextActions: ['Run `aops assets status --verify full --json` before retrying.'],
     ...(details === undefined ? {} : { details }),
   })
 }
