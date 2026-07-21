@@ -213,6 +213,12 @@ export async function runSetupInitOrchestrator(
     throw new Error('setup_init_path_invalid:choose_1_2_3_or_4')
   }
 
+  if (interactive && !options.skipBanner) {
+    banner('AOPS Setup')
+    logInfo('Install directly here. For guided installation with any terminal AI agent, use `aops setup ai`.')
+    logInfo('Enter database secrets only in masked AOPS prompts; never paste them into chat.')
+  }
+
   let selectedPath: SetupPathId | undefined = parseSetupPath(requestedPath)
   if (!selectedPath && interactive) {
     const inferred = await inspectReadiness({
@@ -358,8 +364,6 @@ export async function runSetupInitOrchestrator(
     })
     initial = await inspect()
   }
-  if (interactive && !options.skipBanner) banner('AOPS Setup')
-
   const shouldApply = options.apply === true || (interactive && Boolean(selectedPath))
 
   if (!shouldApply) {

@@ -74,6 +74,7 @@ test('normal setup help exposes seed opt-out and managed PostgreSQL reset withou
   assert.equal(setupHelp.status, 0, setupHelp.stderr)
   assert.equal(resetHelp.status, 0, resetHelp.stderr)
   assert.doesNotMatch(rootHelp.stdout, /^  demo\s/m)
+  assert.match(setupHelp.stdout, /aops setup ai/)
   assert.match(setupHelp.stdout, /--no-seed/)
   assert.match(setupHelp.stdout, /--path 2 --apply --yes/)
   assert.match(setupHelp.stdout, /--path 3 --apply/)

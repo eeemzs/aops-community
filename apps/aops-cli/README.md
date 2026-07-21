@@ -7,6 +7,8 @@ operations.
 ```sh
 npm install --global @aopslab/aops-cli
 aops --help
+aops setup
+aops setup ai
 aops setup guide
 aops setup init
 aops cockpit
@@ -17,7 +19,14 @@ aops assets
 backward-compatible alias. `aops cockpit` opens a healthy installed Cockpit,
 starting a stopped server first; use `--no-open --json` on headless hosts.
 
-`aops setup init` is the normal cross-platform first-install menu. It offers an
+With no complete local runtime or configured remote target, parameterless
+`aops` opens a setup-first menu; otherwise it opens the compact operator home.
+`aops setup` always opens the installation menu, and `aops setup ai` prints a
+safe prompt that can be handed to Codex, Claude, or another terminal AI agent.
+The prompt routes the agent to the packaged `aops-install` skill and keeps
+secrets in masked AOPS prompts instead of chat or argv.
+
+`aops setup init` is the normal cross-platform first-install wizard. It offers an
 existing PostgreSQL connection, an automatic Docker PostgreSQL 17 container,
 or a dedicated AOPS role/database created in PostgreSQL installed on this computer,
 uses the standard `default` instance and port `5900`, installs all registered

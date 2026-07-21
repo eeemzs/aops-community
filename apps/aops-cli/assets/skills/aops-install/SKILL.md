@@ -9,6 +9,10 @@ Use the installed `aops` command as live truth. Run the relevant `--help` before
 
 ## Inspect first
 
+If the operator starts with `aops setup ai`, treat its copy-ready prompt as the
+handoff into this packaged skill. The prompt is only an entry point; this skill
+and the installed CLI's live help remain the detailed authority.
+
 Run mutation-free discovery:
 
 ```sh
@@ -29,6 +33,7 @@ password in argv, logs, committed files, or chat.
 | Need | Smallest surface |
 | --- | --- |
 | inspect choices and readiness | `aops setup init --yes --json` |
+| give any terminal AI agent a safe setup handoff | `aops setup ai` |
 | normal operator installation | `aops setup init` |
 | use an existing database URL | path `1`, then `aops setup server-env` |
 | let AOPS manage Docker PostgreSQL | path `2` |

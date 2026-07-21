@@ -25,12 +25,13 @@ npm install --global @aopslab/aops-cli
 aops --cli-version
 ```
 
-Then choose the operator menu, the direct setup wizard, or the packaged
-agent-installation guide:
+Then choose the setup menu, direct wizard, or an AI-assisted handoff:
 
 ```sh
-aops                 # compact interactive operator menu
+aops                 # setup-first when no local installation is detected
+aops setup           # compact installation menu
 aops setup init      # direct interactive installation wizard
+aops setup ai        # copy-ready prompt for any terminal AI agent
 aops setup guide     # read-only installation skill for an AI agent
 ```
 
@@ -55,13 +56,15 @@ through the canonical `aops` command.
 
 | Setup style | Start here | Best for |
 |---|---|---|
-| Interactive operator setup | `aops` or `aops setup init` | A person installing AOPS on one computer |
-| Agent-assisted setup | `aops setup guide` | Codex, Claude, or another terminal agent helping the operator safely |
+| Interactive operator setup | `aops`, `aops setup`, or `aops setup init` | A person installing AOPS on one computer |
+| Agent-assisted setup | `aops setup ai` | Codex, Claude, or another terminal agent helping the operator safely |
+| Agent install skill | `aops setup guide` | An agent that needs the complete packaged setup discipline |
 | Non-interactive automation | `aops setup init --yes --json` | CI, scripts, and an agent that must inspect readiness before applying |
 
-The no-argument `aops` menu is intentionally short. It exposes installation,
-PostgreSQL configuration, health, Cockpit, agent assets, and help without
-dumping the full command catalog. Use `aops --help` or
+The no-argument `aops` menu is intentionally short. When no complete local
+runtime or configured remote AOPS target is detected it opens the setup-first
+menu automatically; otherwise it opens the operator menu. `aops setup` always
+opens the compact installation menu. Use `aops --help` or
 `aops <command> --help` for the complete live surface.
 
 ### Recommended: interactive first installation
@@ -147,6 +150,8 @@ server or global Gateway pointers exist:
 
 ```sh
 aops setup guide          # print the complete agent-readable guide
+aops setup ai             # print a safe prompt to copy to any terminal AI agent
+aops setup ai --json      # return the prompt and skill identity for tooling
 aops setup guide --path   # print the installed SKILL.md path
 aops setup guide --json   # return metadata and content for automation
 aops setup init --help    # inspect the exact setup surface in this CLI version
@@ -158,18 +163,28 @@ apply only an explicitly selected path, activate registered agent runtimes, and
 verify server health and Cockpit. It does not silently install or change
 anything.
 
-After installing the CLI, an operator can give a terminal agent this bootstrap
-request:
+After installing the CLI, run `aops setup ai` and copy its generated bootstrap
+request to a terminal agent. The generated prompt routes the agent back to the
+packaged `aops-install` skill, mutation-free readiness, live help, masked secret
+entry, and end-to-end verification. Its current shape is:
 
 ```text
-Install AOPS Community on this computer. First run `aops setup guide`, then use
-the installed command's live `--help` as the source of truth. Inspect readiness
-without mutation, ask me whether to use my existing database, an AOPS-managed
-Docker PostgreSQL, or PostgreSQL installed on this computer, and never place database credentials in command arguments,
-logs, committed files, or chat. Apply only after the path and TLS choice are
-clear. Keep the small starter data and install AOPS Gateway assets for all
-registered agent runtimes unless I explicitly opt out. Finally verify server
-health, asset bindings, and Cockpit, and report the URL and any remaining action.
+Install AOPS Community on this computer with the installed `aops` command.
+
+1. Run `aops setup guide --json` and follow its packaged `aops-install` skill as
+   the current installation guide.
+2. Run `aops setup init --yes --json` first and explain the available PostgreSQL
+   paths and remaining actions briefly.
+3. Ask me only for choices or authority you cannot safely infer. Use the
+   installed command's exact nested `--help`; do not guess flags.
+4. Never ask me to paste PostgreSQL URLs or passwords into chat and never place
+   secrets in command arguments. Let me enter private values through AOPS's
+   masked interactive prompts.
+5. Keep the starter data, signed official catalog, and Gateway assets for all
+   registered agent runtimes unless I explicitly opt out.
+6. Apply the selected setup path, then verify migrations, server health,
+   Gateway asset bindings, and Cockpit. Report the Cockpit URL and any remaining
+   safe action.
 ```
 
 The agent's safe discovery sequence is:
