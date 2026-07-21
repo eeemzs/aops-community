@@ -91,6 +91,7 @@ export type RuntimeBindingInspectionReason =
   | 'gateway-absent'
   | 'gateway-tampered'
   | 'gateway-unsafe'
+  | 'binding-content-outdated'
   | 'binding-context-mismatch'
   | 'binding-marker-mismatch'
 
@@ -572,11 +573,13 @@ export function inspectRuntimeGatewayBinding(
 
   let bindingProof: RuntimeBindingProofStateV1 = store.state === 'ready' ? 'verified' : store.state
   let runtimeRootIdentityEvidence: RuntimeRootIdentityEvidenceV1 = 'unavailable'
+  const bindingUsesCurrentGateway = store.state === 'ready'
+    && store.binding.contentSha256 === AOPS_AGENT_ASSETS_GATEWAY_SHA256
+  if (store.state === 'ready' && !bindingUsesCurrentGateway) reasons.push('binding-content-outdated')
   if (store.state === 'ready') {
     const binding = store.binding
     const contextMatches = binding.runtime === options.runtime
       && binding.runtimeHomeId === runtimeHomeId
-      && binding.contentSha256 === AOPS_AGENT_ASSETS_GATEWAY_SHA256
     if (!contextMatches) {
       bindingProof = 'invalid'
       reasons.push('binding-context-mismatch')
@@ -608,11 +611,15 @@ export function inspectRuntimeGatewayBinding(
   }
   if (ownerMarker === 'ready' && ownerMarkerProof !== 'verified') reasons.push('binding-marker-mismatch')
 
-  const coherent = bindingProof === 'verified' && ownerMarkerProof === 'verified' && gateway === 'canonical'
+  const coherent = bindingProof === 'verified'
+    && ownerMarkerProof === 'verified'
+    && bindingUsesCurrentGateway
+    && gateway === 'canonical'
 
   const unsafe = store.state === 'unsafe-path' || ownerMarker === 'unsafe-path' || gateway === 'unsafe-path'
   const immutableManagedDrift = bindingProof === 'verified' && (
-    (ownerMarkerProof === 'verified' && (gateway === 'absent' || gateway === 'tampered'))
+    (ownerMarkerProof === 'verified'
+      && (gateway === 'absent' || gateway === 'tampered' || !bindingUsesCurrentGateway))
     || (ownerMarkerProof === 'absent' && (gateway === 'absent' || gateway === 'canonical'))
   )
   let state: RuntimeBindingInspectionState

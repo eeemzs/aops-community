@@ -13,6 +13,7 @@ import {
   loadExternalPostgresUrl,
   reconcileCommunityNativePriorApplication,
 } from '../dist/lib/community-native-lifecycle.js'
+import { runCommunityServerSetup } from '../dist/commands/community-server.js'
 
 function writeOfficialNpmRuntime(root, version, commitCharacter) {
   const source = {
@@ -116,6 +117,31 @@ test('explicit TLS disable is a supported user choice for remote PostgreSQL', ()
   withPostgresEnv('postgresql://aops:secret@postgres.example:5432/aops', (envPath) => {
     assert.match(loadExternalPostgresUrl(envPath, 'disable'), /sslmode=disable/)
   })
+})
+
+test('native external setup automatically reconciles a failed pre-install journal and retries', async () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'aops-native-failed-setup-retry-'))
+  const envPath = path.join(root, 'aops.server.env')
+  const dataRoot = path.join(root, 'data')
+  writeFileSync(envPath, 'AOPS_PG_URL=postgresql://aops:secret@postgres.example:5432/aops\n')
+  let attempts = 0
+  const options = {
+    runtime: 'native', postgres: 'external', postgresConfig: envPath, postgresTls: 'disable',
+    dataRoot, apply: true, detach: true, silent: true,
+  }
+  const dependencies = {
+    setupNativeInstall: async () => {
+      attempts += 1
+      throw new Error(attempts === 1 ? 'first_setup_failure' : 'second_setup_reached')
+    },
+  }
+  try {
+    await assert.rejects(runCommunityServerSetup(options, dependencies), /first_setup_failure/)
+    await assert.rejects(runCommunityServerSetup(options, dependencies), /second_setup_reached/)
+    assert.equal(attempts, 2)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('container exposure keeps the hardened internal port contract', () => {

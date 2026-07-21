@@ -71,6 +71,41 @@ export type SetupOfficialCatalogProviderDependenciesV1 = Readonly<{
   bundledCandidates?: () => readonly string[]
 }>
 
+type OfficialCatalogRetryDependencies = Readonly<{
+  now?: () => number
+  sleep?: (milliseconds: number) => Promise<void>
+}>
+
+function isOfficialCatalogAdapterUnavailable(error: unknown): boolean {
+  return typeof error === 'object' && error !== null &&
+    (error as { code?: unknown }).code === 'catalog_adapter_unavailable'
+}
+
+export async function retryOfficialCatalogAdapterReady<T>(
+  operation: () => Promise<T>,
+  timeoutMs = 120_000,
+  dependencies: OfficialCatalogRetryDependencies = {},
+): Promise<T> {
+  const now = dependencies.now ?? Date.now
+  const sleep = dependencies.sleep ?? ((milliseconds) => new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds)
+  }))
+  const deadline = now() + Math.min(Math.max(timeoutMs, 1_000), 120_000)
+  let attempt = 0
+  for (;;) {
+    try {
+      return await operation()
+    } catch (error) {
+      if (!isOfficialCatalogAdapterUnavailable(error)) throw error
+      const remaining = deadline - now()
+      if (remaining <= 0) throw error
+      const delayMs = Math.min(250 * (2 ** Math.min(attempt, 3)), 2_000, remaining)
+      attempt += 1
+      await sleep(delayMs)
+    }
+  }
+}
+
 function localSignedReleaseRoot(candidate: string | undefined): string | undefined {
   if (!candidate) return undefined
   const releaseRoot = path.resolve(candidate)
@@ -158,12 +193,12 @@ export function createSetupOfficialCatalogProviderV1(
         apiBaseUrl: options.apiBaseUrl,
         timeoutMs: options.timeoutMs,
       })
-      const result = await reconcileOfficialCatalog({
+      const result = await retryOfficialCatalogAdapterReady(() => reconcileOfficialCatalog({
         adapter,
         packages,
         mode: 'apply',
         idempotencyKey: options.idempotencyKey,
-      })
+      }), options.timeoutMs)
       if (result.kind === 'aops-official-catalog-reconcile-plan-v1') {
         return Object.freeze({
           state: 'current' as const,

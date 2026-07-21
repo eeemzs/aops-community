@@ -219,9 +219,13 @@ All PostgreSQL paths plan, apply when needed, and verify database migrations
 before the server is reported ready. Interactive terminals show animated
 progress and apply directly after required private inputs are collected; there
 is no redundant continue or starter-data confirmation. \`--json\` remains free
-of spinner output. Path 1 defaults to TLS \`require\`; choose \`verify-full\` when
-a trusted CA file is available, or explicitly choose \`disable\` when accepting
-an unencrypted PostgreSQL connection.
+of spinner output. Path 1 asks for the masked PostgreSQL URL first, then tests
+the connection with TLS \`require\` by default. A TLS-policy prompt is shown only
+when that encrypted connection cannot be established. Choose \`verify-full\`
+when a trusted CA file is available, or explicitly choose \`disable\` when
+accepting an unencrypted PostgreSQL connection. Long-running setup reports its
+runtime, connection, migration-plan, migration-apply, server-start, and health
+stages without exposing database credentials.
 Path 3 detects PostgreSQL on this computer, securely asks for an existing
 administrator role/password, and creates a new dedicated AOPS role and database
 before running the same migration verification. Administrator credentials are

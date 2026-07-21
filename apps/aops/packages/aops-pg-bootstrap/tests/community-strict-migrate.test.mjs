@@ -490,7 +490,9 @@ function createRiskyApplyHarness(
         return { rows: [] }
       }
       if (text.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1')) {
-        activeAcceptances().set(String(params[0]), {
+        const key = String(params[0])
+        if (activeAcceptances().has(key) && !text.includes('DO UPDATE')) return { rows: [] }
+        activeAcceptances().set(key, {
           acceptedPlanSha256: params[0],
           action: params[1],
           sourceFingerprintSha256: params[2],
@@ -780,17 +782,16 @@ test('inspection rejects internal constraint-trigger overrides but ignores provi
   }
 })
 
-test('inspection rejects partial migration tables and duplicate legacy tags', async () => {
+test('inspection resumes from valid database migration prefixes and rejects duplicate legacy tags', async () => {
   const fixture = createFixture()
   try {
     const partialProjection = projectionForTables(Object.values(MIGRATION_TABLES).slice(0, 2))
-    await assert.rejects(
-      inspectCommunityStrictPgSchema({
-        client: createInspectClient({ projection: partialProjection, policy: fixture.policy }),
-        policy: fixture.policy,
-      }),
-      /community_strict_lineage_partial_migration_tables/,
-    )
+    const partial = await inspectCommunityStrictPgSchema({
+      client: createInspectClient({ projection: partialProjection, policy: fixture.policy }),
+      policy: fixture.policy,
+    })
+    assert.equal(partial.lineageId, 'database-prefix-v1')
+    assert.deepEqual(partial.roots.map((root) => root.rows.length), [1, 1, 0, 0, 0])
 
     const duplicates = legacyRows(fixture.policy)
     duplicates[MIGRATION_TABLES.sys] = [
@@ -1291,12 +1292,55 @@ test('managed-or-external policy accepts exact external attestation after jsonb 
     const publicDdlIndex = harness.queries.findIndex((query) => query.startsWith('CREATE TABLE sys_product'))
     const auditIndex = harness.queries.findIndex((query) =>
       query.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1'))
+    assert.match(harness.queries[auditIndex], /ON CONFLICT \(accepted_plan_sha256\) DO UPDATE/)
     const commitOffset = harness.queries.slice(auditIndex + 1).indexOf('COMMIT')
     assert.ok(publicDdlIndex >= 0)
     assert.ok(auditIndex > publicDdlIndex)
     assert.ok(commitOffset >= 0)
     assert.equal(harness.queries.slice(publicDdlIndex, auditIndex).includes('COMMIT'), false)
     assert.equal(harness.queries.slice(auditIndex + 1, auditIndex + 1 + commitOffset).includes('BEGIN'), false)
+  } finally {
+    rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('a stale result for the same database migration plan is refreshed instead of blocking rebuild', async () => {
+  const fixture = createRiskyFixture()
+  try {
+    const plan = await planRiskyFixture(fixture)
+    const evidence = externalSnapshotEvidence(plan, fixture.policy)
+    const evidencePath = path.join(fixture.workspaceRoot, 'external-rebuild.json')
+    writeFileSync(evidencePath, JSON.stringify(evidence))
+    const harness = createRiskyApplyHarness(fixture)
+    harness.committedAcceptances.set(plan.acceptedPlanSha256, {
+      acceptedPlanSha256: plan.acceptedPlanSha256,
+      action: plan.migrationPlan.action,
+      sourceFingerprintSha256: plan.sourceFingerprintSha256,
+      targetLineageId: plan.migrationPlan.target.lineageId,
+      resultLineageId: plan.migrationPlan.target.lineageId,
+      resultSchemaFingerprintSha256: plan.migrationPlan.target.schemaFingerprintSha256,
+      resultReceiptFingerprintSha256: 'a'.repeat(64),
+      resultStateFingerprintSha256: 'b'.repeat(64),
+      evidenceKind: null,
+      evidenceSha256: null,
+      planJson: plan.migrationPlan,
+      acceptedAt: '2026-07-15T12:00:00.000Z',
+    })
+
+    const result = await applyCommunityStrictPgSchema({
+      repoUrl: 'postgresql://user:pass@localhost:5432/community',
+      workspaceRoot: fixture.workspaceRoot,
+      policy: fixture.policy,
+      expectedPlanSha256: plan.acceptedPlanSha256,
+      snapshotEvidencePath: evidencePath,
+      snapshotPolicy: 'managed-or-external-attested-v1',
+      now: () => new Date('2026-07-16T12:05:00.000Z'),
+      clientFactory: () => harness.client,
+    })
+
+    assert.equal(result.acceptedPlanSha256, plan.acceptedPlanSha256)
+    assert.notEqual(result.durableAcceptance.resultStateFingerprintSha256, 'b'.repeat(64))
+    assert.equal(result.durableAcceptance.evidenceKind, 'external-snapshot-attestation')
   } finally {
     rmSync(fixture.workspaceRoot, { recursive: true, force: true })
   }

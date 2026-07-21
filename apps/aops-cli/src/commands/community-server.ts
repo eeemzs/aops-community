@@ -94,6 +94,7 @@ import {
   startCommunityNativeInstall,
   stopCommunityNativeInstall,
   type CommunityNativeInspection,
+  type CommunityNativeSetupProgressSink,
 } from '../lib/community-native-lifecycle.js'
 import type { CommunityNativeMigrationReceiptV1 } from '../lib/community-native-migration.js'
 import { inspectCommunityNativeApplicationRecoveryStatus } from '../lib/community-native-application-recovery.js'
@@ -162,6 +163,8 @@ export type CommunityServerOptions = {
   silent?: boolean
   /** Ephemeral setup-only secret factory; never exposed as a CLI flag or serialized. */
   createPostgresSecret?: () => string
+  /** Internal setup UX seam; emits only public, credential-free lifecycle stages. */
+  progressSink?: CommunityNativeSetupProgressSink
 }
 
 function nativePublicOrigin(state: {
@@ -825,18 +828,35 @@ async function reconcileFailedNativeSetupForRetry(params: {
     const inspection = inspectCommunityOperationJournalFile(params.paths, matched[1])
     if (inspection.integrity !== 'complete' || inspection.record.runtimeMode !== 'native' ||
         inspection.record.operation !== 'setup' || inspection.record.status !== 'failed' ||
-        inspection.record.phase !== 'terminal' || inspection.record.outcome !== 'operation-failed' ||
-        !inspection.record.permittedActions.includes('acknowledge-native-runtime-state')) {
+        inspection.record.phase !== 'terminal' || inspection.record.outcome !== 'operation-failed') {
       throw error
     }
     const native = inspectNativeFrom(params.options)
-    if (native.status !== 'installed' || !native.state) throw error
-    assertCommunityNativePathLayout(native.paths, { requireInstanceRoot: true })
+    const currentDigests = captureCommunityOperationDigests(params.paths)
+    const localRuntimeStateAbsent = currentDigests.state === null
+      && currentDigests.env === null
+      && currentDigests.ledger === null
+    const canAcknowledgeExternalRetryWithoutLocalState =
+      native.status === 'not-installed' && params.options.postgres === 'external' &&
+      inspection.record.sourceState === null &&
+      inspection.lastRunningPhase === 'side-effect-before' && inspection.lastRunningStep === 'native-setup' &&
+      (digestsEqual(currentDigests, inspection.record.preDigests) || localRuntimeStateAbsent) &&
+      inspection.record.permittedActions.includes('acknowledge-no-side-effect')
+    const action: CommunityOperationReconciliationAction =
+      native.status === 'installed' && native.state &&
+      inspection.record.permittedActions.includes('acknowledge-native-runtime-state')
+        ? 'acknowledge-native-runtime-state'
+        : canAcknowledgeExternalRetryWithoutLocalState
+          ? 'acknowledge-no-side-effect'
+          : (() => { throw error })()
+    if (native.status === 'installed') {
+      assertCommunityNativePathLayout(native.paths, { requireInstanceRoot: true })
+    }
     const journal = openCommunityOperationJournalForReconciliation({
       paths: params.paths,
       operationId: inspection.record.id,
       expectedOperation: 'setup',
-      action: 'acknowledge-native-runtime-state',
+      action,
       confirm: true,
       expectedSequence: inspection.record.sequence,
       expectedLastHash: inspection.lastHash,
@@ -856,7 +876,7 @@ async function reconcileFailedNativeSetupForRetry(params: {
         signal: params.signal,
         paths: params.paths,
         inspection,
-        action: 'acknowledge-native-runtime-state',
+        action,
       })
       throwIfCommunityCommandAborted(params.signal)
       journal.assertOwned()
@@ -954,6 +974,7 @@ export async function runCommunityServerSetup(
                   dataRoot: selection.dataRoot,
                   mode: resolveCommunityNativeLaunchMode(options),
                   createPostgresSecret: options.createPostgresSecret,
+                  progress: options.progressSink,
                   signal,
                 })
                 assertInstanceDirectoryIdentity(instanceIdentity)
@@ -1937,8 +1958,18 @@ async function applyCommunityOperationReconciliation(params: {
   const record = inspection.record
   const currentDigests = captureCommunityOperationDigests(paths)
   if (action === 'acknowledge-no-side-effect') {
-    if (inspection.lastRunningPhase !== 'prepared' || inspection.lastRunningStep !== 'prepared' ||
-        !digestsEqual(currentDigests, record.preDigests)) {
+    const localRuntimeStateAbsent = currentDigests.state === null
+      && currentDigests.env === null
+      && currentDigests.ledger === null
+    const retryableExternalNativeSetupWithoutLocalState =
+      record.runtimeMode === 'native' && record.operation === 'setup' &&
+      options.postgres === 'external' && record.sourceState === null &&
+      inspection.lastRunningPhase === 'side-effect-before' && inspection.lastRunningStep === 'native-setup' &&
+      inspectNativeFrom(options).status === 'not-installed' && localRuntimeStateAbsent
+    const stillAtPreparedState =
+      inspection.lastRunningPhase === 'prepared' && inspection.lastRunningStep === 'prepared'
+    if ((!stillAtPreparedState && !retryableExternalNativeSetupWithoutLocalState) ||
+        (!digestsEqual(currentDigests, record.preDigests) && !retryableExternalNativeSetupWithoutLocalState)) {
       throw new Error('community_operation_reconciliation_not_pre_effect')
     }
     if (record.runtimeMode === 'oci') {

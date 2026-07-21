@@ -105,10 +105,24 @@ function appendBounded(current: string, chunk: Buffer): string {
   return next
 }
 
+export function resolveCommunityStarterCliEntry(moduleUrl = import.meta.url): string {
+  const moduleEntry = fileURLToPath(moduleUrl)
+  if (path.basename(moduleEntry) === 'aops-cli.mjs') {
+    const stats = lstatSync(moduleEntry)
+    if (!stats.isFile()) throw new Error('community_starter_seed_cli_entry_invalid')
+    return realpathSync(moduleEntry)
+  }
+
+  const compiledEntry = fileURLToPath(new URL('../main.js', moduleUrl))
+  const stats = lstatSync(compiledEntry)
+  if (!stats.isFile()) throw new Error('community_starter_seed_cli_entry_invalid')
+  return realpathSync(compiledEntry)
+}
+
 export const communityStarterSeedRunner: CommunityStarterSeedRunner = Object.freeze({
   run(args, options) {
     return new Promise((resolve, reject) => {
-      const entry = fileURLToPath(new URL('../main.js', import.meta.url))
+      const entry = resolveCommunityStarterCliEntry()
       let stdout = ''
       let stderr = ''
       let settled = false

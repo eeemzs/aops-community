@@ -66,6 +66,11 @@ select one. Additional signed catalog packages are imported as discoverable,
 inert choices. Use `--agent-assets skip`, `--no-seed`, or `--no-catalog`
 only when the operator explicitly opts out.
 
+Treat the connected database as migration truth. An empty AOPS schema starts
+from migration zero, valid per-domain migration prefixes resume from the next
+entry, and a current schema is verify-only. Do not use an older CLI, release,
+or setup-audit version to decide which migration runs.
+
 For automatic Docker PostgreSQL, the container port is loopback-only and dynamically assigned. A destructive reset removes only exact instance/root/secret label-verified resources:
 
 ```sh
@@ -86,11 +91,12 @@ operator-owned.
 
 For path `1`, PostgreSQL is operator-owned and may be local, remote, managed,
 or separately containerized. Run interactive `aops setup init` and select path
-`1`; it asks for the TLS policy and PostgreSQL URL using masked input. A saved
-URL is offered as a masked default on retry and can be kept or replaced.
-`require` is the interactive TLS default for encrypted transport without a CA
-file. Use `verify-full` with a trusted CA and matching hostname; use `disable`
-only when the operator explicitly accepts unencrypted transport. For
+`1`; it asks for the PostgreSQL URL using masked input, then immediately tests
+the connection with TLS `require`. A saved URL is offered as a masked default
+on retry and can be kept or replaced. The TLS-policy menu appears only when the
+default encrypted connection fails. Use `verify-full` with a trusted CA and
+matching hostname; use `disable` only when the operator explicitly accepts
+unencrypted transport. For
 non-interactive work, inject `AOPS_PG_URL` privately or prepare it with
 `aops setup server-env`, then inspect `aops setup init --path 1
 --postgres-tls <policy> --yes --json`.

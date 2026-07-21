@@ -536,6 +536,108 @@ async function createRuntimeBinding(
   )
 }
 
+async function upgradeRuntimeBindingContent(
+  session: AgentAssetsNativePublicationSession,
+  assetRoot: string,
+  prepared: PreparedRuntime,
+  current: RuntimeBindingV1,
+  authority: StoreAuthorityV1,
+  active: ActivePointerV1,
+  activation: ActivationReceiptV1,
+  installedAt: string,
+  randomId: () => string,
+): Promise<void> {
+  if (
+    prepared.inspection.bindingProof !== 'verified'
+    || prepared.inspection.ownerMarkerProof !== 'verified'
+    || current.runtimeHomeId !== agentAssetsRuntimeHomeId(prepared.runtime, prepared.runtimeHome)
+    || current.runtimeRootIdentitySha256 !== prepared.nativeRoot.rootIdentitySha256
+    || current.contentSha256 === AOPS_AGENT_ASSETS_GATEWAY_SHA256
+  ) {
+    throw writerError(
+      'store_identity_mismatch',
+      `${prepared.runtime} binding is not eligible for a verified gateway-content upgrade.`,
+    )
+  }
+
+  const bindingGeneration = current.bindingGeneration + 1
+  const bindingReceiptId = `binding-receipt-${prepared.runtime}-${bindingGeneration}-${authority.lastIssuedFenceEpoch}-${randomId()}`
+  const marker: RuntimeGatewayOwnerMarkerV1 = {
+    schemaVersion: 1,
+    owner: 'aops-cli-agent-assets',
+    storeId: authority.storeId,
+    runtime: prepared.runtime,
+    bindingId: current.bindingId,
+    bindingGeneration,
+    relativePath: AOPS_AGENT_ASSETS_GATEWAY_RELATIVE_PATH,
+    contentSha256: AOPS_AGENT_ASSETS_GATEWAY_SHA256,
+  }
+  const receipt: RuntimeBindingReceiptV1 = {
+    schemaVersion: 1,
+    storeId: authority.storeId,
+    bindingId: current.bindingId,
+    bindingGeneration,
+    runtime: prepared.runtime,
+    runtimeHomeId: current.runtimeHomeId,
+    runtimeRootIdentitySha256: current.runtimeRootIdentitySha256,
+    gatewayName: 'aops',
+    relativePath: AOPS_AGENT_ASSETS_GATEWAY_RELATIVE_PATH,
+    ownerMarkerRelativePath: 'skills/aops/.aops-gateway-owner.json',
+    contentSha256: AOPS_AGENT_ASSETS_GATEWAY_SHA256,
+    ownerMarkerSha256: canonicalJsonSha256V1(marker),
+    activationReceiptId: activation.receiptId,
+    activationReceiptSha256: active.receiptSha256,
+    bindingReceiptId,
+    previousContentSha256: current.contentSha256,
+    installedAt,
+    writerFenceEpoch: authority.lastIssuedFenceEpoch,
+    authorityRevision: authority.authorityRevision,
+  }
+  const binding: RuntimeBindingV1 = {
+    ...receipt,
+    bindingReceiptSha256: canonicalJsonSha256V1(receipt),
+  }
+
+  await ensureNativeDirectory(
+    assetRoot,
+    `state/bindings/receipts/${prepared.runtime}`,
+    (relativePath) => session.createDirectory(relativePath),
+  )
+  await session.publishFileNoReplace(
+    `state/bindings/receipts/${prepared.runtime}/${bindingGeneration}-${bindingReceiptId}.json`,
+    jsonBytes(receipt),
+  )
+
+  if (prepared.inspection.gateway === 'absent') {
+    await prepared.nativeRoot.publishFileNoReplace(
+      AOPS_AGENT_ASSETS_GATEWAY_RELATIVE_PATH,
+      Buffer.from(AOPS_AGENT_ASSETS_GATEWAY, 'utf8'),
+    )
+  } else if (
+    (prepared.inspection.gateway === 'tampered' || prepared.inspection.gateway === 'canonical')
+    && prepared.inspection.gatewayContentSha256
+  ) {
+    await prepared.nativeRoot.publishFileReplace(
+      AOPS_AGENT_ASSETS_GATEWAY_RELATIVE_PATH,
+      prepared.inspection.gatewayContentSha256,
+      Buffer.from(AOPS_AGENT_ASSETS_GATEWAY, 'utf8'),
+    )
+  } else {
+    throw writerError('binding_conflict', `${prepared.runtime} gateway content cannot be upgraded safely.`)
+  }
+
+  await prepared.nativeRoot.publishFileReplace(
+    'skills/aops/.aops-gateway-owner.json',
+    current.ownerMarkerSha256,
+    jsonBytes(marker),
+  )
+  await session.publishFileReplace(
+    `state/bindings/${prepared.runtime}.json`,
+    sha256(readManagedBytes(assetRoot, `state/bindings/${prepared.runtime}.json`)),
+    jsonBytes(binding),
+  )
+}
+
 function inspectPreparedBindings(
   assetRoot: string,
   prepared: readonly PreparedRuntime[],
@@ -748,7 +850,11 @@ export async function applyVerifiedCommunityCore(
     const packageInstalled = coreAlreadyActive
       ? false
       : await materializePackage(session, assetRoot, operationId, options.release)
-    if (!coreAlreadyActive || newBindings.length > 0) {
+    const contentUpgradeBindings = recoverableBindings.map((prepared) => ({
+      prepared,
+      current: readCurrentRuntimeBinding(assetRoot, prepared.runtime),
+    })).filter(({ current }) => current.contentSha256 !== AOPS_AGENT_ASSETS_GATEWAY_SHA256)
+    if (!coreAlreadyActive || newBindings.length > 0 || contentUpgradeBindings.length > 0) {
       authority = await issueWriterFence(session, assetRoot, authority, now)
     }
 
@@ -797,7 +903,22 @@ export async function applyVerifiedCommunityCore(
     if (!active || !receipt) throw writerError('schema_incompatible', 'Runtime binding requires an active core receipt.')
 
     for (const prepared of recoverableBindings) {
-      await completeRuntimeFiles(prepared, readCurrentRuntimeBinding(assetRoot, prepared.runtime))
+      const current = readCurrentRuntimeBinding(assetRoot, prepared.runtime)
+      if (current.contentSha256 === AOPS_AGENT_ASSETS_GATEWAY_SHA256) {
+        await completeRuntimeFiles(prepared, current)
+      } else {
+        await upgradeRuntimeBindingContent(
+          session,
+          assetRoot,
+          prepared,
+          current,
+          authority,
+          active,
+          receipt,
+          now,
+          randomId,
+        )
+      }
     }
     for (const prepared of newBindings) {
       await createRuntimeBinding(session, assetRoot, prepared, authority, active, receipt, now, randomId)
@@ -1024,9 +1145,30 @@ export async function repairAgentAssetRuntimeBindings(
       }
     }
     let authority = before.authority
-    if (missing.length > 0) authority = await issueWriterFence(session, assetRoot, authority, now)
+    const contentUpgradeBindings = recoverable.map((item) => ({
+      item,
+      current: readCurrentRuntimeBinding(assetRoot, item.runtime),
+    })).filter(({ current }) => current.contentSha256 !== AOPS_AGENT_ASSETS_GATEWAY_SHA256)
+    if (missing.length > 0 || contentUpgradeBindings.length > 0) {
+      authority = await issueWriterFence(session, assetRoot, authority, now)
+    }
     for (const item of recoverable) {
-      await completeRuntimeFiles(item, readCurrentRuntimeBinding(assetRoot, item.runtime))
+      const current = readCurrentRuntimeBinding(assetRoot, item.runtime)
+      if (current.contentSha256 === AOPS_AGENT_ASSETS_GATEWAY_SHA256) {
+        await completeRuntimeFiles(item, current)
+      } else {
+        await upgradeRuntimeBindingContent(
+          session,
+          assetRoot,
+          item,
+          current,
+          authority,
+          before.active,
+          before.receipt,
+          now,
+          randomId,
+        )
+      }
     }
     for (const item of missing) {
       await createRuntimeBinding(

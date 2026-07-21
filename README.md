@@ -92,7 +92,10 @@ skills, and create a deliberately small starter dataset automatically. The
 interactive wizard proceeds after the selected path's required private inputs
 and installs or repairs the verified agent assets automatically; it does not ask
 redundant continue, starter-data, asset-selection, or asset-confirmation
-questions. Use `--agent-assets skip`, `--no-catalog`, or `--no-seed` only for an
+questions. For an existing PostgreSQL URL it tests TLS `require` immediately
+after the masked URL prompt and asks for another TLS policy only when needed.
+Long migrations show credential-free runtime, database, migration, server, and
+health progress stages. Use `--agent-assets skip`, `--no-catalog`, or `--no-seed` only for an
 explicitly minimal installation:
 
 - one **AOPS Starter** project;
@@ -114,6 +117,14 @@ PostgreSQL, the managed container, or a newly provisioned local database, setup 
 verifies the resulting schema, and only then reports the server ready. Long
 steps use animated progress in an interactive terminal, while `--json` output
 contains only the structured result.
+
+Migration decisions come from the database that is connected now, not from an
+older CLI or release version: an empty AOPS schema starts at migration zero, a
+valid per-domain migration prefix resumes at its next migration, and a current
+schema is verify-only. Historical setup audit rows are diagnostic evidence and
+do not override the database's current migration state. AOPS stops only when a
+migration record itself is invalid or the resulting owned schema cannot be
+verified.
 
 Supabase, Neon, and similar managed PostgreSQL services are supported through
 the same existing-PostgreSQL path. AOPS versions only its own non-extension

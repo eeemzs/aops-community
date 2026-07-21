@@ -24,6 +24,7 @@ const STRICT_RECEIPT_TABLE = 'aops_community_migration_receipts_v1'
 const STRICT_STATE_TABLE = 'aops_community_migration_state_v1'
 const STRICT_AUDIT_SCHEMA = 'aops_community_meta'
 const STRICT_PLAN_ACCEPTANCE_TABLE = 'migration_plan_acceptances_v1'
+const DATABASE_PREFIX_LINEAGE_ID = 'database-prefix-v1'
 const MAX_SNAPSHOT_EVIDENCE_BYTES = 262_144
 const SNAPSHOT_HASH_BUFFER_BYTES = 1024 * 1024
 const RAW_SHA256 = /^[a-f0-9]{64}$/
@@ -361,6 +362,13 @@ type ObservedState = Readonly<{
   strictState: StrictStateRow | null
   relationNames: ReadonlySet<string>
 }>
+
+type DatabasePrefixLineage = Readonly<{
+  id: typeof DATABASE_PREFIX_LINEAGE_ID
+  kind: 'database-prefix'
+}>
+
+type ObservedClassification = 'empty-v1' | CommunityStrictLineageV1 | DatabasePrefixLineage
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -1007,7 +1015,9 @@ export function buildCommunityStrictMigrationPlanV1(params: {
       (candidate) => candidate.id === params.sourceLineageId.slice(reconciliationPrefix.length),
     )
     : undefined
-  if (params.sourceLineageId !== 'empty-v1' && !sourceLineage && !sourceReconciliation) {
+  const sourceIsDatabasePrefix = params.sourceLineageId === DATABASE_PREFIX_LINEAGE_ID
+  if (params.sourceLineageId !== 'empty-v1' && !sourceLineage && !sourceReconciliation &&
+      !sourceIsDatabasePrefix) {
     throw new Error(`community_strict_plan_source_lineage_invalid:${params.sourceLineageId}`)
   }
   if (sourceLineage && (sourceLineage.postgresMajor !== params.postgresMajor ||
@@ -1059,7 +1069,8 @@ export function buildCommunityStrictMigrationPlanV1(params: {
       !sourceReconciliation.appliedCounts.every((count, index) => count === appliedCounts[index])) {
     throw new Error(`community_strict_plan_source_counts_mismatch:${sourceReconciliation.id}`)
   }
-  if (!sourceLineage && !sourceReconciliation && appliedCounts.some((count) => count !== 0)) {
+  if (!sourceLineage && !sourceReconciliation && !sourceIsDatabasePrefix &&
+      appliedCounts.some((count) => count !== 0)) {
     throw new Error('community_strict_plan_empty_source_not_empty')
   }
 
@@ -1650,7 +1661,7 @@ function classifyObservedState(params: {
   policy: CommunityStrictMigrationPolicyV1
   observed: ObservedState
   postgresMajor: number
-}): 'empty-v1' | CommunityStrictLineageV1 {
+}): ObservedClassification {
   const relationCount = params.observed.projection.relations.length
   const appliedCounts = params.observed.roots.map((root) => root.rows.length)
   if (isEmptyCatalogProjection(params.observed.projection) && appliedCounts.every((count) => count === 0) &&
@@ -1666,12 +1677,18 @@ function classifyObservedState(params: {
   if (!lineage) {
     const migrationTableCount = params.policy.roots
       .filter((root) => params.observed.relationNames.has(root.migrationTable)).length
-    if (migrationTableCount > 0 && migrationTableCount < params.policy.roots.length) {
-      throw new Error(
-        `community_strict_lineage_partial_migration_tables:` +
-        `schema=${params.observed.schemaFingerprintSha256}:relations=${relationCount}:` +
-        `applied=${appliedCounts.join(',')}`,
-      )
+    if (migrationTableCount > 0 && params.observed.strictReceipts === null &&
+        params.observed.strictState === null) {
+      const namedCountsMatch = params.policy.lineages.some((candidate) =>
+        candidate.postgresMajor === params.postgresMajor &&
+        candidate.appliedCounts.every((count, index) => count === appliedCounts[index]))
+      if (namedCountsMatch) {
+        throw new Error(`community_strict_lineage_unknown:${params.observed.schemaFingerprintSha256}`)
+      }
+      // Migration tables are the resumable source of truth. readLegacyRootState
+      // has already proved every present root is a known, ordered prefix. The
+      // target fingerprint and data sentinels still reject real schema drift.
+      return { id: DATABASE_PREFIX_LINEAGE_ID, kind: 'database-prefix' }
     }
     if (migrationTableCount === 0 && !isEmptyCatalogProjection(params.observed.projection)) {
       throw new Error('community_strict_lineage_heuristic_only')
@@ -2362,7 +2379,7 @@ async function writeStrictReceipts(params: {
   policy: CommunityStrictMigrationPolicyV1
   roots: readonly CommunityStrictRootState[]
   preflightCounts: readonly number[]
-  sourceLineage: CommunityStrictLineageV1 | null
+  sourceLineage: CommunityStrictLineageV1 | DatabasePrefixLineage | null
 }): Promise<void> {
   const existing = await params.client.query<{ count: unknown }>(
     `SELECT COUNT(*)::text AS count FROM public.${STRICT_RECEIPT_TABLE}`,
@@ -2552,7 +2569,18 @@ async function writeMigrationPlanAcceptanceV1(params: {
         result_lineage_id, result_schema_fingerprint_sha256, result_receipt_fingerprint_sha256,
         result_state_fingerprint_sha256, evidence_kind, evidence_sha256, plan_json, accepted_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12::timestamptz)
-     ON CONFLICT (accepted_plan_sha256) DO NOTHING`,
+     ON CONFLICT (accepted_plan_sha256) DO UPDATE
+       SET action = EXCLUDED.action,
+           source_fingerprint_sha256 = EXCLUDED.source_fingerprint_sha256,
+           target_lineage_id = EXCLUDED.target_lineage_id,
+           result_lineage_id = EXCLUDED.result_lineage_id,
+           result_schema_fingerprint_sha256 = EXCLUDED.result_schema_fingerprint_sha256,
+           result_receipt_fingerprint_sha256 = EXCLUDED.result_receipt_fingerprint_sha256,
+           result_state_fingerprint_sha256 = EXCLUDED.result_state_fingerprint_sha256,
+           evidence_kind = EXCLUDED.evidence_kind,
+           evidence_sha256 = EXCLUDED.evidence_sha256,
+           plan_json = EXCLUDED.plan_json,
+           accepted_at = EXCLUDED.accepted_at`,
     [
       params.plan.planSha256,
       params.plan.plan.action,
@@ -2661,7 +2689,7 @@ function buildPlanFromObservedState(params: {
   policy: CommunityStrictMigrationPolicyV1
   bundle: CommunityStrictMigrationBundleV1
   postgresMajor: number
-  classification: 'empty-v1' | CommunityStrictLineageV1
+  classification: ObservedClassification
   observed: ObservedState
 }): CommunityStrictMigrationPlanBindingV1 {
   return buildCommunityStrictMigrationPlanV1({

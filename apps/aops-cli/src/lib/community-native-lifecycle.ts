@@ -147,6 +147,23 @@ type CommunityNativeSourceLayout = Readonly<{
 
 export type CommunityNativeLaunchMode = 'foreground' | 'detached'
 
+export type CommunityNativeSetupProgressEvent = Readonly<{
+  stage:
+    | 'runtime'
+    | 'postgres'
+    | 'migration-plan'
+    | 'migration-apply'
+    | 'server-start'
+    | 'server-health'
+  message: string
+  migrationAction?: 'migrate' | 'verify-only'
+  pendingMigrationCount?: number
+}>
+
+export type CommunityNativeSetupProgressSink = (
+  event: CommunityNativeSetupProgressEvent,
+) => void
+
 export type CommunityNativeSourceIdentity = {
   root: string
   packageManager: string
@@ -2213,6 +2230,7 @@ async function launchInstalledNative(params: {
   env?: NodeJS.ProcessEnv
   requiredMigrationPlanSha256?: string
   requiredMigrationAction?: 'verify-only'
+  progress?: CommunityNativeSetupProgressSink
   signal?: AbortSignal
 }): Promise<CommunityNativeLaunch> {
   throwIfNativeAborted(params.signal)
@@ -2249,6 +2267,12 @@ async function launchInstalledNative(params: {
     throw new Error('community_native_build_identity_drift:run_server_setup_--apply')
   }
   const postgres = params.state.postgres
+  params.progress?.({
+    stage: 'postgres',
+    message: postgres.mode === 'external'
+      ? 'Connecting to the selected PostgreSQL database...'
+      : 'Starting and checking the AOPS-managed PostgreSQL database...',
+  })
   const postgresUrl = postgres.mode === 'external'
     ? loadExternalPostgresUrl(postgres.configRef, postgres.tlsPolicy)
     : await (async () => {
@@ -2263,6 +2287,10 @@ async function launchInstalledNative(params: {
       })()
   throwIfNativeAborted(params.signal)
   const priorIntent = readCommunityNativeMigrationIntent(params.paths, params.state)
+  params.progress?.({
+    stage: 'migration-plan',
+    message: 'Inspecting the PostgreSQL schema and planning migrations...',
+  })
   const migration = assertCommunityNativeMigrationReceiptV1(await params.runtime.migrate({
     sourceRoot: params.state.source.root,
     repoUrl: postgresUrl,
@@ -2314,6 +2342,15 @@ async function launchInstalledNative(params: {
       return { path: snapshot.evidencePath, policy: 'managed-verified-only-v1' }
     },
     onPlanAccepted: (context) => {
+      const pendingMigrationCount = context.migrationPlan.pendingMigrations.length
+      params.progress?.({
+        stage: 'migration-apply',
+        message: context.migrationPlan.action === 'migrate'
+          ? `Applying and verifying ${pendingMigrationCount} PostgreSQL migration${pendingMigrationCount === 1 ? '' : 's'}...`
+          : 'No pending migrations; verifying the current PostgreSQL schema...',
+        migrationAction: context.migrationPlan.action,
+        pendingMigrationCount,
+      })
       writeCommunityNativeMigrationIntent({
         paths: params.paths,
         state: params.state,
@@ -2349,6 +2386,10 @@ async function launchInstalledNative(params: {
   persistCommunityNativeMigrationReceipt({ paths: params.paths, state: params.state, receipt: migration })
   const chatv3ServerKeySecret = readNativeSecret(params.paths)
   throwIfNativeAborted(params.signal)
+  params.progress?.({
+    stage: 'server-start',
+    message: 'Starting the local AOPS server process...',
+  })
   rmSync(params.paths.identityPath, { force: true })
   rmSync(params.paths.controlPath, { force: true })
   mkdirSync(params.paths.logRoot, { recursive: true, mode: 0o700 })
@@ -2390,6 +2431,10 @@ async function launchInstalledNative(params: {
   }
   writeProcess(params.paths, processRecord)
   try {
+    params.progress?.({
+      stage: 'server-health',
+      message: 'Waiting for the AOPS server health check...',
+    })
     const identity = await waitUntilReady({
       paths: params.paths,
       state: params.state,
@@ -2478,6 +2523,7 @@ export async function setupCommunityNativeInstall(params: {
   createPostgresSecret?: () => string
   requireApplicationUpdate?: boolean
   readyTimeoutMs?: number
+  progress?: CommunityNativeSetupProgressSink
   env?: NodeJS.ProcessEnv
   signal?: AbortSignal
 }): Promise<{
@@ -2494,6 +2540,10 @@ export async function setupCommunityNativeInstall(params: {
   ) throw new Error('community_native_postgres_contract_required')
   const runtime = params.runtime ?? communityNativeRuntime
   throwIfNativeAborted(params.signal)
+  params.progress?.({
+    stage: 'runtime',
+    message: 'Validating the installed AOPS server runtime...',
+  })
   const now = params.now ?? (() => new Date())
   const createId = params.createId ?? randomUUID
   const paths = resolveCommunityNativePaths({ instanceName: params.contract.instanceId, dataRoot: params.dataRoot })
@@ -2642,6 +2692,7 @@ export async function setupCommunityNativeInstall(params: {
       now,
       createId,
       readyTimeoutMs: params.readyTimeoutMs ?? DEFAULT_READY_TIMEOUT_MS,
+      progress: params.progress,
       env: params.env,
       signal: params.signal,
     })

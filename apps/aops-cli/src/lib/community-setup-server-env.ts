@@ -39,6 +39,13 @@ function normalizeNonEmpty(value: unknown): string | undefined {
   return normalized || undefined
 }
 
+export function resolvePromptedPostgresUrl(
+  promptedValue: unknown,
+  savedValue: string | undefined,
+): string | undefined {
+  return normalizeNonEmpty(promptedValue) ?? savedValue
+}
+
 function validatePostgresUrl(value: string): string {
   if (/\0|\r|\n/.test(value) || Buffer.byteLength(value, 'utf8') > MAX_POSTGRES_URL_BYTES) {
     throw new Error('setup_server_env_postgres_url_invalid')
@@ -69,12 +76,13 @@ export async function runCommunitySetupServerEnv(
   let repoUrl = normalizeNonEmpty(options.repoUrl) ?? environmentUrl ?? existingUrl
   if (!options.repoUrl && !options.yes && !options.json) {
     if (!options.skipBanner) banner('AOPS Community Server Environment')
-    repoUrl = normalizeNonEmpty(await promptPassword({
+    const savedUrl = repoUrl
+    const promptedUrl = await promptPassword({
       message: existingUrl || environmentUrl
-        ? 'External PostgreSQL URL (press Enter to keep the saved value):'
+        ? 'External PostgreSQL URL [saved: ********] (press Enter to keep):'
         : 'External PostgreSQL URL:',
-      default: repoUrl,
       validate: (value) => {
+        if (!value.trim() && savedUrl) return true
         try {
           validatePostgresUrl(value.trim())
           return true
@@ -82,7 +90,8 @@ export async function runCommunitySetupServerEnv(
           return 'A PostgreSQL URL is required.'
         }
       },
-    }))
+    })
+    repoUrl = resolvePromptedPostgresUrl(promptedUrl, savedUrl)
   }
   if (!repoUrl) {
     throw new Error('setup_server_env_postgres_url_required:use_interactive_prompt_or_AOPS_PG_URL')

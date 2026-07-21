@@ -29,6 +29,14 @@ import {
   provisionLocalPostgres,
   type ProvisionLocalPostgresOptions,
 } from './setup-local-postgres.js'
+import {
+  isExternalPostgresTlsProbeError,
+  probeExternalPostgresConnection,
+} from './setup-external-postgres.js'
+import {
+  planCommunityNativeInstalledMigration,
+  stopCommunityNativeInstall,
+} from './community-native-lifecycle.js'
 
 export type SetupInitOptions = {
   path?: string
@@ -98,6 +106,9 @@ export type SetupInitDependencies = Readonly<{
   provisionLocalPostgres?: (
     options: ProvisionLocalPostgresOptions,
   ) => ReturnType<typeof provisionLocalPostgres>
+  probeExternalPostgres?: typeof probeExternalPostgresConnection
+  planInstalledMigration?: typeof planCommunityNativeInstalledMigration
+  stopInstalledServer?: typeof stopCommunityNativeInstall
 }>
 
 export type SetupProgressRunner = <T>(label: string, action: () => Promise<T>) => Promise<T>
@@ -246,29 +257,7 @@ export async function runSetupInitOrchestrator(
   }
 
   let postgresTls = options.postgresTls
-  if (selectedPath === 'native-external' && !postgresTls && interactive) {
-    postgresTls = await select({
-      message: 'External PostgreSQL TLS policy:',
-      choices: [
-        {
-          name: 'require',
-          value: 'require',
-          description: 'Select this for a remote PostgreSQL service that supports SSL/TLS when you do not have a CA certificate.',
-        },
-        {
-          name: 'verify-full',
-          value: 'verify-full',
-          description: 'Strongest validation; requires a trusted CA certificate and a matching PostgreSQL hostname.',
-        },
-        {
-          name: 'disable',
-          value: 'disable',
-          description: 'Use only when you intentionally accept an unencrypted PostgreSQL connection.',
-        },
-      ],
-      default: 'require',
-    }) as SetupInitOptions['postgresTls']
-  }
+  if (selectedPath === 'native-external' && !postgresTls) postgresTls = 'require'
   let localPostgresHost = normalizeNonEmpty(options.localPostgresHost) ?? '127.0.0.1'
   let localPostgresPort = options.localPostgresPort ?? 5432
   let localPostgresAdminUser = normalizeNonEmpty(options.localPostgresAdminUser)
@@ -387,6 +376,7 @@ export async function runSetupInitOrchestrator(
     throw new Error('setup_init_postgres_tls_required_for_path_1')
   }
   let createPostgresSecret: (() => string) | undefined
+  let serverEnvChanged = false
   if (selectedPath === 'native-container' && interactive) {
     const passwordMode = await select({
       message: 'Managed PostgreSQL password:',
@@ -410,6 +400,7 @@ export async function runSetupInitOrchestrator(
     }
   }
   const localServerPath = selectedPath !== 'cli-existing'
+  const localApiBaseUrl = options.apiBaseUrl ?? `http://127.0.0.1:${options.port ?? 5900}`
   let officialCatalogRelease: string | undefined
   let officialCatalogReleaseSource: string | undefined
   if (localServerPath && !options.noCatalog && dependencies.officialCatalog) {
@@ -435,7 +426,8 @@ export async function runSetupInitOrchestrator(
 
   const steps: Array<Record<string, unknown>> = []
   if (selectedPath === 'native-external') {
-    const envReady = initial.checks.find((check) => check.id === 'global-server-env')?.state === 'ready'
+    const envCheck = initial.checks.find((check) => check.id === 'global-server-env')
+    const envReady = envCheck?.state === 'ready'
     if (interactive) {
       if (!dependencies.setupServerEnv) {
         throw new Error('setup_init_external_postgres_env_provider_unavailable')
@@ -449,6 +441,7 @@ export async function runSetupInitOrchestrator(
         throw new Error('setup_init_external_postgres_env_not_ready')
       }
       effectivePostgresConfig = serverEnv.envPath
+      serverEnvChanged = serverEnv.updated === true
       steps.push({
         action: 'setup.server-env',
         status: serverEnv.updated ? 'updated' : 'ready',
@@ -456,6 +449,53 @@ export async function runSetupInitOrchestrator(
       })
     } else if (!envReady) {
       throw new Error('setup_init_external_postgres_env_required:run_setup_server-env_first')
+    } else if (!effectivePostgresConfig && typeof envCheck?.data?.path === 'string') {
+      effectivePostgresConfig = envCheck.data.path
+    }
+
+    if (!effectivePostgresConfig || !effectivePostgresTls) {
+      throw new Error('setup_init_external_postgres_probe_configuration_missing')
+    }
+    const probe = dependencies.probeExternalPostgres ?? probeExternalPostgresConnection
+    const testConnection = () => progress(
+      `Testing PostgreSQL connection with ${effectivePostgresTls} TLS...`,
+      () => probe({
+        configRef: effectivePostgresConfig!,
+        tlsPolicy: effectivePostgresTls!,
+        timeoutMs: options.timeoutMs,
+      }),
+    )
+    let connection
+    try {
+      connection = await testConnection()
+    } catch (error) {
+      if (!interactive || options.postgresTls || !isExternalPostgresTlsProbeError(error)) throw error
+      effectivePostgresTls = await select({
+        message: 'PostgreSQL TLS connection failed. Choose how to retry:',
+        choices: [
+          {
+            name: 'require',
+            value: 'require',
+            description: 'Keep encrypted transport without CA verification; fix PostgreSQL TLS support if this still fails.',
+          },
+          {
+            name: 'verify-full',
+            value: 'verify-full',
+            description: 'Use certificate and hostname verification with a trusted CA certificate.',
+          },
+          {
+            name: 'disable',
+            value: 'disable',
+            description: 'Retry without encryption only when you explicitly accept an unencrypted connection.',
+          },
+        ],
+        default: 'require',
+      }) as SetupInitOptions['postgresTls']
+      connection = await testConnection()
+    }
+    steps.push({ action: 'setup.postgres-connection', ...connection })
+    if (interactive) {
+      logSuccess(`PostgreSQL connection verified (${connection.transport}, server ${connection.serverMajor}).`)
     }
   }
 
@@ -519,6 +559,7 @@ export async function runSetupInitOrchestrator(
       }
       effectivePostgresConfig = serverEnv.envPath
       effectivePostgresTls = 'disable'
+      serverEnvChanged = serverEnv.updated === true
       steps.push({
         action: 'setup.local-postgres',
         ...safeProvisioned,
@@ -528,32 +569,78 @@ export async function runSetupInitOrchestrator(
   }
 
   if (selectedPath === 'native-external' || selectedPath === 'native-container' || selectedPath === 'native-local') {
-    let lifecycleResult: unknown
-    await progress('Preparing PostgreSQL, verifying migrations, and starting AOPS server...', () => setupCommunityServer({
-      runtime: 'native',
-      postgres: selectedPath === 'native-external' || selectedPath === 'native-local'
-        ? 'external'
-        : selectedPath === 'native-container'
-          ? 'container'
+    const installationReady = initial.checks.find((check) => check.id === 'installation-state')?.state === 'ready'
+    const hostReady = initial.checks.find((check) => check.id === 'host')?.state === 'ready'
+    let reuseRunningServer = false
+    if (installationReady && hostReady && !serverEnvChanged) {
+      try {
+        const installedPlan = await progress(
+          'Checking the running AOPS server database migrations...',
+          () => (dependencies.planInstalledMigration ?? planCommunityNativeInstalledMigration)({
+            instanceName: options.instance,
+            dataRoot: options.dataRoot,
+          }),
+        )
+        if (installedPlan.planning.migrationPlan.action === 'verify-only') {
+          reuseRunningServer = true
+          steps.push({
+            action: 'community-server.setup',
+            status: 'already-running-current',
+            migrationAction: 'verify-only',
+            acceptedPlanSha256: installedPlan.planning.acceptedPlanSha256,
+          })
+          if (interactive) logSuccess('Running AOPS server database schema is already current.')
+        }
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error)
+        if (!/^community_native_(source|build)_drift/.test(reason)) throw error
+      }
+    }
+    if (!reuseRunningServer && installationReady && hostReady) {
+      await progress('Stopping the local AOPS server for setup changes...', () =>
+        (dependencies.stopInstalledServer ?? stopCommunityNativeInstall)({
+          instanceName: options.instance,
+          dataRoot: options.dataRoot,
+          timeoutMs: options.timeoutMs,
+        }))
+      steps.push({ action: 'community-server.stop-for-setup', status: 'applied' })
+    }
+    if (!reuseRunningServer) {
+      let lifecycleResult: unknown
+      const reportedStages = new Set<string>()
+      await progress('Preparing PostgreSQL, verifying migrations, and starting AOPS server...', () => setupCommunityServer({
+        runtime: 'native',
+        postgres: selectedPath === 'native-external' || selectedPath === 'native-local'
+          ? 'external'
+          : selectedPath === 'native-container'
+            ? 'container'
+            : undefined,
+        postgresConfig: selectedPath === 'native-external' || selectedPath === 'native-local'
+          ? effectivePostgresConfig
           : undefined,
-      postgresConfig: selectedPath === 'native-external' || selectedPath === 'native-local'
-        ? effectivePostgresConfig
-        : undefined,
-      postgresTls: selectedPath === 'native-external' || selectedPath === 'native-local'
-        ? effectivePostgresTls
-        : undefined,
-      instance: options.instance,
-      dataRoot: options.dataRoot,
-      sourceRoot: options.sourceRoot,
-      port: options.port,
-      detach: true,
-      createPostgresSecret: selectedPath === 'native-container' ? createPostgresSecret : undefined,
-      apply: true,
-      silent: options.json === true,
-      resultSink: (result) => { lifecycleResult = result },
-    }))
-    steps.push({ action: 'community-server.setup', status: 'applied', result: lifecycleResult ?? null })
-    if (interactive) printMigrationVerification(lifecycleResult)
+        postgresTls: selectedPath === 'native-external' || selectedPath === 'native-local'
+          ? effectivePostgresTls
+          : undefined,
+        instance: options.instance,
+        dataRoot: options.dataRoot,
+        sourceRoot: options.sourceRoot,
+        port: options.port,
+        detach: true,
+        createPostgresSecret: selectedPath === 'native-container' ? createPostgresSecret : undefined,
+        apply: true,
+        silent: true,
+        progressSink: interactive
+          ? (event) => {
+              if (reportedStages.has(event.stage)) return
+              reportedStages.add(event.stage)
+              logInfo(`  ${event.message}`)
+            }
+          : undefined,
+        resultSink: (result) => { lifecycleResult = result },
+      }))
+      steps.push({ action: 'community-server.setup', status: 'applied', result: lifecycleResult ?? null })
+      if (interactive) printMigrationVerification(lifecycleResult)
+    }
   } else {
     const targetName = normalizeNonEmpty(options.targetName)
     const apiBaseUrl = normalizeNonEmpty(options.apiBaseUrl)
@@ -587,7 +674,7 @@ export async function runSetupInitOrchestrator(
   } else if (localServerPath && dependencies.officialCatalog && officialCatalogRelease) {
     const catalog = await progress('Installing the official AOPS catalog...', () => dependencies.officialCatalog!.reconcile({
       fromRelease: officialCatalogRelease,
-      apiBaseUrl: options.apiBaseUrl,
+      apiBaseUrl: localApiBaseUrl,
       timeoutMs: options.timeoutMs,
       idempotencyKey: options.catalogIdempotencyKey,
     }))
@@ -648,7 +735,7 @@ export async function runSetupInitOrchestrator(
       const seed = await progress('Creating the AOPS starter project and user guide...', () => (dependencies.seedStarter ?? seedCommunityStarterData)({
         instanceName: normalizeNonEmpty(options.instance)?.toLowerCase() ?? 'default',
         dataRoot: options.dataRoot,
-        origin: `http://127.0.0.1:${options.port ?? 5900}`,
+        origin: localApiBaseUrl,
         apply: true,
         timeoutMs: options.timeoutMs,
       }))
@@ -661,7 +748,7 @@ export async function runSetupInitOrchestrator(
   const firstAdminRequired = result.checks.find((check) => check.id === 'first-admin')?.state === 'action-required'
   if (interactive && firstAdminRequired && dependencies.setupFirstAdmin) {
     if (await confirm({ message: 'Create or promote the first admin now?', default: true })) {
-      const firstAdmin = await dependencies.setupFirstAdmin({ apiBaseUrl: options.apiBaseUrl })
+      const firstAdmin = await dependencies.setupFirstAdmin({ apiBaseUrl: localApiBaseUrl })
       steps.push({ action: 'setup.first-admin', status: firstAdmin.action, ok: firstAdmin.ok })
       result = await inspect()
     }

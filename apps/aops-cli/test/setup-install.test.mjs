@@ -5,11 +5,12 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { runSetupInitOrchestrator } from '../dist/lib/setup-init-orchestrator.js'
 import {
   readCommunityStarterSeedReceipt,
+  resolveCommunityStarterCliEntry,
   seedCommunityStarterData,
 } from '../dist/lib/community-starter-seed.js'
 import { removeCommunityNativeManagedPostgres } from '../dist/lib/community-native-postgres.js'
@@ -19,6 +20,12 @@ import {
   provisionLocalPostgres,
 } from '../dist/lib/setup-local-postgres.js'
 import { inspectSetupReadiness } from '../dist/lib/setup-readiness.js'
+import {
+  ExternalPostgresProbeError,
+  probeExternalPostgresConnection,
+} from '../dist/lib/setup-external-postgres.js'
+import { resolvePromptedPostgresUrl } from '../dist/lib/community-setup-server-env.js'
+import { retryOfficialCatalogAdapterReady } from '../dist/lib/setup-official-catalog-bridge.js'
 
 const cliPath = fileURLToPath(new URL('../dist/main.js', import.meta.url))
 
@@ -187,12 +194,16 @@ for (const setupPath of [
     await runSetupInitOrchestrator({
       path: setupPath.number,
       postgresTls: setupPath.postgresTls,
+      port: 5923,
       apply: true,
       yes: true,
       seed: false,
       agentAssets: 'skip',
     }, {
       inspectReadiness: async () => readiness(setupPath.id, false),
+      probeExternalPostgres: async (options) => ({
+        status: 'ready', tlsPolicy: options.tlsPolicy, transport: 'encrypted', serverMajor: 17,
+      }),
       setupCommunityServer: async (options) => calls.push(['server', options]),
       officialCatalog: {
         resolveRelease: async (options) => {
@@ -216,9 +227,81 @@ for (const setupPath of [
     assert.equal(calls.filter(([name]) => name === 'catalog.resolve').length, 1)
     const reconcile = calls.find(([name]) => name === 'catalog.reconcile')[1]
     assert.equal(reconcile.fromRelease, path.resolve('C:/npm/agent-assets-release'))
+    assert.equal(reconcile.apiBaseUrl, 'http://127.0.0.1:5923')
     assert.equal(calls.filter(([name]) => name === 'server').length, 1)
   })
 }
+
+test('setup reuses a healthy running server when its live database migration plan is current', async () => {
+  const current = readiness('native-external', true)
+  current.status = 'ready'
+  current.checks = current.checks.map((check) => check.id === 'installation-state'
+    ? { ...check, state: 'ready', summary: 'installed' }
+    : check)
+  current.checks.push(
+    { id: 'runtime', state: 'ready', required: true, summary: 'runtime ready' },
+    { id: 'host', state: 'ready', required: true, summary: 'host ready' },
+  )
+  let plans = 0
+  let setups = 0
+  let stops = 0
+  await runSetupInitOrchestrator({
+    path: '1', apply: true, yes: true, noCatalog: true, seed: false, agentAssets: 'skip',
+    postgresConfig: path.resolve('C:/private/aops.server.env'), postgresTls: 'require',
+  }, {
+    inspectReadiness: async () => current,
+    probeExternalPostgres: async () => ({
+      status: 'ready', tlsPolicy: 'require', transport: 'encrypted', serverMajor: 17,
+    }),
+    planInstalledMigration: async () => {
+      plans += 1
+      return {
+        planning: {
+          migrationPlan: { action: 'verify-only' },
+          acceptedPlanSha256: 'a'.repeat(64),
+        },
+      }
+    },
+    setupCommunityServer: async () => { setups += 1 },
+    stopInstalledServer: async () => { stops += 1 },
+  })
+  assert.equal(plans, 1)
+  assert.equal(setups, 0)
+  assert.equal(stops, 0)
+})
+
+test('setup stops a healthy running server and applies only when its live database has pending migrations', async () => {
+  const current = readiness('native-external', true)
+  current.status = 'ready'
+  current.checks = current.checks.map((check) => check.id === 'installation-state'
+    ? { ...check, state: 'ready', summary: 'installed' }
+    : check)
+  current.checks.push(
+    { id: 'runtime', state: 'ready', required: true, summary: 'runtime ready' },
+    { id: 'host', state: 'ready', required: true, summary: 'host ready' },
+  )
+  let setups = 0
+  let stops = 0
+  await runSetupInitOrchestrator({
+    path: '1', apply: true, yes: true, noCatalog: true, seed: false, agentAssets: 'skip',
+    postgresConfig: path.resolve('C:/private/aops.server.env'), postgresTls: 'require',
+  }, {
+    inspectReadiness: async () => current,
+    probeExternalPostgres: async () => ({
+      status: 'ready', tlsPolicy: 'require', transport: 'encrypted', serverMajor: 17,
+    }),
+    planInstalledMigration: async () => ({
+      planning: {
+        migrationPlan: { action: 'migrate', pendingMigrations: ['002-next.sql'] },
+        acceptedPlanSha256: 'b'.repeat(64),
+      },
+    }),
+    setupCommunityServer: async () => { setups += 1 },
+    stopInstalledServer: async () => { stops += 1 },
+  })
+  assert.equal(stops, 1)
+  assert.equal(setups, 1)
+})
 
 test('interactive managed PostgreSQL accepts a masked custom password and reports long-running steps', async () => {
   const progressLabels = []
@@ -301,7 +384,7 @@ test('interactive setup menu promotes existing, Docker, and installed-local Post
   assert.match(capturedChoices[2].name, /installed on this computer/i)
 })
 
-test('interactive external PostgreSQL setup defaults to require TLS, reapplies immediately, and refreshes the saved URL', async () => {
+test('interactive external PostgreSQL setup prompts for the URL first, tests require TLS, and refreshes the saved URL', async () => {
   const selects = []
   const calls = []
   let confirmCount = 0
@@ -321,20 +404,141 @@ test('interactive external PostgreSQL setup defaults to require TLS, reapplies i
       calls.push(['server-env', options])
       return { ok: true, envPath: '/private/refreshed.server.env', repoDialect: 'pg', updated: true }
     },
-    setupCommunityServer: async (options) => calls.push(['server', options]),
+    probeExternalPostgres: async (options) => {
+      calls.push(['postgres-probe', options])
+      return { status: 'ready', tlsPolicy: options.tlsPolicy, transport: 'encrypted', serverMajor: 17 }
+    },
+    setupCommunityServer: async (options) => {
+      calls.push(['server', options])
+      options.progressSink?.({ stage: 'migration-plan', message: 'Planning migrations...' })
+    },
     seedStarter: async (options) => {
       calls.push(['seed', options])
       return { status: 'seeded' }
     },
   })
-  const tls = selects.find((prompt) => prompt.message === 'External PostgreSQL TLS policy:')
-  assert.equal(tls.default, 'require')
-  assert.deepEqual(tls.choices.map((choice) => choice.value), ['require', 'verify-full', 'disable'])
-  assert.ok(tls.choices.every((choice) => typeof choice.description === 'string' && choice.description.length > 20))
+  assert.equal(selects.some((prompt) => prompt.message === 'External PostgreSQL TLS policy:'), false)
   assert.equal(confirmCount, 0)
   assert.equal(calls.filter(([name]) => name === 'server-env').length, 1)
-  assert.equal(calls.find(([name]) => name === 'server')[1].postgresConfig, '/private/refreshed.server.env')
+  const probe = calls.find(([name]) => name === 'postgres-probe')[1]
+  assert.equal(probe.configRef, '/private/refreshed.server.env')
+  assert.equal(probe.tlsPolicy, 'require')
+  const server = calls.find(([name]) => name === 'server')[1]
+  assert.equal(server.postgresConfig, '/private/refreshed.server.env')
+  assert.equal(server.postgresTls, 'require')
+  assert.equal(server.silent, true)
+  assert.equal(typeof server.progressSink, 'function')
   assert.equal(calls.filter(([name]) => name === 'seed').length, 1)
+})
+
+test('interactive external PostgreSQL asks for a TLS retry policy only after a TLS probe failure', async () => {
+  const selects = []
+  const probes = []
+  let serverOptions
+  await runSetupInitOrchestrator({
+    path: '1', skipBanner: true, noCatalog: true, seed: false, agentAssets: 'skip',
+  }, {
+    inspectReadiness: async () => readiness('native-external', false),
+    setupServerEnv: async () => ({
+      ok: true, envPath: '/private/aops.server.env', repoDialect: 'pg', updated: true,
+    }),
+    select: async (prompt) => {
+      selects.push(prompt)
+      return 'disable'
+    },
+    probeExternalPostgres: async (options) => {
+      probes.push(options)
+      if (options.tlsPolicy === 'require') {
+        throw new ExternalPostgresProbeError('setup_external_postgres_tls_connection_failed', 'tls')
+      }
+      return { status: 'ready', tlsPolicy: 'disable', transport: 'unencrypted', serverMajor: 17 }
+    },
+    setupCommunityServer: async (options) => { serverOptions = options },
+  })
+  assert.deepEqual(probes.map((probe) => probe.tlsPolicy), ['require', 'disable'])
+  assert.equal(selects.length, 1)
+  assert.match(selects[0].message, /TLS connection failed/i)
+  assert.equal(selects[0].default, 'require')
+  assert.deepEqual(selects[0].choices.map((choice) => choice.value), ['require', 'verify-full', 'disable'])
+  assert.equal(serverOptions.postgresTls, 'disable')
+})
+
+test('external PostgreSQL probe verifies encrypted transport without exposing credentials', async () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'aops-external-pg-probe-'))
+  const envPath = path.join(root, 'aops.server.env')
+  writeFileSync(envPath, 'AOPS_PG_URL=postgresql://aops:private-value@db.example:5432/aops\n')
+  const configs = []
+  let ended = false
+  const result = await probeExternalPostgresConnection({
+    configRef: envPath,
+    tlsPolicy: 'require',
+  }, {
+    createClient: (config) => {
+      configs.push(config)
+      return {
+        connect: async () => undefined,
+        query: async () => ({ rows: [{ server_version_num: '170004' }] }),
+        end: async () => { ended = true },
+      }
+    },
+  })
+  assert.deepEqual(result, {
+    status: 'ready', tlsPolicy: 'require', transport: 'encrypted', serverMajor: 17,
+  })
+  assert.match(configs[0].connectionString, /sslmode=require/)
+  assert.equal(ended, true)
+  assert.doesNotMatch(JSON.stringify(result), /private-value|db\.example/)
+})
+
+test('external PostgreSQL password prompt keeps the saved URL on an empty Enter', () => {
+  const saved = 'postgresql://user:secret@example.test:5432/aops'
+  assert.equal(resolvePromptedPostgresUrl('', saved), saved)
+  assert.equal(resolvePromptedPostgresUrl('   ', saved), saved)
+  assert.equal(
+    resolvePromptedPostgresUrl('postgresql://other:new@example.test:5432/aops', saved),
+    'postgresql://other:new@example.test:5432/aops',
+  )
+})
+
+test('setup waits for the official catalog agent tools to finish warming', async () => {
+  let attempts = 0
+  let clock = 0
+  const result = await retryOfficialCatalogAdapterReady(async () => {
+    attempts += 1
+    if (attempts < 3) {
+      const error = new Error('catalog warming')
+      error.code = 'catalog_adapter_unavailable'
+      throw error
+    }
+    return 'ready'
+  }, 5_000, {
+    now: () => clock,
+    sleep: async (milliseconds) => { clock += milliseconds },
+  })
+  assert.equal(result, 'ready')
+  assert.equal(attempts, 3)
+  assert.equal(clock, 750)
+})
+
+test('starter seed resolves the packaged single-file CLI entry instead of a missing package-root main.js', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'aops-starter-cli-entry-'))
+  const dist = path.join(root, 'dist')
+  const lib = path.join(dist, 'lib')
+  mkdirSync(lib, { recursive: true })
+  const packagedEntry = path.join(dist, 'aops-cli.mjs')
+  const compiledModule = path.join(lib, 'community-starter-seed.js')
+  const compiledEntry = path.join(dist, 'main.js')
+  writeFileSync(packagedEntry, '#!/usr/bin/env node\n')
+  writeFileSync(compiledModule, 'export {}\n')
+  writeFileSync(compiledEntry, 'export {}\n')
+  assert.equal(
+    resolveCommunityStarterCliEntry(pathToFileURL(packagedEntry).href),
+    path.resolve(packagedEntry),
+  )
+  assert.equal(
+    resolveCommunityStarterCliEntry(pathToFileURL(compiledModule).href),
+    path.resolve(compiledEntry),
+  )
 })
 
 test('interactive path 3 preserves an existing remote env by proposing a separate private env file', async () => {
