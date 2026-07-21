@@ -2622,6 +2622,23 @@ function pendingRiskyMigrations(
   )
 }
 
+function pendingRiskyMigrationsAfterReconciliation(
+  policy: CommunityStrictMigrationPolicyV1,
+  reconciliation: CommunityStrictLineageReconciliationV1,
+): CommunityStrictMigrationV1[] {
+  const reconciliationTarget = policy.lineages.find(
+    (lineage) => lineage.id === reconciliation.targetLineageId,
+  )
+  if (!reconciliationTarget || reconciliationTarget.kind !== 'legacy') {
+    throw new Error(`community_strict_lineage_reconciliation_target_missing:${reconciliation.id}`)
+  }
+  return policy.roots.flatMap((root, rootOrdinal) =>
+    root.migrations
+      .slice(reconciliationTarget.appliedCounts[rootOrdinal])
+      .filter((migration) => migration.risk === 'destructive-or-dynamic'),
+  )
+}
+
 function assertSameSentinels(
   before: readonly CommunityStrictDataSentinel[],
   after: readonly CommunityStrictDataSentinel[],
@@ -2803,8 +2820,13 @@ export async function planCommunityStrictPgSchema(params: {
       migrationPlan: binding.plan,
       acceptedPlanSha256: binding.planSha256,
       sourceFingerprintSha256: binding.sourceFingerprintSha256,
-      requiresSnapshotEvidence: classification !== 'empty-v1' &&
-        binding.plan.pendingMigrations.some((migration) => migration.risk === 'destructive-or-dynamic'),
+      // Exact reconciliation runs under the policy-bound source fingerprint,
+      // one transaction, and full before/after data sentinels. A snapshot is
+      // needed only for risky work that remains after its legacy target.
+      requiresSnapshotEvidence: reconciliation
+        ? pendingRiskyMigrationsAfterReconciliation(params.policy, reconciliation).length > 0
+        : classification !== 'empty-v1' &&
+          binding.plan.pendingMigrations.some((migration) => migration.risk === 'destructive-or-dynamic'),
     }
   } catch (error) {
     if (transactionOpen) await client.query('ROLLBACK').catch(() => undefined)
@@ -2913,7 +2935,7 @@ export async function applyCommunityStrictPgSchema(params: {
         evidence: CommunityStrictSnapshotEvidenceV1
         evidenceSha256: string
       } | null = null
-      if (binding.plan.pendingMigrations.some((migration) => migration.risk === 'destructive-or-dynamic')) {
+      if (pendingRiskyMigrationsAfterReconciliation(params.policy, reconciliation).length > 0) {
         const verifiedSnapshot = await verifySnapshotEvidence({
           evidencePath: snapshotEvidencePath,
           preflight,

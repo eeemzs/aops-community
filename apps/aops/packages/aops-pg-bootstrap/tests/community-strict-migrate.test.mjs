@@ -807,6 +807,7 @@ test('apply reconciles one exact partial five-root lineage without replaying exi
       'aops_community_migration_state_v1',
     ])
     const policy = createPolicy({ workspaceRoot, legacyProjection, strictProjection })
+    policy.roots[0].migrations[0].risk = 'destructive-or-dynamic'
     const sourceTables = new Set([
       'agentspace_product', 'docman_product', 'projectman_product', 'chatv3_product',
       MIGRATION_TABLES.docman, MIGRATION_TABLES.projectman, MIGRATION_TABLES.chatv3,
