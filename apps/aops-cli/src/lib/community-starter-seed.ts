@@ -34,7 +34,7 @@ Welcome to your AOPS Community workspace.
 
 1. Open Cockpit with \`aops cockpit\`.
 2. Inspect the **Getting Started** board and the **First AOPS Sprint** plan.
-3. Ask an agent to run \`aops setup guide\` and inspect the installed AOPS Gateway skill.
+3. Ask an agent to run \`aops setup guide\` and inspect the installed verified AOPS Gateway skill.
 4. Try \`aops agent tools\` or \`aops view dashboard --style agent\`.
 
 This small starter dataset is safe to edit or delete. For a managed Docker PostgreSQL installation, \`aops server reset --remove-managed-postgres --confirm-data-loss --confirm-instance default\` removes the label-verified database and local installation state; run \`aops setup init\` again to start clean.

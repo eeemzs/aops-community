@@ -22,7 +22,7 @@ Install one global command:
 
 ```sh
 npm install --global @aopslab/aops-cli
-aops --cli-version
+aops --version
 ```
 
 Then choose the setup menu, direct wizard, or an AI-assisted handoff:
@@ -100,11 +100,12 @@ explicitly minimal installation:
 - one task with the **First AOPS Sprint** plan; and
 - one **AOPS Getting Started** user-guide document.
 
-The global verified AOPS core includes the neutral router, concise domain
-references, and user guides needed by an agent immediately after setup. The
-signed official catalog also makes collaboration and working-discipline skills
-discoverable, but keeps them inert until the user or agent deliberately selects
-one; setup does not impose a working method.
+The global verified AOPS core includes a small neutral router, rich on-demand
+references and user guides for the mounted Community domains, and public-safe
+collaboration and working-discipline guidance. Setup makes these capabilities
+available but never selects a discipline or working method. Additional signed
+official catalog packages are discoverable and remain inert until deliberately
+selected.
 
 For the managed Docker database, AOPS generates a strong password by default.
 The wizard can instead accept and confirm a custom password through masked
@@ -154,7 +155,7 @@ manager.
 
 The npm CLI contains a small `aops-install` skill specifically for installation
 and recovery. It is available immediately after `npm install`, before the AOPS
-server or global Gateway pointers exist:
+server or global Gateway assets exist:
 
 ```sh
 aops setup guide          # print the complete agent-readable guide
@@ -198,7 +199,7 @@ Install AOPS Community on this computer with the installed `aops` command.
 The agent's safe discovery sequence is:
 
 ```sh
-aops --cli-version
+aops --version
 aops setup init --yes --json
 ```
 
@@ -298,6 +299,7 @@ user deliberately running a cloned Community checkout.
 ### 3. Verify and operate
 
 ```sh
+aops
 aops server health
 aops server status
 aops server logs --tail 100
@@ -306,6 +308,12 @@ aops server stop
 aops server start
 aops server restart
 ```
+
+After setup, running `aops` with no arguments checks the installed local npm
+runtime before opening the operator home. A safely stopped or crashed server
+is started automatically; an already running server is left alone. Ambiguous
+or unsafe process states still fail closed and remain visible through
+`aops server status` and `aops doctor`.
 
 Open Cockpit with one command:
 
@@ -343,12 +351,14 @@ future runtimes extend the registry rather than the selector grammar. The gatewa
 `<claude-home>/skills/aops/SKILL.md`. They resolve the verified local AOPS
 client core, so agents do not depend on a particular repository checkout.
 
-The guided `aops setup init` flow also inspects these assets and, when running
-interactively with `--apply`, asks whether to install, repair, inspect, or skip
-them. The official npm package carries the signed Gateway/client-core closure
+The guided `aops setup init` flow also inspects these assets and automatically
+installs or repairs the verified core for every registered runtime; it does not
+add a second asset-selection prompt. Explicit skip/status choices remain
+advanced options. The official npm package carries the signed Gateway/client-core closure
 and inert official catalog snapshot; normal users are never asked to locate a
-release directory. The payload contains client skills, compact references, and
-end-user guides—not the hosted development architecture document group.
+release directory. The payload contains client skills, token-efficient routing,
+rich mounted-domain guides, and inert discipline references—not the hosted
+development architecture document group.
 
 Equivalent explicit commands are:
 

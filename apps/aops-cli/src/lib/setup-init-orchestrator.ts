@@ -614,8 +614,8 @@ export async function runSetupInitOrchestrator(
     if (interactive) {
       logInfo(`Codex gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.codex}`)
       logInfo(`Claude gateway: ${SETUP_AGENT_ASSETS_GATEWAYS.claude}`)
-      logInfo(`Setup will ${recommendedAction} the verified AOPS core and gateway pointers for every registered runtime.`)
-      logInfo('Optional signed discipline packages remain discoverable without selecting a working discipline for you.')
+      logInfo(`Setup will ${recommendedAction} the verified AOPS core and gateway for every registered runtime.`)
+      logInfo('Rich mounted-domain guides and discipline references will be available; setup will not select a working discipline for you.')
     }
     agentAssetsAction = recommendedAction
   }

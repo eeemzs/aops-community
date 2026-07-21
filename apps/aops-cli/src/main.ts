@@ -36,13 +36,20 @@ import { makeActivityCommand } from './commands/activity.js'
 import { makeSkillCommand } from './commands/skill.js'
 import { makeDocCommand } from './commands/doc.js'
 import { makePmCommand } from './commands/pm/index.js'
-import { makeCommunityServerCommand, runCommunityServerHealth } from './commands/community-server.js'
+import {
+  makeCommunityServerCommand,
+  runCommunityServerHealth,
+  runCommunityServerStart,
+} from './commands/community-server.js'
 import { makeCommunityCockpitCommand, runCommunityCockpit } from './commands/community-cockpit.js'
 import { makeCommunityDoctorCommand } from './commands/community-doctor.js'
 import { makeCommunityConsoleCommand } from './commands/community-console.js'
 import { makeTargetCommand } from './commands/target.js'
 import { makeVersionCommand } from './commands/version.js'
-import { resolveCommunityHomeMode } from './lib/community-home.js'
+import {
+  ensureCommunityHomeServerRunning,
+  resolveCommunityHomeMode,
+} from './lib/community-home.js'
 
 for (const stream of [process.stdout, process.stderr]) {
   stream.on('error', (error: NodeJS.ErrnoException) => {
@@ -55,10 +62,13 @@ for (const stream of [process.stdout, process.stderr]) {
 
 export function buildCommunityProgram(): Command {
   const program = new Command()
+  const version = resolveCommunityCliIdentity().version
   program
     .name('aops')
     .description('AOPS Community operator CLI for local-trusted, self-hosted workflows')
-    .version(resolveCommunityCliIdentity().version, '-V, --cli-version', 'output the CLI version')
+    .enablePositionalOptions()
+    .version(version)
+    .version(version, '--cli-version', 'output the CLI version (legacy alias)')
 
   program.addCommand(makeInitCommand()) // community-family:init
   program.addCommand(makeCommunitySetupCommand()) // community-family:setup
@@ -136,6 +146,10 @@ function outputCommunityHome(mode: 'setup' | 'operate'): void {
 
 async function runCommunityMenu(): Promise<void> {
   const mode = resolveCommunityHomeMode()
+  if (mode === 'operate') {
+    const serverAction = await ensureCommunityHomeServerRunning(runCommunityServerStart)
+    if (serverAction === 'started') logInfo('Local AOPS server started automatically.')
+  }
   if (!process.stdin.isTTY || !process.stdout.isTTY) {
     outputCommunityHome(mode)
     return

@@ -5,32 +5,45 @@ description: Route AOPS Community requests to concise packaged references, curre
 
 # AOPS Community
 
-AOPS is a self-hostable operations layer. The `aops` command connects to local or remote domain capabilities and manages machine-local client assets.
+AOPS is a self-hostable operations layer. The `aops` command installs and
+operates a local server, connects to remote servers, discovers live domain
+capabilities, and manages verified machine-local agent assets.
 
-This skill is a neutral capability router. Kanban, sprints, reviews, chat, memory practices, and working disciplines are available choices, not prerequisites.
+This root skill is deliberately small. Read exactly one matching reference,
+then open only the relevant heading in its linked user guide. Working
+disciplines are available after setup, but are never selected merely because
+this gateway loaded.
 
-## Find the smallest relevant surface
+## Route the request
 
-| Need | Start with |
+| Need | Read first |
 | --- | --- |
-| setup, targets, auth, server, health, sync, views, client assets | `references/aops-cli-core/SKILL.md` |
-| durable memory, missions, reusable prompts or skills, discovery | `references/agentspace/SKILL.md` |
+| install/setup, PostgreSQL, auth, server, health, sync, views, client assets | `references/aops-cli-core/SKILL.md` |
+| read-only local dashboard, sprint/task/board views, focused digest | `references/view/SKILL.md` |
+| durable memory, reusable prompts/skills/resources/artifacts, experience | `references/agentspace/SKILL.md` |
+| durable session intent and resume packs | `references/mission/SKILL.md` |
 | boards, tasks, sprints/plans, issues, feedback, reviews, handoffs | `references/projectman/SKILL.md` |
 | versioned documents, sections, links, search, answer, mirrors | `references/docman/SKILL.md` |
-| hosted chat rooms, messages, discussions and recorded decisions | `references/communication/SKILL.md` |
-| human tasks, runs, workflows, workers, ingress | `references/tasker-runner/SKILL.md` |
-| file targets, snapshots, diffs, restore, export | `references/fileman/SKILL.md` |
-| an installed custom domain | `aops agent tools --domain <domain> --summary --json` |
+| hosted coordination rooms, messages, inbox/listen/catchup | `references/hosted-chat/SKILL.md` |
+| structured multi-agent decision/consensus topics | `references/discuss/SKILL.md` |
+| encrypted ChatV3 product channels, invites, sessions, membership | `references/chatv3/SKILL.md` |
+| counters, countries, event store, rate limits | `references/sys/SKILL.md` |
+| choose or explain a working method | `references/working-disciplines/SKILL.md` |
+| run the full optional collaborative session playbook | `references/collaborative-work/SKILL.md` |
+| another installed/custom domain | `aops agent tools --domain <domain> --summary --json` |
 
-Load only the matching reference. Each reference is a neutral capability map,
-not a workflow. A user may combine capabilities in any way supported by their
-server.
+`aops chat` is hosted coordination. `aops chatv3` is the encrypted product
+channel surface. Do not merge those models. Fileman, Tasker/Runner, and the
+interactive loop are not part of the default Community capability closure;
+discover them only if the connected server actually advertises them.
 
 ## Authority order
 
-1. Packaged references explain concepts and small examples.
+1. Packaged references explain ownership, safety, and common examples.
 2. Current nested `aops ... --help` owns sugar command flags.
-3. `aops agent schema --tool <domain.operation> --summary` owns raw invoke payload fields.
+3. `aops agent schema --tool <domain.operation> --summary --json` owns raw invoke payload fields.
 4. `aops agent invoke --tool <domain.operation> --input '@payload.json' --preview --json` is the generic fallback.
 
-Use `aops agent tools --summary --json` when the installed server differs from the packaged core. Do not infer server topology or capabilities from the current repository.
+Use `aops agent tools --summary --json` when the installed server differs from
+the packaged core. Do not load every reference or whole guide into context, and
+do not infer server topology or capabilities from a repository checkout.

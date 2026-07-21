@@ -16,7 +16,7 @@ and the installed CLI's live help remain the detailed authority.
 Run mutation-free discovery:
 
 ```sh
-aops --cli-version
+aops --version
 aops setup init --yes --json
 ```
 
@@ -54,15 +54,16 @@ aops setup init
 ```
 
 All server paths use the normal `default` instance and port `5900`, verify
-migrations, install registered Gateway pointers, reconcile the inert signed
+migrations, install the verified Gateway for registered runtimes, reconcile the inert signed
 official catalog, and create a small starter dataset automatically. Interactive
 setup applies after collecting the selected path's required private inputs; it
 does not ask redundant continue, starter-data, asset-selection, or asset-confirmation
 questions. It automatically installs or repairs the verified AOPS core and
-gateway pointers for every registered runtime. The core supplies the neutral
-router, concise references, and user guides; signed collaboration and working-
-discipline packages are imported as discoverable, inert catalog choices rather
-than silently activated. Use `--agent-assets skip`, `--no-seed`, or `--no-catalog`
+gateway for every registered runtime. The core supplies a small neutral router,
+rich on-demand mounted-domain user guides, and public-safe collaboration and
+working-discipline references. Setup makes disciplines available but does not
+select one. Additional signed catalog packages are imported as discoverable,
+inert choices. Use `--agent-assets skip`, `--no-seed`, or `--no-catalog`
 only when the operator explicitly opts out.
 
 For automatic Docker PostgreSQL, the container port is loopback-only and dynamically assigned. A destructive reset removes only exact instance/root/secret label-verified resources:
@@ -123,11 +124,11 @@ aops setup init --path 3 --yes --json
 aops setup init --path 3 --apply
 ```
 
-All server paths install registered Gateway pointers, reconcile the inert signed
+All server paths install the verified Gateway for registered runtimes, reconcile the inert signed
 official catalog, and create starter data by default. Use `--agent-assets skip`,
 `--no-catalog`, or `--no-seed` only for an explicit opt-out.
 
-If Gateway pointers need a separate action, install for every runtime registered by this CLI:
+If Gateway assets need a separate action, install for every runtime registered by this CLI:
 
 ```sh
 aops assets install --target all --apply --json
@@ -151,4 +152,4 @@ selected path, server health, registered runtime binding states, and Cockpit
 URL. Never report success from process exit alone when JSON says
 action-required, conflict, or unhealthy.
 
-When setup remains incomplete, preserve the exact safe next action from the CLI output. Ask the operator only for missing authority or private configuration; do not bypass ownership conflicts, native qualification gates, TLS decisions, or unknown user-owned pointer files.
+When setup remains incomplete, preserve the exact safe next action from the CLI output. Ask the operator only for missing authority or private configuration; do not bypass ownership conflicts, TLS decisions, or unknown user-owned runtime files.

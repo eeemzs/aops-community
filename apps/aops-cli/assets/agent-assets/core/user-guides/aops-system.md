@@ -20,6 +20,18 @@ stored; the application connection is kept in the private user server-env.
 Use `aops setup guide` for the small installation skill and live
 `aops setup init --help` for exact flags.
 
+Successful default setup also installs or repairs the signed global AOPS
+gateway for every registered agent runtime. Its offline core provides a
+token-efficient router plus rich, on-demand guides for the mounted Community
+domains and available working disciplines. A discipline is never selected or
+activated automatically.
+
+After local setup, invoking `aops` without arguments checks the native runtime
+before showing the operator home. It automatically starts only an
+identity-verified instance observed as stopped or crashed. Running/starting
+instances are left alone; unhealthy, orphaned, or identity-conflicted states
+require explicit diagnosis instead of an unsafe implicit restart.
+
 ## Capability discovery
 
 Start with the relevant CLI family help. When a server has custom or newer domains, query its live catalog:

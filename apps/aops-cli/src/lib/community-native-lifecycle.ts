@@ -1205,6 +1205,99 @@ function assertCommunityNativeApplicationCurrent(state: CommunityNativeInstallSt
   }
 }
 
+function compareCommunityReleaseVersions(left: string, right: string): number {
+  const parse = (value: string): { core: bigint[]; prerelease: string[] } => {
+    const buildIndex = value.indexOf('+')
+    const withoutBuild = buildIndex === -1 ? value : value.slice(0, buildIndex)
+    const prereleaseIndex = withoutBuild.indexOf('-')
+    const core = prereleaseIndex === -1 ? withoutBuild : withoutBuild.slice(0, prereleaseIndex)
+    const prerelease = prereleaseIndex === -1 ? '' : withoutBuild.slice(prereleaseIndex + 1)
+    return {
+      core: core.split('.').map((part) => BigInt(part)),
+      prerelease: prerelease ? prerelease.split('.') : [],
+    }
+  }
+  const a = parse(left)
+  const b = parse(right)
+  for (let index = 0; index < 3; index += 1) {
+    if (a.core[index] !== b.core[index]) return a.core[index] < b.core[index] ? -1 : 1
+  }
+  if (a.prerelease.length === 0 || b.prerelease.length === 0) {
+    if (a.prerelease.length === b.prerelease.length) return 0
+    return a.prerelease.length === 0 ? 1 : -1
+  }
+  const count = Math.max(a.prerelease.length, b.prerelease.length)
+  for (let index = 0; index < count; index += 1) {
+    const leftPart = a.prerelease[index]
+    const rightPart = b.prerelease[index]
+    if (leftPart === undefined || rightPart === undefined) return leftPart === undefined ? -1 : 1
+    if (leftPart === rightPart) continue
+    const leftNumeric = /^\d+$/.test(leftPart)
+    const rightNumeric = /^\d+$/.test(rightPart)
+    if (leftNumeric && rightNumeric) return BigInt(leftPart) < BigInt(rightPart) ? -1 : 1
+    if (leftNumeric !== rightNumeric) return leftNumeric ? -1 : 1
+    return leftPart < rightPart ? -1 : 1
+  }
+  return 0
+}
+
+export type CommunityNativePriorApplicationReconciliation =
+  | 'current'
+  | 'official-npm-update-adopted'
+
+export function reconcileCommunityNativePriorApplication(params: {
+  state: CommunityNativeInstallState
+  selectedSource: CommunityNativeSourceIdentity
+  contract: CommunityInstanceContract
+  selectedExternalConfigRef?: string
+  selectedFromDefaultNpmRuntime: boolean
+}): CommunityNativePriorApplicationReconciliation {
+  try {
+    assertCommunityNativeApplicationCurrent(params.state)
+    return 'current'
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== 'community_native_prior_application_source_drift') {
+      throw error
+    }
+  }
+
+  const { state, selectedSource, contract } = params
+  if (
+    !params.selectedFromDefaultNpmRuntime ||
+    !samePhysicalPath(state.source.root, selectedSource.root) ||
+    !isPackagedCommunityServerSource(selectedSource) ||
+    !samePhysicalPath(state.build.hostEntry, path.join(state.source.root, PACKAGE_BUILD_PATHS.hostEntry)) ||
+    !samePhysicalPath(state.build.handlerEntry, path.join(state.source.root, PACKAGE_BUILD_PATHS.handlerEntry)) ||
+    !samePhysicalPath(state.build.cockpitIndex, path.join(state.source.root, PACKAGE_BUILD_PATHS.cockpitIndex))
+  ) {
+    throw new Error('community_native_prior_application_source_drift')
+  }
+  if (state.instanceName !== contract.instanceId) throw new Error('community_native_instance_mismatch')
+  if (state.profile !== contract.profile) {
+    throw new Error(`community_native_profile_change_refused:${state.profile}:to:${contract.profile}:run_server_reset`)
+  }
+  if (state.profile === 'native-external-postgres') {
+    if (
+      contract.postgres.mode !== 'external' ||
+      !params.selectedExternalConfigRef ||
+      !samePhysicalPath(state.postgres.configRef, params.selectedExternalConfigRef) ||
+      state.postgres.tlsPolicy !== contract.postgres.tlsPolicy
+    ) {
+      throw new Error('community_native_application_source_adoption_database_mismatch')
+    }
+  } else if (contract.postgres.mode !== 'container') {
+    throw new Error('community_native_application_source_adoption_database_mismatch')
+  }
+  const comparison = compareCommunityReleaseVersions(selectedSource.releaseVersion, state.source.releaseVersion)
+  if (comparison < 0) {
+    throw new Error(
+      `community_native_application_downgrade_refused:${state.source.releaseVersion}:to:${selectedSource.releaseVersion}:use_server_rollback`,
+    )
+  }
+  if (comparison === 0) throw new Error('community_native_prior_application_source_drift')
+  return 'official-npm-update-adopted'
+}
+
 function pnpmPackageVersion(scriptPath: string): string | null {
   try {
     const packageJson = JSON.parse(readFileSync(path.resolve(path.dirname(scriptPath), '..', 'package.json'), 'utf8'))
@@ -2412,22 +2505,11 @@ export async function setupCommunityNativeInstall(params: {
   if (inspection.status === 'partial' || inspection.status === 'runtime-conflict') {
     throw new Error(`community_native_install_${inspection.status}:${inspection.error ?? 'unknown'}:run_doctor`)
   }
-  if (inspection.status === 'installed' && inspection.state) {
-    const observed = await observeInstalledNative({
-      paths: inspection.paths,
-      state: inspection.state,
-      processRecord: inspection.process ?? null,
-      runtime,
-      now,
-    })
-    if (observed.runtimeState !== 'stopped' && observed.runtimeState !== 'crashed') {
-      throw new Error(`community_native_process_active:${observed.runtimeState}:run_server_status_before_setup`)
-    }
-    assertCommunityNativeApplicationCurrent(inspection.state)
-  }
-  const source = inspectCommunityNativeSource(
-    params.sourceRoot ?? resolveCommunityNativeDefaultSourceRoot(),
-  )
+  const defaultSourceRoot = resolveCommunityNativeDefaultSourceRoot()
+  const source = inspectCommunityNativeSource(params.sourceRoot ?? defaultSourceRoot)
+  const selectedFromDefaultNpmRuntime = params.sourceRoot === undefined &&
+    isPackagedCommunityServerSource(source) &&
+    samePhysicalPath(source.root, realpathSync(path.resolve(defaultSourceRoot)))
   let configRef: string | undefined
   if (params.contract.profile === 'native-external-postgres') {
     if (
@@ -2439,6 +2521,26 @@ export async function setupCommunityNativeInstall(params: {
     configRef = realpathSync(configInput)
   } else if (params.contract.postgres.mode !== 'container') {
     throw new Error('community_native_container_postgres_contract_required')
+  }
+  let priorApplicationReconciliation: CommunityNativePriorApplicationReconciliation = 'current'
+  if (inspection.status === 'installed' && inspection.state) {
+    const observed = await observeInstalledNative({
+      paths: inspection.paths,
+      state: inspection.state,
+      processRecord: inspection.process ?? null,
+      runtime,
+      now,
+    })
+    if (observed.runtimeState !== 'stopped' && observed.runtimeState !== 'crashed') {
+      throw new Error(`community_native_process_active:${observed.runtimeState}:run_server_status_before_setup`)
+    }
+    priorApplicationReconciliation = reconcileCommunityNativePriorApplication({
+      state: inspection.state,
+      selectedSource: source,
+      contract: params.contract,
+      selectedExternalConfigRef: configRef,
+      selectedFromDefaultNpmRuntime,
+    })
   }
   if (!isPackagedCommunityServerSource(source)) {
     await runBuildChecked(
@@ -2507,7 +2609,10 @@ export async function setupCommunityNativeInstall(params: {
     const priorReference = createCommunityNativeApplicationReferenceV1(existing)
     const targetReference = createCommunityNativeApplicationReferenceV1(state)
     if (!sameCommunityNativeApplicationContent(priorReference, targetReference)) {
-      if (samePhysicalPath(existing.source.root, state.source.root)) {
+      if (
+        samePhysicalPath(existing.source.root, state.source.root) &&
+        priorApplicationReconciliation !== 'official-npm-update-adopted'
+      ) {
         throw new Error('community_native_application_update_distinct_source_root_required')
       }
       applicationUpdatePrepared = writeCommunityNativeApplicationUpdatePrepared({

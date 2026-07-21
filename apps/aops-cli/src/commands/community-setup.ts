@@ -230,7 +230,7 @@ private \`AOPS_LOCAL_POSTGRES_ADMIN_PASSWORD\` environment variable; use
 \`--local-postgres-admin-no-password\` only when local PostgreSQL trust auth is
 already configured. When PostgreSQL is missing or stopped, readiness returns
 platform-appropriate Windows, macOS, or Linux installation/start guidance.
-The default setup installs Gateway pointers for every registered agent runtime
+The default setup installs the verified AOPS Gateway for every registered agent runtime
 and creates a small starter project/board/sprint/user-guide dataset. Use
 \`--agent-assets skip\` or \`--no-seed\` only when explicitly desired.
 Community agent assets use the TASK-136 \`aops assets\` contract; the

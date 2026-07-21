@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
 export const COMMUNITY_PUBLIC_CLI_PACKAGE_NAME = '@aopslab/aops-cli'
 export const COMMUNITY_CLI_COMMAND_SCHEMA_VERSION = 1
 export const COMMUNITY_CLIENT_COMPATIBILITY_SCHEMA_VERSION = 1
@@ -66,11 +69,24 @@ function compareCore(left: [number, number, number], right: [number, number, num
   return 0
 }
 
+function resolveCommunityCliPackageVersion(): string | undefined {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8'),
+    ) as Record<string, unknown>
+    if (manifest.name !== COMMUNITY_PUBLIC_CLI_PACKAGE_NAME || typeof manifest.version !== 'string') return undefined
+    return nonEmpty(manifest.version)
+  } catch {
+    return undefined
+  }
+}
+
 export function resolveCommunityCliIdentity(
   environment: NodeJS.ProcessEnv = process.env,
 ): CommunityCliIdentity {
   const injectedVersion = typeof __AOPS_CLI_VERSION__ !== 'undefined' ? __AOPS_CLI_VERSION__ : undefined
-  const version = nonEmpty(environment.AOPS_CLI_VERSION) ?? nonEmpty(injectedVersion) ?? '0.0.1'
+  const version = nonEmpty(environment.AOPS_CLI_VERSION) ?? nonEmpty(injectedVersion) ??
+    resolveCommunityCliPackageVersion() ?? '0.0.1'
   if (!validSemver(version)) throw new Error('community_cli_version_invalid')
   const injectedSource = typeof __AOPS_CLI_ARTIFACT_SOURCE__ !== 'undefined'
     ? __AOPS_CLI_ARTIFACT_SOURCE__

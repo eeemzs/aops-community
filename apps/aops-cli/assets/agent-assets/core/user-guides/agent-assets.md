@@ -4,8 +4,11 @@ Community client assets are installed from an independently signed
 agent-assets bundle included in the npm CLI. This asset identity is separate
 from application-image releases. The logical user-local data root is
 `~/.aops/agent-assets`.
-Codex and Claude each load one managed `skills/aops/SKILL.md` gateway; they do
-not require every AOPS skill to be copied into their runtime registries.
+Every agent runtime registered by the installed CLI receives one managed
+`skills/aops/SKILL.md` gateway. Today this includes Codex and Claude; future
+runtimes can join the same registry without changing the asset model. The
+gateway resolves the immutable core package rather than copying every AOPS
+reference into each runtime.
 
 ## Install and verify
 
@@ -41,9 +44,15 @@ aops assets resolve --name <exact-name> --json
 ```
 
 Discovery returns bounded metadata candidates before any body is loaded.
-Resolve only the selected exact asset. Core references describe capabilities
-without selecting Kanban, sprints, communication, or a working discipline.
-Optional hosted disciplines remain inactive until explicitly selected.
+Resolve only the selected exact asset. The verified offline core includes a
+small neutral router, mounted-domain references, on-demand user guides, and the
+current working-discipline references. Setup makes those choices available;
+it does not silently select a board model, communication mode, or discipline.
+Optional hosted catalog packages also remain inert until explicitly selected.
+
+The core deliberately excludes private development architecture, machine
+paths, repository caches, and domains not mounted by Community. Exact live
+capability discovery remains the authority when a server adds custom domains.
 
 ## Local and remote ownership
 
