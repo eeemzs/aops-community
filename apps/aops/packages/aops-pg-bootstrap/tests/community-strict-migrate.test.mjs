@@ -657,7 +657,7 @@ test('provider-owned extensions and event triggers stay outside the AOPS lineage
   )
 })
 
-test('catalog projection fingerprints logical column order instead of restore-unstable storage artifacts', async () => {
+test('catalog projection keeps logical column order for sentinels but excludes it from lineage identity', async () => {
   const fixture = createFixture()
   try {
     const queries = []
@@ -676,6 +676,24 @@ test('catalog projection fingerprints logical column order instead of restore-un
     assert.match(routineQuery, /pg_catalog\.pg_extension/)
     assert.match(typeQuery, /pg_catalog\.pg_extension/)
     assert.equal(queries.some((query) => query.includes('FROM pg_catalog.pg_event_trigger')), false)
+
+    const firstOrder = projectionForTables(['restored_table'])
+    firstOrder.columns.push(
+      { table: 'restored_table', column: 'id', ordinal: 1, type: 'uuid' },
+      { table: 'restored_table', column: 'name', ordinal: 2, type: 'text' },
+    )
+    const restoredOrder = structuredClone(firstOrder)
+    restoredOrder.columns[0].ordinal = 2
+    restoredOrder.columns[1].ordinal = 1
+    assert.equal(
+      fingerprintCommunityStrictCatalog(restoredOrder),
+      fingerprintCommunityStrictCatalog(firstOrder),
+    )
+    restoredOrder.columns[1].type = 'character varying'
+    assert.notEqual(
+      fingerprintCommunityStrictCatalog(restoredOrder),
+      fingerprintCommunityStrictCatalog(firstOrder),
+    )
   } finally {
     rmSync(fixture.workspaceRoot, { recursive: true, force: true })
   }

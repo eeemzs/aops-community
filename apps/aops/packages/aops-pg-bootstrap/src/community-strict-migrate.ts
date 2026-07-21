@@ -1398,7 +1398,15 @@ export async function readCommunityStrictCatalogProjection(
 }
 
 export function fingerprintCommunityStrictCatalog(projection: CommunityStrictCatalogProjectionV1): string {
-  return sha256Json({ ...projection, eventTriggers: [], extensions: [] })
+  // Column position is a restore/DDL-history artifact: PostgreSQL preserves
+  // attnum gaps and append order even when the effective table contract is
+  // identical. Keep ordinal in the projection for deterministic data
+  // sentinels, but bind lineage identity to the semantic column contract.
+  const columns = sortCatalogRows(projection.columns.map((column) => {
+    const { ordinal: _ordinal, ...semanticColumn } = column
+    return semanticColumn
+  }))
+  return sha256Json({ ...projection, columns, eventTriggers: [], extensions: [] })
 }
 
 function relationNames(projection: CommunityStrictCatalogProjectionV1): Set<string> {

@@ -261,7 +261,7 @@
       "id": "legacy-full-v1",
       "kind": "legacy",
       "relationCount": 84,
-      "schemaFingerprintSha256": "6eafb61bf2464af540ff8c06bfbab1a45a50023ec48fe7c260aa7a9ef0b0ae20",
+      "schemaFingerprintSha256": "6f6aa514c535e943d0c44860d5fea1bdfb839db6669f9f6096612910acbf4e32",
       "appliedCounts": [
         6,
         1,
@@ -278,7 +278,7 @@
       "id": "strict-v1",
       "kind": "strict",
       "relationCount": 86,
-      "schemaFingerprintSha256": "b97351071ea2d7cfba2fb8d4d16dc0eafbefde963535561f8859be52ec6a0b4c",
+      "schemaFingerprintSha256": "761e18f8aa40e6fb87ca88340214e42c330be685b36b3a1031f688ec8462c290",
       "appliedCounts": [
         6,
         1,
@@ -297,7 +297,7 @@
       "id": "community-five-root-metadata-reconciliation-v1",
       "postgresMajor": 17,
       "relationCount": 79,
-      "schemaFingerprintSha256": "43ced4bc630097f11eccfa9774e0d36c25f0a64311278e98e1e2f88a823352a1",
+      "schemaFingerprintSha256": "dacbda43e6525a1bf118a13c996133be88beae024784c0e232ec32cf43a30b6d",
       "appliedCounts": [
         0,
         0,
