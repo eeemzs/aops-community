@@ -66,6 +66,7 @@ type SetupServerEnvResult = Readonly<{
   ok: boolean
   envPath: string
   repoDialect?: string
+  updated?: boolean
 }>
 
 type SetupFirstAdminResult = Readonly<{
@@ -243,11 +244,23 @@ export async function runSetupInitOrchestrator(
     postgresTls = await select({
       message: 'External PostgreSQL TLS policy:',
       choices: [
-        { name: 'verify-full (certificate and hostname verification)', value: 'verify-full' },
-        { name: 'require (encrypted transport without CA verification)', value: 'require' },
-        { name: 'disable (loopback PostgreSQL only)', value: 'disable' },
+        {
+          name: 'require',
+          value: 'require',
+          description: 'Select this for a remote PostgreSQL service that supports SSL/TLS when you do not have a CA certificate.',
+        },
+        {
+          name: 'verify-full',
+          value: 'verify-full',
+          description: 'Strongest validation; requires a trusted CA certificate and a matching PostgreSQL hostname.',
+        },
+        {
+          name: 'disable',
+          value: 'disable',
+          description: 'Use only when you intentionally accept an unencrypted PostgreSQL connection.',
+        },
       ],
-      default: 'verify-full',
+      default: 'require',
     }) as SetupInitOptions['postgresTls']
   }
   let localPostgresHost = normalizeNonEmpty(options.localPostgresHost) ?? '127.0.0.1'
@@ -292,15 +305,6 @@ export async function runSetupInitOrchestrator(
     })
   }
   let seedStarter = options.seed !== false
-  if (
-    interactive && seedStarter &&
-    (selectedPath === 'native-external' || selectedPath === 'native-container' || selectedPath === 'native-local')
-  ) {
-    seedStarter = await confirm({
-      message: 'Create the small starter project, kanban board, sprint plan, and user guide?',
-      default: true,
-    })
-  }
   if (selectedPath && !['native-external', 'native-local'].includes(selectedPath) && options.postgresConfig) {
     throw new Error('setup_init_postgres_config_only_valid_for_paths_1_or_3')
   }
@@ -356,11 +360,7 @@ export async function runSetupInitOrchestrator(
   }
   if (interactive && !options.skipBanner) banner('AOPS Setup')
 
-  let shouldApply = options.apply === true
-  if (!shouldApply && interactive && selectedPath && initial.status === 'action-required') {
-    printSetupReadiness(initial)
-    shouldApply = await confirm({ message: 'Continue the selected setup path now?', default: true })
-  }
+  const shouldApply = options.apply === true || (interactive && Boolean(selectedPath))
 
   if (!shouldApply) {
     if (options.json) {
@@ -368,7 +368,7 @@ export async function runSetupInitOrchestrator(
       return initial
     }
     if (!interactive || options.skipBanner || initial.status === 'ready') printSetupReadiness(initial)
-    else logInfo('Setup was not changed. Re-run with `--apply` or choose Continue setup later.')
+    else logInfo('Setup was not changed. Re-run with `--apply` when using an explicit non-interactive path.')
     return initial
   }
 
@@ -432,10 +432,7 @@ export async function runSetupInitOrchestrator(
   const steps: Array<Record<string, unknown>> = []
   if (selectedPath === 'native-external') {
     const envReady = initial.checks.find((check) => check.id === 'global-server-env')?.state === 'ready'
-    if (!envReady) {
-      if (!interactive) {
-        throw new Error('setup_init_external_postgres_env_required:run_setup_server-env_first')
-      }
+    if (interactive) {
       if (!dependencies.setupServerEnv) {
         throw new Error('setup_init_external_postgres_env_provider_unavailable')
       }
@@ -447,7 +444,14 @@ export async function runSetupInitOrchestrator(
       if (!serverEnv.ok || serverEnv.repoDialect !== 'pg') {
         throw new Error('setup_init_external_postgres_env_not_ready')
       }
-      steps.push({ action: 'setup.server-env', status: 'ready', envPath: serverEnv.envPath })
+      effectivePostgresConfig = serverEnv.envPath
+      steps.push({
+        action: 'setup.server-env',
+        status: serverEnv.updated ? 'updated' : 'ready',
+        envPath: serverEnv.envPath,
+      })
+    } else if (!envReady) {
+      throw new Error('setup_init_external_postgres_env_required:run_setup_server-env_first')
     }
   }
 
@@ -663,7 +667,7 @@ export async function runSetupInitOrchestrator(
       }))
       steps.push({ action: 'setup.starter-seed', status: seed.status ?? 'applied', result: seed })
     } else {
-      steps.push({ action: 'setup.starter-seed', status: 'skipped', reason: '--no-seed-or-operator-choice' })
+      steps.push({ action: 'setup.starter-seed', status: 'skipped', reason: '--no-seed' })
     }
   }
 

@@ -126,6 +126,7 @@ function createPolicy({ workspaceRoot, legacyProjection, strictProjection }) {
         convergenceSha256,
       },
     ],
+    lineageReconciliations: [],
     targetLineageId: 'strict-v1',
   }
 }
@@ -791,6 +792,190 @@ test('inspection rejects partial migration tables and duplicate legacy tags', as
     )
   } finally {
     rmSync(fixture.workspaceRoot, { recursive: true, force: true })
+  }
+})
+
+test('apply reconciles one exact partial five-root lineage without replaying existing Agentspace DDL', async () => {
+  const workspaceRoot = mkdtempSync(path.join(tmpdir(), 'aops-community-strict-reconcile-'))
+  try {
+    const products = ROOT_IDS.map((id) => `${id}_product`)
+    const legacyProjection = projectionForTables([...Object.values(MIGRATION_TABLES), ...products])
+    const strictProjection = projectionForTables([
+      ...Object.values(MIGRATION_TABLES),
+      ...products,
+      'aops_community_migration_receipts_v1',
+      'aops_community_migration_state_v1',
+    ])
+    const policy = createPolicy({ workspaceRoot, legacyProjection, strictProjection })
+    const sourceTables = new Set([
+      'agentspace_product', 'docman_product', 'projectman_product', 'chatv3_product',
+      MIGRATION_TABLES.docman, MIGRATION_TABLES.projectman, MIGRATION_TABLES.chatv3,
+    ])
+    const sourceProjection = projectionForTables(sourceTables)
+    policy.lineageReconciliations = [{
+      id: 'known-partial-v1',
+      postgresMajor: 17,
+      relationCount: sourceProjection.relations.length,
+      schemaFingerprintSha256: fingerprintCommunityStrictCatalog(sourceProjection),
+      appliedCounts: [0, 0, 1, 1, 1],
+      targetLineageId: 'legacy-v1',
+      rootModes: ['apply', 'adopt', 'unchanged', 'unchanged', 'unchanged'],
+    }]
+    const canonicalRows = legacyRows(policy)
+    const rowsByTable = {
+      [MIGRATION_TABLES.sys]: [],
+      [MIGRATION_TABLES.agentspace]: [],
+      [MIGRATION_TABLES.docman]: canonicalRows[MIGRATION_TABLES.docman],
+      [MIGRATION_TABLES.projectman]: canonicalRows[MIGRATION_TABLES.projectman],
+      [MIGRATION_TABLES.chatv3]: canonicalRows[MIGRATION_TABLES.chatv3],
+    }
+    const strictReceipts = []
+    const acceptances = new Map()
+    let strictState = null
+    const queries = []
+    const currentProjection = () => projectionForTables(sourceTables)
+    const client = {
+      async connect() {},
+      async end() {},
+      async query(text, params = []) {
+        queries.push(text)
+        if (text.includes('pg_try_advisory_lock')) return { rows: [{ acquired: true }] }
+        if (text.includes('pg_advisory_unlock')) return { rows: [{ unlocked: true }] }
+        if (text.startsWith('SET SESSION') || text.startsWith('BEGIN') || text === 'COMMIT' ||
+            text === 'ROLLBACK' || text.startsWith('LOCK TABLE') ||
+            text === 'CREATE EXTENSION IF NOT EXISTS pgcrypto') return { rows: [] }
+        if (text.includes("current_setting('server_version_num')")) return { rows: [{ major: 17 }] }
+        if (text.includes('FROM pg_catalog.pg_class relation')) return { rows: [] }
+        if (text.startsWith('REVOKE ALL PRIVILEGES ON ')) return { rows: [] }
+
+        const projection = currentProjection()
+        if (text.includes('FROM pg_catalog.pg_class c') && text.includes("c.relkind IN ('r', 'p', 'v'")) {
+          return { rows: projection.relations }
+        }
+        if (text.includes('FROM pg_catalog.pg_attribute')) return { rows: projection.columns }
+        if (text.includes('FROM pg_catalog.pg_constraint x')) return { rows: projection.constraints }
+        if (text.includes('FROM pg_catalog.pg_index')) return { rows: projection.indexes }
+        if (text.includes("c.relkind IN ('v', 'm')")) return { rows: projection.views }
+        if (text.includes('FROM pg_catalog.pg_sequence')) return { rows: projection.sequences }
+        if (text.includes('FROM pg_catalog.pg_inherits')) return { rows: projection.inheritance }
+        if (text.includes('FROM pg_catalog.pg_proc')) return { rows: projection.routines }
+        if (text.includes('FROM pg_catalog.pg_trigger')) return { rows: projection.triggers }
+        if (text.includes('FROM pg_catalog.pg_event_trigger')) return { rows: projection.eventTriggers }
+        if (text.includes('FROM pg_catalog.pg_rewrite')) return { rows: projection.rules }
+        if (text.includes('FROM pg_catalog.pg_policy')) return { rows: projection.policies }
+        if (text.includes('FROM pg_catalog.pg_type')) return { rows: projection.types }
+        if (text.includes('FROM pg_catalog.pg_extension')) return { rows: projection.extensions }
+
+        if (text.startsWith('DECLARE aops_community_sentinel_') ||
+            text.startsWith('CLOSE aops_community_sentinel_')) return { rows: [] }
+        if (text.startsWith('FETCH FORWARD 512 FROM aops_community_sentinel_')) return { rows: [] }
+
+        const legacyTableCreate = /^CREATE TABLE IF NOT EXISTS public\."([^"]+)"/.exec(text)
+        if (legacyTableCreate && Object.values(MIGRATION_TABLES).includes(legacyTableCreate[1])) {
+          sourceTables.add(legacyTableCreate[1])
+          rowsByTable[legacyTableCreate[1]] ??= []
+          return { rows: [] }
+        }
+        const productCreate = /^CREATE TABLE (\w+_product)/.exec(text)
+        if (productCreate) {
+          sourceTables.add(productCreate[1])
+          return { rows: [] }
+        }
+        const migrationInsert = /^INSERT INTO public\."([^"]+)" \(tag(?:, sha256)?\)/.exec(text)
+        if (migrationInsert) {
+          const table = migrationInsert[1]
+          rowsByTable[table].push({
+            tag: params[0],
+            sha256: table === MIGRATION_TABLES.agentspace ? params[1] : null,
+            appliedAt: '2026-07-21T00:00:00.000000Z',
+          })
+          return { rows: [] }
+        }
+        if (text.startsWith('ALTER TABLE public."sys_product"')) return { rows: [] }
+
+        if (text.includes('CREATE TABLE IF NOT EXISTS public.aops_community_migration_receipts_v1')) {
+          sourceTables.add('aops_community_migration_receipts_v1')
+          return { rows: [] }
+        }
+        if (text.includes('CREATE TABLE IF NOT EXISTS public.aops_community_migration_state_v1')) {
+          sourceTables.add('aops_community_migration_state_v1')
+          return { rows: [] }
+        }
+        if (text.includes('SELECT COUNT(*)::text AS count FROM public.aops_community_migration_receipts_v1')) {
+          return { rows: [{ count: String(strictReceipts.length) }] }
+        }
+        if (text.includes('INSERT INTO public.aops_community_migration_receipts_v1')) {
+          strictReceipts.push({
+            rootId: params[0], rootOrdinal: params[1], migrationIdx: params[2], tag: params[3],
+            sqlSha256: params[4], journalSha256: params[5], appliedAt: params[6], provenance: params[7],
+          })
+          return { rows: [] }
+        }
+        if (text.includes('INSERT INTO public.aops_community_migration_state_v1')) {
+          strictState = {
+            policyId: params[0], inventorySha256: params[1], convergenceSha256: params[2],
+            lineageId: params[3], schemaFingerprintSha256: params[4],
+            receiptFingerprintSha256: params[5], strictReceiptRowsSha256: params[6],
+          }
+          return { rows: [] }
+        }
+        if (text.includes('FROM public.aops_community_migration_receipts_v1')) {
+          return { rows: strictReceipts }
+        }
+        if (text.includes('FROM public.aops_community_migration_state_v1')) {
+          return { rows: strictState ? [strictState] : [] }
+        }
+
+        if (text.startsWith('CREATE SCHEMA IF NOT EXISTS aops_community_meta') ||
+            text.startsWith('CREATE TABLE IF NOT EXISTS aops_community_meta.migration_plan_acceptances_v1')) {
+          return { rows: [] }
+        }
+        if (text.startsWith('INSERT INTO aops_community_meta.migration_plan_acceptances_v1')) {
+          acceptances.set(String(params[0]), {
+            acceptedPlanSha256: params[0], action: params[1], sourceFingerprintSha256: params[2],
+            targetLineageId: params[3], resultLineageId: params[4],
+            resultSchemaFingerprintSha256: params[5], resultReceiptFingerprintSha256: params[6],
+            resultStateFingerprintSha256: params[7], evidenceKind: params[8], evidenceSha256: params[9],
+            planJson: JSON.parse(params[10]), acceptedAt: params[11],
+          })
+          return { rows: [] }
+        }
+        if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+            text.includes('WHERE accepted_plan_sha256 = $1')) {
+          const row = acceptances.get(String(params[0]))
+          return { rows: row ? [row] : [] }
+        }
+        if (text.includes('FROM aops_community_meta.migration_plan_acceptances_v1') &&
+            text.includes("WHERE action = 'migrate'")) {
+          const row = [...acceptances.values()].find((entry) => entry.action === 'migrate' &&
+            entry.resultLineageId === params[0] && entry.resultSchemaFingerprintSha256 === params[1] &&
+            entry.resultReceiptFingerprintSha256 === params[2])
+          return { rows: row ? [row] : [] }
+        }
+
+        const legacyRead = /FROM public\."([^"]+)"/.exec(text)
+        if (legacyRead && Object.values(MIGRATION_TABLES).includes(legacyRead[1])) {
+          return { rows: rowsByTable[legacyRead[1]] ?? [] }
+        }
+        throw new Error(`unexpected_reconciliation_query:${text}`)
+      },
+    }
+    const logs = []
+    const receipt = await applyCommunityStrictPgSchema({
+      repoUrl: 'postgresql://user:pass@localhost:5432/community',
+      workspaceRoot,
+      policy,
+      logs,
+      clientFactory: () => client,
+    })
+    assert.equal(receipt.lineageId, 'strict-v1')
+    assert.ok(sourceTables.has('sys_product'))
+    assert.equal(rowsByTable[MIGRATION_TABLES.agentspace].length, 1)
+    assert.ok(logs.some((line) => /Applying exact Community lineage reconciliation.*sys/.test(line)))
+    assert.ok(logs.some((line) => /Adopting exact Community lineage reconciliation.*agentspace/.test(line)))
+    assert.equal(queries.some((query) => /^CREATE TABLE agentspace_product/.test(query)), false)
+  } finally {
+    rmSync(workspaceRoot, { recursive: true, force: true })
   }
 })
 

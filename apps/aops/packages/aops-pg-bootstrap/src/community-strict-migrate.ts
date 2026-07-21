@@ -76,6 +76,16 @@ export type CommunityStrictLineageV1 = Readonly<{
   convergenceSha256: string
 }>
 
+export type CommunityStrictLineageReconciliationV1 = Readonly<{
+  id: string
+  postgresMajor: number
+  relationCount: number
+  schemaFingerprintSha256: string
+  appliedCounts: readonly number[]
+  targetLineageId: string
+  rootModes: readonly ('apply' | 'adopt' | 'unchanged')[]
+}>
+
 export type CommunityStrictMigrationPolicyV1 = Readonly<{
   schemaVersion: 1
   id: string
@@ -89,6 +99,7 @@ export type CommunityStrictMigrationPolicyV1 = Readonly<{
   convergence: readonly CommunityStrictConvergenceOperationV1[]
   convergenceSha256: string
   lineages: readonly CommunityStrictLineageV1[]
+  lineageReconciliations: readonly CommunityStrictLineageReconciliationV1[]
   targetLineageId: string
 }>
 
@@ -580,6 +591,7 @@ export function validateCommunityStrictMigrationPolicyV1(
     'convergence',
     'convergenceSha256',
     'lineages',
+    'lineageReconciliations',
     'targetLineageId',
   ])
   if (policy.schemaVersion !== 1 || typeof policy.id !== 'string' || !SAFE_ID.test(policy.id)) {
@@ -738,6 +750,68 @@ export function validateCommunityStrictMigrationPolicyV1(
     lineageIds.add(rawLineage.id)
   }
   const validatedLineages = policy.lineages as unknown as CommunityStrictLineageV1[]
+  if (!Array.isArray(policy.lineageReconciliations)) {
+    throw new Error('community_strict_policy_lineage_reconciliations_invalid')
+  }
+  const reconciliationIds = new Set<string>()
+  const reconciliationTuples = new Set<string>()
+  for (const rawReconciliation of policy.lineageReconciliations) {
+    if (!isRecord(rawReconciliation)) {
+      throw new Error('community_strict_policy_lineage_reconciliation_invalid')
+    }
+    assertExactKeys('community_strict_policy_lineage_reconciliation', rawReconciliation, [
+      'id',
+      'postgresMajor',
+      'relationCount',
+      'schemaFingerprintSha256',
+      'appliedCounts',
+      'targetLineageId',
+      'rootModes',
+    ])
+    if (typeof rawReconciliation.id !== 'string' || !SAFE_ID.test(rawReconciliation.id) ||
+        reconciliationIds.has(rawReconciliation.id) ||
+        !Number.isSafeInteger(rawReconciliation.postgresMajor) || Number(rawReconciliation.postgresMajor) < 12 ||
+        !Number.isSafeInteger(rawReconciliation.relationCount) || Number(rawReconciliation.relationCount) < 1 ||
+        typeof rawReconciliation.schemaFingerprintSha256 !== 'string' ||
+        !RAW_SHA256.test(rawReconciliation.schemaFingerprintSha256) ||
+        !Array.isArray(rawReconciliation.appliedCounts) ||
+        rawReconciliation.appliedCounts.length !== validatedRoots.length ||
+        typeof rawReconciliation.targetLineageId !== 'string' ||
+        !Array.isArray(rawReconciliation.rootModes) ||
+        rawReconciliation.rootModes.length !== validatedRoots.length ||
+        rawReconciliation.rootModes.some((mode) => !['apply', 'adopt', 'unchanged'].includes(String(mode)))) {
+      throw new Error(`community_strict_policy_lineage_reconciliation_invalid:${String(rawReconciliation.id)}`)
+    }
+    const reconciliation = rawReconciliation as unknown as CommunityStrictLineageReconciliationV1
+    const reconciliationTarget = validatedLineages.find((lineage) => lineage.id === reconciliation.targetLineageId)
+    if (!reconciliationTarget || reconciliationTarget.kind !== 'legacy') {
+      throw new Error(`community_strict_policy_lineage_reconciliation_target_invalid:${reconciliation.id}`)
+    }
+    reconciliation.appliedCounts.forEach((count, index) => {
+      const targetCount = reconciliationTarget.appliedCounts[index]
+      if (!Number.isSafeInteger(count) || count < 0 || count > targetCount) {
+        throw new Error(`community_strict_policy_lineage_reconciliation_count_invalid:${reconciliation.id}:${index}`)
+      }
+      const mode = reconciliation.rootModes[index]
+      if ((mode === 'unchanged') !== (count === targetCount)) {
+        throw new Error(`community_strict_policy_lineage_reconciliation_mode_invalid:${reconciliation.id}:${index}`)
+      }
+    })
+    if (reconciliation.rootModes.every((mode) => mode === 'unchanged')) {
+      throw new Error(`community_strict_policy_lineage_reconciliation_noop:${reconciliation.id}`)
+    }
+    const tuple = JSON.stringify([
+      reconciliation.postgresMajor,
+      reconciliation.relationCount,
+      reconciliation.schemaFingerprintSha256,
+      reconciliation.appliedCounts,
+    ])
+    if (classifierTuples.has(tuple) || reconciliationTuples.has(tuple)) {
+      throw new Error(`community_strict_policy_lineage_reconciliation_classifier_duplicate:${reconciliation.id}`)
+    }
+    reconciliationTuples.add(tuple)
+    reconciliationIds.add(reconciliation.id)
+  }
   const target = validatedLineages.find((lineage) => lineage.id === policy.targetLineageId)
   if (!target || target.kind !== 'strict' ||
       target.policyId !== policy.id || target.inventorySha256 !== policy.inventorySha256 ||
@@ -851,6 +925,15 @@ function canonicalPolicyBinding(policy: CommunityStrictMigrationPolicyV1): Recor
       policyId: lineage.policyId,
       inventorySha256: lineage.inventorySha256,
       convergenceSha256: lineage.convergenceSha256,
+    })),
+    lineageReconciliations: policy.lineageReconciliations.map((reconciliation) => ({
+      id: reconciliation.id,
+      postgresMajor: reconciliation.postgresMajor,
+      relationCount: reconciliation.relationCount,
+      schemaFingerprintSha256: reconciliation.schemaFingerprintSha256,
+      appliedCounts: [...reconciliation.appliedCounts],
+      targetLineageId: reconciliation.targetLineageId,
+      rootModes: [...reconciliation.rootModes],
     })),
     targetLineageId: policy.targetLineageId,
   }
@@ -2150,6 +2233,92 @@ async function applyPendingMigrations(params: {
   }
 }
 
+function findCommunityStrictLineageReconciliation(params: {
+  policy: CommunityStrictMigrationPolicyV1
+  observed: ObservedState
+  postgresMajor: number
+}): CommunityStrictLineageReconciliationV1 | null {
+  if (params.observed.strictReceipts !== null || params.observed.strictState !== null) return null
+  const relationCount = params.observed.projection.relations.length
+  const appliedCounts = params.observed.roots.map((root) => root.rows.length)
+  return params.policy.lineageReconciliations.find((candidate) =>
+    candidate.postgresMajor === params.postgresMajor &&
+    candidate.relationCount === relationCount &&
+    candidate.schemaFingerprintSha256 === params.observed.schemaFingerprintSha256 &&
+    candidate.appliedCounts.every((count, index) => count === appliedCounts[index])) ?? null
+}
+
+async function applyCommunityStrictLineageReconciliation(params: {
+  client: CommunityStrictPgClient
+  policy: CommunityStrictMigrationPolicyV1
+  bundle: CommunityStrictMigrationBundleV1
+  reconciliation: CommunityStrictLineageReconciliationV1
+  postgresMajor: number
+  logs: string[]
+}): Promise<void> {
+  const before = await observeState({ client: params.client, policy: params.policy })
+  const matched = findCommunityStrictLineageReconciliation({
+    policy: params.policy,
+    observed: before,
+    postgresMajor: params.postgresMajor,
+  })
+  if (!matched || matched.id !== params.reconciliation.id) {
+    throw new Error(`community_strict_lineage_reconciliation_source_changed:${params.reconciliation.id}`)
+  }
+  const target = params.policy.lineages.find((lineage) => lineage.id === matched.targetLineageId)
+  if (!target || target.kind !== 'legacy') {
+    throw new Error(`community_strict_lineage_reconciliation_target_missing:${matched.id}`)
+  }
+  const beforeSentinels = await captureDataSentinels(params.client, before.projection, params.policy)
+  if (matched.rootModes.some((mode) => mode === 'apply')) {
+    await params.client.query('CREATE EXTENSION IF NOT EXISTS pgcrypto')
+  }
+  for (const [rootOrdinal, loadedRoot] of params.bundle.roots.entries()) {
+    const mode = matched.rootModes[rootOrdinal]
+    const sourceCount = matched.appliedCounts[rootOrdinal]
+    const targetCount = target.appliedCounts[rootOrdinal]
+    if (mode === 'unchanged') continue
+    await ensureLegacyMigrationTable(params.client, loadedRoot.root)
+    for (const loaded of loadedRoot.migrations.slice(sourceCount, targetCount)) {
+      if (mode === 'apply') {
+        params.logs.push(
+          `Applying exact Community lineage reconciliation ${matched.id}: ${loaded.root.id}/${loaded.migration.tag}`,
+        )
+        for (const statement of loaded.statements) await params.client.query(statement)
+      } else {
+        params.logs.push(
+          `Adopting exact Community lineage reconciliation ${matched.id}: ${loaded.root.id}/${loaded.migration.tag}`,
+        )
+      }
+      const table = quoteIdentifier(loaded.root.migrationTable)
+      if (loaded.root.legacyHashColumn) {
+        await params.client.query(
+          `INSERT INTO public.${table} (tag, sha256) VALUES ($1, $2)`,
+          [loaded.migration.tag, loaded.migration.sha256],
+        )
+      } else {
+        await params.client.query(`INSERT INTO public.${table} (tag) VALUES ($1)`, [loaded.migration.tag])
+      }
+    }
+  }
+  const after = await observeState({ client: params.client, policy: params.policy })
+  const classification = classifyObservedState({
+    policy: params.policy,
+    observed: after,
+    postgresMajor: params.postgresMajor,
+  })
+  if (classification === 'empty-v1' || classification.id !== target.id) {
+    throw new Error(`community_strict_lineage_reconciliation_target_mismatch:${matched.id}`)
+  }
+  const afterSentinels = await captureDataSentinels(
+    params.client,
+    after.projection,
+    params.policy,
+    before.projection,
+  )
+  assertSameSentinels(beforeSentinels, afterSentinels)
+}
+
 async function applyConvergenceOperations(params: {
   client: CommunityStrictPgClient
   policy: CommunityStrictMigrationPolicyV1
@@ -2654,7 +2823,35 @@ export async function applyCommunityStrictPgSchema(params: {
     await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY')
     transactionOpen = true
     const postgresMajor = await readPostgresMajor(client)
-    const discovered = await observeState({ client, policy: params.policy })
+    let discovered = await observeState({ client, policy: params.policy })
+    const reconciliation = findCommunityStrictLineageReconciliation({
+      policy: params.policy,
+      observed: discovered,
+      postgresMajor,
+    })
+    if (reconciliation) {
+      await client.query('COMMIT')
+      transactionOpen = false
+      await client.query('BEGIN')
+      transactionOpen = true
+      await lockObservedRelations(client, discovered.projection)
+      await applyCommunityStrictLineageReconciliation({
+        client,
+        policy: params.policy,
+        bundle,
+        reconciliation,
+        postgresMajor,
+        logs,
+      })
+      await client.query('COMMIT')
+      transactionOpen = false
+      logs.push(
+        `Community PostgreSQL partial lineage ${reconciliation.id} reconciled to ${reconciliation.targetLineageId} without changing existing data.`,
+      )
+      await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY')
+      transactionOpen = true
+      discovered = await observeState({ client, policy: params.policy })
+    }
     const discoveredClassification = classifyObservedState({
       policy: params.policy,
       observed: discovered,

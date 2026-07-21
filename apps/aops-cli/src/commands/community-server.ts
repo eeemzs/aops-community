@@ -808,6 +808,66 @@ async function withNativeOperation<T>(
   )
 }
 
+async function reconcileFailedNativeSetupForRetry(params: {
+  options: CommunityServerOptions
+  runtime: ResolvedCommunityServerDependencies
+  signal: AbortSignal
+  paths: CommunityInstallPaths
+}): Promise<boolean> {
+  try {
+    assertCommunityOperationJournalFence(params.paths)
+    return false
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    const matched = /^community_operation_reconciliation_required:operation_id=([0-9a-f-]{36}):operation=setup:phase=terminal$/
+      .exec(message)
+    if (!matched) throw error
+    const inspection = inspectCommunityOperationJournalFile(params.paths, matched[1])
+    if (inspection.integrity !== 'complete' || inspection.record.runtimeMode !== 'native' ||
+        inspection.record.operation !== 'setup' || inspection.record.status !== 'failed' ||
+        inspection.record.phase !== 'terminal' || inspection.record.outcome !== 'operation-failed' ||
+        !inspection.record.permittedActions.includes('acknowledge-native-runtime-state')) {
+      throw error
+    }
+    const native = inspectNativeFrom(params.options)
+    if (native.status !== 'installed' || !native.state) throw error
+    assertCommunityNativePathLayout(native.paths, { requireInstanceRoot: true })
+    const journal = openCommunityOperationJournalForReconciliation({
+      paths: params.paths,
+      operationId: inspection.record.id,
+      expectedOperation: 'setup',
+      action: 'acknowledge-native-runtime-state',
+      confirm: true,
+      expectedSequence: inspection.record.sequence,
+      expectedLastHash: inspection.lastHash,
+      expectedFileSha256: inspection.fileSha256,
+    })
+    try {
+      assertCommunityOperationJournalFence(params.paths, {
+        handle: journal,
+        operation: 'setup',
+        receipt: inspection.record.receipt,
+        reconciliation: true,
+      })
+      throwIfCommunityCommandAborted(params.signal)
+      await applyCommunityOperationReconciliation({
+        options: params.options,
+        runtime: params.runtime,
+        signal: params.signal,
+        paths: params.paths,
+        inspection,
+        action: 'acknowledge-native-runtime-state',
+      })
+      throwIfCommunityCommandAborted(params.signal)
+      journal.assertOwned()
+      finishCommunityOperationJournal(journal, params.paths, 'reconciled')
+      return true
+    } finally {
+      journal.close()
+    }
+  }
+}
+
 export async function runCommunityServerSetup(
   options: CommunityServerOptions,
   dependencies: CommunityServerDependencies = {},
@@ -867,6 +927,12 @@ export async function runCommunityServerSetup(
             throw new Error(`community_native_install_${nativeInspection.status}:${nativeInspection.error ?? 'unknown'}:run_doctor`)
           }
           const journalPaths = nativeJournalPathsFrom({ ...options, instance: contract.instanceId })
+          await reconcileFailedNativeSetupForRetry({
+            options: { ...options, instance: contract.instanceId },
+            runtime,
+            signal,
+            paths: journalPaths,
+          })
           assertCommunityOperationJournalFence(journalPaths)
           return runWithOperationJournal({
             paths: journalPaths,

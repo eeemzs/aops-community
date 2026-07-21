@@ -85,7 +85,9 @@ On Windows, macOS, and Linux the menu offers three local server paths:
 All three choices install the npm server as the normal `default` instance on
 <http://127.0.0.1:5900>, activate the AOPS Gateway for every registered agent
 runtime, reconcile the bundled signed official catalog without activating its
-skills, and create a deliberately small starter dataset by default. Use
+skills, and create a deliberately small starter dataset automatically. The
+interactive wizard proceeds after the selected path's required private inputs;
+it does not ask a redundant confirmation or starter-data question. Use
 `--no-catalog` only for an explicitly minimal server installation:
 
 - one **AOPS Starter** project;
@@ -110,8 +112,7 @@ created AOPS tables, setup revokes those non-owner grants before the exact
 schema verification succeeds. Access remains through the configured AOPS
 server connection unless the operator deliberately adds a separate policy.
 
-Choose “no” at the starter-data question, or use `--no-seed` in automation, to
-start with an empty database. Non-interactive examples:
+Use `--no-seed` to start with an empty database. Non-interactive examples:
 
 ```sh
 aops setup init --path 2 --apply --yes
@@ -257,8 +258,10 @@ aops server setup \
 ```
 
 Configure `AOPS_PG_SSL_ROOT_CERT` beside the server env file for
-`verify-full`. `--postgres-tls disable` is accepted only for loopback database
-hosts.
+`verify-full`. The interactive default is `require`, which encrypts transport
+without requiring a CA file. `--postgres-tls disable` is also available for an
+operator who intentionally chooses an unencrypted local, remote, or
+private-network PostgreSQL connection.
 
 For a guided readiness and installation flow instead of the explicit command:
 

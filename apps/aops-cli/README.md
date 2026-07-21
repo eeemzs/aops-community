@@ -26,7 +26,10 @@ activating its skills, and creates one small starter project/board/sprint/user-g
 dataset by default. Managed PostgreSQL uses a generated strong password by
 default, with a masked custom-password choice in the interactive wizard. All
 database paths verify migrations before readiness; interactive terminals show
-animated progress and `--json` remains machine-clean. Use `--no-seed` to start empty. A managed database can be
+animated progress and `--json` remains machine-clean. Interactive setup applies
+the chosen path immediately after collecting its required private inputs; the
+starter dataset is automatic and has no extra confirmation question. Use
+`--no-seed` to start empty. A managed database can be
 removed only with `aops server reset --remove-managed-postgres
 --confirm-data-loss --confirm-instance default`; exact ownership labels are
 verified before the container or volume is deleted.
@@ -54,7 +57,8 @@ users can still run an explicit AOPS Community checkout with `--source-root`.
 the server is initialized. `aops assets` opens the registered-runtime asset
 manager. It installs or updates the verified AOPS Gateway skill, repairs global pointers, reports
 status, and can safely remove recognized pointers while retaining the local
-verified core. `aops setup init --apply` offers the same first-install choice.
+verified core. Interactive `aops setup init` applies directly; automation uses
+an explicit path with `--apply --yes`.
 The official npm package supplies an independently signed
 Gateway/client-core closure and inert official catalog snapshot, so normal
 installation does not depend on an application-image release or ask for a

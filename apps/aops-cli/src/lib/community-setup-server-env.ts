@@ -70,7 +70,9 @@ export async function runCommunitySetupServerEnv(
   if (!options.repoUrl && !options.yes && !options.json) {
     if (!options.skipBanner) banner('AOPS Community Server Environment')
     repoUrl = normalizeNonEmpty(await promptPassword({
-      message: 'External PostgreSQL URL:',
+      message: existingUrl || environmentUrl
+        ? 'External PostgreSQL URL (press Enter to keep the saved value):'
+        : 'External PostgreSQL URL:',
       default: repoUrl,
       validate: (value) => {
         try {

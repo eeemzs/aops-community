@@ -77,8 +77,8 @@ function addSetupInitOptions(command: Command): Command {
     .option('--catalog-release <path>', 'Explicit verified-release override (normally resolved from the Community install)')
     .option('--catalog-idempotency-key <key>', 'Explicit official catalog reconcile replay key')
     .option('--no-seed', 'Skip the default small starter project, kanban board, sprint plan, and user guide')
-    .option('--apply', 'Apply the selected path after readiness checks')
-    .option('--resume', 'With --apply, resume the same idempotent setup orchestration')
+    .option('--apply', 'Apply the selected path in non-interactive or scripted use (interactive setup applies directly)')
+    .option('--resume', 'Resume the same idempotent setup orchestration')
     .option('--timeout-ms <ms>', 'Read-only host probe timeout', (value) => Number.parseInt(String(value), 10))
     .option('--yes', 'Non-interactive; report missing selections as actions')
     .option('--json', 'Output one typed readiness or apply-result envelope')
@@ -107,11 +107,11 @@ server health verification, and Cockpit handoff. It performs no setup itself.
     .action((options: CommunitySetupGuideOptions) => runCommunitySetupGuide(options))
 
   addSetupInitOptions(command.command('init')
-    .description('Configure an npm server with existing, managed Docker, or installed-local PostgreSQL; read-only unless --apply is supplied'))
+    .description('Interactively install AOPS, or inspect/apply an explicit path for automation'))
     .addHelpText('after', `
 Examples:
   aops setup init
-  aops setup init --path 1 --postgres-tls verify-full --json
+  aops setup init --path 1 --postgres-tls require --json
   aops setup init --path 2 --apply --yes
   aops setup init --path 3 --apply
   aops setup init --path 2 --no-seed --apply --yes
@@ -128,7 +128,11 @@ Its password is generated securely by default; the interactive wizard also
 allows a masked, confirmed custom password without placing it in shell history.
 All PostgreSQL paths plan, apply when needed, and verify database migrations
 before the server is reported ready. Interactive terminals show animated
-progress for long-running steps; \`--json\` remains free of spinner output.
+progress and apply directly after required private inputs are collected; there
+is no redundant continue or starter-data confirmation. \`--json\` remains free
+of spinner output. Path 1 defaults to TLS \`require\`; choose \`verify-full\` when
+a trusted CA file is available, or explicitly choose \`disable\` when accepting
+an unencrypted PostgreSQL connection.
 Path 3 detects PostgreSQL on this computer, securely asks for an existing
 administrator role/password, and creates a new dedicated AOPS role and database
 before running the same migration verification. Administrator credentials are

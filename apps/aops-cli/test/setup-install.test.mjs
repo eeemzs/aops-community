@@ -240,8 +240,9 @@ test('--no-seed and explicit gateway skip leave starter data and global pointers
 
 test('interactive setup menu promotes existing, Docker, and installed-local PostgreSQL without OCI', async () => {
   let capturedChoices = []
-  let confirmCount = 0
-  await runSetupInitOrchestrator({ skipBanner: true }, {
+  await runSetupInitOrchestrator({
+    skipBanner: true, noCatalog: true, seed: false, agentAssets: 'skip',
+  }, {
     inspectReadiness: async (options) => readiness(options.path ?? null, false),
     select: async (prompt) => {
       if (prompt.message === 'Choose an AOPS setup path:') {
@@ -250,10 +251,7 @@ test('interactive setup menu promotes existing, Docker, and installed-local Post
       }
       return 'install'
     },
-    confirm: async () => {
-      confirmCount += 1
-      return confirmCount === 1
-    },
+    setupCommunityServer: async () => undefined,
   })
   const values = capturedChoices.map((choice) => choice.value)
   assert.deepEqual(values, ['native-external', 'native-container', 'native-local', 'cli-existing'])
@@ -262,10 +260,48 @@ test('interactive setup menu promotes existing, Docker, and installed-local Post
   assert.match(capturedChoices[2].name, /installed on this computer/i)
 })
 
+test('interactive external PostgreSQL setup defaults to require TLS, reapplies immediately, and refreshes the saved URL', async () => {
+  const selects = []
+  const calls = []
+  let confirmCount = 0
+  await runSetupInitOrchestrator({
+    path: '1', skipBanner: true, noCatalog: true, agentAssets: 'skip',
+  }, {
+    inspectReadiness: async () => readiness('native-external', false),
+    select: async (prompt) => {
+      selects.push(prompt)
+      return prompt.default
+    },
+    confirm: async () => {
+      confirmCount += 1
+      return true
+    },
+    setupServerEnv: async (options) => {
+      calls.push(['server-env', options])
+      return { ok: true, envPath: '/private/refreshed.server.env', repoDialect: 'pg', updated: true }
+    },
+    setupCommunityServer: async (options) => calls.push(['server', options]),
+    seedStarter: async (options) => {
+      calls.push(['seed', options])
+      return { status: 'seeded' }
+    },
+  })
+  const tls = selects.find((prompt) => prompt.message === 'External PostgreSQL TLS policy:')
+  assert.equal(tls.default, 'require')
+  assert.deepEqual(tls.choices.map((choice) => choice.value), ['require', 'verify-full', 'disable'])
+  assert.ok(tls.choices.every((choice) => typeof choice.description === 'string' && choice.description.length > 20))
+  assert.equal(confirmCount, 0)
+  assert.equal(calls.filter(([name]) => name === 'server-env').length, 1)
+  assert.equal(calls.find(([name]) => name === 'server')[1].postgresConfig, '/private/refreshed.server.env')
+  assert.equal(calls.filter(([name]) => name === 'seed').length, 1)
+})
+
 test('interactive path 3 preserves an existing remote env by proposing a separate private env file', async () => {
   const prompts = []
   let inspections = 0
-  await runSetupInitOrchestrator({ path: '3', skipBanner: true }, {
+  await runSetupInitOrchestrator({
+    path: '3', skipBanner: true, noCatalog: true, seed: false, agentAssets: 'skip',
+  }, {
     inspectReadiness: async (options) => {
       inspections += 1
       const result = readiness('native-local', false)
@@ -283,9 +319,23 @@ test('interactive path 3 preserves an existing remote env by proposing a separat
       prompts.push(prompt)
       return prompt.default
     },
-    confirm: async () => false,
+    password: async () => '',
+    provisionLocalPostgres: async (options) => {
+      const result = {
+        schemaVersion: 1, status: 'provisioned', host: options.host, port: options.port,
+        database: options.database, appUser: options.appUser, serverMajor: 17,
+      }
+      Object.defineProperty(result, 'connectionUrl', {
+        value: 'postgresql://aops:private@127.0.0.1:5432/aops',
+      })
+      return result
+    },
+    setupServerEnv: async (options) => ({
+      ok: true, envPath: options.envPath, repoDialect: 'pg', updated: true,
+    }),
+    setupCommunityServer: async () => undefined,
   })
-  assert.equal(inspections, 2)
+  assert.equal(inspections, 3)
   const envPrompt = prompts.find((prompt) => /Private server env/.test(prompt.message))
   assert.match(envPrompt.default, /aops\.default\.local\.server\.env$/)
 })
