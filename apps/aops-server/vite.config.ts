@@ -13,7 +13,7 @@ export default defineConfig({
   clearScreen: false,
   customLogger: logger,
   define: {
-    __AOPS_SERVER_PACKAGE_VERSION__: JSON.stringify("0.1.1")
+    __AOPS_SERVER_PACKAGE_VERSION__: JSON.stringify("0.1.5")
   },
   plugins: [sveltekit()],
   server: {

@@ -285,7 +285,7 @@ export type CommunityNativeMigrationIntentV1 = Readonly<{
   createdAt: string
 }>
 
-type CommunityNativeMigrationPlanAcceptanceHistoryV1 = Readonly<{
+export type CommunityNativeMigrationPlanAcceptanceHistoryV1 = Readonly<{
   schemaVersion: 1
   status: 'community-native-migration-plan-acceptance'
   instanceName: string
@@ -303,6 +303,21 @@ type CommunityNativeMigrationPlanAcceptanceHistoryV1 = Readonly<{
   snapshotEvidenceSha256: string | null
   acceptedAt: string
 }>
+
+export function canReuseCommunityNativeMigrationPlanAcceptanceHistory(
+  existing: CommunityNativeMigrationPlanAcceptanceHistoryV1,
+  incoming: CommunityNativeMigrationPlanAcceptanceHistoryV1,
+): boolean {
+  if (JSON.stringify(existing) === JSON.stringify(incoming)) return true
+  if (existing.action !== 'verify-only' || incoming.action !== 'verify-only') return false
+
+  const repeatableVerificationFields = new Set<keyof CommunityNativeMigrationPlanAcceptanceHistoryV1>([
+    'resultMigrationStateFingerprintSha256',
+    'acceptedAt',
+  ])
+  return (Object.keys(incoming) as Array<keyof CommunityNativeMigrationPlanAcceptanceHistoryV1>)
+    .every((key) => repeatableVerificationFields.has(key) || existing[key] === incoming[key])
+}
 
 export type CommunityNativeInstalledMigrationPlanV1 = Readonly<{
   schemaVersion: 1
@@ -979,7 +994,7 @@ function persistCommunityNativeMigrationReceipt(params: {
       const existing = assertCommunityNativeMigrationPlanAcceptanceHistoryV1(
         readJson(historyPath, 'community_native_migration_history_receipt_json_invalid'),
       )
-      if (JSON.stringify(existing) !== JSON.stringify(history)) {
+      if (!canReuseCommunityNativeMigrationPlanAcceptanceHistory(existing, history)) {
         throw new Error('community_native_migration_history_receipt_conflict')
       }
     } else {

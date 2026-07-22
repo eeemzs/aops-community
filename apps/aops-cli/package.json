@@ -1,6 +1,6 @@
 {
   "name": "@aopslab/aops-cli",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "type": "module",
   "description": "AOPS Community operator CLI.",
@@ -20,10 +20,11 @@
     "test:agent-assets-content": "node --test test/agent-assets-content.test.mjs",
     "test:cockpit": "node --test test/cockpit.test.mjs",
     "test:setup-install": "node --test test/setup-install.test.mjs",
+    "test:native-lifecycle": "node --test test/community-native-lifecycle.test.mjs",
     "test:skill-discovery": "node --test test/skill-discovery.test.mjs",
     "test:container-runtime": "node --test test/container-runtime.test.mjs",
     "test:home": "node --test test/home-menu.test.mjs",
-    "test:shortcuts": "pnpm run test:home && pnpm run test:cockpit && pnpm run test:assets-menu && pnpm run test:agent-assets-content && pnpm run test:setup-install && pnpm run test:skill-discovery",
+    "test:shortcuts": "pnpm run test:home && pnpm run test:cockpit && pnpm run test:assets-menu && pnpm run test:agent-assets-content && pnpm run test:setup-install && pnpm run test:native-lifecycle && pnpm run test:skill-discovery",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/main.js"
   },

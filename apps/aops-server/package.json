@@ -1,6 +1,6 @@
 {
   "name": "@aopslab/aops-server",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "description": "AOPS Community loopback server.",
   "keywords": [
